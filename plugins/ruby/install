@@ -1,0 +1,25 @@
+#!/usr/bin/env zsh
+
+# Plugin rbenv
+# Installation proccess:
+#
+#  1. Install needed packages
+#  2. Link files
+#
+
+source 'helpers/installer_helper.zsh'
+PLUGIN_PATH=$0:A:h
+DOTFILES_ROOT=$(pwd)
+
+# 1. Clone needed repos
+if ! [[ -d ~/.rbenv ]]; then
+  git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+  success 'rbenv cloned'
+fi
+
+if ! [[ -d ~/.rbenv/plugins/ruby-build ]]; then
+  git clone https://github.com/rbenv/ruby-build.git ~/.rbenv
+  success 'ruby-build cloned'
+fi
+
+link_file $PLUGIN_PATH ".gemrc"

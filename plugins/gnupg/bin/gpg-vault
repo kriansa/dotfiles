@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+
+## GPG-Vault
+## Wrapper over GPG to store encrypted files locally.
+##
+## Usage: gpg-vault <read/edit/write/exists> <file_path>
+##
+## Subcommands:
+##   read          Decrypt and display the file in stdout
+##   edit          Starts a EDITOR session to edit the file
+##   write         Save the content of stdin encrypted into the file
+##   exists        Checks whether the file exists (yes or no)
+##
+
+set -e
+
+# Set default variables
+: ${GPG_VAULT_PATH:=$HOME/.gpg-vault}
+: ${GPG_COMMAND:=gpg2}
+: ${GPG_RECIPIENT:="--default-recipient-self"}
+
+# Path
+ACTION=$1
+FILEPATH=$2
+FULLPATH=$GPG_VAULT_PATH/$FILEPATH
+
+function help {
+  echo "GPG-Vault v0.1"
+  echo ""
+  echo "  This is just a wrapper of GPG to securely store files."
+  echo "  It's not meant to store large files, so be reasonable."
+  echo ""
+  echo "Usage: $(basename $0) <read/edit/write/exists> <filepath>"
+  echo ""
+  echo "Actions:"
+  echo "  read - Read the content of the file and print to stdout"
+  echo "  edit - Using default editor, edits the encrypted file on the fly"
+  echo "  write - Saves the content of the stdin into the file"
+  echo "  exists - Checks whether the given file exists (yes or no)"
+  echo ""
+  echo "Extra:"
+  echo "  By default, it uses ~/.gpg-vault as the basepath of gpg-vault."
+  echo "  You can change it by setting GPG_VAULT_PATH environment variable."
+  echo "  Set default GPG recipients by setting the env var GPG_RECIPIENT."
+  echo "  Set the default GPG command by changing the var GPG_COMMAND."
+  exit 1
+}
+
+if [[ $ACTION != "read" ]] && [[ $ACTION != "edit" ]] && [[ $ACTION != "write" ]] && [[ $ACTION != "exists" ]]; then
+  help
+  exit 1
+fi
+
+if [[ $FILEPATH == "" ]]; then
+  echo "The filepath must be a valid path!"
+  exit 1
+fi
+
+if [[ ! -w $GPG_VAULT_PATH ]]; then
+  echo "The vault path (\$GPG_VAULT_PATH) dir is not writable!"
+  exit 1
+fi
+
+case $ACTION in
+  read)
+    if [[ ! -f $FULLPATH.asc ]] || [[ ! -r $FULLPATH.asc ]]; then
+      echo "File $FILEPATH does not exist or is not readable!"
+      exit 1
+    fi
+
+    $GPG_COMMAND --decrypt --quiet $FULLPATH.asc
+    ;;
+
+  edit)
+    tmp=`mktemp -t tmpgv` || exit 1
+
+    # What editor are we going to use?
+    if [[ $EDITOR != "" ]]; then
+      editor=$EDITOR
+    else
+      editor=vi
+    fi
+
+    # More security for vi
+    if [[ $editor = "vi" ]] || [[ $editor = "vim" ]]; then
+      # -n is for noswap and -i NONE is for no .viminfo
+      editor="$editor -n -i NONE"
+    fi
+
+    # Figure the best way to delete the unencrypted temp file
+    if [[ `which shred` ]]; then
+      rm='shred -u'
+    elif [[ `which srm` ]]; then
+      rm='srm -z'
+    else
+      rm='rm'
+    fi
+
+    # Decrypt into the tempfile, if it exists
+    if [[ -f $FULLPATH.asc ]]; then
+
+      if [[ ! -r $FULLPATH.asc ]]; then
+        echo "File $FILEPATH exists but is not readable!"
+        exit 1
+      fi
+
+      if [[ ! -w $FULLPATH.asc ]]; then
+        echo "File $FILEPATH exists but is not writable!"
+        exit 1
+      fi
+
+      $0 read $FILEPATH > $tmp
+    fi
+
+    # Edit the file
+    $editor $tmp || true
+
+    # Encrypt it back
+    cat $tmp | $0 write $FILEPATH || true
+
+    # Then erase it
+    $rm $tmp
+  ;;
+
+  write)
+    if [[ ! -f $(dirname $FULLPATH) ]]; then
+      mkdir -p $(dirname $FULLPATH)
+    fi
+
+    if [[ -f "$FULLPATH.asc" ]] && [[ ! -w "$FULLPATH.asc" ]]; then
+      echo "$FILEPATH isn't writable, no modifications are allowed!"
+      exit 1
+    fi
+
+    $GPG_COMMAND --armor --encrypt --trust-model=always $GPG_RECIPIENT <&0 > $FULLPATH.asc
+    ;;
+
+  exists)
+    if [[ -f $FULLPATH.asc ]]; then
+      echo "yes"
+      exit 0
+    else
+      echo "no"
+      exit 1
+    fi
+esac

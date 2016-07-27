@@ -1,0 +1,154 @@
+#!/bin/sh
+set -e
+
+function help {
+  echo "usage:"
+  echo ""
+  echo "  git release start [name]   creates a new release branch."
+  echo "                             if name is not specified, then it'll be vYY.M.S as in v16.1.1"
+  echo "  git release finish [name]  merges the current release into master branch and creates a new tag"
+  echo "                             if name is not specified, then it'll finish the last available release"
+  echo "  git release list           list all releases"
+}
+
+function trim {
+  awk '{$1=$1};1'
+}
+
+function version_sort {
+  sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n
+}
+
+function bump_version {
+  VERSION=$1
+  echo $VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g'
+}
+
+function branch_count {
+  BRANCH_NAME=$1
+  echo $(git branch --list "$BRANCH_NAME" | wc -l | trim)
+}
+
+# Set variables based on user input
+COMMAND=$1
+RELEASE_NAME=$2
+
+if [[ $COMMAND != "" ]]; then
+    case $COMMAND in
+        start)
+          if [[ $RELEASE_NAME = "" ]]; then
+
+            # This command will search for a tag called vYY.M.S, being S any
+            # decimal number - such as in v16.3.1 - and if does exist, it will
+            # create a new branch bumping that version (v16.3.2).
+            # However, if this branch exists, it'll try to create another branch
+            # bumping that version (let's say v16.3.3).
+            #
+            # This is wanted because let's say you started working on a release
+            # but then a bug came up, you just create another release and merge
+            # the bugfix on it, then release it normally. After that you can
+            # go back to work on you feature release.
+            #
+            # Be aware that is not possible to work in more than 2 releases at
+            # the same time! Once you try to release a third one, it will just
+            # just switch to the last one.
+
+            BASE_VERSION=$(date +'%y.%-m')
+            LAST_VERSION=$(git tag -l "v$BASE_VERSION.*" | version_sort | tail -1)
+
+            # If we have a previous version, just bump it; otherwise start from 1
+            if [[ $LAST_VERSION = "" ]]; then
+              NEW_VERSION="v${BASE_VERSION}.1"
+            else
+              NEW_VERSION=$(bump_version $LAST_VERSION)
+            fi
+
+            # Now let's check if we're working on this branch already
+            if [[ $(branch_count "release/$NEW_VERSION") != "0" ]]; then
+              # Hey, we have a branch! Let's bump it again!
+              NEW_VERSION=$(bump_version $NEW_VERSION)
+            fi
+          else
+            NEW_VERSION=$RELEASE_NAME
+          fi
+
+          # Fine, now create the release branch
+          git checkout -B release/$NEW_VERSION master
+
+          echo ""
+          echo "Merge work on it and then finish it by doing:"
+          echo "  git release finish"
+          ;;
+
+        finish)
+          if [[ $RELEASE_NAME = "" ]]; then
+            RELEASE_BRANCH=$(git branch --list | \grep -E --only-matching 'release/.*' | version_sort | tail -1)
+
+            if [[ $RELEASE_BRANCH = "" ]]; then
+              echo "No release branch was found."
+              exit 1
+            fi
+
+            RELEASE_NAME=$(echo $RELEASE_BRANCH | sed 's/release\///')
+
+          else
+            if [[ $(branch_count $RELEASE_NAME) = "0" ]]; then
+              echo "Branch not found!"
+              exit 1
+            else
+              RELEASE_BRANCH="release/$RELEASE_NAME"
+            fi
+          fi
+
+          echo "Merging $RELEASE_NAME back into master ..."
+
+          # Checkout into master then merge it
+          git checkout master
+          git merge $RELEASE_BRANCH
+
+          # Generate a tag from master
+          git tag --sign $RELEASE_NAME
+
+          # Delete release branch (both locally and remotely)
+          git branch -d $RELEASE_BRANCH
+          if [[ $(git ls-remote --heads origin $RELEASE_BRANCH) != "" ]]; then
+            git push origin --delete $RELEASE_BRANCH
+          fi
+
+          # Send both master and new tag to all remotes
+          for r in $(git remote); do
+            git push $r master
+            git push $r $RELEASE_NAME
+          done
+
+          # Create the release draft
+          # hub release create -dF - -c "$(git rev-parse HEAD)" "$version_tag" || true
+          # hub browse -- "releases/${version_tag}"
+          ;;
+
+        list)
+          COLOR_NC='\e[0m'
+          COLOR_LIGHT_GREEN='\e[1;32m'
+          COLOR_LIGHT_RED='\e[1;31m'
+
+          printf "    ${COLOR_LIGHT_GREEN}Released (tags):$COLOR_NC\n"
+          git tag -l "v*" | version_sort | column
+          echo ""
+          printf "    ${COLOR_LIGHT_RED}Unreleased (branches):$COLOR_NC\n"
+          git branch --list | \grep -E --only-matching 'release/.*' | version_sort |  column
+          ;;
+
+        help)
+          help
+          ;;
+
+        *)
+          echo "'$COMMAND' is not a valid command"
+          echo ""
+          help
+          ;;
+    esac
+else
+    echo "you must pass a parameter to release."
+    help
+fi

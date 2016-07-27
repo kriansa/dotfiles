@@ -1,0 +1,27 @@
+# My gitconfig
+#
+
+[user]
+	name = AUTHORNAME
+	email = AUTHOREMAIL
+	signingkey = GPG_SIGNING_KEY
+[credential]
+	helper = GIT_CREDENTIAL_HELPER
+[alias]
+	co = checkout
+	st = status
+[color]
+	diff = auto
+	status = auto
+	branch = auto
+	ui = true
+[core]
+	excludesfile = ~/.gitignore
+	editor = nvim
+	autocrlf = input
+[gpg]
+	program = gpg2
+[filter "lfs"]
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+	required = true

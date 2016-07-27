@@ -1,0 +1,16 @@
+#!/usr/bin/env zsh
+
+# Plugin golang
+# Installation proccess:
+#
+#  1. Install needed packages
+#
+
+source 'helpers/installer_helper.zsh'
+PLUGIN_PATH=$0:A:h
+DOTFILES_ROOT=$(pwd)
+
+# 1. Install packages
+if [[ $OS_NAME == "OSX" ]]; then
+  brew install golang
+fi

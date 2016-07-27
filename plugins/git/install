@@ -1,0 +1,40 @@
+#!/usr/bin/env zsh
+
+# Plugin git
+# Installation proccess:
+#
+#  1. Setup configs for .gitconfig
+#
+
+source 'helpers/installer_helper.zsh'
+PLUGIN_PATH=$0:A:h
+DOTFILES_ROOT=$(pwd)
+
+# 1. Create .gitconfig based on personal settings
+if ! [[ -f $HOME/.gitconfig ]]; then
+  info 'Setup gitconfig\n'
+
+  if [[ $OS_NAME == "OSX" ]]; then
+    git_credential='osxkeychain'
+  else
+    git_credential='cache'
+  fi
+
+  user ' - What is your github author name?\n'
+  read -e git_authorname
+
+  user ' - What is your github author email?\n'
+  read -e git_authoremail
+
+  gpg_signing_key=$(gpg2 -K --with-fingerprint $git_authoremail | grep fingerprint | sed 's/.*= //')
+
+  sed -e "s/AUTHORNAME/$git_authorname/g" \
+    -e "s/AUTHOREMAIL/$git_authoremail/g" \
+    -e "s/GPG_SIGNING_KEY/$gpg_signing_key/g" \
+    -e "s/GIT_CREDENTIAL_HELPER/$git_credential/g" \
+    $PLUGIN_PATH/data/.gitconfig.example > $PLUGIN_PATH/include/.gitconfig
+
+  link_file $PLUGIN_PATH ".gitconfig"
+
+  success '.gitconfig created'
+fi

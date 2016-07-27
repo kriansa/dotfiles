@@ -1,0 +1,33 @@
+"*":
+  core:
+    disabledPackages: [
+      "vim-mode-plus"
+    ]
+    openEmptyEditorOnStart: false
+    themes: [
+      "one-dark-ui"
+      "solarized-dark-syntax"
+    ]
+  editor:
+    fontFamily: "Hack"
+    fontSize: 13
+    invisibles:
+      space: "."
+    showInvisibles: true
+    tabType: "soft"
+  emmet: {}
+  "exception-reporting":
+    userId: "5828e174-b018-7856-6966-4eef61b175c5"
+  linter:
+    showErrorPanel: false
+  "markdown-preview": {}
+  "one-dark-ui": {}
+  tabs:
+    enableVcsColoring: true
+    usePreviewTabs: true
+  "tree-view": {}
+  "vim-mode": {}
+  "vim-mode-plus":
+    highlightSearch: true
+  welcome:
+    showOnStartup: false

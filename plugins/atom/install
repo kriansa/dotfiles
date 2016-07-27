@@ -1,0 +1,22 @@
+#!/usr/bin/env zsh
+
+# Plugin atom
+# Installation proccess:
+#
+#  1. Link needed files
+#  2. Install packages
+#
+
+source 'helpers/installer_helper.zsh'
+PLUGIN_PATH=$0:A:h
+DOTFILES_ROOT=$(pwd)
+
+# 1. Link atom editor files
+link_file $PLUGIN_PATH ".atom/config.cson"
+link_file $PLUGIN_PATH ".atom/init.coffee"
+link_file $PLUGIN_PATH ".atom/keymap.cson"
+link_file $PLUGIN_PATH ".atom/snippets.cson"
+link_file $PLUGIN_PATH ".atom/styles.less"
+
+# 2. Install packages
+apm install --packages-file $PLUGIN_PATH/data/packages.txt

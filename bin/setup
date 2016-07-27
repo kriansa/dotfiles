@@ -1,0 +1,23 @@
+#!/usr/bin/env zsh
+#
+# Install our dotfiles
+
+# First let's cd to the base path
+DOTFILES_ROOT=$0:A:h
+cd $DOTFILES_ROOT
+
+source 'helpers/installer_helper.zsh'
+
+#
+# Start the process
+#
+
+info 'Starting setup of dotfiles\n\n'
+
+for installer in plugins/**/install ; do
+  info "Executing \"${installer}\" ...\n"
+  sh -c "${installer}"
+  success "$installer installed\n"
+done
+
+success "All installed in ${SECONDS}s!"
