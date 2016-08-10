@@ -4,6 +4,9 @@
       "vim-mode-plus"
     ]
     openEmptyEditorOnStart: false
+    packagesWithKeymapsDisabled: [
+      "emmet"
+    ]
     themes: [
       "one-dark-ui"
       "solarized-dark-syntax"
@@ -20,13 +23,11 @@
     userId: "5828e174-b018-7856-6966-4eef61b175c5"
   linter:
     showErrorPanel: false
-  "markdown-preview": {}
-  "one-dark-ui": {}
+  "markdown-preview":
+    breakOnSingleNewline: true
   tabs:
     enableVcsColoring: true
     usePreviewTabs: true
-  "tree-view": {}
-  "vim-mode": {}
   "vim-mode-plus":
     highlightSearch: true
   welcome:
