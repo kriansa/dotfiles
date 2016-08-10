@@ -5,6 +5,18 @@
 ## Usage: ruby-init [<ruby_version>] [<copyright_name>] [<boilerplate_path>]
 ##
 
+# Error handler
+trap error_handler ERR
+
+function error_handler {
+  EXIT_CODE=$?
+
+  echo
+  echo "An error has occurred!"
+  echo "Exit code: ${EXIT_CODE}"
+  exit 1
+}
+
 function help {
   echo "Usage: $0 [<ruby_version>] [<copyright_name>] [<boilerplate_path>]"
   exit
@@ -21,7 +33,7 @@ BOILERPLATE_DIR=$3
 
 # Set default variables
 : ${RUBY_VERSION:="2.3.1"}
-: ${COPYRIGHT_NAME:="$(gpg2 -K | grep uid | head -1 | sed 's/uid.*\] //' | sed 's/ <.*>//')"}
+: ${COPYRIGHT_NAME:="$(gpg2 -K $GPG_MAIN_KEY | grep uid | head -1 | sed 's/uid.*\] //' | sed 's/ <.*>//')"}
 : ${BOILERPLATE_DIR:="$(dirname $(dirname $0))/data/project-boilerplate"}
 
 # Year
