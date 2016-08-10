@@ -12,12 +12,10 @@
 ##   exists        Checks whether the file exists (yes or no)
 ##
 
-set -e
-
 # Set default variables
 : ${GPG_VAULT_PATH:=$HOME/.gpg-vault}
 : ${GPG_COMMAND:=gpg2}
-: ${GPG_RECIPIENT:="--default-recipient-self"}
+: ${GPG_RECIPIENT:="--recipient $GPG_MAIN_KEY"}
 
 # Path
 ACTION=$1
@@ -43,6 +41,18 @@ function help {
   echo "  You can change it by setting GPG_VAULT_PATH environment variable."
   echo "  Set default GPG recipients by setting the env var GPG_RECIPIENT."
   echo "  Set the default GPG command by changing the var GPG_COMMAND."
+  exit 1
+}
+
+# Error handler
+trap error_handler ERR
+
+function error_handler {
+  EXIT_CODE=$?
+
+  echo
+  echo "An error has occurred!"
+  echo "Exit code: ${EXIT_CODE}"
   exit 1
 }
 

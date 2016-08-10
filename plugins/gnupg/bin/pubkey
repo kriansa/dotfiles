@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 #
 # Usage: pubkey
-# Description: Pipe my public key to my clipboard.
+# Description: Pipe my SSH public key to my clipboard.
 #
 
 source $ZSH/lib/clipboard.zsh
