@@ -34,8 +34,18 @@ function help {
   echo "  git release list           list all releases"
 }
 
+function show_error {
+  MSG=$1
+
+  RED='\033[0;31m'
+  NC='\033[0m'
+
+  printf "[${RED}ERROR${NC}] ${MSG}\n"
+  exit
+}
+
 function trim {
-  awk '{$1=$1};1'
+  awk '{$1=$1};1' | sed -e :a -e '/./,$!d;/^\n*$/{$d;N;};/\n$/ba'
 }
 
 function version_sort {
@@ -108,16 +118,14 @@ if [[ $COMMAND != "" ]]; then
             RELEASE_BRANCH=$(git branch --list | \grep -E --only-matching 'release/.*' | version_sort | tail -1)
 
             if [[ $RELEASE_BRANCH = "" ]]; then
-              echo "No release branch was found."
-              exit 1
+              show_error "No release branch was found."
             fi
 
             RELEASE_NAME=$(echo $RELEASE_BRANCH | sed 's/release\///')
 
           else
             if [[ $(branch_count $RELEASE_NAME) = "0" ]]; then
-              echo "Branch not found!"
-              exit 1
+              show_error "Branch not found!"
             else
               RELEASE_BRANCH="release/$RELEASE_NAME"
             fi
@@ -125,12 +133,32 @@ if [[ $COMMAND != "" ]]; then
 
           echo "Merging $RELEASE_NAME back into master ..."
 
+          # Create release message file
+          RELEASE_MSG_FILE=".git/RELEASE_EDITMSG"
+          if [[ ! -f $RELEASE_MSG_FILE ]]; then
+            echo "Release ${RELEASE_NAME}" > $RELEASE_MSG_FILE
+            echo "" >> $RELEASE_MSG_FILE
+            echo "* ..." >> $RELEASE_MSG_FILE
+            echo "#" >> $RELEASE_MSG_FILE
+            echo "# Add you commit changelog here..." >> $RELEASE_MSG_FILE
+            echo "# Lines starting with '#' will be ignored." >> $RELEASE_MSG_FILE
+          fi
+
           # Checkout into master then merge it
           git checkout master
           git merge $RELEASE_BRANCH
 
-          # Generate a tag from master
-          git tag --sign $RELEASE_NAME
+          # Generate a tag from master (unless it's created already)
+          if ! [[ $(git tag -l | grep $RELEASE_NAME) ]]; then
+
+            # Pick the best editor and edit the message
+            _GIT_CONFIG_EDITOR=$(git config --get core.editor)
+            TEXT_EDITOR="${GIT_EDITOR:-${_GIT_CONFIG_EDITOR:-${VISUAL:-EDITOR}}}"
+            $TEXT_EDITOR $RELEASE_MSG_FILE
+
+            # Tag it!
+            git tag --sign $RELEASE_NAME -F $RELEASE_MSG_FILE
+          fi
 
           # Delete release branch locally
           git branch -d $RELEASE_BRANCH
@@ -143,12 +171,22 @@ if [[ $COMMAND != "" ]]; then
 
             # Send both master and new tag to all remotes
             git push $r master
-            git push $r $RELEASE_BRANCH
+            git push $r $RELEASE_NAME
           done
 
           # Create the release draft
-          # hub release create -dF - -c "$(git rev-parse HEAD)" "Release $RELEASE_NAME" || true
-          # hub browse -- "${RELEASE_NAME}"
+          git show $RELEASE_NAME --pretty="%b-----END TAG MESSAGE-----" \
+            | sed -e '1,3d' \
+              -e '/-----END TAG MESSAGE-----.*/,//d' \
+              -e '/BEGIN PGP SIGNATURE/,/END PGP SIGNATURE/d' \
+               > $RELEASE_MSG_FILE
+
+          # Publish draft to GitHub
+          hub release create -df "$RELEASE_MSG_FILE" "$RELEASE_NAME" || true
+          hub browse -- "${RELEASE_NAME}" || true
+
+          # Remove release message
+          test -f $RELEASE_MSG_FILE && rm $RELEASE_MSG_FILE
           ;;
 
         list)
@@ -174,6 +212,6 @@ if [[ $COMMAND != "" ]]; then
           ;;
     esac
 else
-    echo "you must pass a parameter to release."
+    echo "You must pass a parameter to release."
     help
 fi
