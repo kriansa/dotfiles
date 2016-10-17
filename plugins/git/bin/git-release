@@ -182,7 +182,7 @@ if [[ $COMMAND != "" ]]; then
                > $RELEASE_MSG_FILE
 
           # Publish draft to GitHub
-          hub release create -df "$RELEASE_MSG_FILE" "$RELEASE_NAME" || true
+          hub release create -f "$RELEASE_MSG_FILE" "$RELEASE_NAME" || true
           hub browse -- "${RELEASE_NAME}" || true
 
           # Remove release message
