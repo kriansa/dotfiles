@@ -69,6 +69,8 @@ plugins=(
   go
   ruby
   python
+  javascript
+  lein
 
   # Utilities
   quick-cd
