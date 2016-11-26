@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Remove this bin dir from $PATH env var
+CURRENT_BIN_DIR=$(dirname $0)
+export PATH=$(echo $PATH | sed -e "s#${CURRENT_BIN_DIR}:##")
+
+RBENV_VERSION=2.3.3 neovim-ruby-host $@

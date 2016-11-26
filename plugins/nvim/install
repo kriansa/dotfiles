@@ -4,7 +4,7 @@
 # Installation proccess:
 #
 #  1. Install needed packages
-#  2. Link files
+#  2. Link folder
 #
 
 source 'helpers/installer_helper.zsh'
@@ -18,8 +18,7 @@ if [[ $OS_NAME == "OSX" ]]; then
 fi
 
 # 2. Link files
-link_file $PLUGIN_PATH '.config/nvim/init.vim'
-link_file $PLUGIN_PATH '.config/nvim/autoload/plug.vim'
+link_file $PLUGIN_PATH '.config/nvim'
 
 # 3. Run executable
 nvim -c PlugInstall -c q -c q
