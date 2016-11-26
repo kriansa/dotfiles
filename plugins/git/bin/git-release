@@ -8,8 +8,10 @@
 ##
 ## Subcommands:
 ##   start          Creates a new release branch
+##   merge          Merge another branch using squash
 ##   finish         Merges the current branch into master and creates a tag
 ##   list           List all releases
+##   prune          Delete archived branches (prefixed by archived/)
 ##
 
 # Error handler
@@ -29,9 +31,12 @@ function help {
   echo
   echo "  git release start [name]   creates a new release branch."
   echo "                             if name is not specified, then it'll be vYY.M.S as in v16.1.1"
+  echo "  git release merge [name]   merges a branch into the current selected release"
+  echo "                             raises an error if you're not checked out in a release"
   echo "  git release finish [name]  merges the current release into master branch and creates a new tag"
   echo "                             if name is not specified, then it'll finish the last available release"
   echo "  git release list           list all releases"
+  echo "  git release prune          delete all branches that has been archived"
 }
 
 function show_error {
@@ -64,11 +69,13 @@ function branch_count {
 
 # Set variables based on user input
 COMMAND=$1
-RELEASE_NAME=$2
 
 if [[ $COMMAND != "" ]]; then
     case $COMMAND in
         start)
+          # First argument is release_name
+          RELEASE_NAME=$2
+
           if [[ $RELEASE_NAME = "" ]]; then
 
             # This command will search for a tag called vYY.M.S, being S any
@@ -113,7 +120,36 @@ if [[ $COMMAND != "" ]]; then
           echo "  git release finish"
           ;;
 
+        merge)
+          # First argument is the branch name
+          BRANCH_NAME=$2
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+          if [[ $BRANCH_NAME = "" ]] || [[ $(branch_count "$BRANCH_NAME") = "0" ]]; then
+            show_error "Branch not found!"
+          fi
+
+          if [[ $(echo $CURRENT_BRANCH | \grep -E --only-matching 'release/.*') = "" ]]; then
+            show_error "Please, check out into the release branch!"
+          fi
+
+          # First fetch modifications from origin
+          git fetch origin
+
+          # Merges the branch using squash
+          git merge --squash $BRANCH_NAME
+
+          # Commit it
+          git commit
+
+          # Rename merged branch locally
+          git branch -m $BRANCH_NAME archived/$BRANCH_NAME
+          ;;
+
         finish)
+          # First argument is release_name
+          RELEASE_NAME=$2
+
           if [[ $RELEASE_NAME = "" ]]; then
             RELEASE_BRANCH=$(git branch --list | \grep -E --only-matching 'release/.*' | version_sort | tail -1)
 
@@ -124,7 +160,7 @@ if [[ $COMMAND != "" ]]; then
             RELEASE_NAME=$(echo $RELEASE_BRANCH | sed 's/release\///')
 
           else
-            if [[ $(branch_count $RELEASE_NAME) = "0" ]]; then
+            if [[ $(branch_count "release/$RELEASE_NAME") = "0" ]]; then
               show_error "Branch not found!"
             else
               RELEASE_BRANCH="release/$RELEASE_NAME"
@@ -146,7 +182,7 @@ if [[ $COMMAND != "" ]]; then
 
           # Checkout into master then merge it
           git checkout master
-          git merge $RELEASE_BRANCH
+          git merge --no-ff $RELEASE_BRANCH
 
           # Generate a tag from master (unless it's created already)
           if ! [[ $(git tag -l | grep $RELEASE_NAME) ]]; then
@@ -183,10 +219,31 @@ if [[ $COMMAND != "" ]]; then
 
           # Publish draft to GitHub
           hub release create -f "$RELEASE_MSG_FILE" "$RELEASE_NAME" || true
-          hub browse -- "${RELEASE_NAME}" || true
 
           # Remove release message
           test -f $RELEASE_MSG_FILE && rm $RELEASE_MSG_FILE
+          ;;
+
+        prune)
+          COLOR_NC='\e[0m'
+          COLOR_LIGHT_GREEN='\e[1;32m'
+
+          branch_count=$(git branch | grep 'archived/' | wc -l | trim)
+          echo "Removing ${branch_count} archived branches..."
+
+          for local_name in $(git branch | grep 'archived/' | cut -c 3-); do
+            original_name=$(echo $local_name | sed -e 's/archived\///')
+            printf "\nRemoving arhived branch ${COLOR_LIGHT_GREEN}${original_name}${COLOR_NC}\n"
+
+            for r in $(git remote); do
+              git push --delete $r $original_name
+              echo "  Removed from ${r}"
+            done
+
+            git branch -D $local_name
+            echo "  Branch $original_name removed sucessfully!"
+          done
+
           ;;
 
         list)
