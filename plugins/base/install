@@ -20,10 +20,8 @@ elif [[ $OS_NAME == "OSX" ]]; then
   brew install ncdu jq tree wrk pstree htop
 
   # Install fonts
-  cp -f "${PLUGIN_PATH}/data/Hack-Font-Powerline/Hack-Bold.ttf" "${HOME}/Library/Fonts"
-  cp -f "${PLUGIN_PATH}/data/Hack-Font-Powerline/Hack-BoldItalic.ttf" "${HOME}/Library/Fonts"
-  cp -f "${PLUGIN_PATH}/data/Hack-Font-Powerline/Hack-Italic.ttf" "${HOME}/Library/Fonts"
-  cp -f "${PLUGIN_PATH}/data/Hack-Font-Powerline/Hack-Regular.ttf" "${HOME}/Library/Fonts"
+  cp -f "${PLUGIN_PATH}/data/Hack-Font-Powerline/*.ttf" "${HOME}/Library/Fonts"
+  cp -f "${PLUGIN_PATH}/data/Knack-Font/*.ttf" "${HOME}/Library/Fonts"
 
   success 'Packages installed'
 fi
