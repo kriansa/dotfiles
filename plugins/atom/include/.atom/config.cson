@@ -1,8 +1,5 @@
 "*":
   core:
-    disabledPackages: [
-      "vim-mode-plus"
-    ]
     openEmptyEditorOnStart: false
     packagesWithKeymapsDisabled: [
       "emmet"
@@ -10,7 +7,7 @@
     telemetryConsent: "limited"
     themes: [
       "one-dark-ui"
-      "solarized-dark-syntax"
+      "gaia-dark-syntax"
     ]
   editor:
     fontFamily: "Hack"
@@ -21,8 +18,7 @@
   emmet: {}
   "exception-reporting":
     userId: "5828e174-b018-7856-6966-4eef61b175c5"
-  linter:
-    showErrorPanel: false
+  linter: {}
   "markdown-preview":
     breakOnSingleNewline: true
   tabs:
@@ -30,5 +26,7 @@
     usePreviewTabs: true
   "vim-mode-plus":
     highlightSearch: true
+    smoothScrollOnFullScrollMotion: true
+    smoothScrollOnHalfScrollMotion: true
   welcome:
     showOnStartup: false

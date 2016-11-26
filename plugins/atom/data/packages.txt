@@ -1,6 +1,7 @@
 Sublime-Style-Column-Selection
 atom-typescript
 emmet
+gaia-dark-syntax
 git-history
 language-docker
 language-elixir
@@ -8,9 +9,11 @@ language-hcl
 language-lua
 language-nginx
 language-rust
+language-viml
 linter
 linter-alex
 merge-conflicts
 react
 split-diff
-vim-mode-plus
+
+
