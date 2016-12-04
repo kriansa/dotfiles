@@ -1,0 +1,11 @@
+#!/usr/bin/env zsh
+
+# Plugin base update process
+#
+if [[ $OS_NAME == "linux" ]]; then
+  # Linux
+  # TODO
+elif [[ $OS_NAME == "OSX" ]]; then
+  # Install homebrew packages
+  brew update && brew upgrade
+fi

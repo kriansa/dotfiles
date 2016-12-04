@@ -1,0 +1,28 @@
+#!/usr/bin/env zsh
+#
+# Update dotfiles plugins
+
+# First let's cd to the base path
+DOTFILES_ROOT=$0:A:h:h
+cd $DOTFILES_ROOT
+
+source 'helpers/installer_helper.zsh'
+source 'config.zsh'
+
+#
+# Start the process
+#
+
+info 'Starting dotfiles update...\n\n'
+
+for plugin in $plugins; do
+  update_script="plugins/${plugin}/update"
+
+  if [[ -x $update_script ]]; then
+    info "Updating \"${plugin}\" ...\n"
+    sh -c $update_script
+    success "$plugin updated!\n"
+  fi
+done
+
+success "All updated in ${SECONDS}s!"

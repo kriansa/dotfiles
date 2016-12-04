@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+# Plugin pyenv update
+#
+cd ~/.pyenv && git pull

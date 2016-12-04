@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+# Plugin javascript update
+#
+cd ~/.nodenv && git pull
+cd ~/.nodenv/plugins/node-build && git pull

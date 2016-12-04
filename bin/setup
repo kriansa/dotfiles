@@ -3,10 +3,11 @@
 # Install our dotfiles
 
 # First let's cd to the base path
-DOTFILES_ROOT=$0:A:h
+DOTFILES_ROOT=$0:A:h:h
 cd $DOTFILES_ROOT
 
 source 'helpers/installer_helper.zsh'
+source 'config.zsh'
 
 #
 # Start the process
@@ -14,10 +15,14 @@ source 'helpers/installer_helper.zsh'
 
 info 'Starting setup of dotfiles\n\n'
 
-for installer in plugins/**/install ; do
-  info "Executing \"${installer}\" ...\n"
-  sh -c "${installer}"
-  success "$installer installed\n"
+for plugin in $plugins; do
+  install_script="plugins/${plugin}/install"
+
+  if [[ -x $install_script ]]; then
+    info "Executing \"${plugin}\" ...\n"
+    sh -c $install_script
+    success "$plugin installed!\n"
+  fi
 done
 
 success "All installed in ${SECONDS}s!"

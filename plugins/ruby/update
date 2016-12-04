@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+# Plugin rbenv update
+#
+cd ~/.rbenv && git pull
+cd ~/.rbenv/plugins/ruby-build && git pull

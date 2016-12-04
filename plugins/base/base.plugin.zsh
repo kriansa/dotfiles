@@ -1,6 +1,7 @@
 # Base system helpers plugin
 #
 PLUGIN_PATH=$0:A:h
+ROOT_PATH=$0:A:h:h:h
 
 # 1. Exports
 export PATH="$PLUGIN_PATH/bin:$PATH"
@@ -12,3 +13,6 @@ export PATH="$PLUGIN_PATH/bin:$PATH"
 if [[ -a ~/.localrc ]]; then
   source ~/.localrc
 fi
+
+# 3. Setup aliases
+alias dotfiles-update="${ROOT_PATH}/bin/update"

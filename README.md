@@ -13,15 +13,23 @@ My dotfiles are just a enhanced way to work with plugins on `oh-my-zsh`. Fork it
 
 First you have to install the awesome oh-my-zsh:
 
-```
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+```shell
+$ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 ```
 
 Then you install this project inside your `~/.dotfiles` path and run `bin/setup`.
 
+```shell
+$ git clone git@github.com:kriansa/dotfiles.git ~/.dotfiles
+$ ~/.dotfiles/bin/setup
 ```
-git clone git@github.com:kriansa/dotfiles.git ~/.dotfiles
-~/.dotfiles/bin/setup
+
+## Update
+
+Some plugins are updatable (they have an `update` file), and this command will update all enabled plugins:
+
+```shell
+$ dotfiles-update
 ```
 
 ## Core features
@@ -58,7 +66,7 @@ Whenever you create a new install script, you must run `bin/setup` in order to e
 
 ### Enabling your plugin
 
-You'll just have to enable it in your `.zshrc`, just like any OMZ plugin.
+You'll just have to enable it in the `config.zsh`, just like any OMZ plugin.
 
 ### Adding shared code to your plugins
 
@@ -74,7 +82,7 @@ Environment variables like secrets should be kept inside `.localrc` and they'll 
 
 By the way, when using `gnupg` plugin, you should the following line to it:
 
-```
+```shell
 # Sets the default GPG Key
 export GPG_MAIN_KEY="<FINGERPRINT_OF_YOUR_KEY>"
 ```
