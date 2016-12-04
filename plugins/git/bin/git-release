@@ -70,6 +70,11 @@ function branch_count {
 # Set variables based on user input
 COMMAND=$1
 
+# Colors
+COLOR_NC='\e[0m'
+COLOR_LIGHT_GREEN='\e[1;32m'
+COLOR_LIGHT_RED='\e[1;31m'
+
 if [[ $COMMAND != "" ]]; then
     case $COMMAND in
         start)
@@ -121,6 +126,7 @@ if [[ $COMMAND != "" ]]; then
           ;;
 
         merge)
+
           # First argument is the branch name
           BRANCH_NAME=$2
           CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -133,17 +139,41 @@ if [[ $COMMAND != "" ]]; then
             show_error "Please, check out into the release branch!"
           fi
 
-          # First fetch modifications from origin
-          git fetch origin
+          # Get branch author
+          author=$(git log ${CURRENT_BRANCH}..${BRANCH_NAME} --oneline --format="%aN <%aE>" | tail -1)
+
+          printf "Author of this branch: ${COLOR_LIGHT_GREEN}${author}${COLOR_NC}\n"
+          read -p "Is that right? (Yn) " -n 1 -r
+          echo
+
+          if [[ ! $REPLY =~ ^[Yy]?$ ]]; then
+            # Display a list of commiters on that branch
+            IFS=$'\n'
+            options=($(git log ${CURRENT_BRANCH}..${BRANCH_NAME} --oneline --format="%aN <%aE>" | sort | uniq))
+            unset IFS
+
+            echo
+            echo "This is a list of people who committed code into this branch. Please select one of them:"
+
+            select author in "${options[@]}"; do
+              if [[ $author == "" ]]; then
+                show_error "Please select a valid user!"
+              fi
+
+              break
+            done
+          fi
 
           # Merges the branch using squash
           git merge --squash $BRANCH_NAME
 
           # Commit it
-          git commit
+          git commit --author="${author}"
 
-          # Rename merged branch locally
-          git branch -m $BRANCH_NAME archived/$BRANCH_NAME
+          # Rename merged branch locally (only if it hasn't been renamed yet)
+          if [[ $BRANCH_NAME ~= /archived/ ]]; then
+            git branch -m $BRANCH_NAME archived/$BRANCH_NAME
+          fi
           ;;
 
         finish)
@@ -211,9 +241,8 @@ if [[ $COMMAND != "" ]]; then
           done
 
           # Create the release draft
-          git show $RELEASE_NAME --pretty="%b-----END TAG MESSAGE-----" \
+          git show $RELEASE_NAME -s --format="" \
             | sed -e '1,3d' \
-              -e '/-----END TAG MESSAGE-----.*/,//d' \
               -e '/BEGIN PGP SIGNATURE/,/END PGP SIGNATURE/d' \
                > $RELEASE_MSG_FILE
 
@@ -225,32 +254,24 @@ if [[ $COMMAND != "" ]]; then
           ;;
 
         prune)
-          COLOR_NC='\e[0m'
-          COLOR_LIGHT_GREEN='\e[1;32m'
-
           branch_count=$(git branch | grep 'archived/' | wc -l | trim)
           echo "Removing ${branch_count} archived branches..."
 
           for local_name in $(git branch | grep 'archived/' | cut -c 3-); do
             original_name=$(echo $local_name | sed -e 's/archived\///')
-            printf "\nRemoving arhived branch ${COLOR_LIGHT_GREEN}${original_name}${COLOR_NC}\n"
+            printf "\nRemoving archived branch ${COLOR_LIGHT_GREEN}${original_name}${COLOR_NC}\n"
 
             for r in $(git remote); do
-              git push --delete $r $original_name
+              git push --delete $r $original_name || true
               echo "  Removed from ${r}"
             done
 
             git branch -D $local_name
             echo "  Branch $original_name removed sucessfully!"
           done
-
           ;;
 
         list)
-          COLOR_NC='\e[0m'
-          COLOR_LIGHT_GREEN='\e[1;32m'
-          COLOR_LIGHT_RED='\e[1;31m'
-
           printf "    ${COLOR_LIGHT_GREEN}Released (tags):$COLOR_NC\n"
           git tag -l "v*" | version_sort | column
           echo
