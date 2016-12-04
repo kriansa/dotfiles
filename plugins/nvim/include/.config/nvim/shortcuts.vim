@@ -1,12 +1,22 @@
 " Shortcuts
 "
 
-" NerdTREE as <Leader> + \
-map <Leader>\ :NERDTreeToggle<CR>
+let mapleader = "\<Space>"
+
+" Move between buffers
+map <silent> <Leader>n :bnext<CR>
+map <silent> <Leader>p :bprev<CR>
+map <Leader>b :b<Space>
+
+" NerdTREE as <Leader> + /
+map <Leader>/ :NERDTreeToggle<CR>
+
+" NerdTREE find current file
+map <Leader>. :NERDTreeFind<CR>
 
 " Saves with CTRL+S or CMD+S
-noremap <C-s> :update<CR>
-noremap <D-s> :update<CR>
+noremap <silent> <C-s> :update<CR>
+noremap <silent> <D-s> :update<CR>
 
 " Closes current buffer with <Leader>-w
 noremap <Leader>w :bd<CR>

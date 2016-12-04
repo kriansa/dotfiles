@@ -59,10 +59,16 @@ let g:python3_host_prog = systemlist('PYENV_VERSION=3.5.2 pyenv which python3')[
 let g:NERDTreeShowHidden=1
 " Enable single click to open/close nodes
 let g:NERDTreeMouseMode=2
-" Closes it when opens a file through the tree
-let g:NERDTreeQuitOnOpen=1
+" Keep it when opens a file through the tree
+let g:NERDTreeQuitOnOpen=0
 " Ignore GIT metafiles
 let g:NERDTreeIgnore=['.git', '\~$']
+" Configure NERDTree icons
+let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+let g:DevIconsEnableFoldersOpenClose = 1
+
+" Allow command-t to scan dot dirs
+let g:CommandTScanDotDirectories = 1
 
 " Airline settings
 "
@@ -77,10 +83,12 @@ let g:airline#extensions#tabline#enabled = 1
 
 " Show just the filename
 let g:airline#extensions#tabline#fnamemod = ':t'
+let g:airline#extensions#tabline#buffer_nr_show = 1
 
 " Buffer tabs separators
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = ' '
+let g:airline#extensions#tabline#close_symbol = '✖'
 
 " Enable deoplete
 let g:deoplete#enable_at_startup = 1
@@ -88,13 +96,9 @@ let g:deoplete#enable_at_startup = 1
 " Set theme
 "
 set background=dark
-colorscheme quantum
-let g:airline_theme = 'quantum'
-
-if has("termguicolors")
-  set termguicolors
-endif
+colorscheme gruvbox
+" let g:airline_theme = 'quantum'
 
 " Invisible character colors for quantum template
-highlight NonText guifg = #414c52
-highlight SpecialKey guifg = #414c52
+" highlight NonText guifg = #414c52
+" highlight SpecialKey guifg = #414c52
