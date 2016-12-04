@@ -32,7 +32,7 @@ COPYRIGHT_NAME=$2
 BOILERPLATE_DIR=$3
 
 # Set default variables
-: ${RUBY_VERSION:="2.3.1"}
+: ${RUBY_VERSION:="2.3.3"}
 : ${COPYRIGHT_NAME:="$(gpg2 -K $GPG_MAIN_KEY | grep uid | head -1 | sed 's/uid.*\] //' | sed 's/ <.*>//')"}
 : ${BOILERPLATE_DIR:="$(dirname $(dirname $0))/data/project-boilerplate"}
 

@@ -91,8 +91,8 @@ case $ACTION in
       editor=vi
     fi
 
-    # More security for vi
-    if [[ $editor = "vi" ]] || [[ $editor = "vim" ]]; then
+    # More security for vi/[ngm]vim[r]
+    if [[ $editor = "vi" ]] || [[ $editor == *"vim"* ]]; then
       # -n is for noswap and -i NONE is for no .viminfo
       editor="$editor -n -i NONE"
     fi
@@ -100,8 +100,8 @@ case $ACTION in
     # Figure the best way to delete the unencrypted temp file
     if [[ `which shred` ]]; then
       rm='shred -u'
-    elif [[ `which srm` ]]; then
-      rm='srm -z'
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+      rm='rm -P'
     else
       rm='rm'
     fi
@@ -122,7 +122,8 @@ case $ACTION in
       $0 read $FILEPATH > $tmp
     fi
 
-    # Edit the file
+    # Edit the file and wait editor to finish
+    # editor instance MUST be in blocking mode, not a daemon, otherwise it will fail
     $editor $tmp || true
 
     # Encrypt it back
