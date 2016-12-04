@@ -70,7 +70,6 @@ plugins=(
 
   # Utilities
   quick-cd
-  intuit
 )
 
 # You may need to manually set your language environment
