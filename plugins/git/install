@@ -4,6 +4,7 @@
 # Installation proccess:
 #
 #  1. Setup configs for .gitconfig
+#  2. Adds global gitignore
 #
 
 source 'helpers/installer_helper.zsh'
@@ -37,4 +38,9 @@ if ! [[ -f $HOME/.gitconfig ]]; then
   link_file $PLUGIN_PATH ".gitconfig"
 
   success '.gitconfig created'
+fi
+
+# 2. Adds global gitignore
+if ! [[ -f $HOME/.gitignore ]]; then
+  link_file $PLUGIN_PATH ".gitignore"
 fi
