@@ -4,22 +4,27 @@
 let mapleader = "\<Space>"
 
 " Move between buffers
-map <silent> <Leader>n :bnext<CR>
-map <silent> <Leader>p :bprev<CR>
-map <Leader>b :b<Space>
+nmap <silent> <Tab> :silent :bnext<CR>
+nmap <silent> <S-Tab> :silent :bprev<CR>
+nmap <Leader>b :CtrlPBuffer<CR>
 
-" NerdTREE as <Leader> + /
-map <Leader>/ :NERDTreeToggle<CR>
+" NerdTREE toggle
+nmap <silent> <Leader>/ :call NERDTreeToggleInCurDir()<CR>
+nmap <silent> <Leader>\ :call NERDTreeToggleInCurDir()<CR>
+function! NERDTreeToggleInCurDir()
+  " If NERDTree is open in the current buffer
+  if (exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1)
+    execute ":NERDTreeClose"
+  else
+    execute ":NERDTreeFind"
+  endif
+endfunction
 
-" NerdTREE find current file
-map <Leader>. :NERDTreeFind<CR>
-
-" Saves with CTRL+S or CMD+S
-noremap <silent> <C-s> :update<CR>
-noremap <silent> <D-s> :update<CR>
+" Saves with <Leader>s
+noremap <silent> <Leader>s :update<CR>
 
 " Closes current buffer with <Leader>-w
-noremap <Leader>w :bd<CR>
+noremap <silent> <Leader>w :bd<CR>
 
 " Disable arrow keys (Vim learner)
 noremap <Up> <NOP>
@@ -29,3 +34,8 @@ noremap <Right> <NOP>
 
 " Makes Esc + Esc clear the last search
 nnoremap <silent> <Esc><Esc> :let @/=""<CR>
+
+" D deletes from the cursor to the end of the line; C changes from the cursor
+" to the end of the line. For some reason, however, Y yanks the entire line,
+" both before and after the cursor.
+nnoremap Y y$
