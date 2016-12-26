@@ -5,12 +5,9 @@
       "emmet"
     ]
     telemetryConsent: "limited"
-    themes: [
-      "one-dark-ui"
-      "gaia-dark-syntax"
-    ]
   editor:
     fontFamily: "Hack"
+    fontSize: 15
     invisibles:
       space: "."
     showInvisibles: true
