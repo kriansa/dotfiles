@@ -1,2 +1,2 @@
-# Globally ignore all .session.vim
-.session.vim
+# Globally ignore all files under .vim-meta folder
+.vim-meta/
