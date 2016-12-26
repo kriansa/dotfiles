@@ -12,11 +12,6 @@ Plug 'scrooloose/nerdcommenter'
 " Vim Airline
 Plug 'vim-airline/vim-airline'
 
-" Surrounding
-Plug 'tpope/vim-surround'
-Plug 'jiangmiao/auto-pairs'
-Plug 'tpope/vim-endwise'
-
 " Deoplete (autocomplete for neovim)
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'fishbullet/deoplete-ruby'
@@ -27,11 +22,28 @@ Plug 'tpope/vim-obsession'
 " Languages support
 Plug 'sheerun/vim-polyglot'
 Plug 'vim-ruby/vim-ruby'
-Plug 'othree/html5.vim'
-Plug 'pangloss/vim-javascript'
+
+" Ruby
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-bundler'
 Plug 'tpope/vim-rake'
+
+" Javascript
+Plug 'pangloss/vim-javascript'
+Plug 'moll/vim-node'
+
+" CSS
+Plug 'cakebaker/scss-syntax.vim'
+Plug 'hail2u/vim-css3-syntax'
+
+" HTML
+Plug 'othree/html5.vim'
+Plug 'posva/vim-vue'
+
+" Surrounding
+Plug 'tpope/vim-surround'
+Plug 'jiangmiao/auto-pairs'
+Plug 'tpope/vim-endwise'
 
 " Text objects
 Plug 'kana/vim-textobj-user'
@@ -46,6 +58,7 @@ Plug 'tyrannicaltoucan/vim-quantum'
 Plug 'morhetz/gruvbox'
 Plug 'crusoexia/vim-monokai'
 Plug 'KabbAmine/yowish.vim'
+Plug 'mhartington/oceanic-next'
 
 " Git support
 Plug 'tpope/vim-fugitive'
@@ -59,12 +72,23 @@ Plug 'ctrlpvim/ctrlp.vim'
 
 " Multi-file finder
 Plug 'wincent/ferret'
+" Promising project far.vim: Find And Replace Vim plugin
+" Plug 'brooth/far.vim'
 
 " Indent guides
 Plug 'nathanaelkane/vim-indent-guides'
 
 " GnuPG integration
 Plug 'jamessan/vim-gnupg'
+
+" Tags support
+Plug 'ludovicchabant/vim-gutentags'
+
+" Async support
+Plug 'neomake/neomake'
+
+" Think about this Linter
+" Plug 'w0rp/ale'
 
 " Add plugins to &runtimepath
 call plug#end()

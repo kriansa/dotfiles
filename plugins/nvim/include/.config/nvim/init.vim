@@ -1,18 +1,6 @@
 " Folder in which script resides
 let s:path = expand('<sfile>:p:h')
 
-" Workaround to make Ruby plugin work with a specific Ruby version
-" Currently, for Python plugin, we can just set g:python_host_prog
-" and it allows you to specify any version you want to load. However
-" for ruby, you're stuck with whatever `neovim-ruby-host` binary
-" that your current $PATH provides you. So this hack will add a
-" new folder to $PATH which contains a `neovim-ruby-host` that can
-" then point to any other binary file you want. I choose to make it
-" work with a specific rbenv version. Take a look to the script and
-" see exactly what it does.
-"
-let $PATH = s:path . '/bin:' . $PATH
-
 " Load packages
 execute 'source ' . s:path . '/packages.vim'
 
@@ -37,7 +25,8 @@ set encoding=utf-8    " Enables utf8 encoding
 set cursorline        " Highlight the line the cursor is in
 set noshowmode        " Disable showing the mode (such as -- INSERT --) in the bottom
 set noswapfile        " Never create swap files
-set nobackup          " Disable creation of backup files (~)
+set nobackup          " Disable usage of backup files (~)
+set nowritebackup     " Disable creation of backup files
 set mouse=            " Disables the mouse
 set visualbell t_vb=  " Disable bells on errors
 
@@ -45,14 +34,21 @@ set list                                  " show hidden chars
 set listchars=tab:▸\ ,eol:¬,space:.       " chars to be shown
 set clipboard+=unnamed                    " yanks to clipboard
 
-set expandtab                " Convert tabs into spaces
-set autoindent               " always set autoindenting on
-set copyindent               " copy indentation on new lines
-set smartindent              " indent on new blocks
-set preserveindent           " When reindenting a line, tries to preserve the indent-style
+set expandtab           " Convert tabs into spaces
+set autoindent          " always set autoindenting on
+set copyindent          " copy indentation on new lines
+set smartindent         " indent on new blocks
+set preserveindent      " When reindenting a line, tries to preserve the indent-style
+set shiftwidth=2        " Number of spaces to use for autoindenting
+set smarttab            " Insert tabs on the start of a line according to shiftwidth, not tabstop
+set shiftround          " Use multiple of shiftwidth when indenting with '<' and '>'
 
 set ignorecase   " Make search case insensitive
 set smartcase    " When searching with a uppercase letter, enable case-sensitive
+
+" Open new split panes to right and bottom, which feels more natural
+set splitbelow
+set splitright
 
 set wildignore=node_modules/**,.git/**,.DS_Store
 
@@ -118,19 +114,30 @@ if executable('ag')
 endif
 
 " Match different file extensions to types
-autocmd BufNewFile,BufRead *.vue set filetype=html
+"autocmd BufNewFile,BufRead *.vue set filetype=html
 autocmd BufNewFile,BufRead *.babelrc set filetype=javascript
+
+" Enable node plugin on the following filetypes
+let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
+
+" Gutentags configs
+"
+let g:gutentags_tagfile = '.vim-meta/tags'
+let g:gutentags_ctags_executable = '.vim-meta/generate-tags'
+" TODO: There is still something to be added here: auto generation of tags for
+" installed gems, ruby stdlib and npm packages
 
 " Adds a layer on top of Obsession plugin so we have a structure
 " that saves every session into the project folder in a file
-" named `.session.vim`
+" named `.vim-meta/session.vim`
 
-autocmd VimEnter * :call LoadSession()
+autocmd VimEnter * nested LoadSession
+command! LoadSession call LoadSession()
 function! LoadSession()
   if (isdirectory(argv(0)))
-    let file = getcwd() . '/.session.vim'
+    let file = getcwd() . '/.vim-meta/session.vim'
     if (filereadable(file))
-      exe 'source ' . file
+      execute 'source ' . file
       echo 'Session loaded'
     endif
   endif
@@ -139,7 +146,11 @@ endfunction
 command! SaveSession call SaveSession()
 function! SaveSession()
   if (isdirectory(argv(0)))
-    execute ":Obsession" . getcwd() . '/.session.vim'
+    let meta_dir = getcwd() . '/.vim-meta'
+    if (!isdirectory(meta_dir))
+      call mkdir(meta_dir)
+    endif
+    execute ":Obsession " . meta_dir . '/session.vim'
   else
     echo "Can't save a session from a single file. Open vim using a directory as an argument!"
   endif

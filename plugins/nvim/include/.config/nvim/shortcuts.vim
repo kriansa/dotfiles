@@ -20,6 +20,10 @@ function! NERDTreeToggleInCurDir()
   endif
 endfunction
 
+" Deoplete tab-complete
+inoremap <expr><Tab> pumvisible() ? "\<c-n>" : "\<Tab>"
+inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
+
 " Saves with <Leader>s
 noremap <silent> <Leader>s :update<CR>
 
