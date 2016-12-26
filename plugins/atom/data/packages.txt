@@ -1,7 +1,6 @@
 Sublime-Style-Column-Selection
 atom-typescript
 emmet
-gaia-dark-syntax
 git-history
 language-docker
 language-elixir
