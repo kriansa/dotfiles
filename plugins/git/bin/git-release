@@ -171,7 +171,7 @@ if [[ $COMMAND != "" ]]; then
           git commit --author="${author}"
 
           # Rename merged branch locally (only if it hasn't been renamed yet)
-          if [[ $BRANCH_NAME ~= /archived/ ]]; then
+          if [[ ! $BRANCH_NAME =~ /archived/ ]]; then
             git branch -m $BRANCH_NAME archived/$BRANCH_NAME
           fi
           ;;
