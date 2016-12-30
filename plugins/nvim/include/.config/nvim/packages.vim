@@ -6,9 +6,6 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 
-" NerdCommenter
-Plug 'scrooloose/nerdcommenter'
-
 " Vim Airline
 Plug 'vim-airline/vim-airline'
 
@@ -40,10 +37,11 @@ Plug 'hail2u/vim-css3-syntax'
 Plug 'othree/html5.vim'
 Plug 'posva/vim-vue'
 
-" Surrounding
+" Surrounding (things that should be native)
 Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-endwise'
+Plug 'tomtom/tcomment_vim'
 
 " Text objects
 Plug 'kana/vim-textobj-user'

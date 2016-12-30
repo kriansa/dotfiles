@@ -5,6 +5,8 @@
 #
 #  1. Install needed packages
 #  2. Link folder
+#  3. Fix terminal kbs issue
+#  4. Run package install
 #
 
 source 'helpers/installer_helper.zsh'
@@ -20,5 +22,10 @@ fi
 # 2. Link files
 link_file $PLUGIN_PATH '.config/nvim'
 
-# 3. Run executable
+# 3. Fix terminal kbs issue (https://github.com/neovim/neovim/issues/2048)
+infocmp $TERM | sed 's/kbs=^[hH]/kbs=\\177/' > $TMPDIR/$TERM.ti
+tic $TMPDIR/$TERM.ti
+rm $TMPDIR/$TERM.ti
+
+# 4. Run package install
 nvim -c PlugInstall -c q -c q

@@ -117,6 +117,17 @@ endif
 "autocmd BufNewFile,BufRead *.vue set filetype=html
 autocmd BufNewFile,BufRead *.babelrc set filetype=javascript
 
+" When deleting a buffer (closing a file), if NERDTree is open, it will become
+" the main open window. That's annoying, because many times you have to select
+" another buffer, so let's just switch to the next buffer when NERDtree is the
+" last open buffer.
+autocmd BufDelete * call CloseLastNerdTreeWindow()
+function! CloseLastNerdTreeWindow()
+  if winnr("$") == 1 && exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1
+    execute 'bnext'
+  endif
+endfunction
+
 " Enable node plugin on the following filetypes
 let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
 
@@ -138,6 +149,23 @@ function! LoadSession()
     let file = getcwd() . '/.vim-meta/session.vim'
     if (filereadable(file))
       execute 'source ' . file
+
+      if (bufnr('$') > 1)
+        " Sometimes when you open a directory, vim creates a buffer named
+        " "~/Project/etc" instead using the full path as the buffer name.
+        " So if you want to detect if there is an open buffer for your project
+        " folder, you have to check for both absolute path and the home-relative
+        " path.
+        let explorer_buffer_tilde = bufnr(fnamemodify(getcwd(), ':~'))
+        let explorer_buffer_absolute = bufnr(getcwd())
+        
+        if (explorer_buffer_tilde != -1)
+          execute 'bd ' . explorer_buffer_tilde
+        elseif (explorer_buffer_absolute != -1)
+          execute 'bd ' . explorer_buffer_absolute
+        endif
+      endif
+      
       echo 'Session loaded'
     endif
   endif

@@ -7,7 +7,6 @@
     telemetryConsent: "limited"
   editor:
     fontFamily: "Hack"
-    fontSize: 15
     invisibles:
       space: "."
     showInvisibles: true

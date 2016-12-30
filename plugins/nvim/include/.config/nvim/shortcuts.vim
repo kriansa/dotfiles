@@ -25,10 +25,19 @@ inoremap <expr><Tab> pumvisible() ? "\<c-n>" : "\<Tab>"
 inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
 
 " Saves with <Leader>s
-noremap <silent> <Leader>s :update<CR>
+nnoremap <silent> <Leader>s :update<CR>
 
-" Closes current buffer with <Leader>-w
-noremap <silent> <Leader>w :bd<CR>
+" Closes current buffer with <Leader>w
+nnoremap <silent> <Leader>w :bd<CR>
+
+" Closes current selected window with <Leader>q
+nnoremap <silent> <Leader>q <C-w>q
+
+" Easier navigation between splits
+nnoremap <silent> <C-j> :wincmd j<CR>
+nnoremap <silent> <C-k> :wincmd k<CR>
+nnoremap <silent> <C-l> :wincmd l<CR>
+nnoremap <silent> <C-h> :wincmd h<CR>
 
 " Disable arrow keys (Vim learner)
 noremap <Up> <NOP>
