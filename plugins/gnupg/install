@@ -41,9 +41,9 @@ if [[ -f $HOME/.gnupg/gpg-agent.conf ]]; then
 fi
 
 if [[ $OS_NAME == "OSX" ]]; then
-  gpg_pinentry='/usr/local/bin/pinentry-mac'
+  gpg_pinentry=$(which pinentry-mac)
 else
-  gpg_pinentry=$(which pinentry-gui)
+  gpg_pinentry=$(which pinentry-gnome3)
 fi
 
 sed -e "s#PINENTRY_PATH#$gpg_pinentry#g" \
