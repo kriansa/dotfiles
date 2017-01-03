@@ -15,7 +15,6 @@
 # Set default variables
 : ${GPG_VAULT_PATH:=$HOME/.gpg-vault}
 : ${GPG_COMMAND:=gpg2}
-: ${GPG_RECIPIENT:="--recipient $GPG_MAIN_KEY"}
 
 # Path
 ACTION=$1
@@ -39,7 +38,6 @@ function help {
   echo "Extra:"
   echo "  By default, it uses ~/.gpg-vault as the basepath of gpg-vault."
   echo "  You can change it by setting GPG_VAULT_PATH environment variable."
-  echo "  Set default GPG recipients by setting the env var GPG_RECIPIENT."
   echo "  Set the default GPG command by changing the var GPG_COMMAND."
   exit 1
 }
@@ -54,6 +52,44 @@ function error_handler {
   echo "An error has occurred!"
   echo "Exit code: ${EXIT_CODE}"
   exit 1
+}
+
+# Parses a YAML file
+#
+function parse_yaml {
+  local prefix=$2
+  local s
+  local w
+  local fs
+  s='[[:space:]]*'
+  w='[a-zA-Z0-9_]*'
+  fs="$(echo @|tr @ '\034')"
+  sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+    -e "s|^\($s\)\($w\)$s[:-]$s\(.*\)$s\$|\1$fs\2$fs\3|p" "$1" |
+  awk -F"$fs" '{
+  indent = length($1)/2;
+  vname[indent] = $2;
+  for (i in vname) {if (i > indent) {delete vname[i]}}
+    if (length($3) > 0) {
+      vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+      printf("%s%s%s=(\"%s\")\n", "'"$prefix"'",vn, $2, $3);
+    }
+  }' | sed 's/_=/+=/g'
+}
+
+# Finds the vault-keys file recursively
+#
+function find_vault_keys_file {
+  local root="$1"
+  while ! [[ "$root" =~ ^//[^/]*$ ]]; do
+    if [ -e "${root}/.vault-keys" ]; then
+      echo "${root}/.vault-keys"
+      return 0
+    fi
+    [ -n "$root" ] || break
+    root="${root%/*}"
+  done
+  return 1
 }
 
 if [[ $ACTION != "read" ]] && [[ $ACTION != "edit" ]] && [[ $ACTION != "write" ]] && [[ $ACTION != "exists" ]]; then
@@ -134,8 +170,10 @@ case $ACTION in
   ;;
 
   write)
-    if [[ ! -f $(dirname $FULLPATH) ]]; then
-      mkdir -p $(dirname $FULLPATH)
+    vault_path=$(dirname $FULLPATH)
+
+    if [[ ! -f $vault_path ]]; then
+      mkdir -p $vault_path
     fi
 
     if [[ -f "$FULLPATH.asc" ]] && [[ ! -w "$FULLPATH.asc" ]]; then
@@ -143,7 +181,28 @@ case $ACTION in
       exit 1
     fi
 
-    $GPG_COMMAND --armor --encrypt --trust-model=always $GPG_RECIPIENT <&0 > $FULLPATH.asc
+    # Locate the closest vault-keys file in the tree
+    vault_keys_file=$(find_vault_keys_file $vault_path || true)
+
+    if [[ $vault_keys_file == "" ]]; then
+      echo "File .vault-keys not found in tree '$vault_path'"
+      exit 1
+    fi
+
+    # Adds a `$config_keys` array
+    eval $(parse_yaml "$vault_keys_file" config | grep keys)
+
+    if [[ ${#config_keys[@]} == 0 ]]; then
+      echo "File '$vault_keys_file' contains invalid keys section!"
+      exit 1
+    fi
+
+    for key in "${config_keys[@]}"; do
+      key=$(echo $key | tr -d ' ')
+      recipients="$recipients -r $key"
+    done
+
+    $GPG_COMMAND --armor --encrypt --trust-model=always $recipients <&0 > $FULLPATH.asc
     ;;
 
   exists)
