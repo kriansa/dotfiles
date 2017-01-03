@@ -1,4 +1,3 @@
-# List of assigned trustvalues, created Sat Jul 23 23:20:59 2016 BRT
+# List of assigned trustvalues, created Tue Jan  3 02:35:07 2017 BRST
 # (Use "gpg --import-ownertrust" to restore them)
 BC277BE09E8A6F1059C3911B3E7884756312F945:6:
-78D7B67DA171C2AA029D481BC0BCD002A239EA36:3:
