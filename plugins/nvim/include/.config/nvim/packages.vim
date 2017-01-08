@@ -21,9 +21,9 @@ Plug 'sheerun/vim-polyglot'
 Plug 'vim-ruby/vim-ruby'
 
 " Ruby
-Plug 'tpope/vim-rails'
 Plug 'tpope/vim-bundler'
-Plug 'tpope/vim-rake'
+" Plug 'tpope/vim-rake'
+" Plug 'tpope/vim-rails'
 
 " Javascript
 Plug 'pangloss/vim-javascript'
@@ -72,6 +72,7 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'wincent/ferret'
 " Promising project far.vim: Find And Replace Vim plugin
 " Plug 'brooth/far.vim'
+" Plug 'dyng/ctrlsf.vim'
 
 " Indent guides
 Plug 'nathanaelkane/vim-indent-guides'
@@ -83,10 +84,14 @@ Plug 'jamessan/vim-gnupg'
 Plug 'ludovicchabant/vim-gutentags'
 
 " Async support
-Plug 'neomake/neomake'
+" Plug 'neomake/neomake'
+" Plug 'tpope/vim-dispatch'
 
-" Think about this Linter
-" Plug 'w0rp/ale'
+" Autosave
+Plug '907th/vim-auto-save'
+
+" Linter
+Plug 'w0rp/ale'
 
 " Add plugins to &runtimepath
 call plug#end()

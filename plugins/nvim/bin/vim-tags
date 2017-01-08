@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+
+# The current interface for this script is the following:
+# 1. It is called from the directory which is set as "Project path"
+# 2. The first and only parameter is the file for which you should update the ctags, relative to the project path
+# Options are:
+# => -f   Set the ctags output file (required)
+# => -v   Verbose mode (off by default)
+
+require 'optparse'
+
+options = {
+  destination: nil,
+  verbose: false,
+}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: vim-tags [options] <path>"
+
+  opts.on("-f FILE", String, "Destination file") do |f|
+    options[:destination] = f
+  end
+
+  opts.on("-v", "--verbose", "Verbose mode") do
+    options[:verbose] = true
+  end
+
+  # Unused options to keep compatibility with ctags
+  opts.on("--exclude=[GLOB]", "Exclude files") {}
+  opts.on("--options=[OPTIONFILE]", "Option not used") {}
+  opts.on("--append", "Option not used") {}
+end.parse!
+
+# Detect tags output path
+project_path = Dir.pwd
+tags_output = "#{project_path}/#{options[:destination]}"
+
+# Parse a .tagsignore located at the same folder as the tags output
+# If not present, use a global ignore file, located at
+# $RUBYPLUGINPATH/data/.tagsignore
+#
+# @param [String] tags_output
+def parse_tagsignore_file(tags_output)
+  tags_ignore = File.dirname(tags_output) + '/.tagsignore'
+
+  unless File.exists?(tags_ignore)
+    tags_ignore = File.expand_path("../data/.tagsignore", File.dirname(__FILE__))
+  end
+
+  IO.foreach(tags_ignore) do |path|
+    next if path.start_with?('#') or path.strip.empty?
+    yield path.strip if block_given?
+  end
+end
+
+# Starscope is a ctags generator for Ruby, Javascript and Go files
+#
+# @param [String] project_path
+# @param [String] tags_output
+# @param [Hash] options
+def generate_tags_with_starscope(project_path, tags_output, options)
+  starscope_db_output = File.dirname(tags_output) + '/starscope.db'
+
+  # Start creating the cmdline
+  commandline = ["cd \"#{project_path}\" && starscope"]
+
+  # Adds ignore files
+  commandline << "--exclude .git"
+  parse_tagsignore_file(tags_output) { |path| commandline << "--exclude \"#{path}\"" }
+
+  # Set output paths
+  commandline << "--file \"#{starscope_db_output}\""
+  commandline << "--export ctags,\"#{tags_output}\""
+
+  unless options[:verbose]
+    commandline << "--quiet"
+    commandline << "> /dev/null 2>&1"
+  end
+
+  # Execute it!
+  system commandline.join(" ")
+end
+
+# Currently, uses only starscope
+generate_tags_with_starscope(project_path, tags_output, options)

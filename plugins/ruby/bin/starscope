@@ -7,5 +7,5 @@ export PATH=$(echo $PATH | sed -e "s#${THIS_DIR}:##")
 
 # Sets the RBENV_VERSION to the .ruby-version of this plugin
 # Then execute the original binary file
-BINARY_PATH=$(RBENV_VERSION=$(cat $(dirname ${THIS_DIR})/.ruby-version) rbenv which starscope)
-$BINARY_PATH $@
+export RBENV_VERSION=$(cat $(dirname ${THIS_DIR})/.ruby-version)
+$(rbenv which starscope) $@

@@ -16,3 +16,4 @@ fi
 
 # 3. Setup aliases
 alias dotfiles-update="${ROOT_PATH}/bin/update"
+alias ag="ag --hidden --ignore .git"

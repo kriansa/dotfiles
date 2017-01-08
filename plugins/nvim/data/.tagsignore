@@ -1,0 +1,12 @@
+# Packages
+node_modules
+vendor/bundle
+
+# Compiled output
+public
+
+# Rails tmp
+tmp
+log
+
+# vim: set ft=conf

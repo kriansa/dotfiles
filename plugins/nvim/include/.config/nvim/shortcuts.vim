@@ -24,14 +24,14 @@ endfunction
 inoremap <expr><Tab> pumvisible() ? "\<c-n>" : "\<Tab>"
 inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
 
-" Saves with <Leader>s
-nnoremap <silent> <Leader>s :update<CR>
-
 " Closes current buffer with <Leader>w
 nnoremap <silent> <Leader>w :bd<CR>
 
 " Closes current selected window with <Leader>q
 nnoremap <silent> <Leader>q <C-w>q
+
+" Return to normal mode while in insert mode with jk
+inoremap jk <ESC>
 
 " Easier navigation between splits
 nnoremap <silent> <C-j> :wincmd j<CR>
@@ -44,6 +44,9 @@ noremap <Up> <NOP>
 noremap <Down> <NOP>
 noremap <Left> <NOP>
 noremap <Right> <NOP>
+
+" Disable Ex mode
+nnoremap Q <nop>
 
 " Makes Esc + Esc clear the last search
 nnoremap <silent> <Esc><Esc> :let @/=""<CR>
