@@ -16,6 +16,9 @@ if [[ $OS_NAME == "linux" ]]; then
   # Linux
   # TODO
 elif [[ $OS_NAME == "OSX" ]]; then
+  # Install brew taps
+  brew tap homebrew/services
+
   # Install homebrew packages
   brew install ncdu jq tree wrk pstree htop the_silver_searcher
 
