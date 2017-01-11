@@ -59,21 +59,21 @@ set wildignore=node_modules,.git,.DS_Store
 set termguicolors
 
 " Monokai
-colorscheme monokai
-highlight NonText guifg = #444444
-highlight SpecialKey guifg = #444444
+" colorscheme monokai
+" highlight NonText guifg = #444444
+" highlight SpecialKey guifg = #444444
 
 " Quantum template
-" colorscheme quantum
-" let g:airline_theme = 'quantum'
-" highlight NonText guifg = #414c52
-" highlight SpecialKey guifg = #414c52
+colorscheme quantum
+let g:airline_theme = 'quantum'
+highlight NonText guifg = #414c52
+highlight SpecialKey guifg = #414c52
 
 " Enable match-it (use % to jump to a matching tag, such as if and endif)
 runtime macros/matchit.vim
 
 " Configure python environment
-" 
+"
 let g:python_host_prog = systemlist('PYENV_VERSION=2.7.12 pyenv which python2')[0]
 let g:python3_host_prog = systemlist('PYENV_VERSION=3.5.2 pyenv which python3')[0]
 

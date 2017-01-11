@@ -12,6 +12,7 @@ Plug 'vim-airline/vim-airline'
 " Deoplete (autocomplete for neovim)
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'fishbullet/deoplete-ruby'
+Plug 'carlitux/deoplete-ternjs'
 
 " Obsession (project/session manager)
 Plug 'tpope/vim-obsession'
@@ -76,9 +77,6 @@ Plug 'wincent/ferret'
 
 " Indent guides
 Plug 'nathanaelkane/vim-indent-guides'
-
-" GnuPG integration
-Plug 'jamessan/vim-gnupg'
 
 " Tags support
 Plug 'ludovicchabant/vim-gutentags'
