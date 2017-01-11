@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# Plugin path
+PLUGIN_PATH=$(cd $(dirname $0)/..; pwd)
+
+# Sets the NODENV_VERSION to the .node-version of this plugin
+export NODENV_VERSION=$(cat $PLUGIN_PATH/.node-version)
+
+for package in $(cat $PLUGIN_PATH/data/packages.txt); do
+  npm install -g $package
+done
