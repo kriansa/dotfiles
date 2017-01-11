@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# Plugin path
+PLUGIN_PATH=$(cd $(dirname $0)/..; pwd)
+
+# Sets the RUBY_VERSION to the .ruby-version of this plugin
+export RUBY_VERSION=$(cat $PLUGIN_PATH/.ruby-version)
+
+for package in $(cat $PLUGIN_PATH/data/packages.txt); do
+  gem install $package
+done
