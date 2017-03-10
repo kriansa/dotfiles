@@ -67,6 +67,61 @@ function branch_count {
   echo $(git branch --list "$BRANCH_NAME" | wc -l | trim)
 }
 
+function get_current_branch {
+  git rev-parse --abbrev-ref HEAD
+}
+
+function update_branch {
+  BRANCH_NAME=$1
+  CURRENT_BRANCH=$(get_current_branch)
+
+  git checkout $BRANCH_NAME
+  git pull origin $BRANCH_NAME
+  git checkout $CURRENT_BRANCH
+}
+
+function archive_branch {
+  BRANCH_NAME=$1
+
+  if [[ ! $BRANCH_NAME =~ /archived/ ]]; then
+    git branch -m $BRANCH_NAME archived/$BRANCH_NAME
+    echo "Branch '${BRANCH_NAME}' renamed to 'archived/${BRANCH_NAME}'"
+  fi
+}
+
+# This function should not be called in a subshell because it needs TTY and sync output
+# The best way to call it is on the same shell context, and it will set a variable
+# called `$author`, so just use it.
+function get_author {
+  BASE_BRANCH=$1
+  BRANCH_NAME=$2
+
+  # Get branch author
+  author=$(git log ${BASE_BRANCH}..${BRANCH_NAME} --oneline --format="%aN <%aE>" | tail -1)
+
+  printf "Author of this branch: ${COLOR_LIGHT_GREEN}${author}${COLOR_NC}\n"
+  read -p "Is that right? (Yn) " -n 1 -r
+  echo
+
+  if [[ ! $REPLY =~ ^[Yy]?$ ]]; then
+    # Display a list of commiters on that branch
+    IFS=$'\n'
+    options=($(git log ${BASE_BRANCH}..${BRANCH_NAME} --oneline --format="%aN <%aE>" | sort | uniq))
+    unset IFS
+
+    echo
+    echo "This is a list of people who committed code into this branch. Please select one of them:"
+
+    select author in "${options[@]}"; do
+      if [[ $author == "" ]]; then
+        show_error "Please select a valid user!"
+      fi
+
+      break
+    done
+  fi
+}
+
 # Set variables based on user input
 COMMAND=$1
 
@@ -126,54 +181,72 @@ if [[ $COMMAND != "" ]]; then
           ;;
 
         merge)
-
           # First argument is the branch name
           BRANCH_NAME=$2
-          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          CURRENT_BRANCH=$(get_current_branch)
 
-          if [[ $BRANCH_NAME = "" ]] || [[ $(branch_count "$BRANCH_NAME") = "0" ]]; then
-            show_error "Branch not found!"
+          if [[ $BRANCH_NAME = "" ]]; then
+            show_error "Please, specify a branch name!"
+          fi
+
+          if [[ $(branch_count "$BRANCH_NAME") = "0" ]] && [[ $(git branch -r | grep "origin/$BRANCH_NAME") == "" ]]; then
+            show_error "Branch not found (either locally or on origin)!"
           fi
 
           if [[ $(echo $CURRENT_BRANCH | \grep -E --only-matching 'release/.*') = "" ]]; then
             show_error "Please, check out into the release branch!"
           fi
 
-          # Get branch author
-          author=$(git log ${CURRENT_BRANCH}..${BRANCH_NAME} --oneline --format="%aN <%aE>" | tail -1)
-
-          printf "Author of this branch: ${COLOR_LIGHT_GREEN}${author}${COLOR_NC}\n"
-          read -p "Is that right? (Yn) " -n 1 -r
-          echo
-
-          if [[ ! $REPLY =~ ^[Yy]?$ ]]; then
-            # Display a list of commiters on that branch
-            IFS=$'\n'
-            options=($(git log ${CURRENT_BRANCH}..${BRANCH_NAME} --oneline --format="%aN <%aE>" | sort | uniq))
-            unset IFS
-
+          if [[ $(git status --porcelain | grep 'M') != "" ]]; then
+            echo "This branch has staged files. Instead of trying to merge '${BRANCH_NAME}', we will just commit what is in it."
             echo
-            echo "This is a list of people who committed code into this branch. Please select one of them:"
+            echo "If that's not what you want, then your stage area before running this command."
+            read -p "Continue? (Yn)" -n 1 -r
+            echo
 
-            select author in "${options[@]}"; do
-              if [[ $author == "" ]]; then
-                show_error "Please select a valid user!"
-              fi
+            if [[ $REPLY =~ ^[Nn]$ ]]; then
+              exit
+            fi
 
-              break
-            done
+            # Get branch author and set $author variable
+            get_author $CURRENT_BRANCH $BRANCH_NAME
+
+            # Commit it
+            git commit --author="$author"
+            archive_branch $BRANCH_NAME
+            exit
           fi
 
+          # The branch is already local
+          if [[ $(branch_count "$BRANCH_NAME") != "0" ]]; then
+            read -p "Update this branch with origin? (Yn) " -n 1 -r
+            echo
+
+            if [[ ! $REPLY =~ ^[Yy]?$ ]]; then
+              # Update the branch
+              update_branch $BRANCH_NAME
+            fi
+          else
+            # Update repo from origin
+            git fetch origin
+
+            # Update the branch
+            update_branch $BRANCH_NAME
+          fi
+
+          # Get branch author and set `$author` variable
+          get_author $CURRENT_BRANCH $BRANCH_NAME
+
           # Merges the branch using squash
-          git merge --squash $BRANCH_NAME
+          git merge --squash $BRANCH_NAME || GIT_ERROR=true
+
+          if [[ $GIT_ERROR ]]; then
+            show_error "Please, resolve your conflicts, add them to the staging area (git add .) and run this command again."
+          fi
 
           # Commit it
           git commit --author="${author}"
-
-          # Rename merged branch locally (only if it hasn't been renamed yet)
-          if [[ ! $BRANCH_NAME =~ /archived/ ]]; then
-            git branch -m $BRANCH_NAME archived/$BRANCH_NAME
-          fi
+          archive_branch $BRANCH_NAME
           ;;
 
         finish)
@@ -247,7 +320,8 @@ if [[ $COMMAND != "" ]]; then
                > $RELEASE_MSG_FILE
 
           # Publish draft to GitHub
-          hub release create -f "$RELEASE_MSG_FILE" "$RELEASE_NAME" || true
+          # Make release through Github API
+          # hub release create -f "$RELEASE_MSG_FILE" "$RELEASE_NAME" || true
 
           # Remove release message
           test -f $RELEASE_MSG_FILE && rm $RELEASE_MSG_FILE
