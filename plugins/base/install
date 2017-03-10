@@ -16,15 +16,20 @@ if [[ $OS_NAME == "linux" ]]; then
   # Linux
   # TODO
 elif [[ $OS_NAME == "OSX" ]]; then
-  # Install brew taps
-  brew tap homebrew/services
+  # Install brew
+  if [[ $(type "brew" &> /dev/null; echo $?) != "0" ]]; then
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-  # Install homebrew packages
-  brew install ncdu jq tree wrk pstree htop the_silver_searcher
+    # Install homebrew-bundler
+    brew tap homebrew/bundle
+
+    # Install homebrew packages
+    cd "${PLUGIN_PATH}/data" && brew bundle && cd -
+  fi
 
   # Install fonts
-  cp -f "${PLUGIN_PATH}/data/Hack-Font-Powerline/*.ttf" "${HOME}/Library/Fonts"
-  cp -f "${PLUGIN_PATH}/data/Knack-Font/*.ttf" "${HOME}/Library/Fonts"
+  cp -f ${PLUGIN_PATH}/data/Hack-Font-Powerline/*.ttf "${HOME}/Library/Fonts"
+  cp -f ${PLUGIN_PATH}/data/Knack-Font/*.ttf "${HOME}/Library/Fonts"
 
   success 'Packages installed'
 fi
