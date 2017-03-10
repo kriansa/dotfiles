@@ -10,6 +10,7 @@
 ##   edit          Starts a EDITOR session to edit the file
 ##   write         Save the content of stdin encrypted into the file
 ##   exists        Checks whether the file exists (yes or no)
+##   rekey         Rekey the entire path using the vault keys
 ##
 
 # Set default variables
@@ -22,7 +23,7 @@ FILEPATH=$2
 FULLPATH=$GPG_VAULT_PATH/$FILEPATH
 
 function help {
-  echo "GPG-Vault v0.1"
+  echo "GPG-Vault v0.3"
   echo ""
   echo "  This is just a wrapper of GPG to securely store files."
   echo "  It's not meant to store large files, so be reasonable."
@@ -34,6 +35,7 @@ function help {
   echo "  edit - Using default editor, edits the encrypted file on the fly"
   echo "  write - Saves the content of the stdin into the file"
   echo "  exists - Checks whether the given file exists (yes or no)"
+  echo "  rekey - Rekey the entire path using the vault keys"
   echo ""
   echo "Extra:"
   echo "  By default, it uses ~/.gpg-vault as the basepath of gpg-vault."
