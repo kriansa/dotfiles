@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# Remove this bin dir from $PATH env var
+# So we don't end up in a infinite loop
+THIS_DIR=$(cd $(dirname $0); pwd)
+export PATH=$(echo $PATH | sed -e "s#${THIS_DIR}:##")
+
+# Sets the RBENV_VERSION to the .ruby-version of this plugin
+# Then execute the original binary file
+export RBENV_VERSION=$(cat $(dirname ${THIS_DIR})/.ruby-version)
+rubocop $@

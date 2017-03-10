@@ -1,0 +1,17 @@
+---
+env:
+  browser: true
+  node: true
+globals:
+  navigator: true
+  document: true
+  window: true
+parserOptions:
+  ecmaVersion: 8
+  sourceType: module
+  ecmaFeatures:
+    impliedStrict: true
+    experimentalObjectRestSpread: true
+    jsx: true
+plugins:
+  - html
