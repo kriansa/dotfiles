@@ -51,6 +51,9 @@ nnoremap Q <nop>
 " Makes Esc + Esc clear the last search
 nnoremap <silent> <Esc><Esc> :let @/=""<CR>
 
+" Toggle paste mode with F2
+set pastetoggle=<F2>
+
 " D deletes from the cursor to the end of the line; C changes from the cursor
 " to the end of the line. For some reason, however, Y yanks the entire line,
 " both before and after the cursor.

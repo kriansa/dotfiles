@@ -22,13 +22,16 @@ set nowrap            " Disable word-wrap
 set wildmenu          " Helps command-line completion menu
 set scrolloff=3       " Scroll with at least 3 lines
 set encoding=utf-8    " Enables utf8 encoding
-set cursorline        " Highlight the line the cursor is in
+" set cursorline        " Highlight the line the cursor is in
 set noshowmode        " Disable showing the mode (such as -- INSERT --) in the bottom
 set noswapfile        " Never create swap files
 set nobackup          " Disable usage of backup files (~)
 set nowritebackup     " Disable creation of backup files
 set mouse=            " Disables the mouse
 set visualbell t_vb=  " Disable bells on errors
+set laststatus=2      " Always enable bottom status line (airline)
+set noesckeys         " Disable using esc keys
+set hlsearch          " Enable search highlight
 
 set list                                  " show hidden chars
 set listchars=tab:▸\ ,eol:¬,space:.       " chars to be shown
@@ -58,6 +61,9 @@ set wildignore=node_modules,.git,.DS_Store
 " Enable true colors
 set termguicolors
 
+" Enable different cursor for edit mode
+let $NVIM_TUI_ENABLE_CURSOR_SHAPE=2
+
 " Monokai
 " colorscheme monokai
 " highlight NonText guifg = #444444
@@ -68,6 +74,10 @@ colorscheme quantum
 let g:airline_theme = 'quantum'
 highlight NonText guifg = #414c52
 highlight SpecialKey guifg = #414c52
+
+" Solarized
+" set background=light
+" colorscheme solarized8_light
 
 " Enable match-it (use % to jump to a matching tag, such as if and endif)
 runtime macros/matchit.vim
@@ -91,6 +101,8 @@ let g:WebDevIconsUnicodeDecorateFolderNodes = 0
 let g:DevIconsEnableFoldersOpenClose = 0
 " Disable netrw
 let loaded_netrwPlugin = 1
+"  Disable invisible chars for NERDTree
+autocmd FileType nerdtree setlocal nolist
 
 " Airline settings
 "
@@ -122,6 +134,9 @@ let g:indent_guides_start_level = 2
 " Enable autosave
 let g:auto_save = 1
 let g:auto_save_silent = 1
+
+" Ale
+let g:ale_javascript_eslint_executable = 'eslint_d'
 
 " The Silver Searcher
 "

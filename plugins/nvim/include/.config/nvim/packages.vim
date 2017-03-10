@@ -47,6 +47,7 @@ Plug 'tomtom/tcomment_vim'
 " Text objects
 Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock'
+Plug 'rhysd/vim-textobj-anyblock'
 
 " Emmet
 Plug 'mattn/emmet-vim'
@@ -58,6 +59,8 @@ Plug 'morhetz/gruvbox'
 Plug 'crusoexia/vim-monokai'
 Plug 'KabbAmine/yowish.vim'
 Plug 'mhartington/oceanic-next'
+Plug 'rakr/vim-two-firewatch'
+Plug 'lifepillar/vim-solarized8'
 
 " Git support
 Plug 'tpope/vim-fugitive'
