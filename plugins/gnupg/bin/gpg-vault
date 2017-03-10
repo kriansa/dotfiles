@@ -92,16 +92,20 @@ function find_vault_keys_file {
   return 1
 }
 
-if [[ $ACTION != "read" ]] && [[ $ACTION != "edit" ]] && [[ $ACTION != "write" ]] && [[ $ACTION != "exists" ]]; then
+function verify_file_param {
+  if [[ $FILEPATH == "" ]]; then
+    echo "The filepath must be a valid path!"
+    exit 1
+  fi
+}
+
+# Validates all subcommands we support
+if [[ $ACTION != "read" ]] && [[ $ACTION != "edit" ]] && [[ $ACTION != "write" ]] && [[ $ACTION != "exists" ]] && [[ $ACTION != "rekey" ]]; then
   help
   exit 1
 fi
 
-if [[ $FILEPATH == "" ]]; then
-  echo "The filepath must be a valid path!"
-  exit 1
-fi
-
+# Validates $GPG_VAULT_PATH
 if [[ ! -w $GPG_VAULT_PATH ]]; then
   echo "The vault path (\$GPG_VAULT_PATH) dir is not writable!"
   exit 1
@@ -109,6 +113,9 @@ fi
 
 case $ACTION in
   read)
+    # Checks for $FILEPATH
+    verify_file_param
+
     if [[ ! -f $FULLPATH.asc ]] || [[ ! -r $FULLPATH.asc ]]; then
       echo "File $FILEPATH does not exist or is not readable!"
       exit 1
@@ -118,6 +125,9 @@ case $ACTION in
     ;;
 
   edit)
+    # Checks for $FILEPATH
+    verify_file_param
+
     tmp=`mktemp -t tmpgv` || exit 1
 
     # What editor are we going to use?
@@ -170,6 +180,9 @@ case $ACTION in
   ;;
 
   write)
+    # Checks for $FILEPATH
+    verify_file_param
+
     vault_path=$(dirname $FULLPATH)
 
     if [[ ! -f $vault_path ]]; then
@@ -205,7 +218,44 @@ case $ACTION in
     $GPG_COMMAND --armor --encrypt --trust-model=always $recipients <&0 > $FULLPATH.asc
     ;;
 
+  rekey)
+    VAULT_SUB_PATH=$2
+    RED='\033[0;31m'
+    GREEN='\e[1;32m'
+    NC='\033[0m'
+
+    if [[ ! -d "$GPG_VAULT_PATH/$VAULT_SUB_PATH" ]]; then
+      echo "The specified folder '$GPG_VAULT_PATH/$VAULT_SUB_PATH' doesn't exist!"
+      exit 1
+    fi
+
+    cd "$GPG_VAULT_PATH/$VAULT_SUB_PATH"
+    files=$(find . -type f -name "*.asc" | sed -e 's/.asc$//' -e 's#^./##')
+    file_count=$(echo "$files" | wc -l | bc)
+
+    for file in $files; do
+      full_file_path="$VAULT_SUB_PATH/$file"
+      current=$((current + 1))
+
+      printf "Rekeying file '${GREEN}$full_file_path${NC}' [$current/$file_count]\n"
+      original_shasum=$($0 read $full_file_path | shasum)
+      $0 read $full_file_path | $0 write $full_file_path
+
+      printf "  Testing integrity...\n"
+      if [[ $original_shasum != $($0 read $full_file_path | shasum) ]]; then
+        printf "  ${RED}Rekeying file '$full_file_path' failed!${NC}\n"
+      fi
+
+      echo
+    done
+
+    echo "$file_count files processed."
+    ;;
+
   exists)
+    # Checks for $FILEPATH
+    verify_file_param
+
     if [[ -f $FULLPATH.asc ]]; then
       echo "yes"
       exit 0
