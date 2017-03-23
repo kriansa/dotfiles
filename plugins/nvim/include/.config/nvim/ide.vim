@@ -3,7 +3,7 @@ let g:ide_metadata_dir = '.git'
 
 " Gutentags configs
 "
-let g:gutentags_tagfile = g:ide_metadata_dir . '/tags'
+let g:gutentags_ctags_tagfile = g:ide_metadata_dir . '/tags'
 let g:gutentags_ctags_executable = 'vim-tags'
 let g:gutentags_enabled = 0
 " TODO: There is still something to be added here: auto generation of tags for
@@ -53,4 +53,4 @@ endfunction
 
 " Enable session to be automatically loaded if you specify nvim to be opened
 " in a directory instead a single file
-autocmd VimEnter * nested if (isdirectory(argv(0))) | call LoadSession() | endif
+autocmd VimEnter * nested if (isdirectory(argv(0))) | execute 'cd ' . argv(0) | call LoadSession() | endif

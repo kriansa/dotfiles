@@ -48,6 +48,7 @@ Plug 'tomtom/tcomment_vim'
 Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock'
 Plug 'rhysd/vim-textobj-anyblock'
+Plug 'sgur/vim-textobj-parameter'
 
 " Emmet
 Plug 'mattn/emmet-vim'

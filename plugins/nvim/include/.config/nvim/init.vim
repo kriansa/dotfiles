@@ -22,7 +22,7 @@ set nowrap            " Disable word-wrap
 set wildmenu          " Helps command-line completion menu
 set scrolloff=3       " Scroll with at least 3 lines
 set encoding=utf-8    " Enables utf8 encoding
-" set cursorline        " Highlight the line the cursor is in
+set cursorline        " Highlight the line the cursor is in
 set noshowmode        " Disable showing the mode (such as -- INSERT --) in the bottom
 set noswapfile        " Never create swap files
 set nobackup          " Disable usage of backup files (~)
@@ -32,6 +32,7 @@ set visualbell t_vb=  " Disable bells on errors
 set laststatus=2      " Always enable bottom status line (airline)
 set noesckeys         " Disable using esc keys
 set hlsearch          " Enable search highlight
+set autoread          " Enable auto-read of files edited outside vim
 
 set list                                  " show hidden chars
 set listchars=tab:▸\ ,eol:¬,space:.       " chars to be shown
