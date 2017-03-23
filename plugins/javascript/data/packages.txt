@@ -1,1 +1,4 @@
+yarn
 tern
+eslint_d
+eslint-plugin-html
