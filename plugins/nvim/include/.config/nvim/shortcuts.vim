@@ -9,6 +9,7 @@ nmap <silent> <S-Tab> :silent :bprev<CR>
 nmap <Leader>b :CtrlPBuffer<CR>
 
 " NerdTREE toggle
+nmap <silent> <Leader>. :NERDTreeToggle<CR>
 nmap <silent> <Leader>; :NERDTreeToggle<CR>
 nmap <silent> <Leader>/ :call NERDTreeToggleInCurDir()<CR>
 nmap <silent> <Leader>\ :call NERDTreeToggleInCurDir()<CR>

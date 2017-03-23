@@ -85,8 +85,8 @@ runtime macros/matchit.vim
 
 " Configure python environment
 "
-let g:python_host_prog = systemlist('PYENV_VERSION=2.7.12 pyenv which python2')[0]
-let g:python3_host_prog = systemlist('PYENV_VERSION=3.5.2 pyenv which python3')[0]
+let g:python_host_prog = systemlist('PYENV_VERSION=2.7.13 pyenv which python2')[0]
+let g:python3_host_prog = systemlist('PYENV_VERSION=3.6.1 pyenv which python3')[0]
 
 " Plugin settings
 "
