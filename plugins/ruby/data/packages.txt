@@ -1,4 +1,4 @@
 neovim
 mailcatcher
 starscope
-
+rubocop

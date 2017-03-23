@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Plugin path
 PLUGIN_PATH=$(cd $(dirname $0)/..; pwd)
@@ -9,3 +9,6 @@ export RUBY_VERSION=$(cat $PLUGIN_PATH/.ruby-version)
 for package in $(cat $PLUGIN_PATH/data/packages.txt); do
   gem install $package
 done
+
+# Ensures that nodenv updates the binstubs
+rbenv rehash
