@@ -71,6 +71,7 @@ plugins=(
   python
   javascript
   lein
+  java
 
   # Utilities
   quick-cd
