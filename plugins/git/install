@@ -36,6 +36,7 @@ if ! [[ -f $HOME/.gitconfig ]]; then
     $PLUGIN_PATH/data/.gitconfig.example > $PLUGIN_PATH/include/.gitconfig
 
   link_file $PLUGIN_PATH ".gitconfig"
+  link_file $PLUGIN_PATH ".gitmessage"
 
   success '.gitconfig created'
 fi
