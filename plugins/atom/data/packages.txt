@@ -1,7 +1,9 @@
 Sublime-Style-Column-Selection
 atom-typescript
+busy-signal
 emmet
 git-history
+intentions
 language-docker
 language-elixir
 language-hcl
@@ -11,8 +13,10 @@ language-rust
 language-viml
 linter
 linter-alex
+linter-rubocop
+linter-ui-default
 merge-conflicts
 react
 split-diff
-
+vim-mode-plus
 

@@ -35,3 +35,38 @@
 
 '.platform-darwin atom-text-editor:not([mini])':
   'shift-cmd-E': 'emmet:expand-abbreviation'
+
+# Normal mode bindings
+'atom-text-editor.vim-mode-plus.normal-mode':
+  # Vim-mode-plus surround keys
+  'y s': 'vim-mode-plus:surround'
+  'd s': 'vim-mode-plus:delete-surround'
+  'c s': 'vim-mode-plus:change-surround'
+
+  # Esc esc to clear the search
+  'escape escape': 'vim-mode-plus:clear-highlight-search'
+
+  # Tab to switch tabs
+  'tab': 'pane:show-next-item'
+  'shift-tab': 'pane:show-previous-item'
+
+  # Overrides default behavior of vim.
+  # D deletes from the cursor to the end of the line; C changes from the cursor
+  # to the end of the line. For some reason, however, Y yanks the entire line,
+  # both before and after the cursor.
+  'Y': 'vim-mode-plus:yank-to-last-character-of-line'
+
+'atom-text-editor.vim-mode-plus.operator-pending-mode.surround-pending':
+  's': 'vim-mode-plus:inner-current-line'
+
+'atom-text-editor.vim-mode-plus.operator-pending-mode':
+  'Y': 'vim-mode-plus:yank vim-mode-plus:set-input-char-$'
+
+# Visual mode bindings
+'atom-text-editor.vim-mode-plus.visual-mode:not(.insert-mode)':
+  'S': 'vim-mode-plus:surround'
+
+# Insert mode bindings
+'atom-text-editor.vim-mode-plus.insert-mode':
+  # jk to escape insert mode (besides esc, ctrl-[ and ctrl-c)
+  'j k': 'vim-mode-plus:activate-normal-mode'
