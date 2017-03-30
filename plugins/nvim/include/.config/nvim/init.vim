@@ -33,6 +33,7 @@ set laststatus=2      " Always enable bottom status line (airline)
 set noesckeys         " Disable using esc keys
 set hlsearch          " Enable search highlight
 set autoread          " Enable auto-read of files edited outside vim
+set synmaxcol=200     " Limit syntax highlighting for long lines
 
 set list                                  " show hidden chars
 set listchars=tab:▸\ ,eol:¬,space:.       " chars to be shown
@@ -46,6 +47,8 @@ set preserveindent      " When reindenting a line, tries to preserve the indent-
 set shiftwidth=2        " Number of spaces to use for autoindenting
 set smarttab            " Insert tabs on the start of a line according to shiftwidth, not tabstop
 set shiftround          " Use multiple of shiftwidth when indenting with '<' and '>'
+
+set complete+=kspell    " Use spell completion when spell check is enabled
 
 set ignorecase   " Make search case insensitive
 set smartcase    " When searching with a uppercase letter, enable case-sensitive
@@ -123,6 +126,17 @@ let g:airline#extensions#tabline#close_symbol = '✖'
 " Enable deoplete
 let g:deoplete#enable_at_startup = 1
 
+" Use ternjs
+let g:tern_request_timeout = 1
+
+" Add extra filetypes
+let g:tern#filetypes = [
+                \ 'jsx',
+                \ 'javascript.jsx',
+                \ 'javascript',
+                \ 'vue'
+                \ ]
+
 " Disable polyglot languages
 let g:polyglot_disabled = ['javascript', 'ruby']
 
@@ -138,6 +152,9 @@ let g:auto_save_silent = 1
 
 " Ale
 let g:ale_javascript_eslint_executable = 'eslint_d'
+
+" Enable spell checking for git commit messages
+autocmd FileType gitcommit setlocal spell
 
 " The Silver Searcher
 "

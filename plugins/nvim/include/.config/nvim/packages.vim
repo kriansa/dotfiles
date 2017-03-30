@@ -5,6 +5,7 @@ call plug#begin('~/.config/nvim/plugged')
 " Nerdtree
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
+" Plug 'tpope/vim-vinegar'
 
 " Vim Airline
 Plug 'vim-airline/vim-airline'
@@ -78,6 +79,9 @@ Plug 'wincent/ferret'
 " Promising project far.vim: Find And Replace Vim plugin
 " Plug 'brooth/far.vim'
 " Plug 'dyng/ctrlsf.vim'
+
+" Bufkill (delete buffers without changing windows)
+Plug 'qpkorr/vim-bufkill'
 
 " Indent guides
 Plug 'nathanaelkane/vim-indent-guides'

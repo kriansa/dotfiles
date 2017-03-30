@@ -1,8 +1,19 @@
 #!/usr/bin/env ruby
 
-# The current interface for this script is the following:
-# 1. It is called from the directory which is set as "Project path"
-# 2. The first and only parameter is the file for which you should update the ctags, relative to the project path
+# This program will generate ctags file for entire projects
+# Its interface is defined as below:
+#
+#    The first and only parameter is the file path for which you want
+#    to scan and generate/update the ctags. You can use a relative
+#    path to the pwd, or pass an absolute path.
+#
+#    You can pass a entire directory as a parameter if you want.
+#
+#    The tags will be generated based on the pwd path - so ensure you
+#    run it from within the root folder of your project.
+#
+#    You need to pass the parameter -f to set the output ctags file.
+#
 # Options are:
 # => -f   Set the ctags output file (required)
 # => -v   Verbose mode (off by default)
@@ -11,45 +22,52 @@ require 'optparse'
 
 options = {
   destination: nil,
-  verbose: false,
+  verbose: false
 }
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: vim-tags [options] <path>"
+  opts.banner = 'Usage: vim-tags [options] <source path>'
 
-  opts.on("-f FILE", String, "Destination file") do |f|
+  opts.on('-f FILE', String, 'Destination file') do |f|
     options[:destination] = f
   end
 
-  opts.on("-v", "--verbose", "Verbose mode") do
+  opts.on('-v', '--verbose', 'Verbose mode') do
     options[:verbose] = true
   end
 
   # Unused options to keep compatibility with ctags
-  opts.on("--exclude=[GLOB]", "Exclude files") {}
-  opts.on("--options=[OPTIONFILE]", "Option not used") {}
-  opts.on("--append", "Option not used") {}
+  opts.on('--exclude=[GLOB]', 'Exclude files') {}
+  opts.on('--options=[OPTIONFILE]', 'Option not used') {}
+  opts.on('--append', 'Option not used') {}
 end.parse!
 
 # Detect tags output path
 project_path = Dir.pwd
-tags_output = "#{project_path}/#{options[:destination]}"
+filename = File.absolute_path(ARGV[0], Dir.pwd)
+tags_output = File.absolute_path(options[:destination], project_path)
 
 # Parse a .tagsignore located at the same folder as the tags output
 # If not present, use a global ignore file, located at
 # $RUBYPLUGINPATH/data/.tagsignore
 #
-# @param [String] tags_output
-def parse_tagsignore_file(tags_output)
-  tags_ignore = File.dirname(tags_output) + '/.tagsignore'
+# @param [String] project_path
+def parse_tagsignore_file(project_path)
+  ignore_files = []
+  ignore_files << File.expand_path('../data/.tagsignore',
+                                   File.dirname(__FILE__))
 
-  unless File.exists?(tags_ignore)
-    tags_ignore = File.expand_path("../data/.tagsignore", File.dirname(__FILE__))
-  end
+  # Add the project's git ignored files
+  git_ignore_file = "#{project_path}/.gitignore"
+  ignore_files << git_ignore_file if File.exist?(git_ignore_file)
 
-  IO.foreach(tags_ignore) do |path|
-    next if path.start_with?('#') or path.strip.empty?
-    yield path.strip if block_given?
+  ignore_files.each do |file|
+    IO.foreach(file).uniq.each do |path|
+      next if path.start_with?('#', '!') ||
+              path.include?('*') || path.strip.empty?
+
+      yield path.strip if block_given?
+    end
   end
 end
 
@@ -65,20 +83,22 @@ def generate_tags_with_starscope(project_path, tags_output, options)
   commandline = ["cd \"#{project_path}\" && starscope"]
 
   # Adds ignore files
-  commandline << "--exclude .git"
-  parse_tagsignore_file(tags_output) { |path| commandline << "--exclude \"#{path}\"" }
+  commandline << '--exclude .git'
+  parse_tagsignore_file(project_path) do |path|
+    commandline << "--exclude \"#{path}\""
+  end
 
   # Set output paths
   commandline << "--file \"#{starscope_db_output}\""
   commandline << "--export ctags,\"#{tags_output}\""
 
   unless options[:verbose]
-    commandline << "--quiet"
-    commandline << "> /dev/null 2>&1"
+    commandline << '--quiet'
+    commandline << '> /dev/null 2>&1'
   end
 
   # Execute it!
-  system commandline.join(" ")
+  system commandline.join(' ')
 end
 
 # Currently, uses only starscope

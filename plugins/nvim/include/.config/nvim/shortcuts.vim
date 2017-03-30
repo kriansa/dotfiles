@@ -8,6 +8,9 @@ nmap <silent> <Tab> :silent :bnext<CR>
 nmap <silent> <S-Tab> :silent :bprev<CR>
 nmap <Leader>b :CtrlPBuffer<CR>
 
+" Select last yanked text
+nnoremap <leader>v `[v`]
+
 " NerdTREE toggle
 nmap <silent> <Leader>. :NERDTreeToggle<CR>
 nmap <silent> <Leader>; :NERDTreeToggle<CR>
@@ -28,6 +31,7 @@ inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
 
 " Closes current buffer with <Leader>w
 nnoremap <silent> <Leader>w :bd<CR>
+nnoremap <silent> <Leader>W :BD<CR>
 
 " Closes current selected window with <Leader>q
 nnoremap <silent> <Leader>q <C-w>q
@@ -40,6 +44,13 @@ nnoremap <silent> <C-j> :wincmd j<CR>
 nnoremap <silent> <C-k> :wincmd k<CR>
 nnoremap <silent> <C-l> :wincmd l<CR>
 nnoremap <silent> <C-h> :wincmd h<CR>
+
+" Easy window management
+nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) * 3/2)<CR>
+nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
+nnoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>
+nnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>
+nnoremap <silent> <Leader>= :wincmd =<CR>
 
 " Disable arrow keys (Vim learner)
 noremap <Up> <NOP>
