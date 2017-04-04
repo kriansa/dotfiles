@@ -9,8 +9,12 @@
 	helper = GIT_CREDENTIAL_HELPER
 [alias]
 	co = checkout
+	cm = commit
+	rs = reset
 	st = status
-  graph = log --graph --pretty=format:'%C(auto)%h%Creset%C(auto)%d%Creset %s %C(magenta bold)(%cr)%Creset %C(cyan)<%aN>%Creset'
+	wip = "!git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit -m '--wip--'"
+	unwip = "!git log -n 1 | grep -q -c -- --wip-- && git reset HEAD~1"
+	graph = log --graph --pretty=format:'%C(auto)%h%Creset%C(auto)%d%Creset %s %C(magenta bold)(%cr)%Creset %C(cyan)<%aN>%Creset'
 [color]
 	diff = auto
 	status = auto
