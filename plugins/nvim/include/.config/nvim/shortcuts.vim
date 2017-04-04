@@ -6,7 +6,7 @@ let mapleader = "\<Space>"
 " Move between buffers
 nmap <silent> <Tab> :silent :bnext<CR>
 nmap <silent> <S-Tab> :silent :bprev<CR>
-nmap <Leader>b :CtrlPBuffer<CR>
+nmap <Leader><Space> :CtrlPBuffer<CR>
 
 " Select last yanked text
 nnoremap <leader>v `[v`]
@@ -36,9 +36,6 @@ nnoremap <silent> <Leader>W :BD<CR>
 " Closes current selected window with <Leader>q
 nnoremap <silent> <Leader>q <C-w>q
 
-" Return to normal mode while in insert mode with jk
-inoremap jk <ESC>
-
 " Easier navigation between splits
 nnoremap <silent> <C-j> :wincmd j<CR>
 nnoremap <silent> <C-k> :wincmd k<CR>
@@ -57,6 +54,12 @@ noremap <Up> <NOP>
 noremap <Down> <NOP>
 noremap <Left> <NOP>
 noremap <Right> <NOP>
+
+" Return to normal mode while in insert mode with jk
+inoremap jk <C-c>
+
+" Disable esc to exit visual mode
+inoremap <ESC> <NOP>
 
 " Disable Ex mode
 nnoremap Q <nop>
