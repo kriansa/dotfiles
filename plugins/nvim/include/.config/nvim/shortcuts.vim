@@ -31,7 +31,6 @@ inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
 
 " Closes current buffer with <Leader>w
 nnoremap <silent> <Leader>w :bd<CR>
-nnoremap <silent> <Leader>W :BD<CR>
 
 " Closes current selected window with <Leader>q
 nnoremap <silent> <Leader>q <C-w>q

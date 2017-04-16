@@ -5,7 +5,6 @@ call plug#begin('~/.config/nvim/plugged')
 " Nerdtree
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
-" Plug 'tpope/vim-vinegar'
 
 " Vim Airline
 Plug 'vim-airline/vim-airline'
@@ -20,9 +19,9 @@ Plug 'tpope/vim-obsession'
 
 " Languages support
 Plug 'sheerun/vim-polyglot'
-Plug 'vim-ruby/vim-ruby'
 
 " Ruby
+Plug 'vim-ruby/vim-ruby'
 Plug 'tpope/vim-bundler'
 " Plug 'tpope/vim-rake'
 " Plug 'tpope/vim-rails'
@@ -39,11 +38,12 @@ Plug 'hail2u/vim-css3-syntax'
 Plug 'othree/html5.vim'
 Plug 'posva/vim-vue'
 
-" Surrounding (things that should be native)
+" Surrounding and things that should be native
 Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-endwise'
 Plug 'tomtom/tcomment_vim'
+Plug 'justinmk/vim-sneak'
 
 " Text objects
 Plug 'kana/vim-textobj-user'
@@ -55,7 +55,6 @@ Plug 'sgur/vim-textobj-parameter'
 Plug 'mattn/emmet-vim'
 
 " Style
-Plug 'ryanoasis/vim-devicons'
 Plug 'tyrannicaltoucan/vim-quantum'
 Plug 'morhetz/gruvbox'
 Plug 'crusoexia/vim-monokai'
@@ -63,10 +62,13 @@ Plug 'KabbAmine/yowish.vim'
 Plug 'mhartington/oceanic-next'
 Plug 'rakr/vim-two-firewatch'
 Plug 'lifepillar/vim-solarized8'
+Plug 'junegunn/seoul256.vim'
+Plug 'joshdick/onedark.vim'
 
 " Git support
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
+Plug 'cohama/agit.vim'
 
 " EditorConfig support
 Plug 'editorconfig/editorconfig-vim'
@@ -80,18 +82,8 @@ Plug 'wincent/ferret'
 " Plug 'brooth/far.vim'
 " Plug 'dyng/ctrlsf.vim'
 
-" Bufkill (delete buffers without changing windows)
-Plug 'qpkorr/vim-bufkill'
-
-" Indent guides
-Plug 'nathanaelkane/vim-indent-guides'
-
 " Tags support
 Plug 'ludovicchabant/vim-gutentags'
-
-" Async support
-" Plug 'neomake/neomake'
-" Plug 'tpope/vim-dispatch'
 
 " Autosave
 Plug '907th/vim-auto-save'

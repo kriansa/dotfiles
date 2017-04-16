@@ -22,8 +22,8 @@ set nowrap            " Disable word-wrap
 set wildmenu          " Helps command-line completion menu
 set scrolloff=3       " Scroll with at least 3 lines
 set encoding=utf-8    " Enables utf8 encoding
-set cursorline        " Highlight the line the cursor is in
-set noshowmode        " Disable showing the mode (such as -- INSERT --) in the bottom
+" set cursorline        " Highlight the line the cursor is in
+" set noshowmode        " Disable showing the mode (such as -- INSERT --) in the bottom
 set noswapfile        " Never create swap files
 set nobackup          " Disable usage of backup files (~)
 set nowritebackup     " Disable creation of backup files
@@ -74,10 +74,13 @@ let $NVIM_TUI_ENABLE_CURSOR_SHAPE=2
 " highlight SpecialKey guifg = #444444
 
 " Quantum template
-colorscheme quantum
-let g:airline_theme = 'quantum'
-highlight NonText guifg = #414c52
-highlight SpecialKey guifg = #414c52
+" colorscheme quantum
+" let g:airline_theme = 'quantum'
+" highlight NonText guifg = #414c52
+" highlight SpecialKey guifg = #414c52
+
+" Yowish
+color yowish
 
 " Solarized
 " set background=light
@@ -108,20 +111,53 @@ let loaded_netrwPlugin = 1
 "  Disable invisible chars for NERDTree
 autocmd FileType nerdtree setlocal nolist
 
+" Terminal settings
+autocmd TermOpen term://* setlocal nolist
+
 " Airline settings
 "
 " Enable powerline fonts
 let g:airline_powerline_fonts = 1
-" Integrate with Obsession
-let g:airline#extensions#obsession#enabled = 1
 " Enable the list of buffers
 let g:airline#extensions#tabline#enabled = 1
 " Show just the filename
 let g:airline#extensions#tabline#fnamemod = ':t'
 " Buffer tabs separators
-let g:airline#extensions#tabline#left_sep = ' '
-let g:airline#extensions#tabline#left_alt_sep = ' '
+let g:airline#extensions#tabline#left_sep = ''
+let g:airline#extensions#tabline#left_alt_sep = ''
 let g:airline#extensions#tabline#close_symbol = '✖'
+let g:airline#extensions#tabline#buffers_label = 'B'
+let g:airline#extensions#tabline#tabs_label = 'T'
+" Load custom formatter available at:
+" autoload/airline/extensions/tabline/formatters/custom.vim
+let g:airline#extensions#tabline#formatter = 'custom'
+
+" Enable one-letter status modes
+let g:airline_mode_map = {
+    \ '__' : '-',
+    \ 'n'  : 'N',
+    \ 'i'  : 'I',
+    \ 'R'  : 'R',
+    \ 'c'  : 'C',
+    \ 'v'  : 'V',
+    \ 'V'  : 'V',
+    \ '' : 'V',
+    \ 's'  : 'S',
+    \ 'S'  : 'S',
+    \ '' : 'S',
+    \ 't'  : 'T',
+    \ }
+
+" Turn the status on the right cleaner
+let g:airline_skip_empty_sections = 1
+let g:airline_section_z = '%#__accent_bold#%{g:airline_symbols.linenr}%4l%#__restore__#%#__accent_bold#/%L%#__restore__# :%3v'
+let g:airline_section_y = ''
+
+" Change the "non-versioned" symbol
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
+let g:airline_symbols.notexists = ' ✗'
 
 " Enable deoplete
 let g:deoplete#enable_at_startup = 1
@@ -162,4 +198,4 @@ autocmd FileType gitcommit setlocal spell
 set grepprg=ag\ --nogroup\ --nocolor\ --hidden\ --ignore\ .git
 
 " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-let g:ctrlp_user_command = 'ag %s -l --max-count 1 --hidden --nocolor -g "" --ignore .git'
+let g:ctrlp_user_command = 'ag %s --hidden --ignore .git -l -g ""'
