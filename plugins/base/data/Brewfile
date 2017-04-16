@@ -14,6 +14,7 @@ brew 'the_silver_searcher'
 brew 'gnupg@2.1'
 brew 'pinentry-mac'
 brew 'neovim/neovim/neovim'
+brew 'shellcheck'
 
 cask 'gitkraken'
 cask 'mysqlworkbench'
