@@ -11,6 +11,9 @@ nmap <Leader><Space> :CtrlPBuffer<CR>
 " Select last yanked text
 nnoremap <leader>v `[v`]
 
+" Make CTRL-C in Insert mode trigger `InsertLeave`
+inoremap <C-c> <Esc>
+
 " NerdTREE toggle
 nmap <silent> <Leader>. :NERDTreeToggle<CR>
 nmap <silent> <Leader>; :NERDTreeToggle<CR>
@@ -47,18 +50,6 @@ nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
 nnoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>
 nnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>
 nnoremap <silent> <Leader>= :wincmd =<CR>
-
-" Disable arrow keys (Vim learner)
-noremap <Up> <NOP>
-noremap <Down> <NOP>
-noremap <Left> <NOP>
-noremap <Right> <NOP>
-
-" Return to normal mode while in insert mode with jk
-inoremap jk <C-c>
-
-" Disable esc to exit visual mode
-inoremap <ESC> <NOP>
 
 " Disable Ex mode
 nnoremap Q <nop>

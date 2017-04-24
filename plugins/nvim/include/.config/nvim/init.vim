@@ -74,13 +74,13 @@ let $NVIM_TUI_ENABLE_CURSOR_SHAPE=2
 " highlight SpecialKey guifg = #444444
 
 " Quantum template
-" colorscheme quantum
-" let g:airline_theme = 'quantum'
-" highlight NonText guifg = #414c52
-" highlight SpecialKey guifg = #414c52
+colorscheme quantum
+let g:airline_theme = 'quantum'
+highlight NonText guifg = #414c52
+highlight SpecialKey guifg = #414c52
 
 " Yowish
-color yowish
+" color yowish
 
 " Solarized
 " set background=light
@@ -111,8 +111,10 @@ let loaded_netrwPlugin = 1
 "  Disable invisible chars for NERDTree
 autocmd FileType nerdtree setlocal nolist
 
-" Terminal settings
-autocmd TermOpen term://* setlocal nolist
+" Terminal settings (Neovim only)
+if has('nvim')
+  autocmd TermOpen term://* setlocal nolist
+endif
 
 " Airline settings
 "
