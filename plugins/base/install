@@ -28,8 +28,7 @@ elif [[ $OS_NAME == "OSX" ]]; then
   fi
 
   # Install fonts
-  cp -f ${PLUGIN_PATH}/data/Hack-Font-Powerline/*.ttf "${HOME}/Library/Fonts"
-  cp -f ${PLUGIN_PATH}/data/Knack-Font/*.ttf "${HOME}/Library/Fonts"
+  cp -f ${PLUGIN_PATH}/data/Fonts/**/*.ttf "${HOME}/Library/Fonts"
 
   success 'Packages installed'
 fi
