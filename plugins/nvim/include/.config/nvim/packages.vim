@@ -9,20 +9,12 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 " Vim Airline
 Plug 'vim-airline/vim-airline'
 
-" Deoplete (autocomplete for neovim)
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'fishbullet/deoplete-ruby'
-Plug 'carlitux/deoplete-ternjs'
-
 " Obsession (project/session manager)
 Plug 'tpope/vim-obsession'
 
-" Languages support
-Plug 'sheerun/vim-polyglot'
-
 " Ruby
 Plug 'vim-ruby/vim-ruby'
-Plug 'tpope/vim-bundler'
+" Plug 'tpope/vim-bundler'
 " Plug 'tpope/vim-rake'
 " Plug 'tpope/vim-rails'
 
@@ -37,6 +29,14 @@ Plug 'hail2u/vim-css3-syntax'
 " HTML
 Plug 'othree/html5.vim'
 Plug 'posva/vim-vue'
+
+" Languages support
+Plug 'sheerun/vim-polyglot'
+
+" Deoplete (autocomplete for neovim)
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'fishbullet/deoplete-ruby'
+Plug 'carlitux/deoplete-ternjs'
 
 " Surrounding and things that should be native
 Plug 'tpope/vim-surround'
