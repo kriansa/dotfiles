@@ -3,7 +3,7 @@
 let g:python_host_prog = systemlist('PYENV_VERSION=2.7.13 pyenv which python2')[0]
 let g:python3_host_prog = systemlist('PYENV_VERSION=3.6.1 pyenv which python3')[0]
 
-" Plugin settings
+" NERDTree settings
 "
 " Enable hidden files on NERDTree
 let g:NERDTreeShowHidden=1
@@ -11,10 +11,6 @@ let g:NERDTreeShowHidden=1
 let g:NERDTreeQuitOnOpen=0
 " Ignore metadata
 let g:NERDTreeIgnore=['.git$', '\~$']
-" Disable DevIcons for NERDTree
-let g:WebDevIcons_enable_nerdtree = 0
-let g:WebDevIconsUnicodeDecorateFolderNodes = 0
-let g:DevIconsEnableFoldersOpenClose = 0
 " Disable netrw
 let loaded_netrwPlugin = 1
 "  Disable invisible chars for NERDTree
@@ -64,7 +60,7 @@ let g:airline_skip_empty_sections = 1
 let g:airline_section_z = '%#__accent_bold#%{g:airline_symbols.linenr}%4l%#__restore__#%#__accent_bold#/%L%#__restore__# :%3v'
 let g:airline_section_y = ''
 
-" Change the "non-versioned" symbol
+" Change the 'non-versioned' symbol
 if !exists('g:airline_symbols')
   let g:airline_symbols = {}
 endif
@@ -95,9 +91,6 @@ let g:polyglot_disabled = ['javascript', 'ruby']
 
 " Enable node plugin on the following filetypes
 let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
-
-" Indent plugin
-let g:indent_guides_start_level = 2
 
 " Enable autosave
 let g:auto_save = 1
