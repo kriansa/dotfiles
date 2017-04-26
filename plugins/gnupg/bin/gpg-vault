@@ -11,11 +11,15 @@
 ##   write         Save the content of stdin encrypted into the file
 ##   exists        Checks whether the file exists (yes or no)
 ##   rekey         Rekey the entire path using the vault keys
+##   import-keys   Import the keys from the vault into your keyring
 ##
 
 # Set default variables
 : ${GPG_VAULT_PATH:=$HOME/.gpg-vault}
 : ${GPG_COMMAND:=gpg2}
+
+# Set version
+VERSION="0.3"
 
 # Path
 ACTION=$1
@@ -23,7 +27,7 @@ FILEPATH=$2
 FULLPATH=$GPG_VAULT_PATH/$FILEPATH
 
 function help {
-  echo "GPG-Vault v0.3"
+  echo "GPG-Vault v${VERSION}"
   echo ""
   echo "  This is just a wrapper of GPG to securely store files."
   echo "  It's not meant to store large files, so be reasonable."
@@ -36,6 +40,7 @@ function help {
   echo "  write - Saves the content of the stdin into the file"
   echo "  exists - Checks whether the given file exists (yes or no)"
   echo "  rekey - Rekey the entire path using the vault keys"
+  echo "  import-keys - Import the keys from the vault into your keyring"
   echo ""
   echo "Extra:"
   echo "  By default, it uses ~/.gpg-vault as the basepath of gpg-vault."
@@ -94,6 +99,7 @@ function find_vault_keys_file {
   return 1
 }
 
+# Ensure the variable $FILEPATH is not empty, regardless of its value
 function verify_file_param {
   if [[ $FILEPATH == "" ]]; then
     echo "The filepath must be a valid path!"
@@ -101,8 +107,43 @@ function verify_file_param {
   fi
 }
 
+# Set the variable $recipients with the key values
+#
+function list_vault_keys {
+  local vault_path=$1
+  local separator=$2
+  local key=""
+
+  # Locate the closest vault-keys file in the tree
+  local vault_keys_file=$(find_vault_keys_file $vault_path || true)
+
+  if [[ $vault_keys_file == "" ]]; then
+    echo "File .vault-keys not found in tree '$vault_path'"
+    return 1
+  fi
+
+  # Adds a `$config_keys` array
+  eval $(parse_yaml "$vault_keys_file" config | grep keys)
+
+  if [[ ${#config_keys[@]} == 0 ]]; then
+    echo "File '$vault_keys_file' contains invalid keys section!"
+    return 1
+  fi
+
+  for key in "${config_keys[@]}"; do
+    key=$(echo $key | tr -d ' ')
+    recipients="${recipients}${separator}${key}"
+  done
+}
+
 # Validates all subcommands we support
-if [[ $ACTION != "read" ]] && [[ $ACTION != "edit" ]] && [[ $ACTION != "write" ]] && [[ $ACTION != "exists" ]] && [[ $ACTION != "rekey" ]]; then
+if [[ $ACTION != "read" ]] &&
+  [[ $ACTION != "edit" ]] &&
+  [[ $ACTION != "write" ]] &&
+  [[ $ACTION != "exists" ]] &&
+  [[ $ACTION != "rekey" ]] &&
+  [[ $ACTION != "import-keys" ]]
+then
   help
   exit 1
 fi
@@ -187,6 +228,9 @@ case $ACTION in
 
     vault_path=$(dirname $FULLPATH)
 
+    # Set $recipients here
+    list_vault_keys "$vault_path" " -r "
+
     if [[ ! -f $vault_path ]]; then
       mkdir -p $vault_path
     fi
@@ -195,27 +239,6 @@ case $ACTION in
       echo "$FILEPATH isn't writable, no modifications are allowed!"
       exit 1
     fi
-
-    # Locate the closest vault-keys file in the tree
-    vault_keys_file=$(find_vault_keys_file $vault_path || true)
-
-    if [[ $vault_keys_file == "" ]]; then
-      echo "File .vault-keys not found in tree '$vault_path'"
-      exit 1
-    fi
-
-    # Adds a `$config_keys` array
-    eval $(parse_yaml "$vault_keys_file" config | grep keys)
-
-    if [[ ${#config_keys[@]} == 0 ]]; then
-      echo "File '$vault_keys_file' contains invalid keys section!"
-      exit 1
-    fi
-
-    for key in "${config_keys[@]}"; do
-      key=$(echo $key | tr -d ' ')
-      recipients="$recipients -r $key"
-    done
 
     $GPG_COMMAND --armor --encrypt --trust-model=always $recipients <&0 > $FULLPATH.asc
     ;;
@@ -231,7 +254,7 @@ case $ACTION in
       exit 1
     fi
 
-    cd "$GPG_VAULT_PATH/$VAULT_SUB_PATH"
+    cd "$GPG_VAULT_PATH/$VAULT_SUB_PATH" || exit 1
     files=$(find . -type f -name "*.asc" | sed -e 's/.asc$//' -e 's#^./##')
     file_count=$(echo "$files" | wc -l | bc)
 
@@ -251,7 +274,38 @@ case $ACTION in
       echo
     done
 
+    # Save keys on .vault-keys.asc
+    # Set $recipients here
+    list_vault_keys "$GPG_VAULT_PATH/$VAULT_SUB_PATH" " "
+
+    # Locate the closest vault-keys file in the tree
+    vault_keys_file="$(find_vault_keys_file "${GPG_VAULT_PATH}/${VAULT_SUB_PATH}").asc"
+
+    # Export keys to .vault-keys.asc
+    $GPG_COMMAND --armor --export ${recipients} > "$vault_keys_file"
+    echo "Keys exported to ${vault_keys_file}"
+
     echo "$file_count files processed."
+    ;;
+
+  import-keys)
+    # Checks for $FILEPATH
+    verify_file_param
+
+    FULLPATH=${GPG_VAULT_PATH}/${FILEPATH}
+
+    if ! test -r $FULLPATH; then
+      echo "The specified path ($FULLPATH) does not exist or is not readable!"
+      exit 1
+    fi
+
+    # Locate the closest vault-keys file in the tree
+    vault_keys_file="$(find_vault_keys_file "$FULLPATH").asc"
+
+    # Import the keys into the gpg keyring
+    $GPG_COMMAND --import $vault_keys_file
+
+    echo "Keys imported successfully!"
     ;;
 
   exists)
