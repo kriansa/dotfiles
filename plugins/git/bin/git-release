@@ -200,7 +200,7 @@ if [[ $COMMAND != "" ]]; then
           if [[ $(git status --porcelain | grep 'M') != "" ]]; then
             echo "This branch has staged files. Instead of trying to merge '${BRANCH_NAME}', we will just commit what is in it."
             echo
-            echo "If that's not what you want, then your stage area before running this command."
+            echo "If that's not what you want, then clear your stage area before running this command."
             read -p "Continue? (Yn)" -n 1 -r
             echo
 
@@ -291,8 +291,8 @@ if [[ $COMMAND != "" ]]; then
           if ! [[ $(git tag -l | grep $RELEASE_NAME) ]]; then
 
             # Pick the best editor and edit the message
-            _GIT_CONFIG_EDITOR=$(git config --get core.editor)
-            TEXT_EDITOR="${GIT_EDITOR:-${_GIT_CONFIG_EDITOR:-${VISUAL:-EDITOR}}}"
+            _GIT_CONFIG_EDITOR=$(git config --get core.editor || true)
+            TEXT_EDITOR="${GIT_EDITOR:-${_GIT_CONFIG_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}"
             $TEXT_EDITOR $RELEASE_MSG_FILE
 
             # Tag it!
@@ -321,7 +321,7 @@ if [[ $COMMAND != "" ]]; then
 
           # Publish draft to GitHub
           # Make release through Github API
-          # hub release create -f "$RELEASE_MSG_FILE" "$RELEASE_NAME" || true
+          hub release create -f "$RELEASE_MSG_FILE" "$RELEASE_NAME" || true
 
           # Remove release message
           test -f $RELEASE_MSG_FILE && rm $RELEASE_MSG_FILE
