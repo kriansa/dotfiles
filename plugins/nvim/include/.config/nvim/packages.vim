@@ -40,6 +40,7 @@ Plug 'carlitux/deoplete-ternjs'
 
 " Surrounding and things that should be native
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-endwise'
 Plug 'tomtom/tcomment_vim'
@@ -56,13 +57,8 @@ Plug 'mattn/emmet-vim'
 
 " Style
 Plug 'tyrannicaltoucan/vim-quantum'
-Plug 'morhetz/gruvbox'
 Plug 'crusoexia/vim-monokai'
 Plug 'KabbAmine/yowish.vim'
-Plug 'mhartington/oceanic-next'
-Plug 'rakr/vim-two-firewatch'
-Plug 'lifepillar/vim-solarized8'
-Plug 'junegunn/seoul256.vim'
 Plug 'joshdick/onedark.vim'
 
 " Git support
