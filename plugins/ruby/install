@@ -29,8 +29,18 @@ link_file $PLUGIN_PATH ".pryrc"
 # 3. Install plugin gems
 cd $PLUGIN_PATH
 
+# Install ruby
+if ! [[ $(rbenv versions | grep $(cat .ruby-version)) ]]; then
+  source ./ruby.plugin.zsh
+  rbenv install
+  success 'ruby installed'
+fi
+
 # Ensure we have bundler installed
 gem update --system && gem install bundler
 
+# Ensure we have bundler working
+rbenv rehash
+
 # Then install the gems listed
-bundle install
+update-ruby-packages
