@@ -2,3 +2,4 @@ yarn
 tern
 eslint_d
 eslint-plugin-html
+eslint-config-airbnb-base
