@@ -4,9 +4,11 @@
 # Installation proccess:
 #
 #  1. Install needed packages
+#  2. Install javascript packages
 #
 
 source 'helpers/installer_helper.zsh'
+PLUGIN_PATH=$0:A:h
 
 if ! [ -d ~/.nodenv ]; then
   git clone https://github.com/nodenv/nodenv.git ~/.nodenv
@@ -17,3 +19,16 @@ if ! [ -d ~/.nodenv/plugins/node-build ]; then
   git clone https://github.com/nodenv/node-build.git ~/.nodenv/plugins/node-build
   success 'node-build installed'
 fi
+
+# 3. Install plugin gems
+cd $PLUGIN_PATH
+
+# Install node
+if ! [[ $(nodenv versions | grep $(cat .node-version)) ]]; then
+  source ./javascript.plugin.zsh
+  nodenv install
+  success 'node installed'
+fi
+
+# Then install the packages listed on data/packages.txt
+update-node-packages
