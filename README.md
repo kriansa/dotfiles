@@ -11,13 +11,26 @@ My dotfiles are just a enhanced way to work with plugins on `oh-my-zsh`. Fork it
 
 ## Installation
 
-First you have to install the awesome oh-my-zsh:
+1. Install Homebrew
+
+```shell
+$ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+2. Install required packages: `curl` and `zsh`
+
+```shell
+$ brew install curl zsh
+```
+3. Install oh-my-zsh:
 
 ```shell
 $ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 ```
 
-Then you install this project inside your `~/.dotfiles` path and run `bin/setup`.
+4. Install [iterm-beta](https://www.iterm2.com/downloads.html)
+
+5. Clone this project inside your `~/.dotfiles` path and run `bin/setup`.
 
 ```shell
 $ git clone git@github.com:kriansa/dotfiles.git ~/.dotfiles
