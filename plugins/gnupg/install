@@ -15,7 +15,7 @@ DOTFILES_ROOT=$(pwd)
 
 # 1. Install GnuPG 2.1
 if [[ $OS_NAME == "OSX" ]]; then
-  brew install homebrew/versions/gnupg21 pinentry-mac
+  brew install gnupg@2.1 pinentry-mac
 
   link_file $PLUGIN_PATH "Library/LaunchAgents/org.gnupg.gpg-agent.plist"
   launchctl load $HOME/Library/LaunchAgents/org.gnupg.gpg-agent.plist

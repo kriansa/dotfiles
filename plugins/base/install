@@ -16,16 +16,8 @@ if [[ $OS_NAME == "linux" ]]; then
   # Linux
   # TODO
 elif [[ $OS_NAME == "OSX" ]]; then
-  # Install brew
-  if [[ $(type "brew" &> /dev/null; echo $?) != "0" ]]; then
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
-    # Install homebrew-bundler
-    brew tap homebrew/bundle
-
-    # Install homebrew packages
-    cd "${PLUGIN_PATH}/data" && brew bundle && cd -
-  fi
+  # Install homebrew packages
+  cd "${PLUGIN_PATH}/data" && brew bundle && cd -
 
   # Install fonts
   cp -f ${PLUGIN_PATH}/data/Fonts/**/*.ttf "${HOME}/Library/Fonts"

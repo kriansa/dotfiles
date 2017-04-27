@@ -1,5 +1,6 @@
 tap 'caskroom/cask'
 tap 'homebrew/services'
+tap 'neovim/neovim'
 
 brew 'wrk'
 brew 'ncdu'
