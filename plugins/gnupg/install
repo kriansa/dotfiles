@@ -37,7 +37,8 @@ gpg2 --card-status
 # 4. Now let's create our gpg-agent file based on our example
 # This is required so each platform have its own file
 if [[ -f $HOME/.gnupg/gpg-agent.conf ]]; then
-  fail "File \"$HOME/.gnupg/gpg-agent.conf\" already exists!"
+  info "File \"$HOME/.gnupg/gpg-agent.conf\" already exists!"
+  exit
 fi
 
 if [[ $OS_NAME == "OSX" ]]; then
