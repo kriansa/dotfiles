@@ -1,5 +1,7 @@
 yarn
 tern
+eslint
 eslint_d
 eslint-plugin-html
+eslint-plugin-import
 eslint-config-airbnb-base
