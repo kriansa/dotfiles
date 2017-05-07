@@ -15,6 +15,7 @@
 	wip = "!git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit -m '--wip--'"
 	unwip = "!git log -n 1 | grep -q -c -- --wip-- && git reset HEAD~1"
 	graph = log --graph --pretty=format:'%C(auto)%h%Creset%C(auto)%d%Creset %s %C(magenta bold)(%cr)%Creset %C(cyan)<%aN>%Creset'
+	uncommit = reset --soft HEAD^
 [color]
 	diff = auto
 	status = auto
