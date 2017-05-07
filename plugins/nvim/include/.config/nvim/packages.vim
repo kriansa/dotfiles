@@ -59,7 +59,7 @@ Plug 'mattn/emmet-vim'
 Plug 'tyrannicaltoucan/vim-quantum'
 Plug 'crusoexia/vim-monokai'
 Plug 'KabbAmine/yowish.vim'
-Plug 'joshdick/onedark.vim'
+Plug 'rakr/vim-one'
 
 " Git support
 Plug 'tpope/vim-fugitive'

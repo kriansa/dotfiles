@@ -13,13 +13,6 @@ let g:NERDTreeQuitOnOpen=0
 let g:NERDTreeIgnore=['.git$', '\~$']
 " Disable netrw
 let loaded_netrwPlugin = 1
-"  Disable invisible chars for NERDTree
-autocmd FileType nerdtree setlocal nolist
-
-" Terminal settings (Neovim only)
-if has('nvim')
-  autocmd TermOpen term://* setlocal nolist
-endif
 
 " Airline settings
 "
@@ -98,9 +91,6 @@ let g:auto_save_silent = 1
 
 " Ale
 let g:ale_javascript_eslint_executable = 'eslint_d'
-
-" Enable spell checking for git commit messages
-autocmd FileType gitcommit setlocal spell
 
 " The Silver Searcher
 "

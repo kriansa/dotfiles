@@ -21,7 +21,7 @@ set nowritebackup     " Disable creation of backup files
 set mouse=            " Disables the mouse
 set visualbell t_vb=  " Disable bells on errors
 set laststatus=2      " Always enable bottom status line (airline)
-set noesckeys         " Disable using esc keys
+" set noesckeys         " Disable using esc keys
 set hlsearch          " Enable search highlight
 set autoread          " Enable auto-read of files edited outside vim
 set synmaxcol=200     " Limit syntax highlighting for long lines
@@ -54,3 +54,20 @@ autocmd BufWinEnter * silent! :%foldopen!
 
 " Disable vim autocompletion for these files below
 set wildignore=node_modules,.git,.DS_Store
+
+" AutoCommands for filetypes
+"
+
+"  Disable invisible chars for NERDTree
+autocmd FileType nerdtree setlocal nolist
+
+" Enable line-wrap for markdown
+autocmd FileType markdown setlocal wrap
+
+" Enable spell checking for git commit messages
+autocmd FileType gitcommit setlocal spell
+
+" Terminal settings (Neovim only)
+if has('nvim')
+  autocmd TermOpen term://* setlocal nolist
+endif

@@ -10,3 +10,6 @@ if [[ -n $SSH_CONNECTION ]]; then
 else
   export EDITOR='nvim'
 fi
+
+# 3. Aliases
+alias v=$EDITOR

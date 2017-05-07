@@ -3,15 +3,12 @@
 " Enable true colors
 set termguicolors
 
-" Enable different cursor for edit mode
-let $NVIM_TUI_ENABLE_CURSOR_SHAPE=2
-
 " This method fixes a few color schemes for specific colors that
 " don't look well for invisible characters (such as spaces and CRs)
 "
 autocmd ColorScheme * call FixColorScheme()
 function! FixColorScheme()
-  if (g:colors_name =~ "quantum")
+  if (g:colors_name == "quantum")
     if (g:quantum_black == 1)
       " Fix for quantum black
       highlight NonText guifg = #333333
@@ -21,7 +18,7 @@ function! FixColorScheme()
       highlight NonText guifg = #414c52
       highlight SpecialKey guifg = #414c52
     endif
-  elseif (g:colors_name =~ "monokai")
+  elseif (g:colors_name == "monokai")
     " Fix for monokai
     highlight NonText guifg = #444444
     highlight SpecialKey guifg = #444444
@@ -34,11 +31,12 @@ endfunction
 " color monokai
 
 " Quantum template
-" let g:quantum_black=1
-" color quantum
+let g:quantum_black=1
+color quantum
 
 " Yowish
 " color yowish
 
-" OneDark
-color onedark
+" One
+" let g:one_allow_italics = 1
+" color one-dark
