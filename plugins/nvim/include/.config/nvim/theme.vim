@@ -31,12 +31,13 @@ endfunction
 " color monokai
 
 " Quantum template
-let g:quantum_black=1
-color quantum
+" let g:quantum_black=1
+" let g:quantum_italics=1
+" color quantum
 
 " Yowish
 " color yowish
 
 " One
-" let g:one_allow_italics = 1
-" color one-dark
+let g:one_allow_italics = 1
+color one-dark
