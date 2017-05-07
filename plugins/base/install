@@ -22,6 +22,11 @@ elif [[ $OS_NAME == "OSX" ]]; then
   # Install fonts
   cp -f ${PLUGIN_PATH}/data/Fonts/**/*.ttf "${HOME}/Library/Fonts"
 
+  # Install terminfo
+  for terminfo in $(ls ${PLUGIN_PATH}/data/terminfo); do
+    tic $terminfo
+  done
+
   success 'Packages installed'
 fi
 
