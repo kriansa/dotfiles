@@ -25,6 +25,7 @@ fi
 # 2. Link files
 link_file $PLUGIN_PATH ".gemrc"
 link_file $PLUGIN_PATH ".pryrc"
+link_file $PLUGIN_PATH ".ruby-version"
 
 # 3. Install plugin gems
 cd $PLUGIN_PATH
