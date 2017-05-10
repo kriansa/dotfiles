@@ -19,7 +19,7 @@
 : ${GPG_COMMAND:=gpg2}
 
 # Set version
-VERSION="0.3"
+VERSION="0.4"
 
 # Path
 ACTION=$1
