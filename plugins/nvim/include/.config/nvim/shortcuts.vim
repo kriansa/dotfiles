@@ -4,8 +4,6 @@
 let mapleader = "\<Space>"
 
 " Move between buffers
-nmap <silent> <Tab> :silent :bnext<CR>
-nmap <silent> <S-Tab> :silent :bprev<CR>
 nmap <Leader><Space> :CtrlPBuffer<CR>
 
 " Select last yanked text
@@ -23,10 +21,14 @@ function! NERDTreeToggleInCurDir()
   " If NERDTree is open in the current buffer
   if (exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1)
     execute ":NERDTreeClose"
+  elseif bufname("%") == ""
+    execute ":NERDTree"
   else
     execute ":NERDTreeFind"
   endif
 endfunction
+
+autocmd vimenter * if bufname("%") == "" | echo "Empty buffer" | endif
 
 " Deoplete tab-complete
 inoremap <expr><Tab> pumvisible() ? "\<c-n>" : "\<Tab>"

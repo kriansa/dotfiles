@@ -14,7 +14,7 @@ Plug 'tpope/vim-obsession'
 
 " Ruby
 Plug 'vim-ruby/vim-ruby'
-" Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-bundler'
 " Plug 'tpope/vim-rake'
 " Plug 'tpope/vim-rails'
 
@@ -41,8 +41,8 @@ Plug 'carlitux/deoplete-ternjs'
 " Surrounding and things that should be native
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-endwise'
+Plug 'jiangmiao/auto-pairs'
 Plug 'tomtom/tcomment_vim'
 Plug 'justinmk/vim-sneak'
 

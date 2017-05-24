@@ -25,6 +25,7 @@ set laststatus=2      " Always enable bottom status line (airline)
 set hlsearch          " Enable search highlight
 set autoread          " Enable auto-read of files edited outside vim
 set synmaxcol=200     " Limit syntax highlighting for long lines
+set colorcolumn=80    " Set a width to show a column
 
 set list                                  " show hidden chars
 set listchars=tab:▸\ ,eol:¬,space:.       " chars to be shown
@@ -66,6 +67,12 @@ autocmd FileType markdown setlocal wrap
 
 " Enable spell checking for git commit messages
 autocmd FileType gitcommit setlocal spell
+
+" Resize all windows when resizing vim
+autocmd VimResized * wincmd =
+
+" Exit paste when leaving InsertMode
+autocmd InsertLeave * set nopaste
 
 " Terminal settings (Neovim only)
 if has('nvim')
