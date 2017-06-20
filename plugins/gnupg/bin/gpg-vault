@@ -12,6 +12,8 @@
 ##   exists        Checks whether the file exists (yes or no)
 ##   rekey         Rekey the entire path using the vault keys
 ##   import-keys   Import the keys from the vault into your keyring
+##   export-keys   Used by `rekey` command internally to regenerate
+##                 the .vault-keys.asc file
 ##
 
 # Set default variables
@@ -19,7 +21,7 @@
 : ${GPG_COMMAND:=gpg2}
 
 # Set version
-VERSION="0.4"
+VERSION="0.5"
 
 # Path
 ACTION=$1
@@ -41,6 +43,8 @@ function help {
   echo "  exists - Checks whether the given file exists (yes or no)"
   echo "  rekey - Rekey the entire path using the vault keys"
   echo "  import-keys - Import the keys from the vault into your keyring"
+  echo "  export-keys - Used by `rekey` command internally to regenerate"
+  echo "                the .vault-keys.asc file"
   echo ""
   echo "Extra:"
   echo "  By default, it uses ~/.gpg-vault as the basepath of gpg-vault."
@@ -142,7 +146,8 @@ if [[ $ACTION != "read" ]] &&
   [[ $ACTION != "write" ]] &&
   [[ $ACTION != "exists" ]] &&
   [[ $ACTION != "rekey" ]] &&
-  [[ $ACTION != "import-keys" ]]
+  [[ $ACTION != "import-keys" ]] &&
+  [[ $ACTION != "export-keys" ]]
 then
   help
   exit 1
@@ -244,22 +249,21 @@ case $ACTION in
     ;;
 
   rekey)
-    VAULT_SUB_PATH=$2
     RED='\033[0;31m'
     GREEN='\e[1;32m'
     NC='\033[0m'
 
-    if [[ ! -d "$GPG_VAULT_PATH/$VAULT_SUB_PATH" ]]; then
-      echo "The specified folder '$GPG_VAULT_PATH/$VAULT_SUB_PATH' doesn't exist!"
+    if [[ ! -d "$GPG_VAULT_PATH/$FILEPATH" ]]; then
+      echo "The specified folder '$GPG_VAULT_PATH/$FILEPATH' doesn't exist!"
       exit 1
     fi
 
-    cd "$GPG_VAULT_PATH/$VAULT_SUB_PATH" || exit 1
-    files=$(find . -type f -name "*.asc" | sed -e 's/.asc$//' -e 's#^./##')
+    cd "$GPG_VAULT_PATH/$FILEPATH" || exit 1
+    files=$(find . -type f -name "*.asc" ! -name ".vault-keys.asc" | sed -e 's/.asc$//' -e 's#^./##')
     file_count=$(echo "$files" | wc -l | bc)
 
     for file in $files; do
-      full_file_path="$VAULT_SUB_PATH/$file"
+      full_file_path="$FILEPATH/$file"
       current=$((current + 1))
 
       printf "Rekeying file '${GREEN}$full_file_path${NC}' [$current/$file_count]\n"
@@ -275,17 +279,31 @@ case $ACTION in
     done
 
     # Save keys on .vault-keys.asc
-    # Set $recipients here
-    list_vault_keys "$GPG_VAULT_PATH/$VAULT_SUB_PATH" " "
-
-    # Locate the closest vault-keys file in the tree
-    vault_keys_file="$(find_vault_keys_file "${GPG_VAULT_PATH}/${VAULT_SUB_PATH}").asc"
-
-    # Export keys to .vault-keys.asc
-    $GPG_COMMAND --armor --export ${recipients} > "$vault_keys_file"
-    echo "Keys exported to ${vault_keys_file}"
+    $0 export-keys $FILEPATH
 
     echo "$file_count files processed."
+    ;;
+
+  export-keys)
+    GREEN='\e[1;32m'
+    NC='\033[0m'
+
+    # Checks for $FILEPATH
+    verify_file_param
+
+    # Locate all paths with .vault-keys in it
+    cd "$GPG_VAULT_PATH/$FILEPATH" || exit 1
+    paths=$(find . \( -type f -or -type l \) -name ".vault-keys" | sed -e 's#/.vault-keys$##' -e 's#^./##')
+
+    for path in $paths; do
+      # Set $recipients here
+      list_vault_keys "$path" " "
+
+      # Export keys to .vault-keys.asc
+      keys_file="$GPG_VAULT_PATH/$FILEPATH/$path/.vault-keys.asc"
+      $GPG_COMMAND --armor --export ${recipients} > "$keys_file"
+      printf "Keys from '${GREEN}${FILEPATH}/${path}${NC}' exported successfully\n"
+    done
     ;;
 
   import-keys)
