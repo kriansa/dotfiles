@@ -15,3 +15,6 @@ if ! [[ -d ~/.pyenv ]]; then
   git clone https://github.com/yyuu/pyenv.git ~/.pyenv
   success 'pyenv cloned'
 fi
+
+# Link .python-version
+link_file $PLUGIN_PATH ".python-version"
