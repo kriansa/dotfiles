@@ -40,7 +40,7 @@ function! CloseBuffer()
     execute ":NERDTreeClose"
   elseif &buftype == "quickfix"
     cclose
-  elseif &diff || bufname("%") == ".git/index" || &buftype == "help" || &buftype == 'nofile'
+  elseif &diff || bufname("%") == ".git/index" || &buftype == "help" || &buftype == 'nofile' || (bufname("%") == ".git/COMMIT_EDITMSG" && winnr("$") > 1)
     execute ":bd"
   else
     execute ":BD"
