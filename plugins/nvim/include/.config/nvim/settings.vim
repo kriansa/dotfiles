@@ -49,6 +49,10 @@ set smartcase    " When searching with a uppercase letter, enable case-sensitive
 set splitbelow
 set splitright
 
+if has('nvim')
+  set inccommand=split
+endif
+
 " Folding settings
 set foldmethod=syntax
 autocmd BufWinEnter * silent! :%foldopen!
@@ -60,7 +64,7 @@ set wildignore=node_modules,.git,.DS_Store
 "
 
 "  Disable invisible chars for NERDTree
-autocmd FileType nerdtree setlocal nolist
+autocmd FileType nerdtree setlocal nolist colorcolumn=
 
 " Enable line-wrap for markdown
 autocmd FileType markdown setlocal wrap
@@ -68,11 +72,17 @@ autocmd FileType markdown setlocal wrap
 " Enable spell checking for git commit messages
 autocmd FileType gitcommit setlocal spell
 
+" Disable number and colorcolumn on Quickfix window
+autocmd FileType qf setlocal nonumber colorcolumn=
+
 " Resize all windows when resizing vim
 autocmd VimResized * wincmd =
 
 " Exit paste when leaving InsertMode
 autocmd InsertLeave * set nopaste
+
+" Displays a message when on empty buffers
+autocmd VimEnter * if bufname("%") == "" | echo "Empty buffer" | endif
 
 " Terminal settings (Neovim only)
 if has('nvim')

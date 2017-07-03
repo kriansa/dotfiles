@@ -4,7 +4,7 @@ call plug#begin('~/.config/nvim/plugged')
 
 " Nerdtree
 Plug 'scrooloose/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
+" Plug 'Xuyuanp/nerdtree-git-plugin'
 
 " Vim Airline
 Plug 'vim-airline/vim-airline'
@@ -45,11 +45,11 @@ Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tomtom/tcomment_vim'
 Plug 'justinmk/vim-sneak'
+Plug 'machakann/vim-highlightedyank'
 
 " Text objects
 Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock'
-Plug 'rhysd/vim-textobj-anyblock'
 Plug 'sgur/vim-textobj-parameter'
 
 " Emmet
@@ -83,6 +83,9 @@ Plug 'ludovicchabant/vim-gutentags'
 
 " Autosave
 Plug '907th/vim-auto-save'
+
+" Bufkill
+Plug 'qpkorr/vim-bufkill'
 
 " Linter
 Plug 'w0rp/ale'

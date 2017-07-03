@@ -18,7 +18,7 @@ nmap <silent> <Leader>; :NERDTreeToggle<CR>
 nmap <silent> <Leader>/ :call NERDTreeToggleInCurDir()<CR>
 nmap <silent> <Leader>\ :call NERDTreeToggleInCurDir()<CR>
 function! NERDTreeToggleInCurDir()
-  " If NERDTree is open in the current buffer
+  " If NERDTree is open
   if (exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1)
     execute ":NERDTreeClose"
   elseif bufname("%") == ""
@@ -28,17 +28,35 @@ function! NERDTreeToggleInCurDir()
   endif
 endfunction
 
-autocmd vimenter * if bufname("%") == "" | echo "Empty buffer" | endif
-
 " Deoplete tab-complete
 inoremap <expr><Tab> pumvisible() ? "\<c-n>" : "\<Tab>"
 inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
 
+" Allows us closing buffers without affecting the windows, unless we are on
+" diff mode, quickfix or NerdTREE window, which is desirable that we remove
+" the windows.
+function! CloseBuffer()
+  if (exists("b:NERDTree"))
+    execute ":NERDTreeClose"
+  elseif &buftype == "quickfix"
+    cclose
+  elseif &diff || bufname("%") == ".git/index" || &buftype == "help" || &buftype == 'nofile'
+    execute ":bd"
+  else
+    execute ":BD"
+
+    " Don't let empty windows when there are buffers to be loaded
+    if bufname("%") == ""
+      execute ":bprevious"
+    endif
+  endif
+endfunction
+
 " Closes current buffer with <Leader>w
-nnoremap <silent> <Leader>w :bd<CR>
+nnoremap <silent> <Leader>w :call CloseBuffer()<CR>
 
 " Closes current selected window with <Leader>q
-nnoremap <silent> <Leader>q <C-w>q
+nnoremap <silent> <Leader>q :wincmd q<CR>
 
 " Easier navigation between splits
 nnoremap <silent> <C-j> :wincmd j<CR>
