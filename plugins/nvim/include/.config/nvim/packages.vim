@@ -4,7 +4,6 @@ call plug#begin('~/.config/nvim/plugged')
 
 " Nerdtree
 Plug 'scrooloose/nerdtree'
-" Plug 'Xuyuanp/nerdtree-git-plugin'
 
 " Vim Airline
 Plug 'vim-airline/vim-airline'
@@ -33,6 +32,10 @@ Plug 'posva/vim-vue'
 " Languages support
 Plug 'sheerun/vim-polyglot'
 
+" Editor features
+Plug 'w0rp/ale'
+Plug '907th/vim-auto-save'
+
 " Deoplete (autocomplete for neovim)
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'fishbullet/deoplete-ruby'
@@ -52,8 +55,9 @@ Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock'
 Plug 'sgur/vim-textobj-parameter'
 
-" Emmet
+" Editor powerups
 Plug 'mattn/emmet-vim'
+Plug 'editorconfig/editorconfig-vim'
 
 " Style
 Plug 'tyrannicaltoucan/vim-quantum'
@@ -66,14 +70,9 @@ Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 Plug 'cohama/agit.vim'
 
-" EditorConfig support
-Plug 'editorconfig/editorconfig-vim'
-
 " Fuzzy finder
 Plug 'ctrlpvim/ctrlp.vim'
-
-" Multi-file finder
-Plug 'wincent/ferret'
+Plug 'kriansa/ferret'
 " Promising project far.vim: Find And Replace Vim plugin
 " Plug 'brooth/far.vim'
 " Plug 'dyng/ctrlsf.vim'
@@ -81,14 +80,9 @@ Plug 'wincent/ferret'
 " Tags support
 Plug 'ludovicchabant/vim-gutentags'
 
-" Autosave
-Plug '907th/vim-auto-save'
-
-" Bufkill
+" Window management
 Plug 'qpkorr/vim-bufkill'
-
-" Linter
-Plug 'w0rp/ale'
+Plug 'simeji/winresizer'
 
 " Add plugins to &runtimepath
 call plug#end()

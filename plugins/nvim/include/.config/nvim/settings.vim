@@ -81,9 +81,6 @@ autocmd VimResized * wincmd =
 " Exit paste when leaving InsertMode
 autocmd InsertLeave * set nopaste
 
-" Displays a message when on empty buffers
-autocmd VimEnter * if bufname("%") == "" | echo "Empty buffer" | endif
-
 " Terminal settings (Neovim only)
 if has('nvim')
   autocmd TermOpen term://* setlocal nolist

@@ -13,6 +13,9 @@ runtime plugin-settings.vim
 " Load an IDE-like environment for vim
 runtime ide.vim
 
+" Close function which doesn't mess with my layout
+runtime window-close.vim
+
 " Load theme settings
 runtime theme.vim
 

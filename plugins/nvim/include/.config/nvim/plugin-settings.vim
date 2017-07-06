@@ -60,7 +60,7 @@ endif
 let g:airline_symbols.notexists = ' ✗'
 
 " Highlight yank
-let g:highlightedyank_highlight_duration = 500
+let g:highlightedyank_highlight_duration = 300
 
 " Configure Vim-Ruby plugin
 "
@@ -94,6 +94,9 @@ let g:auto_save_silent = 1
 
 " Ale
 let g:ale_javascript_eslint_executable = 'eslint_d'
+
+" Ferret
+let g:FerretGrepCommand='ag --vimgrep --width 4096 --hidden --ignore .git'
 
 " The Silver Searcher
 "
