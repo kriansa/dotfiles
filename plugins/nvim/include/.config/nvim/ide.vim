@@ -44,7 +44,7 @@ function! SaveSession()
   let meta_dir = getcwd() . '/' . g:ide_metadata_dir
 
   if (!isdirectory(meta_dir))
-    echo "This directory don't have a metadir (" . meta_dir . ") !"
+    echo "This directory doesn't have a metadir (" . meta_dir . ") !"
   else
     execute ":Obsession " . meta_dir . '/session.vim'
     let g:gutentags_enabled = 1
