@@ -28,4 +28,4 @@ tic $TMPDIR/$TERM.ti
 rm $TMPDIR/$TERM.ti
 
 # 4. Run package install
-nvim -c PlugInstall -c q -c q
+nvim -c PlugInstall -c qa
