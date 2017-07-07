@@ -72,7 +72,7 @@ Plug 'cohama/agit.vim'
 
 " Fuzzy finder
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'kriansa/ferret'
+Plug 'kriansa/ferret', { 'branch': 'feature/ferret-grep-command' }
 " Promising project far.vim: Find And Replace Vim plugin
 " Plug 'brooth/far.vim'
 " Plug 'dyng/ctrlsf.vim'
