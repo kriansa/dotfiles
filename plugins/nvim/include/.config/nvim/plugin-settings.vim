@@ -18,16 +18,8 @@ let loaded_netrwPlugin = 1
 "
 " Enable powerline fonts
 let g:airline_powerline_fonts = 1
-" Enable the list of buffers
+" Disable the list of buffers
 let g:airline#extensions#tabline#enabled = 0
-" Show just the filename
-let g:airline#extensions#tabline#fnamemod = ':t'
-" Buffer tabs separators
-let g:airline#extensions#tabline#left_sep = ''
-let g:airline#extensions#tabline#left_alt_sep = ''
-let g:airline#extensions#tabline#close_symbol = '✖'
-let g:airline#extensions#tabline#buffers_label = 'B'
-let g:airline#extensions#tabline#tabs_label = 'T'
 
 " Enable one-letter status modes
 let g:airline_mode_map = {
