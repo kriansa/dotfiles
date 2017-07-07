@@ -28,9 +28,6 @@ let g:airline#extensions#tabline#left_alt_sep = ''
 let g:airline#extensions#tabline#close_symbol = '✖'
 let g:airline#extensions#tabline#buffers_label = 'B'
 let g:airline#extensions#tabline#tabs_label = 'T'
-" Load custom formatter available at:
-" autoload/airline/extensions/tabline/formatters/custom.vim
-let g:airline#extensions#tabline#formatter = 'custom'
 
 " Enable one-letter status modes
 let g:airline_mode_map = {
