@@ -80,7 +80,7 @@ let g:tern#filetypes = [
                 \ ]
 
 " Disable polyglot languages
-let g:polyglot_disabled = ['javascript', 'ruby']
+let g:polyglot_disabled = ['javascript', 'ruby', 'css', 'scss', 'html']
 
 " Enable node plugin on the following filetypes
 let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
