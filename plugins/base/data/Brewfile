@@ -1,6 +1,5 @@
 tap 'caskroom/cask'
 tap 'homebrew/services'
-tap 'neovim/neovim'
 
 brew 'wrk'
 brew 'ncdu'
@@ -14,7 +13,7 @@ brew 'tmux'
 brew 'the_silver_searcher'
 brew 'gnupg@2.1'
 brew 'pinentry-mac'
-brew 'neovim/neovim/neovim'
+brew 'neovim'
 brew 'shellcheck'
 
 cask 'gitkraken'
