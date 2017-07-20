@@ -10,7 +10,7 @@ nmap <Leader><Space> :CtrlPBuffer<CR>
 nnoremap <leader>v `[v`]
 
 " Make CTRL-C in Insert mode trigger `InsertLeave`
-inoremap <C-c> <Esc>
+inoremap <C-c> <nop>
 
 " Leader + o creates a blank line above
 nmap <Leader>o o<Esc>
