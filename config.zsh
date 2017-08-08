@@ -52,13 +52,16 @@ plugins=(
   # Required
   base
 
+  # Vi-mode
+  vi-mode
+
   # Development utilities
   git
   gnupg
 
   # Development platforms
-  aws
-  android
+  # aws
+  # android
 
   # IDEs
   atom
