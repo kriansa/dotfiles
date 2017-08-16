@@ -23,14 +23,14 @@ function help {
 
 case $SUBCOMMAND in
   import)
-    gpg2 --import $DESTDIR/public-keys.asc
-    gpg2 --import-ownertrust $DESTDIR/ownertrust.txt
+    gpg --import $DESTDIR/public-keys.asc
+    gpg --import-ownertrust $DESTDIR/ownertrust.txt
     echo "GPG public data imported successfully!"
   ;;
 
   export)
-    gpg2 --export --armor > $DESTDIR/public-keys.asc
-    gpg2 --export-ownertrust > $DESTDIR/ownertrust.txt
+    gpg --export --armor > $DESTDIR/public-keys.asc
+    gpg --export-ownertrust > $DESTDIR/ownertrust.txt
     echo "GPG public data exported to \"$DESTDIR\" successfully!"
   ;;
 

@@ -9,5 +9,5 @@ source $ZSH/lib/clipboard.zsh
 # Use this if you're using standard SSH keys instead GnuPG agent
 # more ~/.ssh/id_rsa.pub | clipcopy | clipcopy | echo '=> Public key copied to clipboard.'
 
-KEY_DESCRIPTION=$(gpg2 -K "$GPG_MAIN_KEY" | grep uid | sed 's/.*\] //g')
-gpg2 --export-ssh-key $GPG_MAIN_KEY | sed "s/openpgp:.*/$KEY_DESCRIPTION/" | clipcopy | echo '=> Public key copied to clipboard.'
+KEY_DESCRIPTION=$(gpg -K "$GPG_MAIN_KEY" | grep uid | sed 's/.*\] //g')
+gpg --export-ssh-key $GPG_MAIN_KEY | sed "s/openpgp:.*/$KEY_DESCRIPTION/" | clipcopy | echo '=> Public key copied to clipboard.'

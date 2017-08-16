@@ -27,7 +27,7 @@ if ! [[ -f $HOME/.gitconfig ]]; then
   user ' - What is your github author email?\n'
   read -e git_authoremail
 
-  gpg_signing_key=$(gpg2 -K --with-fingerprint $git_authoremail | grep fingerprint | sed 's/.*= //')
+  gpg_signing_key=$(gpg -K --with-fingerprint $git_authoremail | grep fingerprint | sed 's/.*= //')
 
   sed -e "s/AUTHORNAME/$git_authorname/g" \
     -e "s/AUTHOREMAIL/$git_authoremail/g" \

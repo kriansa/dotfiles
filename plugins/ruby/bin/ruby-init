@@ -36,7 +36,7 @@ LATEST_RUBY_VERSION="$(cat $(cd $(dirname $0)/..; pwd)/.ruby-version)"
 
 # Set default variables
 : ${RUBY_VERSION:="$LATEST_RUBY_VERSION"}
-: ${COPYRIGHT_NAME:="$(gpg2 -K $GPG_MAIN_KEY | grep uid | head -1 | sed 's/uid.*\] //' | sed 's/ <.*>//')"}
+: ${COPYRIGHT_NAME:="$(gpg -K $GPG_MAIN_KEY | grep uid | head -1 | sed 's/uid.*\] //' | sed 's/ <.*>//')"}
 : ${BOILERPLATE_DIR:="$(dirname $(dirname $0))/data/project-boilerplate"}
 
 # Year

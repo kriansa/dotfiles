@@ -28,11 +28,11 @@ link_file $PLUGIN_PATH ".gnupg/sshcontrol"
 link_file $PLUGIN_PATH ".gnupg/sks-keyservers.netCA.pem"
 
 # 3. Import public keys, private stubs and ownertrust
-gpg2 --import < $PLUGIN_PATH/data/public-keys.asc
-gpg2 --import-ownertrust < $PLUGIN_PATH/data/ownertrust.txt
+gpg --import < $PLUGIN_PATH/data/public-keys.asc
+gpg --import-ownertrust < $PLUGIN_PATH/data/ownertrust.txt
 # To import private stubs (for the real keys located in the HSM), we only have
-#   to make sure the HSM card is connected and run gpg2 --card-status
-gpg2 --card-status
+#   to make sure the HSM card is connected and run gpg --card-status
+gpg --card-status
 
 # 4. Now let's create our gpg-agent file based on our example
 # This is required so each platform have its own file
