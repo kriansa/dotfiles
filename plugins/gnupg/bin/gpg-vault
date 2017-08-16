@@ -12,16 +12,16 @@
 ##   exists        Checks whether the file exists (yes or no)
 ##   rekey         Rekey the entire path using the vault keys
 ##   import-keys   Import the keys from the vault into your keyring
-##   export-keys   Used by `rekey` command internally to regenerate
+##   export-keys   Used by 'rekey' command internally to regenerate
 ##                 the .vault-keys.asc file
 ##
 
 # Set default variables
 : ${GPG_VAULT_PATH:=$HOME/.gpg-vault}
-: ${GPG_COMMAND:=gpg2}
+: ${GPG_COMMAND:=gpg}
 
 # Set version
-VERSION="0.5"
+VERSION="0.6"
 
 # Path
 ACTION=$1
@@ -43,7 +43,7 @@ function help {
   echo "  exists - Checks whether the given file exists (yes or no)"
   echo "  rekey - Rekey the entire path using the vault keys"
   echo "  import-keys - Import the keys from the vault into your keyring"
-  echo "  export-keys - Used by `rekey` command internally to regenerate"
+  echo "  export-keys - Used by 'rekey' command internally to regenerate"
   echo "                the .vault-keys.asc file"
   echo ""
   echo "Extra:"
