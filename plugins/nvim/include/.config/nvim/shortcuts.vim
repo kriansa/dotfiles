@@ -50,8 +50,8 @@ nnoremap <silent> <Leader>= :wincmd =<CR>
 " Makes Esc + Esc clear the last search
 nnoremap <silent> <Esc><Esc> :let @/=""<CR>
 
-" Winresizer starts with F3
-let g:winresizer_start_key = '<F3>'
+" Winresizer starts with <Leader>+e
+let g:winresizer_start_key = '<Leader>e'
 
 " Toggle paste mode with F2
 set pastetoggle=<F2>
