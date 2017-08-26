@@ -1,5 +1,4 @@
 " Packages
-"
 call plug#begin('~/.config/nvim/plugged')
 
 " Nerdtree
@@ -12,10 +11,13 @@ Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-obsession'
 
 " Ruby
-Plug 'vim-ruby/vim-ruby'
+Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
 Plug 'tpope/vim-bundler'
 " Plug 'tpope/vim-rake'
 " Plug 'tpope/vim-rails'
+
+" Elixir
+Plug 'elixir-lang/vim-elixir'
 
 " Javascript
 Plug 'pangloss/vim-javascript'
@@ -27,7 +29,7 @@ Plug 'hail2u/vim-css3-syntax'
 
 " HTML
 Plug 'othree/html5.vim'
-Plug 'posva/vim-vue'
+Plug 'posva/vim-vue', { 'for': 'vue' }
 
 " Languages support
 Plug 'sheerun/vim-polyglot'
@@ -37,9 +39,9 @@ Plug 'w0rp/ale'
 Plug '907th/vim-auto-save'
 
 " Deoplete (autocomplete for neovim)
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'fishbullet/deoplete-ruby'
-Plug 'carlitux/deoplete-ternjs'
+" Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+" Plug 'fishbullet/deoplete-ruby'
+" Plug 'carlitux/deoplete-ternjs'
 
 " Surrounding and things that should be native
 Plug 'tpope/vim-surround'
@@ -60,9 +62,9 @@ Plug 'mattn/emmet-vim'
 Plug 'editorconfig/editorconfig-vim'
 
 " Style
-Plug 'tyrannicaltoucan/vim-quantum'
-Plug 'crusoexia/vim-monokai'
-Plug 'KabbAmine/yowish.vim'
+" Plug 'tyrannicaltoucan/vim-quantum'
+" Plug 'crusoexia/vim-monokai'
+" Plug 'KabbAmine/yowish.vim'
 Plug 'rakr/vim-one'
 
 " Git support
@@ -73,9 +75,6 @@ Plug 'cohama/agit.vim'
 " Fuzzy finder
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'kriansa/ferret', { 'branch': 'feature/ferret-grep-command' }
-" Promising project far.vim: Find And Replace Vim plugin
-" Plug 'brooth/far.vim'
-" Plug 'dyng/ctrlsf.vim'
 
 " Tags support
 Plug 'ludovicchabant/vim-gutentags'
@@ -83,6 +82,7 @@ Plug 'ludovicchabant/vim-gutentags'
 " Window management
 Plug 'qpkorr/vim-bufkill'
 Plug 'simeji/winresizer'
+Plug 'troydm/zoomwintab.vim'
 
 " Add plugins to &runtimepath
 call plug#end()

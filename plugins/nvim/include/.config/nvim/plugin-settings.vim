@@ -1,7 +1,8 @@
-" Configure python environment
-"
-let g:python_host_prog = systemlist('PYENV_VERSION=2.7.13 pyenv which python2')[0]
-let g:python3_host_prog = systemlist('PYENV_VERSION=3.6.1 pyenv which python3')[0]
+" Disable remote plugins
+let g:loaded_python_provider = 1
+let g:loaded_python3_provider = 1
+let g:loaded_ruby_provider = 1
+let g:loaded_remote_plugins = 1
 
 " NERDTree settings
 "
@@ -46,7 +47,7 @@ let g:airline_section_y = ''
 if !exists('g:airline_symbols')
   let g:airline_symbols = {}
 endif
-let g:airline_symbols.notexists = ' ✗'
+let g:airline_symbols.notexists = ' '
 
 " Highlight yank
 let g:highlightedyank_highlight_duration = 300
@@ -58,18 +59,6 @@ let g:ruby_operators = 1
 
 " Enable deoplete
 let g:deoplete#enable_at_startup = 1
-
-" Configure TernJS
-"
-let g:tern_request_timeout = 1
-
-" Add extra filetypes
-let g:tern#filetypes = [
-                \ 'jsx',
-                \ 'javascript.jsx',
-                \ 'javascript',
-                \ 'vue'
-                \ ]
 
 " Disable polyglot languages
 let g:polyglot_disabled = ['javascript', 'ruby', 'css', 'scss', 'html']
