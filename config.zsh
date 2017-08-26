@@ -52,9 +52,6 @@ plugins=(
   # Required
   base
 
-  # Vi-mode
-  vi-mode
-
   # Development utilities
   git
   gnupg
