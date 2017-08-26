@@ -62,9 +62,9 @@ Plug 'mattn/emmet-vim'
 Plug 'editorconfig/editorconfig-vim'
 
 " Style
-" Plug 'tyrannicaltoucan/vim-quantum'
-" Plug 'crusoexia/vim-monokai'
-" Plug 'KabbAmine/yowish.vim'
+Plug 'tyrannicaltoucan/vim-quantum'
+Plug 'crusoexia/vim-monokai'
+Plug 'KabbAmine/yowish.vim'
 Plug 'rakr/vim-one'
 
 " Git support
