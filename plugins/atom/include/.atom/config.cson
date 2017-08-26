@@ -6,8 +6,8 @@
     ]
     telemetryConsent: "limited"
   editor:
-    fontFamily: "Hack"
-    fontSize: 16
+    fontFamily: "\"mplus Nerd Font\""
+    fontSize: 18
     invisibles:
       space: "."
     showInvisibles: true
@@ -17,9 +17,11 @@
     userId: "5828e174-b018-7856-6966-4eef61b175c5"
   linter: {}
   "linter-ui-default":
+    panelHeight: 69
     showPanel: true
   "markdown-preview":
     breakOnSingleNewline: true
+  "one-dark-ui": {}
   tabs:
     enableVcsColoring: true
     usePreviewTabs: true
