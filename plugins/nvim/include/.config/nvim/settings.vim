@@ -11,7 +11,7 @@ set number            " Display line numbers
 set relativenumber    " Display line numbers relative to the one you're in
 set nowrap            " Disable word-wrap
 set wildmenu          " Helps command-line completion menu
-set scrolloff=3       " Scroll with at least 3 lines
+set scrolloff=0       " Scroll with at least 3 lines
 set encoding=utf-8    " Enables utf8 encoding
 " set cursorline        " Highlight the line the cursor is in
 " set noshowmode        " Disable showing the mode (such as -- INSERT --) in the bottom
