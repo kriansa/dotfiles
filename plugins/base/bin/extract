@@ -22,6 +22,8 @@ if [ -f $1 ]; then
         *.pax.Z)    uncompress $1 --stdout | pax -r     ;;
         *.rar)      unrar x $1                          ;;
         *.Z)        uncompress $1                       ;;
+        *.xz)       xz -d $1                            ;;
+        *.7z)       7z x $1                             ;;
         *)          echo "'$1' cannot be extracted/mounted via extract()" ;;
     esac
 else
