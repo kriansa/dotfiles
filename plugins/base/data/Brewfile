@@ -18,6 +18,7 @@ brew 'shellcheck'
 brew 'xz'
 brew 'unrar'
 brew 'p7zip'
+brew 'editorconfig'
 
 cask 'gitkraken'
 cask 'mysqlworkbench'
