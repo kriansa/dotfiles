@@ -47,7 +47,7 @@ let g:airline_section_y = ''
 if !exists('g:airline_symbols')
   let g:airline_symbols = {}
 endif
-let g:airline_symbols.notexists = ' '
+let g:airline_symbols.notexists = ' '
 
 " Highlight yank
 let g:highlightedyank_highlight_duration = 300
