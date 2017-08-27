@@ -7,7 +7,11 @@ function! Close()
     execute ":NERDTreeClose"
   elseif &buftype == "quickfix"
     cclose
-  elseif &diff || bufname("%") == ".git/index" || &buftype == "help" || &buftype == 'nofile' || (bufname("%") == ".git/COMMIT_EDITMSG" && winnr("$") > 1)
+  elseif len(getbufinfo({ 'buflisted': 1 })) <= 1 && bufname("%") == ''
+    if confirm("This is the last buffer. Quit?", "&No\n&Yes", 1) == 2
+      qall
+    endif
+  elseif &diff || bufname("%") == ".git/index" || &buftype == "help" || &buftype == 'nofile' || (bufname("%") == ".git/COMMIT_EDITMSG" && winnr("$") > 1) || len(getbufinfo({ 'buflisted': 1 })) <= 1
     execute ":bd"
   else
     execute ":BD"
