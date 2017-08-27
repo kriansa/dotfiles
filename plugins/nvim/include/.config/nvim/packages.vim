@@ -38,6 +38,9 @@ Plug 'sheerun/vim-polyglot'
 Plug 'w0rp/ale'
 Plug '907th/vim-auto-save'
 
+" Enable preview of registers
+Plug 'junegunn/vim-peekaboo'
+
 " Deoplete (autocomplete for neovim)
 " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 " Plug 'fishbullet/deoplete-ruby'
