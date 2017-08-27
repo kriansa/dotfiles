@@ -9,9 +9,6 @@ nmap <Leader><Space> :CtrlPBuffer<CR>
 " Select last yanked text
 nnoremap <leader>v `[v`]
 
-" Make CTRL-C in Insert mode trigger `InsertLeave`
-inoremap <C-c> <nop>
-
 " Leader + o creates a blank line above
 nmap <Leader>o o<Esc>
 nmap <Leader>O O<Esc>
