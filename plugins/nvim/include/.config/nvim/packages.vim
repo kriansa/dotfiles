@@ -12,12 +12,12 @@ Plug 'tpope/vim-obsession'
 
 " Ruby
 Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
-Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-bundler', { 'for': 'ruby' }
 " Plug 'tpope/vim-rake'
 " Plug 'tpope/vim-rails'
 
 " Elixir
-Plug 'elixir-lang/vim-elixir'
+Plug 'elixir-lang/vim-elixir', { 'for': 'elixir' }
 
 " Javascript
 Plug 'pangloss/vim-javascript'
@@ -86,6 +86,9 @@ Plug 'ludovicchabant/vim-gutentags'
 Plug 'qpkorr/vim-bufkill'
 Plug 'simeji/winresizer'
 Plug 'troydm/zoomwintab.vim'
+
+" Terminal
+Plug 'kassio/neoterm'
 
 " Add plugins to &runtimepath
 call plug#end()
