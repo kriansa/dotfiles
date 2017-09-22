@@ -29,6 +29,7 @@ set colorcolumn=80    " Set a width to show a column
 
 set list                                  " show hidden chars
 set listchars=tab:▸\ ,eol:¬,space:.       " chars to be shown
+set showbreak=↪                           " char to be shown on wraped lines
 set clipboard+=unnamed                    " yanks to clipboard
 
 set expandtab           " Convert tabs into spaces
@@ -84,4 +85,6 @@ autocmd InsertLeave * set nopaste
 " Terminal settings (Neovim only)
 if has('nvim')
   autocmd TermOpen term://* setlocal nolist
+  " autocmd BufWinEnter,WinEnter term://* startinsert
+  " autocmd BufLeave term://* stopinsert
 endif
