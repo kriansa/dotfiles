@@ -6,7 +6,7 @@
     ]
     telemetryConsent: "limited"
   editor:
-    fontFamily: "\"mplus Nerd Font\""
+    fontFamily: "Iosevka Nerd Font Mono"
     fontSize: 18
     invisibles:
       space: "."
@@ -16,7 +16,9 @@
   "exception-reporting":
     userId: "5828e174-b018-7856-6966-4eef61b175c5"
   linter: {}
-  "linter-ui-default": {}
+  "linter-ui-default":
+    panelHeight: 69
+    showPanel: true
   "markdown-preview":
     breakOnSingleNewline: true
   "one-dark-ui": {}
