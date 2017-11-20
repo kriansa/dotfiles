@@ -16,6 +16,14 @@ function! CountOpenBuffers()
   return open_buffers
 endfunction
 
+function! ShouldCloseSplit()
+  let fugitive_status = bufname("%") == ".git/index"
+  let editing_commit_message = (bufname("%") == ".git/COMMIT_EDITMSG" && winnr("$") > 1)
+  let fugitive_diff = bufname("%") =~ "^fugitive://"
+
+  return (&diff || fugitive_status || &buftype == "help" || &buftype == 'nofile' || editing_commit_message || fugitive_diff)
+endfunction
+
 " Allows us closing buffers without affecting the windows, unless we are on
 " diff mode, quickfix or NERDtree window, which is desirable that we remove
 " the windows.
@@ -27,7 +35,7 @@ function! Close()
     endif
   elseif &buftype == "quickfix"
     cclose
-  elseif &diff || bufname("%") == ".git/index" || &buftype == "help" || &buftype == 'nofile' || (bufname("%") == ".git/COMMIT_EDITMSG" && winnr("$") > 1)
+  elseif ShouldCloseSplit()
     execute ":bd"
   else
     execute ":BD"
