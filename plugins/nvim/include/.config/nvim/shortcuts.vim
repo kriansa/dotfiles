@@ -35,32 +35,24 @@ nnoremap <silent> <Leader>q :wincmd q<CR>
 " Quit using Q
 map Q :qa<CR>
 
-" On iTerm2, I've remmaped Cmd + Shift + h,j,k,l to send a Hex code
-" corresponding to Ctrl + \ + h,j,k,l so I can use Cmd + Shift bindings
-nnoremap <silent> <C-\>h :wincmd h<CR>
-nnoremap <silent> <C-\>j :wincmd j<CR>
-nnoremap <silent> <C-\>k :wincmd k<CR>
-nnoremap <silent> <C-\>l :wincmd l<CR>
+" Use CTRL-h,j,k,l to move between splits
+nnoremap <silent> <C-h> :wincmd h<CR>
+nnoremap <silent> <C-j> :wincmd j<CR>
+nnoremap <silent> <C-k> :wincmd k<CR>
+nnoremap <silent> <C-l> :wincmd l<CR>
 
-if has('nvim')
-  " Maps Cmd + Shift + h,j,k,l
-  tnoremap <silent> <C-\>h <c-\><c-n>:wincmd h<CR>
-  tnoremap <silent> <C-\>j <c-\><c-n>:wincmd j<CR>
-  tnoremap <silent> <C-\>k <c-\><c-n>:wincmd k<CR>
-  tnoremap <silent> <C-\>l <c-\><c-n>:wincmd l<CR>
-
-  " Alt-arrows should move through words and Command-Backspace deletes the
-  " whole line
-  tnoremap <A-Left> <Esc>b
-  tnoremap <A-Right> <Esc>f
-  tnoremap <D-Bs> <Esc>q
-endif
+" Alt-arrows should move through words and Command-Backspace deletes the
+" whole line
+tnoremap <A-Left> <Esc>b
+tnoremap <A-Right> <Esc>f
+tnoremap <D-Bs> <Esc>q
 
 " Shift + J join lines. Shift + K should split lines
 nnoremap <silent> <S-K> i<CR><ESC>
 
 " Fugitive
 nmap <silent> <leader>gs :Gstatus<CR>
+nmap <silent> <leader>gp :Gpush<CR>
 
 " Make all splits with equal size
 nnoremap <silent> <Leader>= :wincmd =<CR>
@@ -79,5 +71,6 @@ set pastetoggle=<F2>
 
 " D deletes from the cursor to the end of the line; C changes from the cursor
 " to the end of the line. For some reason, however, Y yanks the entire line,
-" both before and after the cursor.
+" both before and after the cursor. This map makes Y yank from the cursor to
+" EOL.
 nnoremap Y y$
