@@ -1,4 +1,4 @@
-" Disable remote plugins
+" Disable Nvim remote plugins
 let g:loaded_python_provider = 1
 let g:loaded_python3_provider = 1
 let g:loaded_ruby_provider = 1
@@ -51,19 +51,16 @@ endif
 let g:airline_symbols.notexists = ' '
 
 " Highlight yank
-let g:highlightedyank_highlight_duration = 200
+let g:highlightedyank_highlight_duration = 150
 
 " Configure Vim-Ruby plugin
 let ruby_fold = 0
 let ruby_foldable_groups = 'NONE'
 let ruby_spellcheck_strings = 0
 let ruby_no_expensive = 1
-
+" Folding in Ruby is expensive
 " let ruby_foldable_groups = 'def'
 " let g:ruby_operators = 1
-
-" Enable deoplete
-let g:deoplete#enable_at_startup = 1
 
 " Enable node plugin on the following filetypes
 let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
