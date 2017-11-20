@@ -10,14 +10,24 @@ Plug 'vim-airline/vim-airline'
 " Obsession (project/session manager)
 Plug 'tpope/vim-obsession'
 
+" Ansible
+Plug 'pearofducks/ansible-vim'
+
+" Terraform
+Plug 'hashivim/vim-terraform'
+
+" Clojure
+Plug 'guns/vim-clojure-static'
+
+" Lua
+Plug 'tbastos/vim-lua'
+
 " Ruby
-Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
-Plug 'tpope/vim-bundler', { 'for': 'ruby' }
-" Plug 'tpope/vim-rake'
-" Plug 'tpope/vim-rails'
+Plug 'vim-ruby/vim-ruby'
+Plug 'tpope/vim-bundler'
 
 " Elixir
-Plug 'elixir-lang/vim-elixir', { 'for': 'elixir' }
+Plug 'elixir-lang/vim-elixir'
 
 " Javascript
 Plug 'pangloss/vim-javascript'
@@ -29,22 +39,11 @@ Plug 'hail2u/vim-css3-syntax'
 
 " HTML
 Plug 'othree/html5.vim'
-Plug 'posva/vim-vue', { 'for': 'vue' }
-
-" Languages support
-Plug 'sheerun/vim-polyglot'
+Plug 'posva/vim-vue'
 
 " Editor features
 Plug 'w0rp/ale'
 Plug '907th/vim-auto-save'
-
-" Enable preview of registers
-Plug 'junegunn/vim-peekaboo'
-
-" Deoplete (autocomplete for neovim)
-" Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-" Plug 'fishbullet/deoplete-ruby'
-" Plug 'carlitux/deoplete-ternjs'
 
 " Surrounding and things that should be native
 Plug 'tpope/vim-surround'
@@ -53,7 +52,6 @@ Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tomtom/tcomment_vim'
 Plug 'justinmk/vim-sneak'
-Plug 'machakann/vim-highlightedyank'
 
 " Text objects
 Plug 'kana/vim-textobj-user'
@@ -87,8 +85,11 @@ Plug 'qpkorr/vim-bufkill'
 Plug 'simeji/winresizer'
 Plug 'troydm/zoomwintab.vim'
 
-" Terminal
-Plug 'kassio/neoterm'
+" Open file using file manager (gof & got)
+Plug 'justinmk/vim-gtfo'
+
+" Highlighted yank
+Plug 'machakann/vim-highlightedyank'
 
 " Add plugins to &runtimepath
 call plug#end()

@@ -63,9 +63,6 @@ nnoremap <silent> <Esc><Esc> :let @/=""<CR>
 " Winresizer starts with <Leader>+e
 let g:winresizer_start_key = '<Leader>e'
 
-" Neoterm
-nnoremap <silent> <Leader>t :Ttoggle<CR>
-
 " Toggle paste mode with F2
 set pastetoggle=<F2>
 

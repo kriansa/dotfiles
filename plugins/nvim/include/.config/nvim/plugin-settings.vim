@@ -2,6 +2,7 @@
 let g:loaded_python_provider = 1
 let g:loaded_python3_provider = 1
 let g:loaded_ruby_provider = 1
+let g:loaded_node_provider = 1
 let g:loaded_remote_plugins = 1
 
 " NERDTree settings
@@ -50,18 +51,19 @@ endif
 let g:airline_symbols.notexists = ' '
 
 " Highlight yank
-let g:highlightedyank_highlight_duration = 300
+let g:highlightedyank_highlight_duration = 200
 
 " Configure Vim-Ruby plugin
-"
-let ruby_foldable_groups = 'def'
-let g:ruby_operators = 1
+let ruby_fold = 0
+let ruby_foldable_groups = 'NONE'
+let ruby_spellcheck_strings = 0
+let ruby_no_expensive = 1
+
+" let ruby_foldable_groups = 'def'
+" let g:ruby_operators = 1
 
 " Enable deoplete
 let g:deoplete#enable_at_startup = 1
-
-" Disable polyglot languages
-let g:polyglot_disabled = ['javascript', 'ruby', 'css', 'scss', 'html', 'vue']
 
 " Enable node plugin on the following filetypes
 let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
@@ -73,14 +75,9 @@ let g:auto_save_silent = 1
 " Ale
 let g:ale_change_sign_column_color = 1
 let g:ale_sign_column_always = 1
-let g:ale_sign_error = '✖'
-let g:ale_sign_warning = '⚠'
 let g:ale_javascript_eslint_executable = 'eslint_d'
 let g:ale_linters = { 'vue': ['stylelint', 'eslint'] }
 let g:ale_linter_aliases = { 'vue': ['javascript', 'css'] }
-
-" Neoterm
-let g:neoterm_size = '15'
 
 " Ferret
 let g:FerretGrepCommand='ag --vimgrep --width 4096 --hidden --ignore .git'

@@ -1,17 +1,13 @@
-" Settings
-"
+" Vim settings
 
-" Enables backspace on indentation and end of lines
-set backspace=indent,eol
-
-" VIM Settings
 syntax on             " Enable syntax highlighting
+set backspace=indent,eol " Enables backspace on indentation and end of lines
 set hidden            " This allows buffers to be hidden if you've modified a buffer.
-set number            " Display line numbers
-set relativenumber    " Display line numbers relative to the one you're in
+" set number            " Display line numbers
+" set relativenumber    " Display line numbers relative to the one you're in
 set nowrap            " Disable word-wrap
 set wildmenu          " Helps command-line completion menu
-set scrolloff=0       " Scroll with at least 3 lines
+" set scrolloff=3       " Scroll with at least 3 lines
 set encoding=utf-8    " Enables utf8 encoding
 " set cursorline        " Highlight the line the cursor is in
 " set noshowmode        " Disable showing the mode (such as -- INSERT --) in the bottom
@@ -30,8 +26,10 @@ set colorcolumn=80    " Set a width to show a column
 set list                                  " show hidden chars
 set listchars=tab:▸\ ,eol:¬,space:.       " chars to be shown
 set showbreak=↪                           " char to be shown on wraped lines
+
 set clipboard+=unnamed                    " yanks to clipboard
 
+" Indentation settings
 set expandtab           " Convert tabs into spaces
 set autoindent          " always set autoindenting on
 set copyindent          " copy indentation on new lines
@@ -43,48 +41,29 @@ set shiftround          " Use multiple of shiftwidth when indenting with '<' and
 
 set complete+=kspell    " Use spell completion when spell check is enabled
 
+" Search
 set ignorecase   " Make search case insensitive
 set smartcase    " When searching with a uppercase letter, enable case-sensitive
+set inccommand=split
 
 " Open new split panes to right and bottom, which feels more natural
 set splitbelow
 set splitright
 
-if has('nvim')
-  set inccommand=split
-endif
-
 " Folding settings
-set foldmethod=syntax
-autocmd BufWinEnter * silent! :%foldopen!
+" That is incredibly slow
+" set foldmethod=syntax
+" autocmd BufWinEnter * silent! :%foldopen!
 
 " Disable vim autocompletion for these files below
 set wildignore=node_modules,.git,.DS_Store
 
-" AutoCommands for filetypes
-"
-
-"  Disable invisible chars for NERDTree
-autocmd FileType nerdtree setlocal nolist colorcolumn=
-
-" Enable line-wrap for markdown
-autocmd FileType markdown setlocal wrap
-
-" Enable spell checking for git commit messages
-autocmd FileType gitcommit setlocal spell
-
-" Disable number and colorcolumn on Quickfix window
-autocmd FileType qf setlocal nonumber colorcolumn=
-
-" Resize all windows when resizing vim
-autocmd VimResized * wincmd =
+" Autocommands
 
 " Exit paste when leaving InsertMode
 autocmd InsertLeave * set nopaste
 
-" Terminal settings (Neovim only)
-if has('nvim')
-  autocmd TermOpen term://* setlocal nolist
-  " autocmd BufWinEnter,WinEnter term://* startinsert
-  " autocmd BufLeave term://* stopinsert
-endif
+" Terminal settings
+autocmd TermOpen term://* setlocal nolist
+" autocmd BufWinEnter,WinEnter term://* startinsert
+" autocmd BufLeave term://* stopinsert
