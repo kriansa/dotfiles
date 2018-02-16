@@ -22,6 +22,9 @@ Plug 'guns/vim-clojure-static'
 " Lua
 Plug 'tbastos/vim-lua'
 
+" Markdown
+" Plug 'SidOfc/mkdx'
+
 " Ruby
 Plug 'vim-ruby/vim-ruby'
 Plug 'tpope/vim-bundler'

@@ -54,6 +54,9 @@ nnoremap <silent> <S-K> i<CR><ESC>
 nmap <silent> <leader>gs :Gstatus<CR>
 nmap <silent> <leader>gp :Gpush<CR>
 
+" Copy filepath + line to clipboard
+nmap <silent> <leader>fl :call YankFilenameLine()<CR>
+
 " Make all splits with equal size
 nnoremap <silent> <Leader>= :wincmd =<CR>
 
