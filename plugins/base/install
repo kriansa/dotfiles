@@ -30,5 +30,6 @@ elif [[ $OS_NAME == "OSX" ]]; then
   success 'Packages installed'
 fi
 
-# 2. Link zshrc
+# 2. Link files
 link_file $PLUGIN_PATH ".zshrc"
+link_file $PLUGIN_PATH ".hushlogin"

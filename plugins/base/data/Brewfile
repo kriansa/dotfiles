@@ -19,6 +19,7 @@ brew 'xz'
 brew 'unrar'
 brew 'p7zip'
 brew 'editorconfig'
+brew 'cowsay'
 
 cask 'gitkraken'
 cask 'mysqlworkbench'
