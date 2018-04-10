@@ -3,29 +3,22 @@
 # Plugin vim
 # Installation proccess:
 #
-#  1. Install needed packages
-#  2. Link folder
-#  3. Fix terminal kbs issue
-#  4. Run package install
+#  1. Link folder
+#  2. Fix terminal kbs issue
+#  3. Run package install
 #
 
 source 'helpers/installer_helper.zsh'
 PLUGIN_PATH=$0:A:h
 DOTFILES_ROOT=$(pwd)
 
-# 1. Install packages
-if [[ $OS_NAME == "OSX" ]]; then
-  brew install neovim/neovim/neovim the_silver_searcher
-  success 'nvim installed'
-fi
-
-# 2. Link files
+# 1. Link files
 link_file $PLUGIN_PATH '.config/nvim'
 
-# 3. Fix terminal kbs issue (https://github.com/neovim/neovim/issues/2048)
+# 2. Fix terminal kbs issue (https://github.com/neovim/neovim/issues/2048)
 infocmp $TERM | sed 's/kbs=^[hH]/kbs=\\177/' > $TMPDIR/$TERM.ti
 tic $TMPDIR/$TERM.ti
 rm $TMPDIR/$TERM.ti
 
-# 4. Run package install
+# 3. Run package install
 nvim -c PlugInstall -c qa

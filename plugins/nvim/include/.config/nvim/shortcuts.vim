@@ -27,7 +27,7 @@ inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
 nnoremap <silent> <Leader>w :call Close()<CR>
 
 " Toggles zoom between the current buffer
-nnoremap <silent> <Leader>f :ZoomWinTabToggle<CR>
+nnoremap <silent> <Leader>t :ZoomWinTabToggle<CR>
 
 " Closes current selected window with <Leader>q
 nnoremap <silent> <Leader>q :wincmd q<CR>
