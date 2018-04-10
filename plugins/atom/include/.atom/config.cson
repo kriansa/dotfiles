@@ -1,5 +1,18 @@
 "*":
   core:
+    ignoredNames: [
+      ".git"
+      ".hg"
+      ".svn"
+      ".DS_Store"
+      "._*"
+      "Thumbs.db"
+      "desktop.ini"
+      ".pioenvs"
+      ".piolibdeps"
+      ".clang_complete"
+      ".gcc-flags.json"
+    ]
     openEmptyEditorOnStart: false
     packagesWithKeymapsDisabled: [
       "emmet"
@@ -7,7 +20,7 @@
     telemetryConsent: "limited"
   editor:
     fontFamily: "Iosevka Nerd Font Mono"
-    fontSize: 18
+    fontSize: 19
     invisibles:
       space: "."
     showInvisibles: true
@@ -15,16 +28,23 @@
   emmet: {}
   "exception-reporting":
     userId: "5828e174-b018-7856-6966-4eef61b175c5"
+  "file-icons":
+    coloured: false
   linter: {}
   "linter-ui-default":
     panelHeight: 69
     showPanel: true
+    useBusySignal: false
   "markdown-preview":
     breakOnSingleNewline: true
   "one-dark-ui": {}
   tabs:
     enableVcsColoring: true
     usePreviewTabs: true
+  "tool-bar":
+    position: "Left"
+  "tree-view":
+    hideIgnoredNames: true
   "vim-mode-plus":
     highlightSearch: true
     incrementalSearch: true
