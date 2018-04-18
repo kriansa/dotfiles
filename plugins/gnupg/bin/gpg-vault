@@ -21,7 +21,7 @@
 : ${GPG_COMMAND:=gpg}
 
 # Set version
-VERSION="0.6"
+VERSION="0.7"
 
 # Path
 ACTION=$1
@@ -268,7 +268,23 @@ case $ACTION in
 
       printf "Rekeying file '${GREEN}$full_file_path${NC}' [$current/$file_count]\n"
       original_shasum=$($0 read $full_file_path | shasum)
-      $0 read $full_file_path | $0 write $full_file_path
+
+      # Create a tempfile
+      tmp=`mktemp -t tmpgv` || exit 1
+      $0 read $full_file_path > $tmp
+      $0 write $full_file_path < $tmp
+
+      # Figure the best way to delete the unencrypted temp file
+      if [[ `which shred` ]]; then
+        rm='shred -u'
+      elif [[ "$OSTYPE" == "darwin"* ]]; then
+        rm='rm -P'
+      else
+        rm='rm'
+      fi
+
+      # Remove the tempfile
+      $rm $tmp
 
       printf "  Testing integrity...\n"
       if [[ $original_shasum != $($0 read $full_file_path | shasum) ]]; then
@@ -293,7 +309,7 @@ case $ACTION in
 
     # Locate all paths with .vault-keys in it
     cd "$GPG_VAULT_PATH/$FILEPATH" || exit 1
-    paths=$(find . \( -type f -or -type l \) -name ".vault-keys" | sed -e 's#/.vault-keys$##' -e 's#^./##')
+    paths=$(find . \( -type f \) -name ".vault-keys" | sed -e 's#/.vault-keys$##' -e 's#^./##')
 
     for path in $paths; do
       # Set $recipients here

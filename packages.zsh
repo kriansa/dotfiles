@@ -1,0 +1,53 @@
+# Load remote plugins
+#
+# syntax-highlighting must be loaded after executing compinit command and
+# sourcing other plugins
+antigen bundle zsh-users/zsh-syntax-highlighting
+
+# history-substring-search needs to be loaded after syntax-highlighting
+antigen bundle zsh-users/zsh-history-substring-search
+
+# autosugestions is like an enhanced autocomplete with suggestions
+antigen bundle zsh-users/zsh-autosuggestions
+
+# Load theme
+antigen theme $DOTFILES_PATH/plugins/zsh/themes agnoster --no-local-clone
+
+# Local plugins
+plugins=(
+  # Shell & utilities
+  zsh
+  quick-cd
+  unix
+
+  # Terminal fortunes
+  fortunes
+
+  # Development utilities
+  git
+  gnupg
+
+  # Development platforms
+  iot
+  terraform
+
+  # IDEs
+  nvim
+  tmux
+  emacs
+
+  # Languages
+  ruby
+  python
+  javascript
+  lein
+  java
+)
+
+for plugin in $plugins; do
+  antigen bundle $DOTFILES_PATH/plugins $plugin --no-local-clone
+done
+
+# Load local (private) packages
+test -f "$DOTFILES_PATH/packages.local.zsh" && \
+  source "$DOTFILES_PATH/packages.local.zsh"

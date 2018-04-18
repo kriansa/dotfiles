@@ -3,12 +3,12 @@
 # Plugin path
 PLUGIN_PATH=$(cd "$(dirname "$0")/.." || exit; pwd)
 
-# Update npm
-npm install -g npm
+# Update pip
+pip install --upgrade pip
 
 while IFS= read -r package; do
-  npm install -g "$package"
+  pip install "$package"
 done < "$PLUGIN_PATH/data/packages.txt"
 
-# Ensures that nodenv updates the binstubs
-nodenv rehash
+# Ensures that pyenv updates the binstubs
+pyenv rehash

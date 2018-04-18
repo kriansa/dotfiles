@@ -1,8 +1,11 @@
-# 1. Exports
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
+# Plugin path
+PLUGIN_PATH=$0:A:h
 
-# 2. Load commands
+# 1. Load pyenv
+export PATH="$HOME/.pyenv/bin:$PATH"
 if (( $+commands[pyenv] )); then
   eval "$(pyenv init -)"
 fi
+
+# 2. Exports
+export PATH="$PLUGIN_PATH/bin:$PATH"

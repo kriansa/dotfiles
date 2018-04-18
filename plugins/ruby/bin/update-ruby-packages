@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 # Plugin path
-PLUGIN_PATH=$(cd $(dirname $0)/..; pwd)
+PLUGIN_PATH=$(cd "$(dirname "$0")/.." || exit; pwd)
 
-# Sets the RUBY_VERSION to the .ruby-version of this plugin
-export RBENV_VERSION=$(cat $PLUGIN_PATH/.ruby-version)
+# Update Rubygems
+gem update --system
 
-for package in $(cat $PLUGIN_PATH/data/packages.txt); do
-  gem install $package
-done
+while IFS= read -r package; do
+  gem install "$package"
+done < "$PLUGIN_PATH/data/packages.txt"
 
-# Ensures that nodenv updates the binstubs
+# Ensures that rbenv updates the binstubs
 rbenv rehash

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # This program will generate ctags file for entire projects
 # Its interface is defined as below:
@@ -44,7 +45,6 @@ end.parse!
 
 # Detect tags output path
 project_path = Dir.pwd
-filename = File.absolute_path(ARGV[0], Dir.pwd)
 tags_output = File.absolute_path(options[:destination], project_path)
 
 # Parse a .tagsignore located at the same folder as the tags output

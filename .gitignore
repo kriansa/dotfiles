@@ -1,0 +1,5 @@
+# Ignore local packages file
+packages.local.zsh
+
+# Ignore Antigen ZWC files
+*.zwc

@@ -1,5 +1,0 @@
-#!/usr/bin/env zsh
-
-# Plugin <plugin name> update
-#
-cd somepath && git pull

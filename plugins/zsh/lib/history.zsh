@@ -1,0 +1,18 @@
+# History settings
+# ================
+
+HISTFILE=$HOME/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+
+# Show history with timestamps
+alias history='fc -il 1'
+
+setopt append_history
+setopt extended_history
+setopt hist_expire_dups_first
+setopt hist_ignore_dups # ignore duplication command history list
+setopt hist_ignore_space # ignore the history when command is prepended with space
+setopt hist_verify
+setopt inc_append_history
+setopt share_history # share command history data

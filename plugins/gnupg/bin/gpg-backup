@@ -14,23 +14,23 @@ DESTDIR=$2
 
 # Set default values
 : ${SUBCOMMAND:=export}
-: ${DESTDIR:="$(dirname $(dirname $0))/data"}
+: ${DESTDIR:="~/Dropbox/.internal/gpg-backup"}
 
 function help {
-  echo "Usage: gpg-backup [<import/export>] [<destdir>]"
+  echo "Usage: gpg-backup [<import|export>] [<destdir>]"
   exit
 }
 
 case $SUBCOMMAND in
   import)
-    gpg --import $DESTDIR/public-keys.asc
-    gpg --import-ownertrust $DESTDIR/ownertrust.txt
+    gpg --import "$DESTDIR/public-keys.asc"
+    gpg --import-ownertrust "$DESTDIR/ownertrust.txt"
     echo "GPG public data imported successfully!"
   ;;
 
   export)
-    gpg --export --armor > $DESTDIR/public-keys.asc
-    gpg --export-ownertrust > $DESTDIR/ownertrust.txt
+    gpg --export --armor > "$DESTDIR/public-keys.asc"
+    gpg --export-ownertrust > "$DESTDIR/ownertrust.txt"
     echo "GPG public data exported to \"$DESTDIR\" successfully!"
   ;;
 

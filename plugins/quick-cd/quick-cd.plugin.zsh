@@ -1,5 +1,6 @@
-# 1. Functions
-#
+# Plugin path
+PLUGIN_PATH=$0:A:h
+
 # This lets you quickly jump into a project directory.
 #
 # Type:
@@ -16,6 +17,9 @@
 function c {
   cd "$PROJECTS/$1"
 }
+
+# Add this plugin path to the fpath completion list
+fpath+=($PLUGIN_PATH)
 
 # 2. Set default env vars
 # Default $PROJECTS is ~/Projects

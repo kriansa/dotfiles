@@ -1,1 +1,2 @@
+# Include gitconfig is dynamically generated
 include/.gitconfig
