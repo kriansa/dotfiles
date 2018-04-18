@@ -20,10 +20,8 @@ ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 # Use menu as completion list
 zstyle ':completion:*:*:*:*:*' menu select
 
-# # This is a oh-my-zsh setting
-# # Use caching so that commands like apt and dpkg complete are useable
-# zstyle ':completion::complete:*' use-cache 1
-# zstyle ':completion::complete:*' cache-path ~/.zsh/cache
+# Completion works when you TAB in the middle of the word
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|=*' 'l:|=* r:|=*'
 
 # ((( Those settings were extracted from sheerun dotfiles
 
