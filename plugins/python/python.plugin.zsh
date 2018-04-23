@@ -1,11 +1,5 @@
-# Plugin path
-PLUGIN_PATH=$0:A:h
-
-# 1. Load pyenv
-export PATH="$HOME/.pyenv/bin:$PATH"
-if (( $+commands[pyenv] )); then
-  eval "$(pyenv init -)"
+# 1. Exports
+# Add brew bin path to Python 3 when on Mac
+if [[ "$OSTYPE" == darwin* ]]; then
+  export PATH="/usr/local/opt/python/libexec/bin:$PATH"
 fi
-
-# 2. Exports
-export PATH="$PLUGIN_PATH/bin:$PATH"
