@@ -4,9 +4,6 @@
 # sourcing other plugins
 antigen bundle zsh-users/zsh-syntax-highlighting
 
-# history-substring-search needs to be loaded after syntax-highlighting
-antigen bundle zsh-users/zsh-history-substring-search
-
 # autosugestions is like an enhanced autocomplete with suggestions
 antigen bundle zsh-users/zsh-autosuggestions
 

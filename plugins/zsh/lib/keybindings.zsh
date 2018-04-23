@@ -8,11 +8,11 @@ export WORDCHARS='*?_[]~=&;!#$%^(){}'
 # Use emacs keybindings
 bindkey -e
 
-# Configure the key bindings for using history-substring-search
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
-bindkey -M vicmd 'k' history-substring-search-up
-bindkey -M vicmd 'j' history-substring-search-down
+# Configure the key bindings for using history
+bindkey '^[[A' history-beginning-search-backward
+bindkey '^[[B' history-beginning-search-forward
+bindkey -M vicmd 'k' up-line-or-beginning-search
+bindkey -M vicmd 'j' down-line-or-beginning-search
 
 # Use tab to choose between the suggestion list on history widget
 bindkey -M menuselect '^o' accept-and-infer-next-history
