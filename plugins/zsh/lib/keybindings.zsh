@@ -36,6 +36,9 @@ bindkey "^[[F" end-of-line # [End] - end of line
 # CTRL-P cuts the line
 bindkey "^P" _cut-whole-line
 
+# CTRL-S prepends sudo to the command
+bindkey "^S" _prepend-sudo
+
 # This will only work on linux
 # bindkey '^[[1;5C' forward-word # [Ctrl-RightArrow] - move forward one word
 # bindkey '^[[1;5D' backward-word # [Ctrl-LeftArrow] - move backward one word

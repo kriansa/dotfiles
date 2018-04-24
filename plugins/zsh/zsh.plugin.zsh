@@ -23,6 +23,7 @@ function dot () { $EDITOR $DOTFILES_PATH }
 source $PLUGIN_PATH/lib/functions/clipboard.zsh
 source $PLUGIN_PATH/lib/functions/cut-buffer.zsh
 source $PLUGIN_PATH/lib/functions/expand-with-dots.zsh
+source $PLUGIN_PATH/lib/functions/prepend-sudo.zsh
 
 # Load settings for zsh
 source $PLUGIN_PATH/lib/dir-navigation.zsh
