@@ -5,7 +5,9 @@
 THIS_DIR=$(cd $(dirname $0); pwd)
 export PATH=$(echo $PATH | sed -e "s#${THIS_DIR}:##")
 
-# Unsets the RBENV_VERSION
+# Set the ruby version to the global one
+export RBENV_VERSION=$(rbenv global)
+
 # Then execute the original binary file
-unset RBENV_VERSION
-neovim-ruby-host $@
+binary=$(basename $0)
+$binary $@
