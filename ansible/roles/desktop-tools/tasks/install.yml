@@ -1,0 +1,57 @@
+---
+- name: install my preferred packages
+  become: true
+  pacman: name={{ item }} state=present
+  with_items:
+    - neovim
+    - ncdu
+    - jq
+    - the_silver_searcher
+    - aws-cli
+    - shellcheck
+
+- name: install common desktop packages
+  become: true
+  pacman: name={{ item }} state=present
+  with_items:
+    # Browsers
+    - firefox
+    - chromium
+
+    # VLC
+    - vlc
+    - libx264
+    # qt4 is an "optional" dependency for vlc, required for GUI usage
+    # see: https://wiki.archlinux.org/index.php/VLC_media_player
+    - qt4 
+
+    # Torrent client
+    - transmission-gtk
+
+    # Office tools
+    - libreoffice-fresh
+
+    # Fonts
+    - ttf-fira-mono 
+    - noto-fonts 
+    - ttf-roboto 
+    - ttf-croscore 
+    - ttf-freefont
+
+- name: install AUR packages
+  become: true
+  become_user: "{{ user_name }}"
+  command: pikaur -Syu --noconfirm --needed {{ item }}
+  with_items:
+    # Fonts
+    - ttf-ms-fonts
+    - ttf-vista-fonts
+    - ttf-iosevka
+    - ttf-mplus
+
+    # Spotify
+    - spotify
+
+    # Dropbox
+    - dropbox
+    - nautilus-dropbox

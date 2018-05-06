@@ -1,0 +1,24 @@
+---
+- name: create a default profile
+  become: true
+  become_user: "{{ user_name }}"
+  shell: firefox -headless -CreateProfile default 2>&1 | grep -o "'/.*/prefs.js'" | sed "s/'//g"
+  register: profile_create
+
+- set_fact: profile_prefs={{ profile_create.stdout }}
+
+# Firefox has hardware acceleration but it's not enabled in many platforms by
+# default.
+# There's a bug open in 2010 to help that getting fixed but so far, it hasn't
+# been merged into mainline. Meanwhile, we can force enable it by setting
+# the `layers.acceleration.force-enabled` on `about:config` settings.
+#
+# ref: https://wiki.archlinux.org/index.php/Firefox/Tweaks#Performance
+# ref2: https://bugzilla.mozilla.org/show_bug.cgi?id=594876
+- name: enable firefox hardware acceleration
+  become: true
+  become_user: "{{ user_name }}"
+  lineinfile:
+    path: "{{ profile_prefs }}"
+    line: 'user_pref("layers.acceleration.force-enabled", true);'
+    regexp: '^user_pref\("layers.acceleration\.force-enabled"'

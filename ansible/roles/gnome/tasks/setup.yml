@@ -1,0 +1,56 @@
+---
+- name: install gnome
+  become: true
+  pacman: name={{ item }} state=present
+  with_items:
+    - xorg
+    - gnome-shell
+    - gnome-control-center
+    - gnome-backgrounds
+    - gdm
+    # Xclip allows interaction with clipboard
+    - xclip
+    # Eye of gnome is a image viewer
+    - eog
+    # This is a tool to customize gnome
+    - gnome-tweaks
+    # This is required to enable numlock on xorg
+    - numlockx
+    # We can use any network manager, but GNOME's NetworkManager works 
+    # seamlessly across the environment.
+    # see: https://wiki.archlinux.org/index.php/List_of_applications/Internet#Network_managers
+    - networkmanager
+    # xinit is only needed when we aren't going to use GDM. In which case, we
+    # can start xorg manually by running `startx`
+    #
+    # If you ever want to do so, please beware to execute .xprofile on you
+    # .xinit
+    #
+    # see: https://wiki.archlinux.org/index.php/Xinit
+    # - xorg-xinit
+
+- name: enable gdm and networkmanager at boot time
+  become: true
+  systemd: name={{ item }} enabled=true
+  with_items:
+    - NetworkManager.service
+    - gdm.service
+
+- name: scale gnome to hidpi monitor
+  become: true
+  become_user: "{{ item }}"
+  command: dbus-launch gsettings set org.gnome.desktop.interface scaling-factor 2
+  when: use_hidpi == true
+  with_items:
+    - "{{ user_name }}"
+    - gdm
+
+- name: setup gnome
+  become: true
+  become_user: "{{ user_name }}"
+  command: dbus-launch gsettings set {{ item.path }} {{ item.name }} {{ item.value }}
+  with_items:
+    - { path: org.gnome.desktop.interface, name: clock-show-date, value: "true" }
+    - { path: org.gnome.desktop.privacy, name: remember-recent-files, value: "false" }
+    - { path: org.gnome.nautilus.preferences, name: show-hidden-files, value: "true" }
+    - { path: org.gnome.desktop.input-sources, name: sources, value: "[('xkb', 'br')]" }

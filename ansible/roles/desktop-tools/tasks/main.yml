@@ -1,0 +1,4 @@
+---
+- import_tasks: install.yml
+- import_tasks: setup_firefox.yml
+- import_tasks: allow_mouting_partitions.yml

@@ -1,0 +1,11 @@
+---
+- hosts: all
+
+  roles:
+  - role: base-arch
+  - role: systemd-boot
+  - role: nvidia
+  - role: gnome
+  - role: desktop-tools
+  - role: dev-environment
+  - role: yubikey

@@ -1,0 +1,16 @@
+---
+- name: create .config directory
+  become: true
+  become_user: "{{ user_name }}"
+  file: path="{{ home_path }}/.config" state=directory mode=0755
+
+- include_tasks: link_files.yml
+  vars:
+    plugin_name: nvim
+    files:
+      - .config/nvim
+
+- name: install nvim plugins
+  become: true
+  become_user: "{{ user_name }}"
+  command: nvim -c PlugInstall -c qa

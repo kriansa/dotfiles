@@ -1,0 +1,37 @@
+---
+# TODO: Arch Linux only. Adapt to work on MacOS.
+- set_fact: 
+    home_path: /home/{{ user_name }}
+    dotfiles_path: /home/{{ user_name }}/.dotfiles
+
+- stat: path="{{ dotfiles_path }}"
+  register: dotfiles_exist
+
+- name: download dotfiles
+  become: true
+  become_user: "{{ user_name }}"
+  when: dotfiles_exist.stat.exists == false
+  git:
+    repo: https://github.com/kriansa/dotfiles.git
+    dest: "{{ dotfiles_path }}"
+    update: no
+
+- import_tasks: fonts.yml
+- import_tasks: atom.yml
+- import_tasks: git.yml
+- import_tasks: gpg.yml
+- import_tasks: javascript.yml
+- import_tasks: nvim.yml
+- import_tasks: ruby.yml
+- import_tasks: tilix.yml
+- import_tasks: tmux.yml
+- import_tasks: xorg.yml
+- import_tasks: zsh.yml
+
+- name: update dotfiles remote to use SSH instead of HTTPS
+  become: true
+  become_user: "{{ user_name }}"
+  git:
+    repo: git://github.com:kriansa/dotfiles.git
+    dest: "{{ dotfiles_path }}"
+    update: no

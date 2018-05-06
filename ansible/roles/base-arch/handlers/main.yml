@@ -1,0 +1,2 @@
+---
+- import_tasks: rebuild_initramfs.yml

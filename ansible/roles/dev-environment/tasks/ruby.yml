@@ -1,0 +1,41 @@
+---
+- name: download rbenv
+  become: true
+  become_user: "{{ user_name }}"
+  git:
+    repo: https://github.com/rbenv/{{ item.repo }}.git
+    dest: "{{ item.dest }}"
+  with_items:
+    - { repo: "rbenv", dest: "{{ home_path }}/.rbenv" }
+    - { repo: "ruby-build", dest: "{{ home_path }}/.rbenv/plugins/node-build" }
+
+- name: set the default rbenv version to {{ ruby_version }}
+  become: true
+  become_user: "{{ user_name }}"
+  lineinfile: 
+    path: "{{ home_path }}/.rbenv/version" 
+    line: "{{ ruby_version }}" 
+    state: present
+    create: true
+    mode: 0644
+
+- name: install ruby {{ ruby_version }}
+  become: true
+  become_user: "{{ user_name }}"
+  command: "{{ home_path }}/.rbenv/bin/rbenv install {{ ruby_version }}"
+  args:
+    creates: "{{ home_path }}/.rbenv/versions/{{ ruby_version }}"
+
+- include_tasks: link_files.yml
+  vars:
+    plugin_name: ruby
+    files:
+      - .gemrc
+      - .pryrc
+
+- name: install/update ruby packages
+  become: true
+  become_user: "{{ user_name }}"
+  shell: eval "$(rbenv init -)" && "{{ dotfiles_path }}/plugins/ruby/bin/update-ruby-packages"
+  environment:
+    PATH: "{{ home_path }}/.rbenv/bin:/usr/local/sbin:/usr/local/bin:/usr/bin"

@@ -1,0 +1,48 @@
+---
+- name: check if pikaur is already installed
+  command: which pikaur
+  ignore_errors: true
+  register: which_pikaur
+
+# Only proceeds with the installation if `which pikaur` returns an error
+# (i.e. return code == 1), meaning that it hasn't been isntalled yet.
+- set_fact: should_install_pikaur={{ which_pikaur.rc == 1 }}
+
+- name: install required dependencies
+  become: true
+  pacman: name={{ item }} state=present
+  when: should_install_pikaur == true
+  with_items:
+    - pyalpm
+    - python-setuptools
+
+- name: create tmp folder to build pikaur
+  become: true
+  become_user: "{{ user_name }}"
+  when: should_install_pikaur == true
+  file: path=/tmp/pikaur_build state=directory mode=0755
+
+- name: download the PKGBUILD file from AUR
+  become: true
+  become_user: "{{ user_name }}"
+  when: should_install_pikaur == true
+  get_url:
+    url: https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=pikaur-git
+    dest: /tmp/pikaur_build/pikaur-git-PKGBUILD
+    mode: 0644
+
+- name: build and install pikaur
+  become: true
+  become_user: "{{ user_name }}"
+  when: should_install_pikaur == true
+  command: makepkg -p pikaur-git-PKGBUILD --clean --install --needed --noconfirm
+  args:
+    chdir: /tmp/pikaur_build
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+
+- name: delete the tmp folder
+  become: true
+  become_user: "{{ user_name }}"
+  when: should_install_pikaur == true
+  file: path=/tmp/pikaur_build state=absent

@@ -1,0 +1,6 @@
+---
+- import_tasks: install_base_packages.yml
+- import_tasks: add_user.yml
+- import_tasks: adjust_ntp.yml
+- import_tasks: install_pikaur.yml
+- import_tasks: install_aurutils.yml

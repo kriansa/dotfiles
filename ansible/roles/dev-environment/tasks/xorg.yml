@@ -1,0 +1,6 @@
+---
+- include_tasks: link_files.yml
+  vars:
+    plugin_name: xorg
+    files:
+      - .xprofile

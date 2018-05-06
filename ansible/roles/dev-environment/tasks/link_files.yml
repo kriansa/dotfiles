@@ -1,0 +1,9 @@
+---
+- name: link files for {{ plugin_name }} plugin
+  become: true
+  become_user: "{{ user_name }}"
+  file:
+    src: "{{ dotfiles_path }}/plugins/{{ plugin_name }}/include/{{ item }}"
+    dest: "{{ home_path }}/{{ item }}"
+    state: link
+  loop: "{{ files }}"

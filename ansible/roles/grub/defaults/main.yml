@@ -1,0 +1,10 @@
+---
+# Do we want to enable dual boot with Windows?
+windows_dual_boot: yes
+
+# The following settings are meant to the physical disk and partition where the
+# Windows bootloader is located at.
+windows_boot_partition:
+  unix_name: sda1
+  grub_name: hd0,msdos1
+  bare_name: ahci0,msdos1

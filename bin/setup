@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+# This is just a small help on top of `ansible-playbook` so I don't have to
+# remember its interface
+#
+# Usage: bin/setup <machine-type>
+
+if [ "$(id -u)" != "0" ]; then
+  echo "You need root privileges!"
+  exit 1
+fi
+
+if [ "$#" -lt 1 ]; then
+  echo "Usage: $0 <machine-type>"
+  exit 1
+fi
+
+# First argument is machine-type
+machine_type=$1
+
+# 1. Ensure we have ansible and python
+pacman -S --noconfirm ansible python
+
+# 2. Run the playbook
+cd ansible && ansible-playbook -i "localhost," --connection=local "$machine_type.yml"

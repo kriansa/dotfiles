@@ -1,0 +1,7 @@
+---
+- include_tasks: link_files.yml
+  vars:
+    plugin_name: zsh
+    files:
+      - .zshrc
+      - .hushlogin

@@ -1,0 +1,10 @@
+// Password-less mounting of local partitions
+//
+// See the polkit(8) man page for more information
+// about configuring polkit.
+
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.udisks2.filesystem-mount-system" && subject.isInGroup("wheel")) {
+       return polkit.Result.YES;
+    }
+});

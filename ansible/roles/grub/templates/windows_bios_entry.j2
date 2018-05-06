@@ -1,0 +1,14 @@
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+
+menuentry "Windows" --class windows --class os {
+  insmod part_msdos
+  insmod ntfs
+  insmod search_fs_uuid
+  insmod ntldr
+  search --fs-uuid --set=root --hint-bios={{ windows_boot_partition.grub_name }} --hint-efi={{ windows_boot_partition.grub_name }} --hint-baremetal={{ windows_boot_partition.bare_name }} {{ partition_id }}
+  ntldr /bootmgr
+}

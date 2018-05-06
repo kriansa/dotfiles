@@ -1,0 +1,12 @@
+---
+- name: Install YubiKey Personalization GUI
+  become: true
+  pacman: name=yubikey-personalization-gui state=present
+
+- name: Install smartcard libs/tools
+  become: true
+  pacman: name={{ item }} state=present
+  with_items:
+    - pcsclite
+    - libusb-compat
+    - ccid

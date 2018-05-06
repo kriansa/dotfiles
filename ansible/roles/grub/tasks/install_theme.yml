@@ -1,0 +1,16 @@
+---
+- name: unarchive theme
+  become: true
+  notify: rebuild grub
+  unarchive: 
+    src: files/poly-light-master.tar.gz
+    dest: /boot/grub/themes/poly-light
+    extra_opts: ['--strip-components=1']
+
+- name: set the theme on /etc/default/grub
+  become: true
+  notify: rebuild grub
+  lineinfile: 
+    path: /etc/default/grub 
+    line: "GRUB_THEME=/boot/grub/themes/poly-light/theme.txt"
+    regexp: "GRUB_THEME="

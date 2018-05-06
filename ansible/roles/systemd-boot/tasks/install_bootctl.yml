@@ -1,0 +1,22 @@
+---
+- name: check if systemd-boot is installed
+  stat: path=/boot/EFI/systemd/systemd-bootx64.efi
+  register: sboot
+
+- name: install systemd-boot
+  become: true
+  when: sboot.stat.exists == false
+  command: bootctl --path=/boot install
+
+- name: copy windows entry file to EFI partition
+  become: true
+  when: dualboot_windows == true
+  copy: src=files/windows.conf dest=/boot/loader/entries/windows.conf mode=0644
+
+- name: copy loader defaults
+  become: true
+  template: src=templates/loader.conf.j2 dest=/boot/loader/loader.conf mode=0644
+
+- name: copy linux entry
+  become: true
+  template: src=templates/arch.conf.j2 dest=/boot/loader/entries/arch.conf mode=0644

@@ -1,0 +1,22 @@
+---
+# TODO: Arch Linux only. Adapt to work on MacOS.
+
+- name: install development packages
+  become: true
+  pacman: name={{ item }} state=present
+  with_items:
+    - python
+    - python-pip
+    - tmux
+    - gcr # pinentry-gnome3 dependency
+    - atom
+    - cowsay
+
+- name: install java
+  become: true
+  become_user: "{{ user_name }}"
+  command: pikaur -Syu --noconfirm --needed jdk
+
+- name: set default java installation
+  become: true
+  shell: archlinux-java set "$(archlinux-java status | tail -2 | head -1 | cut -b 3-)"

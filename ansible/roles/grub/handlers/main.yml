@@ -1,0 +1,2 @@
+---
+- import_tasks: rebuild_grub.yml

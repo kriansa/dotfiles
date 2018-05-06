@@ -1,0 +1,43 @@
+---
+- name: install nvidia drivers
+  become: true
+  pacman: name={{ item }} state=present
+  with_items:
+    - libglvnd
+    - nvidia
+    - nvidia-settings
+    - libva-vdpau-driver
+
+- name: add nvidia kernel parameter to use DRM mode (for grub)
+  become: true
+  notify: rebuild grub
+  when: "'grub' in role_names"
+  lineinfile:
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet nvidia-drm.modeset=1"'
+    path: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT="
+
+- name: add nvidia kernel parameter to use DRM mode (for systemd-boot)
+  become: true
+  when: "'systemd-boot' in role_names"
+  lineinfile:
+    path: /boot/loader/entries/arch.conf
+    regexp: "^options (.*)$"
+    line: 'options \1 nvidia-drm.modeset=1'
+    backrefs: yes
+
+- name: add nvidia modules to initramfs modules
+  become: true
+  notify: rebuild initramfs
+  lineinfile:
+    path: /etc/mkinitcpio.conf
+    regexp: '^MODULES='
+    line: 'MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)'
+
+- name: create /etc/pacman.d/hooks directory
+  become: true
+  file: path=/etc/pacman.d/hooks state=directory mode=0755
+
+- name: add pacman hook to update initramfs on upgrades
+  become: true
+  copy: src=files/nvidia.hook dest=/etc/pacman.d/hooks/nvidia.hook mode=0644

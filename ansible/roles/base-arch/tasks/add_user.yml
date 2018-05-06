@@ -1,0 +1,19 @@
+---
+- name: add user
+  become: true
+  user:
+    name: "{{ user_name }}"
+    groups: users,wheel
+    shell: /usr/bin/zsh
+    # Set the password to "123" so we can log in using GDM
+    # Then, it's advised that we should change this password.
+    update_password: on_create
+    password: "123"
+
+- name: ensure that users on wheel group have sudo access
+  become: true
+  copy: src=files/10-wheel.conf dest=/etc/sudoers.d/10-wheel mode=0440
+
+- name: lock root password
+  become: true
+  command: passwd -l root

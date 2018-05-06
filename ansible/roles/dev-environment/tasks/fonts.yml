@@ -1,0 +1,8 @@
+---
+# TODO: Arch Linux only. Adapt to work on MacOS.
+# Font path on MacOS: "${HOME}/Library/Fonts"
+
+- name: install fonts
+  become: true
+  become_user: "{{ user_name }}"
+  copy: src=files/fonts/ dest="{{ home_path }}/.local/share/fonts/"

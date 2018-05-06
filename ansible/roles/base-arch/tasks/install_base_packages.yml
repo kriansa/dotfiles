@@ -1,0 +1,27 @@
+---
+- name: update system
+  become: true
+  pacman:
+    update_cache: yes
+    upgrade: yes
+
+- name: install base packages
+  become: true
+  pacman: name={{ item }} state=present
+  with_items:
+    - base-devel
+    - sudo
+    - wget
+    - openssh
+    - python
+    - git
+    - zsh
+    - gnupg
+    - tree
+    - htop
+    - unzip
+    - unrar
+    - xz
+    - p7zip
+    - bind-tools # dig
+    - ldns # for drill tool (dig with DNSSEC)
