@@ -8,6 +8,10 @@ My dotfiles are using [ZSH](http://zsh.sourceforge.net/) for shell and
 
 I'm doing my machines bootstrapping using [Ansible](https://www.ansible.com/).
 
+## Available machines
+
+* [Desktop](doc/desktop-install.md)
+
 ## Installation
 
 1. Clone this project to `~/.dotfiles`
@@ -27,17 +31,6 @@ You'll just have to enable it in the `packages.zsh`, following
 
 Environment variables like secrets should be kept inside `.localrc` and they'll
 be loaded automatically.
-
-By the way, when using `gnupg` plugin, you should the following line to it:
-
-```shell
-# Sets the default GPG Key
-export GPG_MAIN_KEY="<FINGERPRINT_OF_YOUR_KEY>"
-```
-
-## How-to setup
-
-* [Desktop](doc/desktop-install.md)
 
 ## License
 
