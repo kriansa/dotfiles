@@ -258,7 +258,7 @@ locally or remotely. Pick one and follow the steps.
     # pacman -S git ansible python
 
 ##### 2. Clone the repo
-    # git clone https://github.com/kriansa/dotfiles
+    # git clone --depth 1 https://github.com/kriansa/dotfiles
 
 ##### 3. Run it
     # cd dotfiles && bin/setup desktop
