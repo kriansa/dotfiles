@@ -2,14 +2,18 @@
 #
 PLUGIN_PATH=$0:A:h
 
-# 1. Exports
+# Export bin path
 export PATH="$PLUGIN_PATH/bin:$PATH"
+
 # Export variables as recommended by 'man gpg-agent'
 export GPG_TTY=$(tty)
 unset SSH_AGENT_PID
 if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]; then
   export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
 fi
+
+# Set my default GPG Key
+export GPG_MAIN_KEY="BC277BE09E8A6F1059C3911B3E7884756312F945"
 
 # These commands are meant to encrypt without metadata such as the key of the
 # recipients. This way a message is "meaningless" if the recipient doesn't
