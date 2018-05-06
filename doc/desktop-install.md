@@ -244,9 +244,11 @@ automatically for you with Ansible.
 
 But first, let's ensure that we have internet connection, so start the network
 manager:
+
     # systemctl start NetworkManager
 
 If you need wi-fi, also run:
+
     # nmcli dev wifi connect <SSID> password <PASSWORD>
 
 From here you will have two options: either running Ansible from the system
