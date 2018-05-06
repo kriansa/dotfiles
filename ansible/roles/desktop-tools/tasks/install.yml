@@ -1,15 +1,4 @@
 ---
-- name: install my preferred packages
-  become: true
-  pacman: name={{ item }} state=present
-  with_items:
-    - neovim
-    - ncdu
-    - jq
-    - the_silver_searcher
-    - aws-cli
-    - shellcheck
-
 - name: install common desktop packages
   become: true
   pacman: name={{ item }} state=present

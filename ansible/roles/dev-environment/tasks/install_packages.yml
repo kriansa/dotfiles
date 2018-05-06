@@ -11,6 +11,12 @@
     - gcr # pinentry-gnome3 dependency
     - atom
     - cowsay
+    - neovim
+    - ncdu
+    - jq
+    - the_silver_searcher
+    - aws-cli
+    - shellcheck
 
 - name: install java
   become: true
