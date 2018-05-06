@@ -1,0 +1,7 @@
+# Enable numlock at boot-time on GDM
+if [ -x /usr/bin/numlockx ]; then
+  /usr/bin/numlockx on
+fi
+
+# Set keyboard rate & delay
+xset r rate 250 30
