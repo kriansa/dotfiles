@@ -14,7 +14,7 @@ DESTDIR=$2
 
 # Set default values
 : ${SUBCOMMAND:=export}
-: ${DESTDIR:="~/Dropbox/.internal/gpg-backup"}
+: ${DESTDIR:="$HOME/Dropbox/.internal/gpg-backup"}
 
 function help {
   echo "Usage: gpg-backup [<import|export>] [<destdir>]"
