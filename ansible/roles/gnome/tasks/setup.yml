@@ -16,7 +16,7 @@
     - gnome-tweaks
     # This is required to enable numlock on xorg
     - numlockx
-    # We can use any network manager, but GNOME's NetworkManager works 
+    # We can use any network manager, but GNOME's NetworkManager works
     # seamlessly across the environment.
     # see: https://wiki.archlinux.org/index.php/List_of_applications/Internet#Network_managers
     - networkmanager
@@ -53,4 +53,9 @@
     - { path: org.gnome.desktop.interface, name: clock-show-date, value: "true" }
     - { path: org.gnome.desktop.privacy, name: remember-recent-files, value: "false" }
     - { path: org.gnome.nautilus.preferences, name: show-hidden-files, value: "true" }
+    # Configure BR keyboard
     - { path: org.gnome.desktop.input-sources, name: sources, value: "[('xkb', 'br')]" }
+    # Disable auto-suspend
+    - { path: org.gnome.settings-daemon.plugins.power, name: sleep-inactive-ac-type, value: "'nothing'" }
+    # Disable media auto-run
+    - { path: org.gnome.desktop.media-handling, name: autorun-never, value: "true" }
