@@ -263,6 +263,12 @@ locally or remotely. Pick one and follow the steps.
 ##### 3. Run it
     # cd dotfiles && bin/setup desktop
 
+##### 4. Run the additional steps asked on the screen, then reboot
+    # reboot
+
+##### 5. Remove the dotfiles from /root
+    # rm -rf /root/dotfiles
+
 #### B) Remote configuration
 
 ##### 1. Add my user
