@@ -4,6 +4,7 @@ plugins=(
   zsh
   quick-cd
   unix
+  tilix
 
   # Terminal fortunes
   fortunes
