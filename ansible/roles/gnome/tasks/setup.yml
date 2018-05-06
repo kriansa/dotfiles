@@ -59,3 +59,5 @@
     - { path: org.gnome.settings-daemon.plugins.power, name: sleep-inactive-ac-type, value: "'nothing'" }
     # Disable media auto-run
     - { path: org.gnome.desktop.media-handling, name: autorun-never, value: "true" }
+    # Dark theme
+    - { path: org.gnome.desktop.interface, name: gtk-theme, value: "Adwaita-dark" }
