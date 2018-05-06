@@ -1,6 +1,6 @@
 ---
 # TODO: Arch Linux only. Adapt to work on MacOS.
-- set_fact: 
+- set_fact:
     home_path: /home/{{ user_name }}
     dotfiles_path: /home/{{ user_name }}/.dotfiles
 
@@ -31,7 +31,6 @@
 - name: update dotfiles remote to use SSH instead of HTTPS
   become: true
   become_user: "{{ user_name }}"
-  git:
-    repo: git://github.com:kriansa/dotfiles.git
-    dest: "{{ dotfiles_path }}"
-    update: no
+  command: git remote set-url origin git@github.com:kriansa/dotfiles.git
+  args:
+    chdir: "{{ dotfiles_path }}"

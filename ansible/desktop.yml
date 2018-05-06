@@ -7,5 +7,5 @@
   - role: nvidia
   - role: gnome
   - role: desktop-tools
-  - role: dev-environment
   - role: yubikey
+  - role: dev-environment
