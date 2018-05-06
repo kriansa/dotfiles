@@ -255,7 +255,7 @@ locally or remotely. Pick one and follow the steps.
 #### A) Local configuration (recommended)
 
 ##### 1. Install required packages
-    # pacman -S git
+    # pacman -S git ansible python
 
 ##### 2. Clone the repo
     # git clone https://github.com/kriansa/dotfiles

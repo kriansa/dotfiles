@@ -18,8 +18,8 @@ fi
 # First argument is machine-type
 machine_type=$1
 
-# 1. Ensure we have ansible and python
-pacman -S --noconfirm ansible python
+# Disable cowsay
+export ANSIBLE_NOCOWS=1
 
-# 2. Run the playbook
+# Run the playbook
 cd ansible && ansible-playbook -i "localhost," --connection=local "$machine_type.yml"

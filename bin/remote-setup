@@ -14,5 +14,8 @@ fi
 host=$1
 machine_type=$2
 
-# 2. Run the playbook
+# Disable cowsay
+export ANSIBLE_NOCOWS=1
+
+# Run the playbook
 cd ansible && ansible-playbook --inventory="${host}," "${machine_type}.yml"
