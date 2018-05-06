@@ -17,6 +17,7 @@
     - the_silver_searcher
     - aws-cli
     - shellcheck
+    - tilix
 
 - name: install java
   become: true
