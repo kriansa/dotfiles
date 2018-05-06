@@ -23,7 +23,7 @@
     - libx264
     # qt4 is an "optional" dependency for vlc, required for GUI usage
     # see: https://wiki.archlinux.org/index.php/VLC_media_player
-    - qt4 
+    - qt4
 
     # Torrent client
     - transmission-gtk
@@ -32,10 +32,9 @@
     - libreoffice-fresh
 
     # Fonts
-    - ttf-fira-mono 
-    - noto-fonts 
-    - ttf-roboto 
-    - ttf-croscore 
+    - noto-fonts
+    - ttf-roboto
+    - ttf-croscore
     - ttf-freefont
 
 - name: install AUR packages
@@ -46,8 +45,6 @@
     # Fonts
     - ttf-ms-fonts
     - ttf-vista-fonts
-    - ttf-iosevka
-    - ttf-mplus
 
     # Spotify
     - spotify
