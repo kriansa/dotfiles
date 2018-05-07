@@ -200,9 +200,6 @@ Add the content below to this file:
 
     default arch
     timeout 3
-    auto-firmware 0
-    auto-entries 0
-    editor 0
 
 #### 25. Configure Linux bootloader entry
     # vi /boot/loader/entries/arch.conf
@@ -218,7 +215,7 @@ Add the content below to this file:
 > If you're not using Intel, you can remove intel-ucode from the list below
 > If you're not using LUKS, remove the content after cryptdevice
 
-##### 26. Configure Windows bootloader entry
+##### 26. (optional) Configure Windows bootloader entry
     # vi /boot/loader/entries/windows.conf
 
 Add the content below to this file:

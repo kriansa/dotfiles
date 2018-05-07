@@ -4,4 +4,7 @@ linux    /vmlinuz-linux
 initrd   /intel-ucode.img
 {% endif %}
 initrd   /initramfs-linux.img
-options  root={{ root_partition }} resume={{ swap_partition }} rw quiet
+# This option allows a more verbose boot
+# options  root={{ root_partition }} resume={{ swap_partition }} rw quiet
+# This option omit most of the messages during boot
+options  root={{ root_partition }} resume={{ swap_partition }} rw quiet loglevel=3 rd.systemd.show_status=auto rd.udev.log_priority=3 vt.global_cursor_default=0
