@@ -8,12 +8,13 @@
     - gnome-control-center
     - gnome-backgrounds
     - gdm
-    # Xclip allows interaction with clipboard
-    - xclip
     # Eye of gnome is a image viewer
     - eog
     # This is a tool to customize gnome
     - gnome-tweaks
+
+    # Xclip allows interaction with clipboard
+    - xclip
     # This is required to enable numlock on xorg
     - numlockx
     # We can use any network manager, but GNOME's NetworkManager works
@@ -52,12 +53,26 @@
   with_items:
     - { path: org.gnome.desktop.interface, name: clock-show-date, value: "true" }
     - { path: org.gnome.desktop.privacy, name: remember-recent-files, value: "false" }
-    - { path: org.gnome.nautilus.preferences, name: show-hidden-files, value: "true" }
     # Configure BR keyboard
     - { path: org.gnome.desktop.input-sources, name: sources, value: "[('xkb', 'br')]" }
     # Disable auto-suspend
     - { path: org.gnome.settings-daemon.plugins.power, name: sleep-inactive-ac-type, value: "'nothing'" }
     # Disable media auto-run
     - { path: org.gnome.desktop.media-handling, name: autorun-never, value: "true" }
-    # Dark theme
-    - { path: org.gnome.desktop.interface, name: gtk-theme, value: "Adwaita-dark" }
+    # Theme
+    - { path: org.gnome.desktop.interface, name: gtk-theme, value: "Adwaita" }
+    # Fonts
+    - { path: org.gnome.desktop.interface, name: monospace-font-name, value: "mplus Nerd Font Mono 11" }
+    - { path: org.gnome.desktop.interface, name: font-name, value: "Roboto Condensed, 11" }
+    - { path: org.gnome.desktop.interface, name: document-font-name, value: "Roboto Medium 11" }
+    - { path: org.gnome.desktop.wm.preferences, name: titlebar-uses-system-font, value: "true" }
+    - { path: org.gnome.desktop.wm.preferences, name: titlebar-font, value: "Roboto Condensed, Bold 11" }
+    # Menu bar
+    - { path: org.gnome.desktop.wm.preferences, name: button-layout, value: "appmenu:minimize,maximize,close" }
+    # Nautilus
+    - { path: org.gnome.nautilus.icon-view, name: default-zoom-level, value: "small" }
+    - { path: org.gnome.nautilus.window-state, name: maximized, value: "true" }
+    - { path: org.gnome.nautilus.preferences, name: show-hidden-files, value: "true" }
+    # Backgrounds
+    - { path: org.gnome.desktop.background, name: picture-uri, value: "file:///usr/share/backgrounds/gnome/adwaita-timed.xml" }
+    - { path: org.gnome.desktop.screensaver, name: picture-uri, value: "file:///usr/share/backgrounds/gnome/adwaita-timed.xml" }
