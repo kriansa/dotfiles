@@ -19,7 +19,7 @@
     ]
     telemetryConsent: "limited"
   editor:
-    fontFamily: "Iosevka Nerd Font Mono"
+    fontFamily: "Iosevka Term"
     fontSize: 19
     invisibles:
       space: "."
