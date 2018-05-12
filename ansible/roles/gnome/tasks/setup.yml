@@ -10,6 +10,8 @@
     - gdm
     # Eye of gnome is a image viewer
     - eog
+    # PDF Viewer
+    - evince
     # This is a tool to customize gnome
     - gnome-tweaks
 

@@ -38,6 +38,9 @@
     # Spotify
     - spotify
 
+    # Slack
+    - slack-desktop
+
     # Dropbox
     - dropbox
     - nautilus-dropbox
