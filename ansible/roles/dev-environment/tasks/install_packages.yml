@@ -18,6 +18,7 @@
     - aws-cli
     - shellcheck
     - tilix
+    - gradle
 
 - name: install java
   become: true
