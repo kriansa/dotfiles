@@ -3,23 +3,38 @@
 # This is just a small help on top of `ansible-playbook` so I don't have to
 # remember its interface
 #
-# Usage: bin/setup <machine-type>
+# Usage: bin/setup <[user@]host> <machine-type> [--debug]
+#
+# When using the --debug flag, it will only run the tasks that have been tagged
+# with a 'only' tag. i.e.:
+#   ---
+#   name: do something
+#   tags: [only]
+#   command: echo 'something'
 
-if [ "$(id -u)" != "0" ]; then
-  echo "You need root privileges!"
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $0 <[user@]ip> <machine-type> [--debug]"
   exit 1
 fi
 
-if [ "$#" -lt 1 ]; then
-  echo "Usage: $0 <machine-type>"
-  exit 1
-fi
-
-# First argument is machine-type
-machine_type=$1
+# Get the arguments
+host=$1
+machine_type=$2
+debug=$3
 
 # Disable cowsay
 export ANSIBLE_NOCOWS=1
 
+# When running on localhost, we need to have sudo privileges
+if [ "${host}" = "localhost" ] && [ "$(id -u)" != "0" ]; then
+  echo "You need root privileges!"
+  exit 1
+fi
+
+# On localhost, we need to use a local connection
+test "${host}" = "localhost" && extra_params="--connection=local"
+test "${debug}" = "--debug" && extra_params="${extra_params} --tags=only"
+
 # Run the playbook
-cd ansible && ansible-playbook -i "localhost," --connection=local "$machine_type.yml"
+cd ansible && ansible-playbook --inventory="${host}," \
+  ${extra_params} "${machine_type}.yml"
