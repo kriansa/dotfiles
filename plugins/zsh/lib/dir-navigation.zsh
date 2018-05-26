@@ -27,3 +27,6 @@ alias lsa='ls -lah'
 alias l='ls -lah'
 alias ll='ls -lh'
 alias la='ls -lAh'
+
+# Easily create & cd to directory
+function mcd () { mkdir -p $1 && cd $1 }
