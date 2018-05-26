@@ -254,13 +254,13 @@ locally or remotely. Pick one and follow the steps.
 #### A) Local configuration (recommended)
 
 ##### 1. Install required packages
-    # pacman -S git ansible python
+    # pacman -S git ansible
 
 ##### 2. Clone the repo
     # git clone --depth 1 https://github.com/kriansa/dotfiles
 
 ##### 3. Run it
-    # cd dotfiles && bin/setup desktop
+    # cd dotfiles && bin/setup localhost desktop
 
 ##### 4. Run the additional steps asked on the screen, then remove the setup and reboot
     # rm -rf /root/dotfiles && reboot
