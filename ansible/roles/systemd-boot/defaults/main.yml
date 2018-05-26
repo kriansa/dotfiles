@@ -9,6 +9,9 @@ use_intel_ucode: yes
 # Are we using windows?
 dualboot_windows: yes
 
+# Silent boot?
+silent_boot: yes
+
 # What's the default OS we want to boot to
 default_loader: arch
 
