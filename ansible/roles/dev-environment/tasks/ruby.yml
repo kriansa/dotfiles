@@ -7,14 +7,14 @@
     dest: "{{ item.dest }}"
   with_items:
     - { repo: "rbenv", dest: "{{ home_path }}/.rbenv" }
-    - { repo: "ruby-build", dest: "{{ home_path }}/.rbenv/plugins/node-build" }
+    - { repo: "ruby-build", dest: "{{ home_path }}/.rbenv/plugins/ruby-build" }
 
 - name: set the default rbenv version to {{ ruby_version }}
   become: true
   become_user: "{{ user_name }}"
-  lineinfile: 
-    path: "{{ home_path }}/.rbenv/version" 
-    line: "{{ ruby_version }}" 
+  lineinfile:
+    path: "{{ home_path }}/.rbenv/version"
+    line: "{{ ruby_version }}"
     state: present
     create: true
     mode: 0644
