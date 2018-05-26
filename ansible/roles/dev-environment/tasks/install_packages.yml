@@ -19,6 +19,11 @@
     - shellcheck
     - tilix
     - gradle
+    # Virtualization stuff
+    - qemu
+    - virt-manager
+    - ebtables
+    - dnsmasq
 
 - name: install java
   become: true
