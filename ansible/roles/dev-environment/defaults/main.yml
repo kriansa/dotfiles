@@ -8,6 +8,6 @@ git_author:
   email: zdaniel.gp@gmail.com
   gpg_signing_key: BC277BE09E8A6F1059C3911B3E7884756312F945
 
-node_version: 8.11.1
+node_version: 8.11.2
 python_version: 3.6.5
 ruby_version: 2.5.1
