@@ -24,6 +24,7 @@ Plug 'tbastos/vim-lua'
 
 " Markdown
 " Plug 'SidOfc/mkdx'
+Plug 'junegunn/vim-easy-align'
 
 " Ruby
 Plug 'vim-ruby/vim-ruby'
