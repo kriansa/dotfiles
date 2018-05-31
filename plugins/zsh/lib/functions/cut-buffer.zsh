@@ -5,7 +5,7 @@
 
 function _cut-whole-line {
   zle kill-whole-line
-  echo -n $CUTBUFFER | pbcopy
+  echo -n $CUTBUFFER | clipcopy
 }
 
 zle -N _cut-whole-line
