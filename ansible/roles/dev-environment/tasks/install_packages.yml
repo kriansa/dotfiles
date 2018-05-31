@@ -31,6 +31,9 @@
     - docker-compose
     - terraform
 
+    # LastPass CLI (lpass)
+    - lastpass-cli
+
 - name: install java
   become: true
   become_user: "{{ user_name }}"
