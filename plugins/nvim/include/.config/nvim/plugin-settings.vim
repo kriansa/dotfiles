@@ -12,7 +12,7 @@ let g:NERDTreeShowHidden=1
 " Keep it when we open a file through the tree
 let g:NERDTreeQuitOnOpen=0
 " Ignore metadata
-let g:NERDTreeIgnore=['.git$', '\~$']
+let g:NERDTreeIgnore=['^\.git$', '\~$']
 " Disable netrw
 let loaded_netrwPlugin = 1
 
