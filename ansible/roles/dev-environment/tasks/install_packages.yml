@@ -19,11 +19,17 @@
     - shellcheck
     - tilix
     - gradle
+
     # Virtualization stuff
     - qemu
     - virt-manager
     - ebtables
     - dnsmasq
+
+    # Docker & DevOps
+    - docker
+    - docker-compose
+    - terraform
 
 - name: install java
   become: true

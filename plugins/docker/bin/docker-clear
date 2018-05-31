@@ -1,0 +1,19 @@
+#!/bin/sh
+
+containers=$(docker ps --all \
+  --filter 'status=created' \
+  --filter 'status=exited' \
+  --filter 'status=dead' \
+  --format '{{.ID}}')
+
+for id in $containers; do
+  docker rm "$id"
+done
+
+images=$(docker image ls --all \
+  --filter 'dangling=true' \
+  --format '{{.ID}}')
+
+for id in $images; do
+  docker rmi "$id"
+done

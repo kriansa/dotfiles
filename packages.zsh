@@ -12,6 +12,7 @@ plugins=(
   # Development utilities
   git
   gnupg
+  docker
 
   # Development platforms
   iot

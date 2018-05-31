@@ -3,12 +3,14 @@
   become: true
   user:
     name: "{{ user_name }}"
-    groups: users,wheel
+    groups: users,wheel,docker
     shell: /usr/bin/zsh
     # Set the password to "123" so we can log in using GDM
     # Then, it's advised that we should change this password.
     update_password: on_create
     password: "123"
+
+- debug: msg="Please, change the password of the user {{ user_name }}!"
 
 - name: ensure that users on wheel group have sudo access
   become: true
