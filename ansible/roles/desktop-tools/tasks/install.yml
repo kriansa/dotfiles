@@ -17,6 +17,9 @@
     # GParted is a GUI partitioner
     - gparted
 
+    # Allow mouting NTFS partitions with read/write
+    - ntfs-3g
+
     # Torrent client
     - transmission-gtk
 
