@@ -1,0 +1,24 @@
+---
+- name: create /var/lib/docker directory
+  become: true
+  file: path="/var/lib/docker" state=directory mode=0711
+
+# See details of fstab syntax below
+# https://wiki.archlinux.org/index.php/fstab
+- name: mount disk partition to /var/lib/docker
+  become: true
+  mount:
+    path: /var/lib/docker
+    src: UUID={{ docker_partition_uuid }}
+    fstype: ext4
+    opts: rw,relatime,data=ordered
+    dump: 0
+    passno: 2
+    state: present
+
+- name: install docker packages
+  become: true
+  pacman: name={{ item }} state=present
+  with_items:
+    - docker
+    - docker-compose

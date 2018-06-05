@@ -11,3 +11,6 @@ git_author:
 node_version: 8.11.2
 python_version: 3.6.5
 ruby_version: 2.5.1
+
+# Docker partition UUID
+docker_partition_uuid: 7afcdb7c-5da0-4923-95b1-b9bf47c837b2

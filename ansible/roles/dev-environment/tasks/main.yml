@@ -1,3 +1,4 @@
 ---
 - import_tasks: install_packages.yml
 - import_tasks: install_dotfiles.yml
+- import_tasks: install_docker.yml
