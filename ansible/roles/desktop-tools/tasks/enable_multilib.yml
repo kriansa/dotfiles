@@ -1,0 +1,8 @@
+---
+- name: enable multilib (32bit libraries)
+  become: true
+  blockinfile:
+    path: /etc/pacman.conf
+    block: |
+      [multilib]
+      Include = /etc/pacman.d/mirrorlist
