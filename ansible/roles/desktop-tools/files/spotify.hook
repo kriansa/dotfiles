@@ -1,0 +1,9 @@
+[Trigger]
+Operation=Install
+Operation=Upgrade
+Type=Package
+Target=spotify
+
+[Action]
+When=PostTransaction
+Exec=/usr/bin/sed -i 's/Exec=spotify %U/Exec=spotify --force-device-scale-factor=2 %U/' /usr/share/applications/spotify.desktop

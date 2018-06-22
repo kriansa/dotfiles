@@ -5,6 +5,10 @@
     update_cache: yes
     upgrade: yes
 
+- name: create /etc/pacman.d/hooks directory
+  become: true
+  file: path=/etc/pacman.d/hooks state=directory mode=0755
+
 - name: install base packages
   become: true
   pacman: name={{ item }} state=present

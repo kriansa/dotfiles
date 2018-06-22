@@ -34,10 +34,6 @@
     regexp: '^MODULES='
     line: 'MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)'
 
-- name: create /etc/pacman.d/hooks directory
-  become: true
-  file: path=/etc/pacman.d/hooks state=directory mode=0755
-
 - name: add pacman hook to update initramfs on upgrades
   become: true
   copy: src=files/nvidia.hook dest=/etc/pacman.d/hooks/nvidia.hook mode=0644
