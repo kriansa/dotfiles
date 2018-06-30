@@ -18,6 +18,8 @@
     - aws-cli
     - shellcheck
     - tilix
+
+    # Java stuff
     - gradle
 
     # Virtualization stuff
