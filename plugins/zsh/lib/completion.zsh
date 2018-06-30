@@ -6,7 +6,7 @@
 zmodload zsh/complist
 
 unsetopt menu_complete   # do not autoselect the first completion entry
-unsetopt flowcontrol
+unsetopt flow_control    # Disable start/stop characters in shell editor.
 setopt auto_menu         # show completion menu on successive tab press
 setopt complete_in_word
 setopt always_to_end
