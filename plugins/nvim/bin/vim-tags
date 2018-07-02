@@ -1,6 +1,8 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env rbenv-global-ruby
 # frozen_string_literal: true
 
+# vim:ft=ruby
+#
 # This program will generate ctags file for entire projects
 # Its interface is defined as below:
 #
@@ -17,12 +19,12 @@
 #
 # Options are:
 # => -f   Set the ctags output file (required)
-# => -v   Verbose mode (off by default)
+# => -v   Verbose mode
 
 require 'optparse'
 
 options = {
-  destination: nil,
+  destination: '',
   verbose: false
 }
 
@@ -42,6 +44,9 @@ OptionParser.new do |opts|
   opts.on('--options=[OPTIONFILE]', 'Option not used') {}
   opts.on('--append', 'Option not used') {}
 end.parse!
+
+# Stop if "-f" switch is not passed
+raise OptionParser::MissingArgument, '-f' if options[:destination].empty?
 
 # Detect tags output path
 project_path = Dir.pwd
@@ -76,6 +81,7 @@ end
 # @param [String] project_path
 # @param [String] tags_output
 # @param [Hash] options
+# rubocop:disable Metrics/MethodLength
 def generate_tags_with_starscope(project_path, tags_output, options)
   starscope_db_output = File.dirname(tags_output) + '/starscope.db'
 
@@ -100,6 +106,7 @@ def generate_tags_with_starscope(project_path, tags_output, options)
   # Execute it!
   system commandline.join(' ')
 end
+# rubocop:enable Metrics/MethodLength
 
 # Currently, uses only starscope
 generate_tags_with_starscope(project_path, tags_output, options)

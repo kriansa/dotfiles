@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Set the ruby version to the global one
+RBENV_VERSION=$(rbenv global)
+export RBENV_VERSION
+
+ruby "$@"
