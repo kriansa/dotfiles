@@ -73,15 +73,12 @@ let g:auto_save_silent = 1
 let g:ale_change_sign_column_color = 1
 let g:ale_sign_column_always = 1
 let g:ale_javascript_eslint_executable = 'eslint_d'
-" let g:ale_linters = { 'vue': ['stylelint', 'eslint', 'prettier'] }
 let g:ale_linter_aliases = { 'vue': ['javascript', 'css'] }
-
-" DEBUG THIS: It's taking too long to lint & save a file
-" let g:ale_fix_on_save = 1
-" let g:ale_fixers = {
-" \   'javascript': ['prettier'],
-" \   'vue': ['prettier'],
-" \}
+let g:ale_fixers = {
+\   'javascript': ['prettier'],
+\   'vue': ['prettier'],
+\   'ruby': ['rubocop']
+\}
 
 " Ferret
 let g:FerretGrepCommand='ag --vimgrep --width 4096 --hidden --ignore .git'
