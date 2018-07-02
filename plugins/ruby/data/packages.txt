@@ -3,3 +3,4 @@ neovim
 mailcatcher
 starscope
 rubocop
+rubocop-rspec
