@@ -20,3 +20,7 @@
 - name: copy linux entry
   become: true
   template: src=templates/arch.conf.j2 dest=/boot/loader/entries/arch.conf mode=0644
+
+- name: add pacman hook to update systemd-boot on upgrades
+  become: true
+  copy: src=files/systemd.hook dest=/etc/pacman.d/hooks/systemd.hook mode=0644
