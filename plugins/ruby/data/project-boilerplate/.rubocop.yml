@@ -1,0 +1,12 @@
+require: rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.5
+  Exclude:
+    - bin/*
+    - vendor/bundle/**/*
+
+Metrics/BlockLength:
+  ExcludedMethods: ['describe', 'context']
+  Include:
+    - spec/**/*_spec.rb
