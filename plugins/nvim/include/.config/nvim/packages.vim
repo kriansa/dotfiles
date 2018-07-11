@@ -11,16 +11,22 @@ Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-obsession'
 
 " Ansible
-Plug 'pearofducks/ansible-vim'
+Plug 'pearofducks/ansible-vim', { 'for': 'terraform' }
 
 " Terraform
-Plug 'hashivim/vim-terraform'
+Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 
 " Clojure
-Plug 'guns/vim-clojure-static'
+Plug 'guns/vim-clojure-static', { 'for': 'clojure' }
+
+" Crystal
+Plug 'rhysd/vim-crystal', { 'for': 'crystal' }
 
 " Lua
-Plug 'tbastos/vim-lua'
+Plug 'tbastos/vim-lua', { 'for': 'lua' }
+
+" Swift
+Plug 'keith/swift.vim', { 'for': 'swift' }
 
 " Markdown
 " Plug 'SidOfc/mkdx'
