@@ -25,6 +25,7 @@
 - import_tasks: ruby.yml
 - import_tasks: tilix.yml
 - import_tasks: tmux.yml
+- import_tasks: gnome.yml
 - import_tasks: xorg.yml
 - import_tasks: zsh.yml
 
