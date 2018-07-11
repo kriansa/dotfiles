@@ -76,6 +76,10 @@
     - { path: org.gnome.nautilus.icon-view, name: default-zoom-level, value: "small" }
     - { path: org.gnome.nautilus.window-state, name: maximized, value: "true" }
     - { path: org.gnome.nautilus.preferences, name: show-hidden-files, value: "true" }
+    # FileChooser sorting
+    - { path: org.gtk.Settings.FileChooser, name: sort-directories-first, value: "true" }
+    - { path: org.gtk.Settings.FileChooser, name: sort-order, value: "'ascending'" }
+    - { path: org.gtk.Settings.FileChooser, name: sort-column, value: "'name'" }
     # Backgrounds
     - { path: org.gnome.desktop.background, name: picture-uri, value: "file:///usr/share/backgrounds/gnome/adwaita-timed.xml" }
     - { path: org.gnome.desktop.screensaver, name: picture-uri, value: "file:///usr/share/backgrounds/gnome/adwaita-timed.xml" }
