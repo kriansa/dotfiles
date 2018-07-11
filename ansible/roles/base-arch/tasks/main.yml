@@ -4,3 +4,4 @@
 - import_tasks: adjust_ntp.yml
 - import_tasks: install_pikaur.yml
 - import_tasks: install_aurutils.yml
+- import_tasks: mount_hard_drive.yml

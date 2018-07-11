@@ -1,0 +1,19 @@
+---
+- name: create folder to mount my NTFS disk drive
+  become: true
+  become_user: "{{ user_name }}"
+  file: path=/home/{{ user_name }}/Drive state=directory mode=0755
+
+# See details of fstab syntax below
+# https://wiki.archlinux.org/index.php/fstab
+# use lsblk -f to list all partitions
+- name: mount disk partition to ~/Drive
+  become: true
+  mount:
+    path: /home/{{ user_name }}/Drive
+    src: UUID={{ local_disk_partition_uuid }}
+    fstype: ntfs-3g
+    opts: defaults
+    dump: 0
+    passno: 2
+    state: present
