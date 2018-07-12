@@ -29,7 +29,7 @@
   when: should_install_aurutils == true
   get_url:
     url: https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=aurutils-git
-    dest: /tmp/aurutils_build/aurutils-git-PKGBUILD
+    dest: /tmp/aurutils_build
     mode: 0644
 
 - name: build and install aurutils
