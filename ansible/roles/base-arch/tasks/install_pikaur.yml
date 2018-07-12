@@ -28,7 +28,7 @@
   when: should_install_pikaur == true
   get_url:
     url: https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=pikaur-git
-    dest: /tmp/pikaur_build
+    dest: /tmp/pikaur_build/pikaur-git-PKGBUILD
     mode: 0644
 
 - name: build and install pikaur
