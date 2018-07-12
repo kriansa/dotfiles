@@ -27,7 +27,6 @@
 
 - name: download the PKGBUILD file from AUR
   become: true
-  become_user: "{{ user_name }}"
   when: should_install_aurutils == true
   get_url:
     url: https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=aurutils-git
@@ -46,6 +45,5 @@
 
 - name: delete the tmp folder
   become: true
-  become_user: "{{ user_name }}"
   when: should_install_aurutils == true
   file: path=/tmp/aurutils_build state=absent

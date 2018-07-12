@@ -24,7 +24,6 @@
 
 - name: download the PKGBUILD file from AUR
   become: true
-  become_user: "{{ user_name }}"
   when: should_install_pikaur == true
   get_url:
     url: https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=pikaur-git
@@ -43,6 +42,5 @@
 
 - name: delete the tmp folder
   become: true
-  become_user: "{{ user_name }}"
   when: should_install_pikaur == true
   file: path=/tmp/pikaur_build state=absent
