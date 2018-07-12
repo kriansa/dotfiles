@@ -1,10 +1,4 @@
 ---
-- name: update system
-  become: true
-  pacman:
-    update_cache: yes
-    upgrade: yes
-
 - name: create /etc/pacman.d/hooks directory
   become: true
   file: path=/etc/pacman.d/hooks state=directory mode=0755
@@ -17,6 +11,12 @@
     block: |
       [multilib]
       Include = /etc/pacman.d/mirrorlist
+
+- name: update system
+  become: true
+  pacman:
+    update_cache: yes
+    upgrade: yes
 
 - name: install base packages
   become: true
