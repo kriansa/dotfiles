@@ -1,9 +1,4 @@
 ---
-- name: create folder to mount my NTFS disk drive
-  become: true
-  become_user: "{{ user_name }}"
-  file: path=/home/{{ user_name }}/Drive state=directory mode=0755
-
 # See details of fstab syntax below
 # https://wiki.archlinux.org/index.php/fstab
 # use lsblk -f to list all partitions
