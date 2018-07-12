@@ -24,7 +24,12 @@
     - docker-compose
 
 - name: add existing user "{{ user_name }}" to group docker
+  become: true
   user:
     name: "{{ user_name }}"
     groups: docker
     append: yes
+
+- name: enable docker at startup
+  become: true
+  systemd: state=enabled name=docker
