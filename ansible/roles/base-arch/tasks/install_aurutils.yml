@@ -15,7 +15,9 @@
   with_items:
     - jq
     - pacutils
-    - vifm
+    - wget
+    - ed
+    - parallel
 
 - name: create tmp folder to build aurutils
   become: true
