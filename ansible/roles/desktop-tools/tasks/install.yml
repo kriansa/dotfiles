@@ -41,10 +41,6 @@
   become_user: "{{ user_name }}"
   command: pikaur -Syu --noconfirm --needed {{ item }}
   with_items:
-    # Fonts
-    - ttf-ms-fonts
-    - ttf-vista-fonts
-
     # Spotify
     - spotify
 
