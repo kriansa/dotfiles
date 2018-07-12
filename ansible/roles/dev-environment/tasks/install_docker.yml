@@ -1,4 +1,10 @@
 ---
+- name: add existing user "{{ user_name }}" to group docker
+  user:
+    name: "{{ user_name }}"
+    groups: docker
+    append: yes
+
 - name: create /var/lib/docker directory
   become: true
   file: path="/var/lib/docker" state=directory mode=0711

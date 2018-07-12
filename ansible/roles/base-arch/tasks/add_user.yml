@@ -3,7 +3,7 @@
   become: true
   user:
     name: "{{ user_name }}"
-    groups: users,wheel,docker
+    groups: users,wheel
     shell: /usr/bin/zsh
     # Set the password to "123" so we can log in using GDM
     # Then, it's advised that we should change this password.
