@@ -52,14 +52,14 @@
 - name: setup gnome
   become: true
   become_user: "{{ user_name }}"
-  command: dbus-launch gsettings set {{ item.path }} {{ item.name }} {{ item.value }}
+  command: dbus-launch gsettings set {{ item.path }} {{ item.name }} "{{ item.value }}"
   with_items:
     - { path: org.gnome.desktop.interface, name: clock-show-date, value: "true" }
     - { path: org.gnome.desktop.privacy, name: remember-recent-files, value: "false" }
     # Configure BR keyboard
     - { path: org.gnome.desktop.input-sources, name: sources, value: "[('xkb', 'br')]" }
     # Disable auto-suspend
-    - { path: org.gnome.settings-daemon.plugins.power, name: sleep-inactive-ac-type, value: "'nothing'" }
+    - { path: org.gnome.settings-daemon.plugins.power, name: sleep-inactive-ac-type, value: "nothing" }
     # Disable media auto-run
     - { path: org.gnome.desktop.media-handling, name: autorun-never, value: "true" }
     # Theme
@@ -78,8 +78,8 @@
     - { path: org.gnome.nautilus.preferences, name: show-hidden-files, value: "true" }
     # FileChooser sorting
     - { path: org.gtk.Settings.FileChooser, name: sort-directories-first, value: "true" }
-    - { path: org.gtk.Settings.FileChooser, name: sort-order, value: "'ascending'" }
-    - { path: org.gtk.Settings.FileChooser, name: sort-column, value: "'name'" }
+    - { path: org.gtk.Settings.FileChooser, name: sort-order, value: "ascending" }
+    - { path: org.gtk.Settings.FileChooser, name: sort-column, value: "name" }
     # Backgrounds
     - { path: org.gnome.desktop.background, name: picture-uri, value: "file:///usr/share/backgrounds/gnome/adwaita-timed.xml" }
     - { path: org.gnome.desktop.screensaver, name: picture-uri, value: "file:///usr/share/backgrounds/gnome/adwaita-timed.xml" }
