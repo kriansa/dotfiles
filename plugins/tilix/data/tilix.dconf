@@ -1,30 +1,36 @@
-[/]
-quake-height-percent=43
-tab-position='bottom'
-sidebar-on-right=false
-terminal-title-style='none'
-theme-variant='dark'
-use-tabs=true
-new-instance-mode='focus-window'
-enable-wide-handle=true
-terminal-title-show-when-single=true
-window-style='disable-csd-hide-toolbar'
-
 [profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d]
 foreground-color='#F8F8F2'
 visible-name='Default'
 palette=['#000000', '#FF5555', '#50FA7B', '#F1FA8C', '#BD93F9', '#FF79C6', '#8BE9FD', '#BBBBBB', '#555555', '#FF5555', '#50FA7B', '#F1FA8C', '#BD93F9', '#FF79C6', '#8BE9FD', '#FFFFFF']
+badge-color='#AC7EA8'
 badge-color-set=false
 use-system-font=false
 cursor-colors-set=false
 highlight-colors-set=false
-use-theme-colors=false
+badge-position='northeast'
 bold-color-set=false
-font='Iosevka Nerd Font Mono 12'
-terminal-title='${id}: ${title} - ${directory}'
+font='Iosevka Term 12'
+use-theme-colors=false
+terminal-title='${directory}'
 cursor-blink-mode='off'
 background-color='#1E1F29'
+badge-text=''
 dim-transparency-percent=44
+
+[/]
+quake-height-percent=43
+tab-position='bottom'
+use-overlay-scrollbar=true
+sidebar-on-right=false
+terminal-title-style='none'
+theme-variant='dark'
+session-name='${directory}'
+use-tabs=true
+new-instance-mode='focus-window'
+enable-wide-handle=true
+app-title='${title}'
+terminal-title-show-when-single=true
+window-style='disable-csd-hide-toolbar'
 
 [keybindings]
 session-switch-to-terminal-9='disabled'

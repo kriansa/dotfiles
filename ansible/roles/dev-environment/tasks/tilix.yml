@@ -8,4 +8,4 @@
 - name: import tilix settings
   become: true
   become_user: "{{ user_name }}"
-  command: dconf load /com/gexperts/Tilix/ < "{{ dotfiles_path }}/plugins/tilix/data/tilix.dconf"
+  shell: dbus-launch dconf load /com/gexperts/Tilix/ < "{{ dotfiles_path }}/plugins/tilix/data/tilix.dconf"

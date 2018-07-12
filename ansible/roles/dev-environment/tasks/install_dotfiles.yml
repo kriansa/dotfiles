@@ -1,9 +1,5 @@
 ---
 # TODO: Arch Linux only. Adapt to work on MacOS.
-- set_fact:
-    home_path: /home/{{ user_name }}
-    dotfiles_path: /home/{{ user_name }}/.dotfiles
-
 - stat: path="{{ dotfiles_path }}"
   register: dotfiles_exist
 
