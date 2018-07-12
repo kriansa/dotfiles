@@ -1,7 +1,7 @@
 ---
 - name: enable ntp servers for systemd-timesyncd
   become: true
-  file: src=files/timesyncd.conf dest=/etc/systemd/timesyncd.conf mode=0644
+  copy: src=files/timesyncd.conf dest=/etc/systemd/timesyncd.conf mode=0644
 
 - name: enable ntp synchronization
   become: true
