@@ -413,7 +413,7 @@
 	<key>NSFontPanelAttributes</key>
 	<string>1, 4</string>
 	<key>NSNavLastRootDirectory</key>
-	<string>~/Downloads</string>
+	<string>~/Pictures/Backgrounds</string>
 	<key>NSNavPanelExpandedSizeForOpenMode</key>
 	<string>{712, 448}</string>
 	<key>NSQuotedKeystrokeBinding</key>
@@ -461,11 +461,11 @@
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>190 291 606 469 0 0 1680 1027 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>575 546 918 394 0 0 1680 1027 </string>
+	<string>470 345 796 486 0 0 1680 1027 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>230 833 592 584 0 0 2560 1417 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 0 1680 1027 0 0 1680 1027 </string>
+	<string>191 124 730 625 0 0 1680 1027 </string>
 	<key>NeverWarnAboutShortLivedSessions_0A2460CE-1498-43BB-9ABB-3150AB6A8153</key>
 	<true/>
 	<key>New Bookmarks</key>
@@ -816,14 +816,14 @@
 					<key>Action</key>
 					<integer>10</integer>
 					<key>Text</key>
-					<string>b</string>
+					<string>[1;5D</string>
 				</dict>
 				<key>0xf703-0x280000</key>
 				<dict>
 					<key>Action</key>
 					<integer>10</integer>
 					<key>Text</key>
-					<string>f</string>
+					<string>[1;5C</string>
 				</dict>
 			</dict>
 			<key>Link Color</key>
@@ -1217,7 +1217,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-07-05T21:08:09Z</date>
+	<date>2018-07-14T05:45:34Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>SavePasteHistory</key>
@@ -1307,7 +1307,7 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>3.2.0beta5</string>
+	<string>3.2.0beta6</string>
 	<key>kCPKSelectionViewPreferredModeKey</key>
 	<integer>0</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
