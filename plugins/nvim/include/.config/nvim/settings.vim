@@ -84,3 +84,8 @@ autocmd InsertLeave * set nopaste
 autocmd TermOpen term://* setlocal nolist
 " autocmd BufWinEnter,WinEnter term://* startinsert
 " autocmd BufLeave term://* stopinsert
+
+" Temporarily workaround for nvim bug:
+" https://github.com/neovim/neovim/issues/7483
+" TODO: Remove that when this bug is fixed.
+autocmd VimResized * redraw!
