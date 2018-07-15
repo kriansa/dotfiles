@@ -29,6 +29,10 @@ bindkey "${terminfo[kcbt]}" reverse-menu-complete # [Shift-Tab]
 # Forward-delete a character
 bindkey "${terminfo[kdch1]}" delete-char # [Delete] - delete forward
 
+# CTRL+Arrows move between words
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+
 # Home and end
 bindkey "^[[H" beginning-of-line # [Home] - begining of line
 bindkey "^[[F" end-of-line # [End] - end of line
