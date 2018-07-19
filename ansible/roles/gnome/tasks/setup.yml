@@ -86,3 +86,7 @@
     # Set keyboard rate & delay
     - { path: org.gnome.desktop.peripherals.keyboard, name: repeat-interval, value: "uint32 30" }
     - { path: org.gnome.desktop.peripherals.keyboard, name: delay, value: "uint32 250" }
+    # Set the shortcuts on the sidebar (favorites)
+    - path: org.gnome.shell
+      name: favorite-apps
+      value: ['org.gnome.Nautilus.desktop', 'com.gexperts.Tilix.desktop', 'firefox.desktop', 'spotify.desktop']
