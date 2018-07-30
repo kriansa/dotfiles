@@ -13,6 +13,8 @@
     - eog
     # PDF Viewer
     - evince
+    # Font viewer
+    - gnome-font-viewer
     # This is a tool to customize gnome
     - gnome-tweaks
 
@@ -65,7 +67,7 @@
     # Theme
     - { path: org.gnome.desktop.interface, name: gtk-theme, value: "Adwaita" }
     # Fonts
-    - { path: org.gnome.desktop.interface, name: monospace-font-name, value: "mplus Nerd Font Mono 11" }
+    - { path: org.gnome.desktop.interface, name: monospace-font-name, value: "Roboto Mono 11" }
     - { path: org.gnome.desktop.interface, name: font-name, value: "Roboto Condensed, 11" }
     - { path: org.gnome.desktop.interface, name: document-font-name, value: "Roboto Medium 11" }
     - { path: org.gnome.desktop.wm.preferences, name: titlebar-uses-system-font, value: "true" }
