@@ -28,6 +28,9 @@ Plug 'tbastos/vim-lua', { 'for': 'lua' }
 " Swift
 Plug 'keith/swift.vim', { 'for': 'swift' }
 
+" CSS color viewer
+Plug 'ap/vim-css-color'
+
 " Markdown
 " Plug 'SidOfc/mkdx'
 Plug 'junegunn/vim-easy-align'
