@@ -31,10 +31,8 @@
     - libreoffice-fresh
 
     # Fonts
-    - noto-fonts
     - ttf-roboto
     - ttf-croscore
-    - ttf-freefont
 
 - name: install AUR packages
   become: true
@@ -53,3 +51,9 @@
 
     # Fonts
     - ttf-symbola
+    - ttf-roboto-mono
+
+    # My AUR repo
+    - ttf-emojione
+    - ttf-gelasio
+    - ttf-nerd-glyphs
