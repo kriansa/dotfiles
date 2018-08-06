@@ -12,6 +12,17 @@
       [multilib]
       Include = /etc/pacman.d/mirrorlist
 
+# TODO: Once this repo gets signed packages, remove the SigLevel line
+- name: add kriansa aur repository to pacman
+  become: true
+  blockinfile:
+    path: /etc/pacman.conf
+    marker: "# Enable Kriansa AUR repository ({mark})"
+    block: |
+      [aur-kriansa]
+      Server = https://aur.garajau.com.br/
+      SigLevel = Never
+
 - name: update system
   become: true
   pacman:
