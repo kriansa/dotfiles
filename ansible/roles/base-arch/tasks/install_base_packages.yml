@@ -12,7 +12,6 @@
       [multilib]
       Include = /etc/pacman.d/mirrorlist
 
-# TODO: Once this repo gets signed packages, remove the SigLevel line
 - name: add kriansa aur repository to pacman
   become: true
   blockinfile:
@@ -21,7 +20,6 @@
     block: |
       [aur-kriansa]
       Server = https://aur.garajau.com.br/
-      SigLevel = Never
 
 - name: update system
   become: true
