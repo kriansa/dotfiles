@@ -12,15 +12,6 @@
       [multilib]
       Include = /etc/pacman.d/mirrorlist
 
-- name: add kriansa aur repository to pacman
-  become: true
-  blockinfile:
-    path: /etc/pacman.conf
-    marker: "# Enable Kriansa AUR repository ({mark})"
-    block: |
-      [aur-kriansa]
-      Server = https://aur.garajau.com.br/
-
 - name: update system
   become: true
   pacman:

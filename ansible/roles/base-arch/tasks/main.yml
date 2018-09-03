@@ -1,4 +1,5 @@
 ---
+- import_tasks: add_custom_repo.yml
 - import_tasks: install_base_packages.yml
 - import_tasks: add_user.yml
 - import_tasks: adjust_ntp.yml

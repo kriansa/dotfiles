@@ -1,0 +1,17 @@
+---
+- name: add my gpg key to the pacman keyring
+  become: true
+  command: pacman-key --recv-keys 0x3E7884756312F945
+
+- name: sign my gpg key on the pacman keyring
+  become: true
+  command: pacman-key --lsign-key 0x3E7884756312F945
+
+- name: add kriansa aur repository to pacman
+  become: true
+  blockinfile:
+    path: /etc/pacman.conf
+    marker: "# Enable Kriansa AUR repository ({mark})"
+    block: |
+      [aur-kriansa]
+      Server = https://aur.garajau.com.br/
