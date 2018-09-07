@@ -51,6 +51,10 @@
     - "{{ user_name }}"
     - gdm
 
+- name: set user avatar
+  become: true
+  copy: src=files/user dest=/var/lib/AccountsService/user/{{ user_name }} mode=0644
+
 - name: setup gnome
   become: true
   become_user: "{{ user_name }}"
