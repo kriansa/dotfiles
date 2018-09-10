@@ -164,11 +164,19 @@ prompt_status() {
   [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
 }
 
+# This segment prompts a custom message, useful for when you're working on
+# a specific project that loads up several environment variables on your
+# shell and you need to know on which shell you are
+prompt_project_type() {
+  test -n "$PROJECT_TYPE" && prompt_segment yellow default "⌨️  $PROJECT_TYPE"
+}
+
 ## Main prompt
 build_prompt() {
   RETVAL=$?
   prompt_status
   prompt_context
+  prompt_project_type
   prompt_dir
   prompt_git
   prompt_end
