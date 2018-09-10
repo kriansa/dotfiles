@@ -30,6 +30,9 @@
     # ref2: https://bugzilla.mozilla.org/show_bug.cgi?id=594876
     - { pref: layers.acceleration.force-enabled, value: "true" }
 
+    # Disable remembering passwords
+    - { pref: signon.rememberSignons, value: "false" }
+
 # Set the default application for web browsing
 # Ref: https://askubuntu.com/questions/16621/how-to-set-the-default-browser-from-the-command-line
 - name: make firefox the default application
