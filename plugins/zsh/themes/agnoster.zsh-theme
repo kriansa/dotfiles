@@ -167,7 +167,7 @@ prompt_status() {
 # a specific project that loads up several environment variables on your
 # shell and you need to know on which shell you are
 prompt_project_type() {
-  test -n "$PROJECT_TYPE" && prompt_segment yellow default "⌨️  $PROJECT_TYPE"
+  test -n "$PROJECT_TYPE" && prompt_segment yellow black "⌨️  $PROJECT_TYPE"
 }
 
 ## Main prompt
