@@ -2,5 +2,8 @@
 # The username we want to create
 user_name: dpereira
 
+# This user comment appears on Gnome-shell
+user_comment: Daniel Pereira
+
 # Hard drive NTFS partition UUID
 local_disk_partition_uuid: 947E420F7E41EA96

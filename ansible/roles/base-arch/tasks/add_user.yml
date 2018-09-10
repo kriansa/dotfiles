@@ -3,6 +3,7 @@
   become: true
   user:
     name: "{{ user_name }}"
+    comment: "{{ user_comment }}"
     groups: users,wheel
     shell: /usr/bin/zsh
     # Set the password to "123" so we can log in using GDM
