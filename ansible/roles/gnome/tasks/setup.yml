@@ -53,7 +53,10 @@
 
 - name: set user avatar
   become: true
-  copy: src=files/user dest=/var/lib/AccountsService/user/{{ user_name }} mode=0644
+  copy:
+    src: files/gnome-user-settings
+    dest: /var/lib/AccountsService/users/{{ user_name }}
+    mode: 0644
 
 - name: setup gnome
   become: true
@@ -82,6 +85,7 @@
     - { path: org.gnome.nautilus.icon-view, name: default-zoom-level, value: "small" }
     - { path: org.gnome.nautilus.window-state, name: maximized, value: "true" }
     - { path: org.gnome.nautilus.preferences, name: show-hidden-files, value: "true" }
+    - { path: org.gtk.Settings.FileChooser, name: show-hidden, value: "true" }
     # FileChooser sorting
     - { path: org.gtk.Settings.FileChooser, name: sort-directories-first, value: "true" }
     - { path: org.gtk.Settings.FileChooser, name: sort-order, value: "ascending" }
