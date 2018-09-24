@@ -37,11 +37,14 @@ bindkey "^[[1;5D" backward-word
 bindkey "^[[H" beginning-of-line # [Home] - begining of line
 bindkey "^[[F" end-of-line # [End] - end of line
 
-# CTRL-P cuts the line
-bindkey "^P" _cut-whole-line
+# CTRL-U cuts the line
+bindkey "^U" _cut-whole-line
 
 # CTRL-S prepends sudo to the command
 bindkey "^S" _prepend-sudo
+
+# CTRL-X,CTRL-E opens the current folder with $EDITOR
+bindkey "^X^E" _edit-this-folder
 
 # This will only work on linux
 # bindkey '^[[1;5C' forward-word # [Ctrl-RightArrow] - move forward one word
