@@ -8,6 +8,7 @@
     - gnome-control-center
     - gnome-backgrounds
     - gnome-calculator
+    - gnome-system-monitor
     - gdm
     # Eye of gnome is a image viewer
     - eog
@@ -17,6 +18,9 @@
     - gnome-font-viewer
     # This is a tool to customize gnome
     - gnome-tweaks
+
+    # System monitor plugin (available on kriansa-aur)
+    - gnome-shell-extension-system-monitor-git
 
     # Xclip allows interaction with clipboard
     - xclip
@@ -100,3 +104,8 @@
     - path: org.gnome.shell
       name: favorite-apps
       value: ['org.gnome.Nautilus.desktop', 'com.gexperts.Tilix.desktop', 'firefox.desktop', 'spotify.desktop']
+    # Enable & configure system-monitor shell extension
+    - { path: org.gnome.shell, name: enabled-extensions, value: "['system-monitor@paradoxxx.zero.gmail.com']" }
+    - { path: org.gnome.shell.extensions.system-monitor, name: icon-display, value: "false" }
+    - { path: org.gnome.shell.extensions.system-monitor, name: gpu-show-menu, value: "true" }
+    - { path: org.gnome.shell.extensions.system-monitor, name: disk-usage-style, value: "'none'" }
