@@ -34,6 +34,11 @@
     - ttf-roboto
     - ttf-croscore
 
+    # Fonts from my repo
+    - ttf-emojione
+    - ttf-gelasio
+    - ttf-nerd-glyphs
+
 - name: install AUR packages
   become: true
   become_user: "{{ user_name }}"
@@ -52,8 +57,3 @@
     # Fonts
     - ttf-symbola
     - ttf-roboto-mono
-
-    # My AUR repo
-    - ttf-emojione
-    - ttf-gelasio
-    - ttf-nerd-glyphs
