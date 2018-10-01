@@ -25,6 +25,7 @@ source $PLUGIN_PATH/lib/functions/cut-buffer.zsh
 source $PLUGIN_PATH/lib/functions/expand-with-dots.zsh
 source $PLUGIN_PATH/lib/functions/prepend-sudo.zsh
 source $PLUGIN_PATH/lib/functions/edit-this-folder.zsh
+source $PLUGIN_PATH/lib/functions/title.zsh
 
 # Load settings for zsh
 source $PLUGIN_PATH/lib/dir-navigation.zsh
