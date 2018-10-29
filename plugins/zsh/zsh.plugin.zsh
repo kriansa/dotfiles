@@ -3,7 +3,7 @@
 PLUGIN_PATH=$0:A:h
 
 # Set the default user. Used by Agnoster theme
-DEFAULT_USER="dpereira"
+DEFAULT_USER="$(whoami)"
 
 # Load additional files
 #
