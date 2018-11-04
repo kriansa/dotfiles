@@ -1,3 +1,2 @@
 ---
 - import_tasks: setup.yml
-- import_tasks: disable_gdm_on_wayland.yml
