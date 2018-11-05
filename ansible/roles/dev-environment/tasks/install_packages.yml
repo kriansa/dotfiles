@@ -38,6 +38,9 @@
     # LastPass CLI (lpass)
     - lastpass-cli
 
+    # Android Development
+    - android-tools
+
 - name: install urxvt
   become: true
   become_user: "{{ user_name }}"
