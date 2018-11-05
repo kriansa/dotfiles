@@ -23,7 +23,7 @@
     - sqlitebrowser
 
     # Java stuff
-    - jdk10-openjdk
+    - jdk-openjdk
     - gradle
 
     # Virtualization stuff
