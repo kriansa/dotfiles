@@ -1,8 +1,0 @@
----
-# TODO: Arch Linux only. Adapt to work on MacOS.
-# Font path on MacOS: "${HOME}/Library/Fonts"
-
-- name: install iosevka font
-  become: true
-  become_user: "{{ user_name }}"
-  command: pikaur -Syu --noconfirm --needed ttf-iosevka-term

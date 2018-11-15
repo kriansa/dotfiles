@@ -12,7 +12,6 @@
     dest: "{{ dotfiles_path }}"
     update: no
 
-- import_tasks: fonts.yml
 - import_tasks: fontconfig.yml
 - import_tasks: atom.yml
 - import_tasks: git.yml

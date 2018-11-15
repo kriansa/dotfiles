@@ -42,7 +42,7 @@
 - name: install AUR packages
   become: true
   become_user: "{{ user_name }}"
-  command: pikaur -Syu --noconfirm --needed {{ item }}
+  command: pikaur -Sa --noconfirm --needed {{ item }}
   with_items:
     # Spotify
     - spotify
@@ -57,3 +57,4 @@
     # Fonts
     - ttf-symbola
     - ttf-roboto-mono
+    - ttf-iosevka-term
