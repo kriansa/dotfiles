@@ -33,6 +33,7 @@
     - dnsmasq
 
     # DevOps tools
+    - ansible
     - terraform
 
     # LastPass CLI (lpass)
