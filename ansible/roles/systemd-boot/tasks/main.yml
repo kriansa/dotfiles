@@ -1,3 +1,2 @@
 ---
 - import_tasks: install_bootctl.yml
-- import_tasks: install_packages.yml

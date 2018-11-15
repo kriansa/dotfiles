@@ -1,5 +1,0 @@
----
-- name: install systemd-boot pacman hook
-  become: true
-  become_user: "{{ user_name }}"
-  command: pikaur -Syu --noconfirm --needed systemd-boot-pacman-hook
