@@ -40,11 +40,3 @@
 
     # Android Development
     - android-tools
-
-- name: install urxvt
-  become: true
-  become_user: "{{ user_name }}"
-  command: pikaur -Syu --noconfirm --needed {{ item }}
-  with_items:
-    - rxvt-unicode-cvs-patched-wideglyphs
-    - urxvt-resize-font-git

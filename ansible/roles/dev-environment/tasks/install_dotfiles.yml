@@ -20,11 +20,18 @@
 - import_tasks: javascript.yml
 - import_tasks: nvim.yml
 - import_tasks: ruby.yml
-- import_tasks: tilix.yml
 - import_tasks: tmux.yml
 - import_tasks: gnome.yml
 - import_tasks: xorg.yml
 - import_tasks: zsh.yml
+
+  # Terminal emulator
+- import_tasks: tilix.yml
+
+  # Currently I'm good with Tilix. There's another terminal getting traction
+  # lately which is Alacritty. Until I find time to experiment it, there's a
+  # well configured urxvt available by just uncommenting the line below:
+  # - import_tasks: urxvt.yml
 
 - name: update dotfiles remote to use SSH instead of HTTPS
   become: true
