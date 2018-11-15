@@ -17,6 +17,3 @@ ruby_version: 2.5.1
 
 # Docker partition UUID
 docker_partition_uuid: 2e7f1d0d-093b-41fe-9544-1204c922a152
-
-# Install Oracle JDK?
-use_oracle_java: false

@@ -48,14 +48,3 @@
   with_items:
     - rxvt-unicode-cvs-patched-wideglyphs
     - urxvt-resize-font-git
-
-- name: install java
-  become: true
-  become_user: "{{ user_name }}"
-  command: pikaur -Syu --noconfirm --needed jdk
-  when: use_oracle_java == true
-
-- name: set default java installation
-  become: true
-  shell: archlinux-java set "$(archlinux-java status | tail -2 | head -1 | cut -b 3-)"
-  when: use_oracle_java == true
