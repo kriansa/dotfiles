@@ -19,9 +19,6 @@
     # This is a tool to customize gnome
     - gnome-tweaks
 
-    # System monitor plugin (available on kriansa-aur)
-    - gnome-shell-extension-system-monitor-git
-
     # Xclip allows interaction with clipboard
     - xclip
     # This is required to enable numlock on xorg
@@ -38,6 +35,10 @@
     #
     # see: https://wiki.archlinux.org/index.php/Xinit
     # - xorg-xinit
+
+- name: install gnome system-monitor shell extension
+  become: true
+  command: pikaur -Sa --noconfirm --needed gnome-shell-extension-system-monitor-git
 
 - name: enable gdm and networkmanager at boot time
   become: true

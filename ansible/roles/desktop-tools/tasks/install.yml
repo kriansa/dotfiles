@@ -35,8 +35,6 @@
     - ttf-croscore
 
     # Fonts from my repo
-    - ttf-emojione
-    - ttf-gelasio
     - ttf-nerd-glyphs
 
 - name: install AUR packages
@@ -58,3 +56,6 @@
     - ttf-symbola
     - ttf-roboto-mono
     - ttf-iosevka-term
+    - ttf-gelasio-ib
+    - ttf-comic-neue
+    - ttf-emojione
