@@ -3,10 +3,40 @@ require: rubocop-rspec
 AllCops:
   TargetRubyVersion: 2.5
   Exclude:
-    - bin/*
+    - vendor/**/*
+    - spec/fixtures/**/*
+    - tmp/**/*
+    - bin/**/*
+    - db/schema.rb
+    - node_modules/**/*
     - vendor/bundle/**/*
 
 Metrics/BlockLength:
   ExcludedMethods: ['describe', 'context']
   Include:
     - spec/**/*_spec.rb
+
+Metrics/LineLength:
+  Max: 100
+  # Delete below if you're not using Rails
+  Exclude:
+    - db/seeds.rb
+
+# Delete ALL below if you're not using Rails
+# ---
+
+Rails:
+  Enabled: true
+
+Style/Documentation:
+  Include:
+    - 'lib/**/*'
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - test/**/*
+
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - db/migrate/**/*
+    - app/views/**/*.jbuilder
