@@ -19,6 +19,8 @@
     # This is a tool to customize gnome
     - gnome-tweaks
 
+    # Enable MTP protocol (for connecting phones)
+    - gvfs-mtp
     # Xclip allows interaction with clipboard
     - xclip
     # This is required to enable numlock on xorg
