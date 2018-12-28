@@ -11,7 +11,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-obsession'
 
 " Ansible
-Plug 'pearofducks/ansible-vim', { 'for': 'terraform' }
+Plug 'pearofducks/ansible-vim', { 'for': 'ansible' }
 
 " Terraform
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
