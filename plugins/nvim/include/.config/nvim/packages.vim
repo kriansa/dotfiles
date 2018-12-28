@@ -10,26 +10,14 @@ Plug 'vim-airline/vim-airline'
 " Obsession (project/session manager)
 Plug 'tpope/vim-obsession'
 
-" Ansible
+" Syntax support
 Plug 'pearofducks/ansible-vim', { 'for': 'ansible' }
-
-" Terraform
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
-
-" Clojure
 Plug 'guns/vim-clojure-static', { 'for': 'clojure' }
-
-" Crystal
 Plug 'rhysd/vim-crystal', { 'for': 'crystal' }
-
-" Lua
 Plug 'tbastos/vim-lua', { 'for': 'lua' }
-
-" Swift
 Plug 'keith/swift.vim', { 'for': 'swift' }
-
-" CSS color viewer
-Plug 'ap/vim-css-color'
+Plug 'elixir-lang/vim-elixir', { 'for': 'elixir' }
 
 " Markdown
 " Plug 'SidOfc/mkdx'
@@ -39,9 +27,6 @@ Plug 'junegunn/vim-easy-align'
 Plug 'vim-ruby/vim-ruby'
 Plug 'tpope/vim-bundler'
 
-" Elixir
-Plug 'elixir-lang/vim-elixir'
-
 " Javascript
 Plug 'pangloss/vim-javascript'
 Plug 'moll/vim-node'
@@ -49,6 +34,7 @@ Plug 'moll/vim-node'
 " CSS
 Plug 'cakebaker/scss-syntax.vim'
 Plug 'hail2u/vim-css3-syntax'
+Plug 'ap/vim-css-color'
 
 " HTML
 Plug 'othree/html5.vim'
@@ -56,7 +42,6 @@ Plug 'posva/vim-vue'
 
 " Editor features
 Plug 'w0rp/ale'
-Plug '907th/vim-auto-save'
 
 " Surrounding and things that should be native
 Plug 'tpope/vim-surround'

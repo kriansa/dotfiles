@@ -3,29 +3,28 @@
 syntax on             " Enable syntax highlighting
 set backspace=indent,eol " Enables backspace on indentation and end of lines
 set hidden            " This allows buffers to be hidden if you've modified a buffer.
-" set number            " Display line numbers
-" set relativenumber    " Display line numbers relative to the one you're in
+set number            " Display line numbers
+set relativenumber    " Display line numbers relative to the one you're in
 set nowrap            " Disable word-wrap
 set wildmenu          " Helps command-line completion menu
-" set scrolloff=3       " Scroll with at least 3 lines
 set encoding=utf-8    " Enables utf8 encoding
 " set cursorline        " Highlight the line the cursor is in
-" set noshowmode        " Disable showing the mode (such as -- INSERT --) in the bottom
+set noshowmode        " Disable showing the mode (such as -- INSERT --) in the bottom
 set noswapfile        " Never create swap files
 set nobackup          " Disable usage of backup files (~)
 set nowritebackup     " Disable creation of backup files
 set mouse=            " Disables the mouse
 set visualbell t_vb=  " Disable bells on errors
 set laststatus=2      " Always enable bottom status line (airline)
-" set noesckeys         " Disable using esc keys
 set hlsearch          " Enable search highlight
 set autoread          " Enable auto-read of files edited outside vim
 set synmaxcol=200     " Limit syntax highlighting for long lines
 set colorcolumn=80    " Set a width to show a column
+set nofoldenable      " Disable folding
 
 set list                                  " show hidden chars
-set listchars=tab:▸\ ,eol:¬,space:.       " chars to be shown
-set showbreak=↪                           " char to be shown on wraped lines
+set listchars=tab:▸\ ,eol:¬,space:.       " chars to be displayed
+set showbreak=↪                           " char to be displayed on wraped lines
 
 " Clipboard settings
 set clipboard+=unnamed                    " yanks to clipboard
@@ -67,13 +66,8 @@ set inccommand=split
 set splitbelow
 set splitright
 
-" Folding settings
-" That is incredibly slow
-" set foldmethod=syntax
-" autocmd BufWinEnter * silent! :%foldopen!
-
 " Disable vim autocompletion for these files below
-set wildignore=node_modules,.git,.DS_Store
+set wildignore=node_modules,vendor/bundle,.git,.DS_Store
 
 " Consider dashes as keywords so we can use autocompletion
 set iskeyword+=\-
@@ -85,10 +79,11 @@ autocmd InsertLeave * set nopaste
 
 " Terminal settings
 autocmd TermOpen term://* setlocal nolist
-" autocmd BufWinEnter,WinEnter term://* startinsert
-" autocmd BufLeave term://* stopinsert
 
 " Temporarily workaround for nvim bug:
 " https://github.com/neovim/neovim/issues/7483
-" TODO: Remove that when this bug is fixed.
+" TODO: Remove that when this bug is fixed. *NeoVim 0.3.3*
 autocmd VimResized * redraw!
+
+" Autosave files when changing files or losing focus
+autocmd BufLeave,FocusLost * silent! wall
