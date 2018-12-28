@@ -88,7 +88,7 @@ Plug 'cohama/agit.vim'
 
 " Fuzzy finder
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'kriansa/ferret', { 'branch': 'feature/ferret-grep-command' }
+Plug 'wincent/ferret'
 
 " Tags support
 Plug 'ludovicchabant/vim-gutentags'

@@ -81,7 +81,9 @@ let g:ale_fixers = {
 \}
 
 " Ferret
-let g:FerretGrepCommand='ag --vimgrep --width 4096 --hidden --ignore .git'
+let g:FerretExecutableArguments = {
+\  'ag': '--vimgrep --width 4096 --hidden --ignore .git'
+\}
 
 " The Silver Searcher
 "
