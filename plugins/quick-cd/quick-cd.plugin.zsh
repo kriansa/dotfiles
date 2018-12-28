@@ -25,3 +25,6 @@ fpath+=($PLUGIN_PATH)
 # Default $PROJECTS is ~/Projects
 # It is used by quick-cd (c)
 : ${PROJECTS:=~/Projects}
+
+# 3. Ensure we export the $PROJECTS variable
+export PROJECTS
