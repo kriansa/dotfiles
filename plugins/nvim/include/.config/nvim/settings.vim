@@ -75,6 +75,9 @@ set splitright
 " Disable vim autocompletion for these files below
 set wildignore=node_modules,.git,.DS_Store
 
+" Consider dashes as keywords so we can use autocompletion
+set iskeyword+=\-
+
 " Autocommands
 
 " Exit paste when leaving InsertMode
