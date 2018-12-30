@@ -40,7 +40,9 @@
 
 - name: install gnome system-monitor shell extension
   become: true
-  command: pikaur -Sa --noconfirm --needed gnome-shell-extension-system-monitor-git
+  command: bin/pkg build --install gnome-shell-extension-system-monitor-git
+  args:
+    chdir: /home/{{ user_name }}/Projects/PKGBUILDs
 
 - name: enable gdm and networkmanager at boot time
   become: true

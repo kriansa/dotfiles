@@ -1,17 +1,35 @@
 ---
-- name: add my gpg key to the pacman keyring
+- name: create folder for custom repository
   become: true
-  command: pacman-key --recv-keys 0x3E7884756312F945
+  file: path=/var/cache/pacman/custom state=directory chmod=0755 owner={{ user_name }} group={{ user_name }}
 
-- name: sign my gpg key on the pacman keyring
+- name: create custom repository
   become: true
-  command: pacman-key --lsign-key 0x3E7884756312F945
+  become_user: "{{ user_name }}"
+  shell: repo-add /var/cache/pacman/custom/git.db.tar
+  args:
+    creates: /var/cache/pacman/custom/git.db.tar
 
-- name: add kriansa aur repository to pacman
+- name: add custom git repository to pacman
   become: true
   blockinfile:
     path: /etc/pacman.conf
-    marker: "# Enable Kriansa AUR repository ({mark})"
+    marker: "# Enable Custom Git repository ({mark})"
     block: |
-      [aur-kriansa]
-      Server = https://aur.garajau.com.br/
+      [git]
+      SigLevel = Optional TrustAll
+      Server = file:///var/cache/pacman/custom
+
+- name: clones my PKGBUILDs git repo
+  become: true
+  become_user: "{{ user_name }}"
+  git:
+    repo: https://github.com/kriansa/PKGBUILDs
+    dest: /home/{{ user_name }}/Projects/PKGBUILDs
+
+- name: update PKGBUILDs remote to use SSH instead of HTTPS
+  become: true
+  become_user: "{{ user_name }}"
+  command: git remote set-url origin git@github.com:kriansa/PKGBUILDs.git
+  args:
+    chdir: /home/{{ user_name }}/Projects/PKGBUILDs

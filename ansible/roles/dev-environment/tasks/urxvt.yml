@@ -2,7 +2,9 @@
 - name: install urxvt
   become: true
   become_user: "{{ user_name }}"
-  command: pikaur -Sa --noconfirm --needed {{ item }}
+  command: bin/pkg build --install {{ item }}
+  args:
+    chdir: /home/{{ user_name }}/Projects/PKGBUILDs
   with_items:
     - rxvt-unicode-cvs-patched-wideglyphs
     - urxvt-resize-font-git
