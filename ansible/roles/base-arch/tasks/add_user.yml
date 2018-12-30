@@ -4,7 +4,8 @@
   user:
     name: "{{ user_name }}"
     comment: "{{ user_comment }}"
-    groups: users,wheel
+    # https://wiki.archlinux.org/index.php/users_and_groups
+    groups: users,wheel,log,uucp
     shell: /usr/bin/zsh
     # Set the password to "123" so we can log in using GDM
     # Then, it's advised that we should change this password.
