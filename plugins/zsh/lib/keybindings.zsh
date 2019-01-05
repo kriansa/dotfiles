@@ -44,8 +44,7 @@ bindkey "^U" _cut-whole-line
 bindkey "^S" _prepend-sudo
 
 # CTRL-X,CTRL-E opens the current folder with $EDITOR
-bindkey "^X^E" _edit-this-folder
+bindkey "^E" _edit-this-folder
 
-# This will only work on linux
-# bindkey '^[[1;5C' forward-word # [Ctrl-RightArrow] - move forward one word
-# bindkey '^[[1;5D' backward-word # [Ctrl-LeftArrow] - move backward one word
+# Edit this command on your $EDITOR
+bindkey "^X^E" edit-command-line

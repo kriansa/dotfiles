@@ -17,7 +17,10 @@ fi
 # Setup aliases
 alias sudo="sudo " # Pass aliases to root account
 alias ag="ag --hidden --ignore .git"
-function dot () { $EDITOR $DOTFILES_PATH }
+
+# Load ZSH native functions
+autoload -U edit-command-line
+zle -N edit-command-line
 
 # Load custom functions
 source $PLUGIN_PATH/lib/functions/clipboard.zsh
