@@ -6,6 +6,9 @@ plugins=(
   unix
   tilix
 
+  # Dotfiles maintainance
+  meta
+
   # Terminal fortunes
   fortunes
 
