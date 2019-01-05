@@ -1,0 +1,4 @@
+---
+- name: enable avahi (mDNS) at startup
+  become: true
+  systemd: state=enabled name=avahi-daemon
