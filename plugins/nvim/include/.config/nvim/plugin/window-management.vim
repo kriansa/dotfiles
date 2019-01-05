@@ -29,6 +29,11 @@ endfunction
 " the windows.
 command! Close call Close()
 function! Close()
+  " Attempt to save the file before closing it
+  if &modifiable == 1
+    execute ":w"
+  endif
+
   if exists("b:NERDTree")
     if CountOpenBuffers() > 0
       execute ":NERDTreeClose"
