@@ -18,6 +18,7 @@
     - aws-cli
     - shellcheck
     - tilix
+    - hub
 
     # DB
     - sqlitebrowser
