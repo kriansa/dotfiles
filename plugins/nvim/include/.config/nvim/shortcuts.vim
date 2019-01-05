@@ -1,5 +1,4 @@
 " Shortcuts
-"
 
 let mapleader = "\<Space>"
 
@@ -19,7 +18,7 @@ nmap <silent> <Leader>; :NERDTreeToggle<CR>
 nmap <silent> <Leader>/ :call NERDTreeToggleInCurDir()<CR>
 nmap <silent> <Leader>\ :call NERDTreeToggleInCurDir()<CR>
 
-" Deoplete tab-complete
+" Tab-complete autocompletions
 inoremap <expr><Tab> pumvisible() ? "\<c-n>" : "\<Tab>"
 inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
 
@@ -27,13 +26,13 @@ inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
 nnoremap <silent> <Leader>w :call Close()<CR>
 
 " Toggles zoom between the current buffer
-nnoremap <silent> <Leader>t :ZoomWinTabToggle<CR>
+nnoremap <silent> <Leader>t :call ToggleFullScreen()<CR>
 
 " Closes current selected window with <Leader>q
 nnoremap <silent> <Leader>q :wincmd q<CR>
 
 " Quit using Q
-map Q :qa<CR>
+map Q :wqa<CR>
 
 " Use CTRL-h,j,k,l to move between splits
 nnoremap <silent> <C-h> :wincmd h<CR>
@@ -72,8 +71,7 @@ au FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
 " Toggle paste mode with F2
 set pastetoggle=<F2>
 
-" D deletes from the cursor to the end of the line; C changes from the cursor
-" to the end of the line. For some reason, however, Y yanks the entire line,
-" both before and after the cursor. This map makes Y yank from the cursor to
-" EOL.
+" D deletes from the cursor to the end of the line; C changes from the cursor to the end of the
+" line. For some reason, however, Y yanks the entire line, both before and after the cursor. This
+" map makes Y yank from the cursor to EOL.
 nnoremap Y y$
