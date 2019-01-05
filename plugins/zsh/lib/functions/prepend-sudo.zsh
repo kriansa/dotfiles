@@ -2,9 +2,11 @@
 # ============================================
 
 function _prepend-sudo {
-  if [[ "$BUFFER" != su(do|)\ * ]]; then
+  if [[ "$BUFFER" != sudo\ * ]]; then
     BUFFER="sudo $BUFFER"
     (( CURSOR += 5 ))
+  else
+    BUFFER=$(cut -c 6- <<< "$BUFFER")
   fi
 }
 
