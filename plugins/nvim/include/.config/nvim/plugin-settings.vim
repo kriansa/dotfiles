@@ -65,10 +65,6 @@ let ruby_no_expensive = 1
 " Enable node plugin on the following filetypes
 let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
 
-" Enable autosave
-let g:auto_save = 1
-let g:auto_save_silent = 1
-
 " Ale
 let g:ale_change_sign_column_color = 1
 let g:ale_sign_column_always = 1
