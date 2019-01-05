@@ -25,6 +25,10 @@ Thumbs.db
 desktop.ini
 .DS_Store
 
+# Ignore packages
+vendor/bundle
+node_modules
+
 # Used by dotenv library to load environment variables.
 # .env
 
