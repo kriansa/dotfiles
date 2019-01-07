@@ -18,6 +18,9 @@
     - gnome-font-viewer
     # This is a tool to customize gnome
     - gnome-tweaks
+    # Gnome keyring
+    - gnome-keyring
+    - seahorse
 
     # Enable MTP protocol (for connecting phones)
     - gvfs-mtp
