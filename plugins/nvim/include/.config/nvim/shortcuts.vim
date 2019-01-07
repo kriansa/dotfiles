@@ -52,6 +52,7 @@ nnoremap <silent> <S-K> i<CR><ESC>
 " Fugitive
 nmap <silent> <leader>gs :Gstatus<CR>
 nmap <silent> <leader>gp :Gpush<CR>
+nmap <silent> <leader>gb :Gblame<CR>
 
 " Copy filepath + line to clipboard
 nmap <silent> <leader>fl :call YankFilenameLine()<CR>
