@@ -1,4 +1,5 @@
 bundler
+bundler-audit
 mailcatcher
 starscope
 rubocop
