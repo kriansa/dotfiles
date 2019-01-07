@@ -22,6 +22,8 @@
 
     # DB
     - sqlitebrowser
+    - mariadb
+    - mysql-workbench
 
     # Java stuff
     - jdk-openjdk
