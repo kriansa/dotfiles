@@ -80,10 +80,5 @@ autocmd InsertLeave * set nopaste
 " Terminal settings
 autocmd TermOpen term://* setlocal nolist
 
-" Temporarily workaround for nvim bug:
-" https://github.com/neovim/neovim/issues/7483
-" TODO: Remove that when this bug is fixed. *NeoVim 0.3.3*
-autocmd VimResized * redraw!
-
 " Autosave files when changing files or losing focus
 autocmd BufLeave,FocusLost * silent! wall
