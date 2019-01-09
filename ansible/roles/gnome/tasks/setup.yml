@@ -21,7 +21,8 @@
     # Gnome keyring
     - gnome-keyring
     - seahorse
-
+    # Gnome disks
+    - gnome-disk-utility
     # Enable MTP protocol (for connecting phones)
     - gvfs-mtp
     # Xclip allows interaction with clipboard
