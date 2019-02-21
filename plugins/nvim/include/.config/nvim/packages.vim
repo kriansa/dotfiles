@@ -50,6 +50,8 @@ Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tomtom/tcomment_vim'
 Plug 'justinmk/vim-sneak'
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'andymass/vim-matchup'
 
 " Text objects
 Plug 'kana/vim-textobj-user'
@@ -74,6 +76,7 @@ Plug 'cohama/agit.vim'
 " Fuzzy finder
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'wincent/ferret'
+Plug 'brooth/far.vim'
 
 " Tags support
 Plug 'ludovicchabant/vim-gutentags'

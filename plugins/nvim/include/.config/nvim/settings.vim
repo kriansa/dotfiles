@@ -18,7 +18,7 @@ set visualbell t_vb=  " Disable bells on errors
 set laststatus=2      " Always enable bottom status line (airline)
 set hlsearch          " Enable search highlight
 set autoread          " Enable auto-read of files edited outside vim
-set synmaxcol=200     " Limit syntax highlighting for long lines
+set synmaxcol=300     " Limit syntax highlighting for long lines
 set colorcolumn=80    " Set a width to show a column
 set nofoldenable      " Disable folding
 
@@ -81,4 +81,4 @@ autocmd InsertLeave * set nopaste
 autocmd TermOpen term://* setlocal nolist
 
 " Autosave files when changing files or losing focus
-autocmd BufLeave,FocusLost * silent! wall
+autocmd BufLeave,FocusLost * silent! call WriteBuffer()

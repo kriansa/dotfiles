@@ -17,11 +17,12 @@ function! CountOpenBuffers()
 endfunction
 
 function! ShouldCloseSplit()
-  let fugitive_status = bufname("%") == ".git/index"
+  let fugitive_status = bufname("%") =~ ".git/index$"
   let editing_commit_message = (bufname("%") == ".git/COMMIT_EDITMSG" && winnr("$") > 1)
   let fugitive_diff = bufname("%") =~ "^fugitive://"
+  let far_split = bufname("%") =~ "^FAR"
 
-  return (&diff || fugitive_status || &buftype == "help" || &buftype == 'nofile' || editing_commit_message || fugitive_diff)
+  return (&diff || fugitive_status || &buftype == "help" || &buftype == 'nofile' || editing_commit_message || fugitive_diff || far_split)
 endfunction
 
 " Allows us closing buffers without affecting the windows, unless we are on
@@ -30,9 +31,7 @@ endfunction
 command! Close call Close()
 function! Close()
   " Attempt to save the file before closing it
-  if &modifiable == 1
-    execute ":w"
-  endif
+  call WriteBuffer()
 
   if exists("b:NERDTree")
     if CountOpenBuffers() > 0
@@ -51,8 +50,8 @@ function! Close()
     endif
   endif
 
-  if CountOpenBuffers() == 0 && confirm("This is the last buffer. Quit?", "&No (default)\n&Yes", 1) == 2
-    qall
+  if CountOpenBuffers() == 0
+    echo "This is the last buffer"
   endif
 endfunction
 
