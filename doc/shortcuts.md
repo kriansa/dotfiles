@@ -42,8 +42,8 @@ Below there are the commands and keybindings so I can remember them.
 
 #### [Source](plugins/nvim/include/.config/nvim/shortcuts.vim)
 
-* __<Leader>-.__ or __<Leader>-;__: Toggle NERDTree
-* __<Leader>-/__ or __<Leader>-\__: Toggle NERDTree in current directory
-* __<Leader>-fl__: Copies the current file:line into the clipboard
-* __<Leader>-\__: _on markdown, visual mode_ Align github-flavored markdown tables
-* __<Leader>-t__: Toggle full screen mode
+* __\<Leader\>-.__ or __\<Leader\>-;__: Toggle NERDTree
+* __\<Leader\>-/__ or __\<Leader\>-\\__: Toggle NERDTree in current directory
+* __\<Leader\>-fl__: Copies the current file:line into the clipboard
+* __\<Leader\>-\\__: _on markdown, visual mode_ Align github-flavored markdown tables
+* __\<Leader\>-t__: Toggle full screen mode
