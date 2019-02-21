@@ -170,12 +170,18 @@ prompt_project_type() {
   test -n "$PROJECT_TYPE" && prompt_segment yellow black "⌨️  $PROJECT_TYPE"
 }
 
+# This segment prompts the time elapsed for the last command run
+prompt_command_time() {
+  test -n "$ZSH_COMMAND_TIME" && prompt_segment black default "$timer_show"
+}
+
 ## Main prompt
 build_prompt() {
   RETVAL=$?
   prompt_status
   prompt_context
   prompt_project_type
+  prompt_command_time
   prompt_dir
   prompt_git
   prompt_end

@@ -35,3 +35,4 @@ source $PLUGIN_PATH/lib/dir-navigation.zsh
 source $PLUGIN_PATH/lib/history.zsh
 source $PLUGIN_PATH/lib/completion.zsh
 source $PLUGIN_PATH/lib/keybindings.zsh
+source $PLUGIN_PATH/lib/command-time.zsh
