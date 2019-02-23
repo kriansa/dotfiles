@@ -10,8 +10,8 @@
     - gnome-calculator
     - gnome-system-monitor
     - gdm
-    # Eye of gnome is a image viewer
-    - eog
+    # Image viewer
+    - shotwell
     # PDF Viewer
     - evince
     # Font viewer
