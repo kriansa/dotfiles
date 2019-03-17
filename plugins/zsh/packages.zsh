@@ -16,6 +16,7 @@ plugins=(
   git
   gnupg
   docker
+  dotenv
 
   # Development platforms
   iot
