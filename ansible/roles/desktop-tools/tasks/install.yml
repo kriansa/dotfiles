@@ -17,6 +17,9 @@
     # GParted is a GUI partitioner
     - gparted
 
+    # Install OpenVPN NetworkManager plugin
+    - networkmanager-openvpn
+
     # Allow mouting NTFS partitions with read/write
     - ntfs-3g
 

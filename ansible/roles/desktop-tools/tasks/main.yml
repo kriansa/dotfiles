@@ -3,3 +3,4 @@
 - import_tasks: install.yml
 - import_tasks: setup_firefox.yml
 - import_tasks: allow_mounting_partitions.yml
+- import_tasks: setup_vpn.yml
