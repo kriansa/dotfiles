@@ -85,3 +85,12 @@ set grepprg=ag\ --nogroup\ --nocolor\ --hidden\ --ignore\ .git
 
 " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
 let g:ctrlp_user_command = 'ag %s --hidden --ignore .git -l -g ""'
+
+" Matchup settings
+"
+
+" Allow a small delay when highlighting matches
+let g:matchup_matchparen_deferred = 1
+
+" Disable replacing the statusline by the matching delimiter if not on screen
+let g:matchup_matchparen_status_offscreen = 0
