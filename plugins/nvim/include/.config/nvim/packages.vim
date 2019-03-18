@@ -86,9 +86,6 @@ Plug 'qpkorr/vim-bufkill'
 Plug 'simeji/winresizer'
 Plug 'troydm/zoomwintab.vim'
 
-" Open file using file manager (gof & got)
-Plug 'justinmk/vim-gtfo'
-
 " Highlighted yank
 Plug 'machakann/vim-highlightedyank'
 
