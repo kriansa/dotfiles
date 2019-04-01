@@ -22,6 +22,7 @@
 - import_tasks: tmux.yml
 - import_tasks: gnome.yml
 - import_tasks: xorg.yml
+- import_tasks: vlc.yml
 - import_tasks: zsh.yml
 
   # Terminal emulator
