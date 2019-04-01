@@ -1,22 +1,18 @@
 #!/usr/bin/env zsh
 #
-# Usage: pubkey <output>
-# Description: Pipe my SSH public key to my clipboard. If a parameter "output"
-# is passed then it's printed to stdout instead of copied to clipboard.
+# Usage: pubkey [--stdout]
+# Description: Pipe my SSH public key to my clipboard. If you pass the parameter --stdout then it's
+# printed to stdout instead of copied to clipboard.
 #
 # Globals
 #   GPG_MAIN_KEY - The main GPG key ID
-
-
-# Use this if you're using standard SSH keys instead GnuPG agent
-# more ~/.ssh/id_rsa.pub | clipcopy | echo '=> Public key copied to clipboard.'
 
 key_description=$(gpg -K "$GPG_MAIN_KEY" | grep uid | sed 's/.*\] //g')
 
 public_key=$(gpg --export-ssh-key $GPG_MAIN_KEY | \
   sed "s/openpgp:.*/$key_description/")
 
-if [ -z "$1" ]; then
+if [ "$1" != "--stdout" ]; then
   source $DOTFILES_PATH/plugins/zsh/lib/functions/clipboard.zsh
   echo $public_key | clipcopy
   echo '=> Public key copied to clipboard.'
