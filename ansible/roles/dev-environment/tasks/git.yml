@@ -9,7 +9,7 @@
     dest: "{{ dotfiles_path }}/plugins/git/include/.gitconfig" 
     mode: 0644
 
-- include_tasks: link_files.yml
+- import_tasks: link_files.yml
   vars:
     plugin_name: git
     files:

@@ -26,7 +26,7 @@
   args:
     creates: "{{ home_path }}/.rbenv/versions/{{ ruby_version }}"
 
-- include_tasks: link_files.yml
+- import_tasks: link_files.yml
   vars:
     plugin_name: ruby
     files:
