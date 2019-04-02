@@ -5,10 +5,12 @@ user_name: dpereira
 
 # Set common paths
 home_path: /home/{{ user_name }}
+dotfiles_path: /home/{{ user_name }}/.dotfiles
 
-# Node & Ruby versions
-node_version: 10.13.0
-ruby_version: 2.5.3
+git_author:
+  name: Daniel Pereira
+  email: zdaniel.gp@gmail.com
+  gpg_signing_key: BC277BE09E8A6F1059C3911B3E7884756312F945
 
 # Docker partition UUID
 docker_partition_uuid: 2e7f1d0d-093b-41fe-9544-1204c922a152

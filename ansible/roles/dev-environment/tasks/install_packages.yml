@@ -20,6 +20,12 @@
     - tilix
     - hub
 
+    # Common development sdks
+    - nodenv
+    - nodenv-node-build-git
+    - rbenv
+    - ruby-build-git
+
     # DB
     - sqlitebrowser
     - mariadb

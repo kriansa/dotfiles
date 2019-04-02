@@ -1,14 +1,4 @@
 ---
-- name: download nodenv
-  become: true
-  become_user: "{{ user_name }}"
-  git:
-    repo: https://github.com/nodenv/{{ item.repo }}.git
-    dest: "{{ item.dest }}"
-  with_items:
-    - { repo: "nodenv", dest: "{{ home_path }}/.nodenv" }
-    - { repo: "node-build", dest: "{{ home_path }}/.nodenv/plugins/node-build" }
-
 - name: set the default nodenv version to {{ node_version }}
   become: true
   become_user: "{{ user_name }}"
@@ -26,15 +16,9 @@
   args:
     creates: "{{ home_path }}/.nodenv/versions/{{ node_version }}"
 
-- import_tasks: link_files.yml
-  vars:
-    plugin_name: javascript
-    files:
-      - .eslintrc.yml
-
 - name: install/update node packages
   become: true
   become_user: "{{ user_name }}"
   shell: eval "$(nodenv init -)" && "{{ dotfiles_path }}/plugins/javascript/bin/update-node-packages"
   environment:
-    PATH: "{{ home_path }}/.nodenv/bin:/usr/local/sbin:/usr/local/bin:/usr/bin"
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin"

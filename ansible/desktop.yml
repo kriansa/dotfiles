@@ -9,3 +9,4 @@
   - role: desktop-tools
   - role: yubikey
   - role: dev-environment
+  - role: dotfiles
