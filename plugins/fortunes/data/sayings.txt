@@ -1,6 +1,0 @@
-Make it work, make it correct, make it fast, make it cheap.
-Patterns exist so that members of an ecosystem works in a predictable way.
-Don't mix application logic with delivering mechanisms.
-We're as secure as our weakest link.
-Deployments should be fast, frequent and fearless.
-Opt-in: whitelisting. Opt-out: blacklisting.
