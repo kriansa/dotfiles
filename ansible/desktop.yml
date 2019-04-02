@@ -8,5 +8,5 @@
   - role: gnome
   - role: desktop-tools
   - role: yubikey
-  - role: dev-environment
+  - role: dev-tools
   - role: dotfiles
