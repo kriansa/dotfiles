@@ -5,6 +5,7 @@ plugins=(
   quick-cd
   unix
   tilix
+  lastpass
 
   # Dotfiles maintainance
   meta
