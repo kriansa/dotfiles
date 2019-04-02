@@ -20,12 +20,6 @@
     - tilix
     - hub
 
-    # Common development sdks
-    - nodenv
-    - nodenv-node-build-git
-    - rbenv
-    - ruby-build-git
-
     # DB
     - sqlitebrowser
     - mariadb
@@ -50,3 +44,16 @@
 
     # Android Development
     - android-tools
+
+- name: install development packages on AUR
+  become: true
+  become_user: "{{ user_name }}"
+  command: bin/pkg build --install {{ item }}
+  args:
+    chdir: /home/{{ user_name }}/Projects/PKGBUILDs
+  with_items:
+    # Common development sdks
+    - nodenv
+    - nodenv-node-build-git
+    - rbenv
+    - ruby-build-git
