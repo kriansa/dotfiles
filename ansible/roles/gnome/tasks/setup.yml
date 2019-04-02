@@ -12,6 +12,8 @@
     - gdm
     # Image viewer
     - shotwell
+    # Quick text editor
+    - gedit
     # PDF Viewer
     - evince
     # Font viewer
