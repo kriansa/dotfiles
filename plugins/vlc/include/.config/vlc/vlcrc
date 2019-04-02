@@ -61,13 +61,13 @@
 #qt-fs-controller=1
 
 # Save the recently played items in the menu (boolean)
-#qt-recentplay=1
+qt-recentplay=0
 
 # List of words separated by | to filter (string)
 #qt-recentplay-filter=
 
 # Continue playback? (integer)
-#qt-continue=1
+qt-continue=0
 
 # Embed the file browser in open dialog (boolean)
 #qt-embedded-open=0
@@ -3278,7 +3278,7 @@ avcodec-hw=vdpau_avcodec
 [freetype] # Freetype2 font renderer
 
 # Font (string)
-#freetype-font=Serif Bold
+freetype-font=Arimo
 
 # Monospace Font (string)
 #freetype-monofont=Monospace
@@ -3314,7 +3314,7 @@ avcodec-hw=vdpau_avcodec
 #freetype-outline-thickness=4
 
 # Shadow opacity (integer)
-#freetype-shadow-opacity=128
+freetype-shadow-opacity=0
 
 # Shadow color (integer)
 #freetype-shadow-color=0
@@ -3721,7 +3721,7 @@ avcodec-hw=vdpau_avcodec
 #audio-time-stretch=1
 
 # Audio output module (string)
-#aout=
+aout=any
 
 # Media role (string)
 #role=video
@@ -3775,7 +3775,7 @@ avcodec-hw=vdpau_avcodec
 #disable-screensaver=1
 
 # Show media title on video (boolean)
-#video-title-show=1
+video-title-show=0
 
 # Show video title for x milliseconds (integer)
 #video-title-timeout=5000
@@ -3859,7 +3859,7 @@ video-deco=0
 #deinterlace-mode=auto
 
 # Video output module (string)
-vout=vdpau_display
+vout=any
 
 # Video filter module (string)
 #video-filter=
@@ -3913,7 +3913,7 @@ vout=vdpau_display
 #audio-language=
 
 # Subtitle language (string)
-#sub-language=
+sub-language=br,pt
 
 # Menu language (string)
 #menu-language=
@@ -4024,7 +4024,7 @@ vout=vdpau_display
 #meta-url=
 
 # File caching (ms) (integer)
-#file-caching=300
+file-caching=30000
 
 # Live capture caching (ms) (integer)
 #live-caching=300
@@ -4132,7 +4132,7 @@ vout=vdpau_display
 #packetizer=
 
 # VoD server module (string)
-#vod-server=
+vod-server=any
 
 # Use a plugins cache (boolean)
 #plugins-cache=1
@@ -4177,7 +4177,7 @@ vout=vdpau_display
 #playlist-cork=1
 
 # Allow only one running instance (boolean)
-#one-instance=0
+one-instance=1
 
 # Use only one instance when started from file manager (boolean)
 #one-instance-when-started-from-file=1
