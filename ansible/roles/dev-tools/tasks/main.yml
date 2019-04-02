@@ -1,5 +1,6 @@
 ---
 - import_tasks: install_packages.yml
 - import_tasks: install_docker.yml
+- import_tasks: install_atom.yml
 - import_tasks: install_node.yml
 - import_tasks: install_ruby.yml
