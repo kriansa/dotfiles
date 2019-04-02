@@ -21,12 +21,14 @@ Below there are the commands and keybindings so I can remember them.
 * __clipcopy__ & __clippaste__: Copy from stdin to clipboard / paste into stdout
 * __pubkey__ `[<output>]`: Copy my SSH public key into the clipboard. If you pass any parameter,
   sends it to stdout instead
-* __gpg-backup__ `<import|export> [<path>]`: Saves/load the current gpg keyring into the backup dir
 * __docker-clear__: Clear the system from dangling images & stopped containers
 * __extract__ `<file>`: Extracts any file
 * __getchmod__ `<path>`: Gets the octal chmod number of the given path
 * __headers__`<URL>`: Gets the headers from the HTTP URL.
 * __imgcat__ `<file>`: Prints a image to the console
+* __dotenv__ : Exports the .env variables onto the current shell
+* __gpg-backup__ `<import|export> [<path>]`: Saves/load the current gpg keyring into the backup dir
+* __dump-dotenv-prefs__ : Save settings from various applications to my dotenv
 
 ## Git
 

@@ -1,0 +1,48 @@
+#!/usr/bin/sh
+#
+# This small program exports my current configuration that are not automatically syncronized with my
+# dotfiles so I can keep track of them whenever there are changes on their settings.
+
+main() {
+  zsh_history
+  localrc
+  tilix
+  atom
+  gnome
+  gpg
+}
+
+zsh_history() {
+  mkdir -p "$HOME/Dropbox/.internal/$(hostname)"
+  cp ~/.zsh_history "$HOME/Dropbox/.internal/$(hostname)/.zsh_history"
+  echo "ZSH history exported to Dropbox!"
+}
+
+localrc() {
+  test -f ~/.localrc || return
+
+  mkdir -p "$HOME/Dropbox/.internal/$(hostname)"
+  cp ~/.localrc "$HOME/Dropbox/.internal/$(hostname)/.localrc"
+  echo ".localrc exported to Dropbox!"
+}
+
+tilix() {
+  dconf dump /com/gexperts/Tilix/ > "$HOME/.dotfiles/plugins/tilix/data/tilix.dconf"
+  echo "Remember to commit changes on Tilix config files!"
+}
+
+atom() {
+  echo "If there are any new installed packages on Atom, please add them to:"
+  echo "  - ansible/roles/dev-tools/tasks/install_atom.yml"
+}
+
+gnome() {
+  echo "If there are any new configuration to GNOME, please add them to:"
+  echo "  - ansible/roles/gnome/tasks/setup.yml"
+}
+
+gpg() {
+  echo "Remember to run gpg-backup export to save your Keyring!"
+}
+
+main
