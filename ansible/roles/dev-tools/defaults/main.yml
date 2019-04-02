@@ -7,8 +7,8 @@ user_name: dpereira
 home_path: /home/{{ user_name }}
 
 # Node & Ruby versions
-node_version: 10.13.0
-ruby_version: 2.5.3
+node_version: 10.15.3
+ruby_version: 2.6.2
 
 # Docker partition UUID
 docker_partition_uuid: 2e7f1d0d-093b-41fe-9544-1204c922a152
