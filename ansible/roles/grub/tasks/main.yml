@@ -1,5 +1,0 @@
----
-- import_tasks: tweak.yml
-- import_tasks: install_theme.yml
-- include_tasks: setup_windows_dualboot.yml
-  when: windows_dual_boot == true
