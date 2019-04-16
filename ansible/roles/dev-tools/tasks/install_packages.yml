@@ -57,3 +57,6 @@
     - nodenv-node-build-git
     - rbenv
     - ruby-build-git
+
+    # Other tools
+    - wrk
