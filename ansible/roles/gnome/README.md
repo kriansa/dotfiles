@@ -28,3 +28,9 @@ desktop environment.
   line: "WaylandEnable=false"
   regexp: "#?WaylandEnable=false"
   ```
+
+  It's important to note that since GDM release 3.30.1, Wayland on NVIDIA has been disabled by
+  default, apparently due to issues with GLX on proprietary NVIDIA drivers.
+
+  More info: https://gitlab.gnome.org/GNOME/gdm/commit/5cd78602d3d4c8355869151875fc317e8bcd5f08
+  See: https://gitlab.gnome.org/GNOME/gdm/blob/master/NEWS
