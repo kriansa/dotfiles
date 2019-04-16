@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Quickly compress a single file into a .zip or directory into a .tar.gz file
+
+path=$1
+basename=$(basename "$path")
+
+if [ -d "$path" ]; then
+  tar -czvf "$basename.tar.gz" -C "$path" .
+
+elif [ -f "$path" ]; then
+  zip -v9 "$basename.zip" "$path"
+
+else
+  echo "The path specified was not found!"
+  exit 1
+fi
