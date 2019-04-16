@@ -1,4 +1,0 @@
-# Enable numlock at boot-time on GDM
-if [ -x /usr/bin/numlockx ]; then
-  /usr/bin/numlockx on
-fi

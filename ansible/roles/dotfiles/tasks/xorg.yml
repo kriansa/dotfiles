@@ -3,5 +3,4 @@
   vars:
     plugin_name: xorg
     files:
-      - .xprofile
       - .Xresources
