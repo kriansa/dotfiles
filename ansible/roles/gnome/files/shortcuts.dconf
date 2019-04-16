@@ -1,0 +1,63 @@
+# This dconf file stores all custom shortcuts to GNOME keyboard
+# You can extract this file automatically from the system by running this command:
+#
+#   $ dump-dotenv-prefs
+#
+#   Alternatively, you can patch manually using this command, then pasting the stdout here:
+#
+#   $ dconf_path="org/gnome/settings-daemon/plugins/media-keys" && dconf dump "/$dconf_path/" | \
+#       sed -Ee 's#^\[(.*)[^/]\]$#['"$dconf_path"'/\1]#' -e 's#^\[/\]$#['"$dconf_path"']#'
+#
+# To add a new one manually, remember to first add the keybinding dconf key to "media-keys" array
+# ===============================================================================================
+
+[org/gnome/settings-daemon/plugins/media-keys]
+area-screenshot=''
+area-screenshot-clip=''
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom5/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom6/']
+next='F7'
+play='F4'
+previous='F6'
+screenshot=''
+screenshot-clip=''
+stop='F5'
+volume-down='F2'
+volume-mute='F1'
+volume-up='F3'
+window-screenshot=''
+window-screenshot-clip=''
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom]
+binding='<Primary><Shift>Print'
+command='gnome-screenshot -a -c'
+name='Copy a screenshot of an area to clipboard'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom]
+binding='<Primary><Alt>Print'
+command='gnome-screenshot -c -w'
+name='Copy a screenshot of a window to clipboard'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom]
+binding='<Primary>Print'
+command='gnome-screenshot -c'
+name='Copy a screenshot to clipboard'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom]
+binding='<Alt>Print'
+command='gnome-screenshot -w'
+name='Save a screenshot of a window'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom]
+binding='<Shift>Print'
+command='gnome-screenshot -a'
+name='Save a screenshot of an area'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom]
+binding='Print'
+command='gnome-screenshot'
+name='Save a screenshot'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom]
+binding='Pause'
+command='/home/dpereira/.dotfiles/plugins/gnome/lib/toggle-fn-media-keys'
+name='Toggle between function and multimedia keys'
