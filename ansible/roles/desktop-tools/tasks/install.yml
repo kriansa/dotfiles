@@ -7,6 +7,10 @@
     - firefox
     - chromium
 
+    # Image editors
+    - inkscape
+    - mypaint
+
     # VLC
     - vlc
     - libx264
