@@ -19,6 +19,15 @@
     # already is on MacOS and Windows.
     - { pref: browser.tabs.drawInTitlebar, value: "true" }
 
+    # Disable warning when closing tabs
+    - { pref: browser.tabs.warnOnClose, value: "true" }
+
+    # Disable smooth scrolling
+    - { prefs: general.smoothScroll, value: "false" }
+
+    # Prevent websites from asking whether we want to receive notifications
+    - { prefs: permissions.default.desktop-notification, value: "2" }
+
     # Firefox has hardware acceleration but it's not enabled in many platforms
     # by default.
     # There's a bug open in 2010 to help that getting fixed but so far, it
