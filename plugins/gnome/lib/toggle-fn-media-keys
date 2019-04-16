@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+#
+# This utility serves for toggling the functionality of the Function keys (F1, F2, etc)
+#
+# When you call it once, it will change the keys behavior to act as media keys, and if you call it
+# again, then the old behavior is restored.
+#
+# It's useful for my keyboard that has no dedicated keys for media and I need to hold Fn if I want
+# to use the media keys.
+
+main() {
+  if is_media_on; then
+    fn_keys
+  else
+    media_keys
+  fi
+}
+
+media_keys() {
+  gsettings set org.gnome.settings-daemon.plugins.media-keys volume-mute 'F1'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys volume-down 'F2'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys volume-up 'F3'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys play 'F4'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys stop 'F5'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys previous 'F6'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys next 'F7'
+
+  notify-send "Keyboard" "F-keys are now media keys (play, next)"
+}
+
+fn_keys() {
+  gsettings reset org.gnome.settings-daemon.plugins.media-keys volume-mute
+  gsettings reset org.gnome.settings-daemon.plugins.media-keys volume-down
+  gsettings reset org.gnome.settings-daemon.plugins.media-keys volume-up
+  gsettings reset org.gnome.settings-daemon.plugins.media-keys play
+  gsettings reset org.gnome.settings-daemon.plugins.media-keys stop
+  gsettings reset org.gnome.settings-daemon.plugins.media-keys previous
+  gsettings reset org.gnome.settings-daemon.plugins.media-keys next
+
+  notify-send "Keyboard" "F-keys are now function keys (F1, F2, etc)"
+}
+
+is_media_on() {
+  test "$(gsettings get org.gnome.settings-daemon.plugins.media-keys volume-mute)" == "'F1'"
+}
+
+main
