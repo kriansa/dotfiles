@@ -1,4 +1,7 @@
 ---
-- name: enable avahi (mDNS) at startup
+- name: enable required system services at startup
   become: true
-  systemd: state=enabled name=avahi-daemon
+  systemd: state=enabled name={{ item }}
+  loop:
+    - avahi-daemon.service
+    - systemd-resolved.service
