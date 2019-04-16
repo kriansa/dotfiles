@@ -1,54 +1,50 @@
 ---
+- name: install mutter-slim-git
+  become: true
+  become_user: "{{ user_name }}"
+  command: bin/pkg build --install mutter-slim-git
+  args:
+    chdir: /home/{{ user_name }}/Projects/PKGBUILDs
+
 - name: install gnome
   become: true
   pacman: name={{ item }} state=present
   with_items:
     - xorg
     - gnome-shell
+    - gdm
+
+    # Base GNOME apps
+    - networkmanager
     - gnome-control-center
     - gnome-backgrounds
+    - gnome-screenshot
     - gnome-calculator
     - gnome-system-monitor
-    - gdm
-    # Image viewer
-    - shotwell
-    # Quick text editor
-    - gedit
-    # PDF Viewer
-    - evince
-    # Font viewer
     - gnome-font-viewer
-    # This is a tool to customize gnome
+    - gnome-disk-utility
     - gnome-tweaks
-    # Gnome keyring
     - gnome-keyring
     - seahorse
-    # Gnome disks
-    - gnome-disk-utility
+    - evince
+    - gedit
+    - gthumb
+
+    # Shell extensions
+    - gnome-shell-extensions
+
     # Enable MTP protocol (for connecting phones)
     - gvfs-mtp
-    # Xclip allows interaction with clipboard
-    - xclip
-    # This is required to enable numlock on xorg
-    - numlockx
-    # We can use any network manager, but GNOME's NetworkManager works
-    # seamlessly across the environment.
-    # see: https://wiki.archlinux.org/index.php/List_of_applications/Internet#Network_managers
-    - networkmanager
-    # xinit is only needed when we aren't going to use GDM. In which case, we
-    # can start xorg manually by running `startx`
-    #
-    # If you ever want to do so, please beware to execute .xprofile on you
-    # .xinit
-    #
-    # see: https://wiki.archlinux.org/index.php/Xinit
-    # - xorg-xinit
 
-- name: install gnome system-monitor shell extension
+- name: install AUR packages for customize gnome
   become: true
-  command: bin/pkg build --install gnome-shell-extension-system-monitor-git
+  become_user: "{{ user_name }}"
+  command: bin/pkg build --install stil-gnome-theme-git
   args:
     chdir: /home/{{ user_name }}/Projects/PKGBUILDs
+  loop:
+    - stil-gnome-theme-git
+    - gnome-shell-extension-system-monitor-git
 
 - name: enable gdm and networkmanager at boot time
   become: true
@@ -73,15 +69,22 @@
     dest: /var/lib/AccountsService/users/{{ user_name }}
     mode: 0644
 
-- name: setup gnome
+- name: import gnome shortcuts
+  become: true
+  become_user: "{{ user_name }}"
+  shell: dbus-launch dconf load / < "{{ dotfiles_path }}/ansible/roles/gnome/files/shortcuts.dconf"
+
+- name: configure gnome applications
   become: true
   become_user: "{{ user_name }}"
   command: dbus-launch gsettings set {{ item.path }} {{ item.name }} "{{ item.value }}"
   with_items:
     - { path: org.gnome.desktop.interface, name: clock-show-date, value: "true" }
     - { path: org.gnome.desktop.privacy, name: remember-recent-files, value: "false" }
-    # Configure BR keyboard
+    # Configure keyboard
     - { path: org.gnome.desktop.input-sources, name: sources, value: "[('xkb', 'br')]" }
+    - { path: org.gnome.desktop.input-sources, name: xkb-options, value: "['caps:ctrl_modifier']" }
+    - { path: org.gnome.settings-daemon.peripherals.keyboard, name: numlock-state, value: "'on'" }
     # Disable auto-suspend
     - { path: org.gnome.settings-daemon.plugins.power, name: sleep-inactive-ac-type, value: "nothing" }
     # Disable media auto-run
@@ -94,6 +97,8 @@
     - { path: org.gnome.desktop.interface, name: document-font-name, value: "Roboto Medium 11" }
     - { path: org.gnome.desktop.wm.preferences, name: titlebar-uses-system-font, value: "true" }
     - { path: org.gnome.desktop.wm.preferences, name: titlebar-font, value: "Roboto Condensed, Bold 11" }
+    # Screenshot
+    - { path: org.gnome.gnome-screenshot, name: auto-save-directory, "'{{ home_path }}/Dropbox/Screenshots'" }
     # Menu bar
     - { path: org.gnome.desktop.wm.preferences, name: button-layout, value: "appmenu:minimize,maximize,close" }
     # Nautilus
@@ -106,8 +111,8 @@
     - { path: org.gtk.Settings.FileChooser, name: sort-order, value: "ascending" }
     - { path: org.gtk.Settings.FileChooser, name: sort-column, value: "name" }
     # Backgrounds
-    - { path: org.gnome.desktop.background, name: picture-uri, value: "file:///usr/share/backgrounds/gnome/adwaita-timed.xml" }
-    - { path: org.gnome.desktop.screensaver, name: picture-uri, value: "file:///usr/share/backgrounds/gnome/adwaita-timed.xml" }
+    - { path: org.gnome.desktop.background, name: picture-uri, value: "file://{{ home_path }}/Drive/Wallpapers/small-memory-lp.jpg" }
+    - { path: org.gnome.desktop.screensaver, name: picture-uri, value: "file://{{ home_path }}/Drive/Wallpapers/small-memory-lp.jpg" }
     # Set keyboard rate & delay
     - { path: org.gnome.desktop.peripherals.keyboard, name: repeat-interval, value: "uint32 30" }
     - { path: org.gnome.desktop.peripherals.keyboard, name: delay, value: "uint32 250" }
@@ -115,8 +120,32 @@
     - path: org.gnome.shell
       name: favorite-apps
       value: ['org.gnome.Nautilus.desktop', 'com.gexperts.Tilix.desktop', 'firefox.desktop', 'spotify.desktop']
-    # Enable & configure system-monitor shell extension
-    - { path: org.gnome.shell, name: enabled-extensions, value: "['system-monitor@paradoxxx.zero.gmail.com']" }
+    # Enable shell extensions
+    - { path: org.gnome.shell, name: enabled-extensions, value: "['system-monitor@paradoxxx.zero.gmail.com', 'user-theme@gnome-shell-extensions.gcampax.github.com']" }
+    # Configure system-monitor shell extension
     - { path: org.gnome.shell.extensions.system-monitor, name: icon-display, value: "false" }
     - { path: org.gnome.shell.extensions.system-monitor, name: gpu-show-menu, value: "true" }
     - { path: org.gnome.shell.extensions.system-monitor, name: disk-usage-style, value: "'none'" }
+    # Gedit preferences
+    - { path: org.gnome.gedit.preferences.editor, name: auto-save, value: "false" }
+    - { path: org.gnome.gedit.preferences.editor, name: wrap-mode, value: "'none'" }
+    - { path: org.gnome.gedit.preferences.editor, name: wrap-last-split-mode, value: "'word'" }
+    - { path: org.gnome.gedit.preferences.editor, name: use-default-font, value: "false" }
+    - { path: org.gnome.gedit.preferences.editor, name: tabs-size, value: "uint32 4" }
+    - { path: org.gnome.gedit.preferences.editor, name: search-highlighting, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: scheme, value: "'solarized-light'" }
+    - { path: org.gnome.gedit.preferences.editor, name: editor-font, value: "'Iosevka Term Light 12'" }
+    - { path: org.gnome.gedit.preferences.editor, name: bracket-matching, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: syntax-highlighting, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: auto-indent, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: highlight-current-line, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: display-line-numbers, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: insert-spaces, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: display-overview-map, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: ensure-trailing-newline, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: right-margin-position, value: "uint32 100" }
+    - { path: org.gnome.gedit.preferences.ui, name: statusbar-visible, value: "true" }
+    - { path: org.gnome.gedit.preferences.ui, name: bottom-panel-visible, value: "false" }
+    - { path: org.gnome.gedit.preferences.ui, name: side-panel-visible, value: "true" }
+    - { path: org.gnome.gedit.preferences.ui, name: toolbar-visible, value: "true" }
+    - { path: org.gnome.gedit.preferences.ui, name: show-tabs-mode, value: "'auto'" }

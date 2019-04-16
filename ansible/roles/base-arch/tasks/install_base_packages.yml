@@ -38,5 +38,6 @@
     - xz
     - p7zip
     - zip
-    - bind-tools # dig
-    - ldns # for drill tool (dig with DNSSEC)
+    - bind-tools   # dig
+    - ldns         # for drill tool (dig with DNSSEC)
+    - xclip        # for interaction with the clipboard
