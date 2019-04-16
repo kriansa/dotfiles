@@ -9,7 +9,6 @@
     - python-pip
     - tmux
     - gcr # pinentry-gnome3 dependency
-    - atom
     - cowsay
     - neovim
     - ncdu

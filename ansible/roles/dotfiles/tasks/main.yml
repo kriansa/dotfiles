@@ -13,7 +13,6 @@
     update: no
 
 - import_tasks: fontconfig.yml
-- import_tasks: atom.yml
 - import_tasks: git.yml
 - import_tasks: gpg.yml
 - import_tasks: javascript.yml
