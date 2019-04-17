@@ -44,7 +44,7 @@
     - { path: org.gnome.desktop.wm.preferences, name: titlebar-uses-system-font, value: "true" }
     - { path: org.gnome.desktop.wm.preferences, name: titlebar-font, value: "Roboto Condensed, Bold 11" }
     # Screenshot
-    - { path: org.gnome.gnome-screenshot, name: auto-save-directory, "'{{ home_path }}/Dropbox/Screenshots'" }
+    - { path: org.gnome.gnome-screenshot, name: auto-save-directory, value: "'{{ home_path }}/Dropbox/Screenshots'" }
     # Menu bar
     - { path: org.gnome.desktop.wm.preferences, name: button-layout, value: "appmenu:minimize,maximize,close" }
     # Nautilus
