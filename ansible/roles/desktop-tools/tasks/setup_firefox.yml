@@ -2,15 +2,15 @@
 - name: create a default profile
   become: true
   become_user: "{{ user_name }}"
-  shell: firefox -headless -CreateProfile default
+  shell: firefox -headless -CreateProfile default && timeout 1 firefox -headless || true
 
 - name: get the path of the new profile
   become: true
   become_user: "{{ user_name }}"
-  shell: grep -Eo "\w+\.default" ~/.mozilla/firefox/profiles.ini
-  register: profile
+  command: grep -Eo "\w+\.default" ~/.mozilla/firefox/profiles.ini
+  register: profile_name
 
-- set_fact: profile_prefs={{ profile.stdout }}
+- set_fact: profile_prefs="~/.mozilla/firefox/{{ profile_name.stdout }}/prefs.js"
 
 - name: change firefox settings
   become: true
@@ -28,10 +28,10 @@
     - { pref: browser.tabs.warnOnClose, value: "true" }
 
     # Disable smooth scrolling
-    - { prefs: general.smoothScroll, value: "false" }
+    - { pref: general.smoothScroll, value: "false" }
 
     # Prevent websites from asking whether we want to receive notifications
-    - { prefs: permissions.default.desktop-notification, value: "2" }
+    - { pref: permissions.default.desktop-notification, value: "2" }
 
     # Firefox has hardware acceleration but it's not enabled in many platforms
     # by default.
