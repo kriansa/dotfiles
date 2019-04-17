@@ -10,7 +10,7 @@
     # Set the password to "123" so we can log in using GDM
     # Then, it's advised that we should change this password.
     update_password: on_create
-    password: "123"
+    password: "{{ '123' | password_hash('sha512', 'mysecretsalt') }}"
 
 - debug: msg="Please, change the password of the user {{ user_name }}!"
 
