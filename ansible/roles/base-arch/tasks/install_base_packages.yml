@@ -38,6 +38,7 @@
     - xz
     - p7zip
     - zip
+    - avahi        # mdns
     - bind-tools   # dig
     - ldns         # for drill tool (dig with DNSSEC)
     - xclip        # for interaction with the clipboard
