@@ -2,7 +2,7 @@
 - name: create a default profile
   become: true
   become_user: "{{ user_name }}"
-  shell: firefox -headless -CreateProfile default && timeout 1 firefox -headless || true
+  shell: firefox -headless -CreateProfile default && timeout 2 firefox -headless || true
 
 - name: get the path of the new profile
   become: true
@@ -22,7 +22,7 @@
   loop:
     # As of Firefox 60, we can shrink the size of the top bar to look like it
     # already is on MacOS and Windows.
-    - { pref: browser.tabs.drawInTitlebar, value: "true" }
+    - { pref: browser.tabs.drawInTitlebar, value: "false" }
 
     # Disable warning when closing tabs
     - { pref: browser.tabs.warnOnClose, value: "true" }
