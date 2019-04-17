@@ -2,7 +2,7 @@
 - name: install nvidia drivers
   become: true
   pacman: name={{ item }} state=present
-  with_items:
+  loop:
     - libglvnd
     - nvidia
     - nvidia-settings

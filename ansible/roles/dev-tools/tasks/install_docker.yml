@@ -25,7 +25,7 @@
 - name: install docker packages
   become: true
   pacman: name={{ item }} state=present
-  with_items:
+  loop:
     - docker
     - docker-compose
 

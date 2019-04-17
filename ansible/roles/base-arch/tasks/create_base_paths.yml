@@ -3,7 +3,7 @@
   become: true
   become_user: "{{ user_name }}"
   file: path=/home/{{ user_name }}/{{ item }} state=directory mode=0755
-  with_items:
+  loop:
     - Drive
     - Downloads
     - Projects

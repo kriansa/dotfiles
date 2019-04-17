@@ -2,7 +2,7 @@
 - name: install common desktop packages
   become: true
   pacman: name={{ item }} state=present
-  with_items:
+  loop:
     # Browsers
     - firefox
     - chromium
@@ -54,7 +54,7 @@
   command: bin/pkg build --install {{ item }}
   args:
     chdir: /home/{{ user_name }}/Projects/PKGBUILDs
-  with_items:
+  loop:
     # Spotify
     - spotify
 

@@ -14,7 +14,7 @@
     path: "{{ profile_prefs }}"
     line: 'user_pref("{{ item.pref }}", {{ item.value }});'
     regexp: '^user_pref\("{{ item.pref | regex_escape }}"'
-  with_items:
+  loop:
     # As of Firefox 60, we can shrink the size of the top bar to look like it
     # already is on MacOS and Windows.
     - { pref: browser.tabs.drawInTitlebar, value: "true" }

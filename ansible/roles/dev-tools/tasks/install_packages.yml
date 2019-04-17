@@ -4,7 +4,7 @@
 - name: install development packages
   become: true
   pacman: name={{ item }} state=present
-  with_items:
+  loop:
     - python
     - python-pip
     - tmux
@@ -50,7 +50,7 @@
   command: bin/pkg build --install {{ item }}
   args:
     chdir: /home/{{ user_name }}/Projects/PKGBUILDs
-  with_items:
+  loop:
     # Common development sdks
     - nodenv
     - nodenv-node-build-git

@@ -9,7 +9,7 @@
 - name: install gnome
   become: true
   pacman: name={{ item }} state=present
-  with_items:
+  loop:
     - xorg
     - gnome-shell
     - gdm
@@ -49,6 +49,6 @@
 - name: enable gdm and networkmanager at boot time
   become: true
   systemd: name={{ item }} enabled=true
-  with_items:
+  loop:
     - NetworkManager.service
     - gdm.service
