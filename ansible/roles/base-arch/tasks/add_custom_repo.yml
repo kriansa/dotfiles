@@ -1,7 +1,7 @@
 ---
 - name: create folder for custom repository
   become: true
-  file: path=/var/cache/pacman/custom state=directory chmod=0755 owner={{ user_name }} group={{ user_name }}
+  file: path=/var/cache/pacman/custom state=directory mode=0755 owner={{ user_name }} group={{ user_name }}
 
 - name: create custom repository
   become: true
