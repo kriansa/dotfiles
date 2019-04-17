@@ -1,12 +1,9 @@
 ---
-- name: check if systemd-boot is installed
-  stat: path=/boot/EFI/systemd/systemd-bootx64.efi
-  register: sboot
-
 - name: install systemd-boot
   become: true
-  when: sboot.stat.exists == false
-  command: bootctl --path=/boot install
+  command: bootctl install
+  args:
+    creates: /boot/EFI/systemd/systemd-bootx64.efi
 
 - name: copy windows entry file to EFI partition
   become: true
