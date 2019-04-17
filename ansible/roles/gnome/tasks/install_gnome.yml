@@ -8,11 +8,12 @@
 
 - name: install gnome
   become: true
-  pacman: name={{ item }} state=present
-  loop:
-    - xorg
-    - gnome-shell
-    - gdm
+  pacman: 
+    state: present
+    name:
+      - xorg
+      - gnome-shell
+      - gdm
 
     # Base GNOME apps
     - networkmanager

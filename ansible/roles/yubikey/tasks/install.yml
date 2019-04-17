@@ -5,11 +5,12 @@
 
 - name: install smartcard libs/tools
   become: true
-  pacman: name={{ item }} state=present
-  loop:
-    - pcsclite
-    - libusb-compat
-    - ccid
+  pacman: 
+    state: present
+    name:
+      - pcsclite
+      - libusb-compat
+      - ccid
 
 - name: enable pcscd service
   become: true

@@ -1,45 +1,46 @@
 ---
 - name: install common desktop packages
   become: true
-  pacman: name={{ item }} state=present
-  loop:
-    # Browsers
-    - firefox
-    - chromium
+  pacman: 
+    state: present
+    name:
+      # Browsers
+      - firefox
+      - chromium
 
-    # Image editors
-    - inkscape
-    - mypaint
+      # Image editors
+      - inkscape
+      - mypaint
 
-    # VLC
-    - vlc
-    - libx264
-    # qt4 is an "optional" dependency for vlc, required for GUI usage
-    # see: https://wiki.archlinux.org/index.php/VLC_media_player
-    - qt4
+      # VLC
+      - vlc
+      - libx264
+      # qt4 is an "optional" dependency for vlc, required for GUI usage
+      # see: https://wiki.archlinux.org/index.php/VLC_media_player
+      - qt4
 
-    # GParted is a GUI partitioner
-    - gparted
+      # GParted is a GUI partitioner
+      - gparted
 
-    # Install OpenVPN NetworkManager plugin
-    - networkmanager-openvpn
+      # Install OpenVPN NetworkManager plugin
+      - networkmanager-openvpn
 
-    # Allow mouting NTFS partitions with read/write
-    - ntfs-3g
+      # Allow mouting NTFS partitions with read/write
+      - ntfs-3g
 
-    # Steam
-    - lib32-nvidia-utils
-    - steam
+      # Steam
+      - lib32-nvidia-utils
+      - steam
 
-    # Torrent client
-    - transmission-gtk
+      # Torrent client
+      - transmission-gtk
 
-    # Office tools
-    - libreoffice-fresh
+      # Office tools
+      - libreoffice-fresh
 
-    # Fonts
-    - ttf-roboto
-    - ttf-croscore
+      # Fonts
+      - ttf-roboto
+      - ttf-croscore
 
 - name: install ttf-nerd-symbols
   become: true

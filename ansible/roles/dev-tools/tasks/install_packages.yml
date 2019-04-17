@@ -3,46 +3,47 @@
 
 - name: install development packages
   become: true
-  pacman: name={{ item }} state=present
-  loop:
-    - python
-    - python-pip
-    - tmux
-    - gcr # pinentry-gnome3 dependency
-    - cowsay
-    - neovim
-    - ncdu
-    - jq
-    - the_silver_searcher
-    - aws-cli
-    - shellcheck
-    - tilix
-    - hub
+  pacman: 
+    state: present
+    name:
+      - python
+      - python-pip
+      - tmux
+      - gcr # pinentry-gnome3 dependency
+      - cowsay
+      - neovim
+      - ncdu
+      - jq
+      - the_silver_searcher
+      - aws-cli
+      - shellcheck
+      - tilix
+      - hub
 
-    # DB
-    - sqlitebrowser
-    - mariadb
-    - mysql-workbench
+      # DB
+      - sqlitebrowser
+      - mariadb
+      - mysql-workbench
 
-    # Java stuff
-    - jdk-openjdk
-    - gradle
+      # Java stuff
+      - jdk-openjdk
+      - gradle
 
-    # Virtualization stuff
-    - qemu
-    - virt-manager
-    - ebtables
-    - dnsmasq
+      # Virtualization stuff
+      - qemu
+      - virt-manager
+      - ebtables
+      - dnsmasq
 
-    # DevOps tools
-    - ansible
-    - terraform
+      # DevOps tools
+      - ansible
+      - terraform
 
-    # LastPass CLI (lpass)
-    - lastpass-cli
+      # LastPass CLI (lpass)
+      - lastpass-cli
 
-    # Android Development
-    - android-tools
+      # Android Development
+      - android-tools
 
 - name: install development packages on AUR
   become: true

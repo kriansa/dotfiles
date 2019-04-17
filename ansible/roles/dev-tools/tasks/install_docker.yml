@@ -24,10 +24,11 @@
 
 - name: install docker packages
   become: true
-  pacman: name={{ item }} state=present
-  loop:
-    - docker
-    - docker-compose
+  pacman: 
+    state: present
+    name:
+      - docker
+      - docker-compose
 
 - name: add existing user "{{ user_name }}" to group docker
   become: true

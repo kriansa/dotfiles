@@ -21,27 +21,28 @@
 - name: install base packages
   become: true
   notify: restart dbus
-  pacman: name={{ item }} state=present
-  loop:
-    - base-devel
-    - sudo
-    - wget
-    - openssh
-    - python
-    - git
-    - zsh
-    - rsync
-    - gnupg
-    - tree
-    - htop
-    - unzip
-    - unrar
-    - xz
-    - p7zip
-    - zip
-    - bind-tools   # dig
-    - ldns         # for drill tool (dig with DNSSEC)
-    - xclip        # for interaction with the clipboard
+  pacman: 
+    state: present
+    name:
+      - base-devel
+      - sudo
+      - wget
+      - openssh
+      - python
+      - git
+      - zsh
+      - rsync
+      - gnupg
+      - tree
+      - htop
+      - unzip
+      - unrar
+      - xz
+      - p7zip
+      - zip
+      - bind-tools   # dig
+      - ldns         # for drill tool (dig with DNSSEC)
+      - xclip        # for interaction with the clipboard
 
 - name: install avahi
   become: true
