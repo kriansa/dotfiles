@@ -21,7 +21,7 @@
 - name: install base packages
   become: true
   pacman: name={{ item }} state=present
-  with_items:
+  loop:
     - base-devel
     - sudo
     - wget

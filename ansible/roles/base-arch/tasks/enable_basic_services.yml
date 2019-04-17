@@ -1,7 +1,7 @@
 ---
 - name: enable required system services at startup
   become: true
-  systemd: state=enabled name={{ item }}
+  systemd: state=started enabled=yes name={{ item }}
   loop:
     - avahi-daemon.service
     - systemd-resolved.service
