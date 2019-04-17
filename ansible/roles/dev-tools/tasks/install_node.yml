@@ -19,6 +19,6 @@
 - name: install/update node packages
   become: true
   become_user: "{{ user_name }}"
-  shell: eval "$(nodenv init -)" && "{{ dotfiles_path }}/plugins/javascript/bin/update-node-packages"
+  shell: eval "$(nodenv init -)" && "{{ playbook_dir | dirname }}/plugins/javascript/bin/update-node-packages"
   environment:
     PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin"

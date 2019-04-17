@@ -19,6 +19,6 @@
 - name: install/update ruby packages
   become: true
   become_user: "{{ user_name }}"
-  shell: eval "$(rbenv init -)" && "{{ dotfiles_path }}/plugins/ruby/bin/update-ruby-packages"
+  shell: eval "$(rbenv init -)" && "{{ playbook_dir | dirname }}/plugins/ruby/bin/update-ruby-packages"
   environment:
     PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin"
