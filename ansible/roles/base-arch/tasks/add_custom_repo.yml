@@ -31,6 +31,7 @@
   git:
     repo: https://github.com/kriansa/PKGBUILDs
     dest: /home/{{ user_name }}/Projects/PKGBUILDs
+    force: true
 
 - name: update PKGBUILDs remote to use SSH instead of HTTPS
   become: true
