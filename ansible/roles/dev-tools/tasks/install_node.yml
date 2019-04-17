@@ -12,7 +12,7 @@
 - name: install node {{ node_version }}
   become: true
   become_user: "{{ user_name }}"
-  command: "{{ home_path }}/.nodenv/bin/nodenv install {{ node_version }}"
+  command: "nodenv install {{ node_version }}"
   args:
     creates: "{{ home_path }}/.nodenv/versions/{{ node_version }}"
 

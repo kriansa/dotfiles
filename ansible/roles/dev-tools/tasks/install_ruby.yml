@@ -12,7 +12,7 @@
 - name: install ruby {{ ruby_version }}
   become: true
   become_user: "{{ user_name }}"
-  command: "{{ home_path }}/.rbenv/bin/rbenv install {{ ruby_version }}"
+  command: "rbenv install {{ ruby_version }}"
   args:
     creates: "{{ home_path }}/.rbenv/versions/{{ ruby_version }}"
 
