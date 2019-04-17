@@ -23,6 +23,7 @@ Below there are the commands and keybindings so I can remember them.
   sends it to stdout instead
 * __docker-clear__: Clear the system from dangling images & stopped containers
 * __extract__ `<file>`: Extracts any file
+* __compress__ `<path>`: Quickly compress a directory to .tar.gz or a file to .zip
 * __getchmod__ `<path>`: Gets the octal chmod number of the given path
 * __headers__`<URL>`: Gets the headers from the HTTP URL.
 * __imgcat__ `<file>`: Prints a image to the console
