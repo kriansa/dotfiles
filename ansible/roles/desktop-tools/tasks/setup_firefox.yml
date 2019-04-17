@@ -2,10 +2,15 @@
 - name: create a default profile
   become: true
   become_user: "{{ user_name }}"
-  shell: firefox -headless -CreateProfile default 2>&1 | grep -o "'/.*/prefs.js'" | sed "s/'//g"
-  register: profile_create
+  shell: firefox -headless -CreateProfile default
 
-- set_fact: profile_prefs={{ profile_create.stdout }}
+- name: get the path of the new profile
+  become: true
+  become_user: "{{ user_name }}"
+  shell: grep -Eo "\w+\.default" ~/.mozilla/firefox/profiles.ini
+  register: profile
+
+- set_fact: profile_prefs={{ profile.stdout }}
 
 - name: change firefox settings
   become: true
