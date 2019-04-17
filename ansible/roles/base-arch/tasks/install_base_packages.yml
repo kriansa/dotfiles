@@ -20,6 +20,7 @@
 
 - name: install base packages
   become: true
+  notify: restart dbus
   pacman: name={{ item }} state=present
   loop:
     - base-devel
@@ -38,7 +39,13 @@
     - xz
     - p7zip
     - zip
-    - avahi        # mdns
     - bind-tools   # dig
     - ldns         # for drill tool (dig with DNSSEC)
     - xclip        # for interaction with the clipboard
+
+- name: install avahi
+  become: true
+  notify: restart dbus
+  pacman: name=avahi state=present
+
+- meta: flush_handlers

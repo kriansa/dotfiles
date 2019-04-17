@@ -1,0 +1,4 @@
+---
+- name: restart dbus
+  become: true
+  systemd: state=restarted enabled=yes name=dbus
