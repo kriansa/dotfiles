@@ -39,4 +39,4 @@
 
 - name: enable docker at startup
   become: true
-  systemd: state=enabled name=docker
+  systemd: enabled=yes name=docker
