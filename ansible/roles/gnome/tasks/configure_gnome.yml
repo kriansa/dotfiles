@@ -18,7 +18,7 @@
 - name: import gnome shortcuts
   become: true
   become_user: "{{ user_name }}"
-  shell: dbus-launch dconf load / < "{{ dotfiles_path }}/ansible/roles/gnome/files/shortcuts.dconf"
+  shell: dbus-launch dconf load / < "{{ role_path }}/files/shortcuts.dconf"
 
 - name: configure gnome applications
   become: true
