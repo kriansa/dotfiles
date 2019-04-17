@@ -15,27 +15,27 @@
       - gnome-shell
       - gdm
 
-    # Base GNOME apps
-    - networkmanager
-    - gnome-control-center
-    - gnome-backgrounds
-    - gnome-screenshot
-    - gnome-calculator
-    - gnome-system-monitor
-    - gnome-font-viewer
-    - gnome-disk-utility
-    - gnome-tweaks
-    - gnome-keyring
-    - seahorse
-    - evince
-    - gedit
-    - gthumb
+      # Base GNOME apps
+      - networkmanager
+      - gnome-control-center
+      - gnome-backgrounds
+      - gnome-screenshot
+      - gnome-calculator
+      - gnome-system-monitor
+      - gnome-font-viewer
+      - gnome-disk-utility
+      - gnome-tweaks
+      - gnome-keyring
+      - seahorse
+      - evince
+      - gedit
+      - gthumb
 
-    # Shell extensions
-    - gnome-shell-extensions
+      # Shell extensions
+      - gnome-shell-extensions
 
-    # Enable MTP protocol (for connecting phones)
-    - gvfs-mtp
+      # Enable MTP protocol (for connecting phones)
+      - gvfs-mtp
 
 - name: install AUR packages for customized gnome
   become: true
