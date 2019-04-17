@@ -17,6 +17,7 @@
 
       # Base GNOME apps
       - networkmanager
+      - nautilus
       - gnome-control-center
       - gnome-backgrounds
       - gnome-screenshot

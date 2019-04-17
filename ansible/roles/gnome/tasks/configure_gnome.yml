@@ -50,7 +50,6 @@
     # Nautilus
     - { path: org.gnome.nautilus.icon-view, name: default-zoom-level, value: "small" }
     - { path: org.gnome.nautilus.window-state, name: maximized, value: "true" }
-    - { path: org.gnome.nautilus.preferences, name: show-hidden-files, value: "true" }
     - { path: org.gtk.Settings.FileChooser, name: show-hidden, value: "true" }
     # FileChooser sorting
     - { path: org.gtk.Settings.FileChooser, name: sort-directories-first, value: "true" }
