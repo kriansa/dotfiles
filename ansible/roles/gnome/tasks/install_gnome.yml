@@ -40,7 +40,7 @@
 - name: install AUR packages for customized gnome
   become: true
   become_user: "{{ user_name }}"
-  command: bin/pkg build --install stil-gnome-theme-git
+  command: bin/pkg build --install {{ item }}
   args:
     chdir: /home/{{ user_name }}/Projects/PKGBUILDs
   loop:
