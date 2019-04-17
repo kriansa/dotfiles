@@ -1,5 +1,5 @@
 # Install Arch on Desktop
-> Last update: April 8th, 2018.
+> Last update: April 17th, 2019.
 
 First and foremost you will need to disable secure boot on your system.
 For newer ASUS Motherboards, [you will need to remove
@@ -66,8 +66,15 @@ Replace `sdX` by the disk that you want to install Arch on.
 > * One partition `ext4` to be used as a base for your LVM (All space left)
 >   This one can be created with the command below.
 
+##### (If needed) Create the EFI partition
+
+    (parted) mkpart primary fat32 0% 512MB
+    (parted) set 1 esp on
+
+Replace 1 by the number of the EFI partition (use `print` to list them).
+
 ##### Create a new partition to use the entire disk
-    (parted) mkpart primary ext4 0 100%
+    (parted) mkpart primary ext4 1% 100%
 
 This command will ask if you want to change the beginning of the sector (0).
 Answer `yes`.
@@ -108,6 +115,9 @@ Answer `yes`.
     # mkfs.ext4 /dev/vg0/root
     # mkfs.ext4 /dev/vg0/home
 
+##### 7.5. If needed, format the EFI partition
+    # mkfs.fat -F32 /dev/sdZZ
+
 ##### 8. Mount the new system
     # mount /dev/vg0/root /mnt
     # swapon /dev/vg0/swap
@@ -146,38 +156,35 @@ Answer `yes`.
     # ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
     # hwclock --systohc --utc
 
-##### 14. Generate a new locale.gen
-    # locale-gen
-
-##### 15. Uncomment "en_US.UTF-8 UTF-8" and other needed localizations in /etc/locale.gen
+##### 14. Uncomment "en_US.UTF-8 UTF-8" and other needed localizations in /etc/locale.gen
     # vi /etc/locale.gen
 
-##### 16. Then generate it with
+##### 15. Then generate it with
     # locale-gen
 
-##### 17. Set the locale system-wide
+##### 16. Set the locale system-wide
     # echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
-##### 18. Set the default keymap
+##### 17. Set the default keymap
     # echo "KEYMAP=br-abnt" > /etc/vconsole.conf
 
-##### 19. Configure hostname
+##### 18. Configure hostname
     # echo "pcname" > /etc/hostname
 
-##### 20. Edit /etc/hosts and add the hostname to ::1
+##### 19. Edit /etc/hosts and add the hostname to ::1
     # vi /etc/hosts
 
 > Add the line below:
 > `127.0.0.1<TAB>pcname.localdomain<TAB>pcname`
 
-##### 21A. Configure boot (with LUKS)
+##### 20A. Configure boot (with LUKS)
 
 First edit `/etc/mkinitcpio.conf` in the HOOKS line, and:
 1. Add `encrypt lvm2 resume` between `block` and `filesystems` on HOOKS
 2. Add `keyboard keymap` before `block` on HOOKS
 3. Add `ext4` in the MODULES line
 
-##### 21B. Configure boot (without LUKS)
+##### 20B. Configure boot (without LUKS)
 If you aren't using LUKS, then configure `/etc/mkinitcpio.conf` this way:
 1. Replace `udev` by `systemd` on HOOKS
 2. Add `sd-lvm2` between `block` and `filesystems` on HOOKS
@@ -187,21 +194,13 @@ If you aren't using LUKS, then configure `/etc/mkinitcpio.conf` this way:
 > COMPRESSION="cat"
 
 
-##### 22. Generate initramfs
+##### 21. Generate initramfs
     # mkinitcpio -p linux
 
-##### 23. Install [systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot)
-    # bootctl --path=/boot install
+##### 22. Install [systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot)
+    # bootctl install
 
-##### 24. Configure bootloader defaults
-    # vi /boot/loader/loader.conf
-
-Add the content below to this file:
-
-    default arch
-    timeout 3
-
-#### 25. Configure Linux bootloader entry
+#### 23. Configure Linux bootloader entry
     # vi /boot/loader/entries/arch.conf
 
 Add the content below to this file:
@@ -215,7 +214,7 @@ Add the content below to this file:
 > If you're not using Intel, you can remove intel-ucode from the list below
 > If you're not using LUKS, remove the content after cryptdevice
 
-##### 26. (optional) Configure Windows bootloader entry
+##### 24. (optional) Configure Windows bootloader entry
     # vi /boot/loader/entries/windows.conf
 
 Add the content below to this file:
@@ -223,14 +222,14 @@ Add the content below to this file:
     title  Windows 10
     efi    /EFI/Microsoft/Boot/Bootmgfw.efi
 
-##### 27. Exit new system and go into the cd shell
+##### 25. Exit new system and go into the cd shell
     # exit
 
-##### 28. Unmount all partitions
+##### 26. Unmount all partitions
     # umount -R /mnt
     # swapoff -a
 
-##### 29. Reboot the system
+##### 27. Reboot the system
     # reboot
 
 ## Part 3: Configuring Arch
