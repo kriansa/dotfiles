@@ -6,4 +6,5 @@
     src: "{{ dotfiles_path }}/plugins/{{ plugin_name }}/include/{{ item }}"
     dest: "{{ home_path }}/{{ item }}"
     state: link
+    force: "{{ force_link | default(False) }}"
   loop: "{{ files }}"

@@ -1,4 +1,9 @@
 ---
+- name: create .config/vlc directory
+  become: true
+  become_user: "{{ user_name }}"
+  file: path="{{ home_path }}/.config/vlc" state=directory mode=0755
+
 - import_tasks: link_files.yml
   vars:
     plugin_name: vlc

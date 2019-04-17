@@ -2,6 +2,7 @@
 - import_tasks: link_files.yml
   vars:
     plugin_name: gnome
+    force_link: yes
     files:
       - .config/gtk-2.0
       - .config/gtk-3.0
