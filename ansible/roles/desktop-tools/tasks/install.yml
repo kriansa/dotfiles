@@ -15,9 +15,6 @@
       # VLC
       - vlc
       - libx264
-      # qt4 is an "optional" dependency for vlc, required for GUI usage
-      # see: https://wiki.archlinux.org/index.php/VLC_media_player
-      - qt4
 
       # GParted is a GUI partitioner
       - gparted
