@@ -38,6 +38,7 @@
       # Fonts
       - ttf-roboto
       - ttf-croscore
+      - noto-fonts-cjk
 
 - name: install ttf-nerd-symbols
   become: true
