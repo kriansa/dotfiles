@@ -43,6 +43,7 @@
       - bind-tools   # dig
       - ldns         # for drill tool (dig with DNSSEC)
       - xclip        # for interaction with the clipboard
+      - reflector    # to update the mirrorlist with the best mirrors
 
 - name: install avahi
   become: true

@@ -1,0 +1,4 @@
+---
+- name: add pacman hook to update mirrorlist on upgrades
+  become: true
+  copy: src=files/mirrorupgrade.hook dest=/etc/pacman.d/hooks/mirrorupgrade.hook mode=0644
