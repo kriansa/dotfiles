@@ -1,0 +1,19 @@
+---
+# For some reasons I still haven't figured out yet, domain resolution sometimes fails when there's
+# an invalid domain lookup. Ideally, `allow-downgrade` would fallback to normal DNS resolution when
+# this happen, but somehow this is not working.
+#
+# Test: 
+# $ resolvectl query downloadirpf.receita.fazenda.gov.br
+#
+# See: https://github.com/systemd/systemd/issues/9771
+# See: https://github.com/systemd/systemd/labels/dnssec
+# 
+# Disable this snippet as soon as this start working.
+- name: disable DNSSEC for systemd-resolved
+  become: true
+  # This line reads "#DNSSEC=allow-downgrade" by default
+  lineinfile:
+    line: 'DNSSEC=no'
+    path: /etc/systemd/resolved.conf
+    regexp: "^DNSSEC="
