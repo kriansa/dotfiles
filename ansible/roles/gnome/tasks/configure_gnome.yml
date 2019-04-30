@@ -37,6 +37,8 @@
     - { path: org.gnome.desktop.media-handling, name: autorun-never, value: "true" }
     # Theme
     - { path: org.gnome.desktop.interface, name: gtk-theme, value: "Adwaita" }
+    - { path: org.gnome.desktop.interface, name: icon-theme, value: "stil-icons" }
+    - { path: org.gnome.shell.extensions.user-theme, name: name, value: "stil-shell-theme" }
     # Fonts
     - { path: org.gnome.desktop.interface, name: monospace-font-name, value: "Roboto Mono 11" }
     - { path: org.gnome.desktop.interface, name: font-name, value: "Roboto Condensed, 11" }
