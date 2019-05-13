@@ -1,0 +1,25 @@
+---
+# This task basically adds my own ansible roles project path to the default user load path of
+# Ansible roles ($HOME/.ansible/roles). This is very useful because I can easily have one single
+# monorepo with all my ansible roles and they can be loaded throughout all my playbooks.
+#
+# The way that I load them is prefixing them with `kriansa` so they get loaded from that namespace.
+#
+#   roles:
+#     - kriansa/os-base
+#
+# See: https://github.com/kriansa/ansible-roles/
+#
+- name: create .ansible directory
+  become: true
+  become_user: "{{ user_name }}"
+  file: path="{{ home_path }}/.ansible/roles" state=directory mode=0755
+
+- name: link ansible-roles project to ansible roles load path
+  become: true
+  become_user: "{{ user_name }}"
+  file:
+    src: "{{ home_path }}/Projects/ansible-roles"
+    dest: "{{ home_path }}/.ansible/roles/kriansa"
+    state: link
+    force: yes
