@@ -19,8 +19,7 @@ function c {
 
 # Wrap around mkproj bin so we can cwd into the new created project
 function mkproj {
-  command mkproj "$@"
-  cd "$2"
+  command mkproj "$@" && cd "$2"
 }
 
 # Add this plugin path to the fpath completion list
