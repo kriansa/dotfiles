@@ -1,0 +1,10 @@
+# Define AWS S3 as the backend
+# ============================
+terraform {
+  backend "s3" {
+    region = "$AWS_DEFAULT_REGION"
+    dynamodb_table = "$TERRAFORM_BACKEND_DYNAMO_TABLE"
+    bucket = "$TERRAFORM_BACKEND_S3_BUCKET"
+    key = "tf-state"
+  }
+}

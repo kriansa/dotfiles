@@ -2,7 +2,7 @@
 plugins=(
   # Shell & utilities
   zsh
-  quick-cd
+  projects
   unix
   tilix
   lastpass

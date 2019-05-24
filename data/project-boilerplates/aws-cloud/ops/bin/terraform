@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# Encapsulate terraform binary to run within the right folder
+
+# cd to root path
+cd "$(dirname "$0")/../.." || exit
+
+# Run terraform
+cd ops/terraform && terraform "$@"

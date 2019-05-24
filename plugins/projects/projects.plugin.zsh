@@ -13,18 +13,23 @@ PLUGIN_PATH=$0:A:h
 #    c holm<tab>/bo<tab>
 #
 # ...to quickly jump into holman/boom, for example.
-#
 function c {
   cd "$PROJECTS/$1"
 }
 
+# Wrap around mkproj bin so we can cwd into the new created project
+function mkproj {
+  command mkproj "$@"
+  cd "$2"
+}
+
 # Add this plugin path to the fpath completion list
-fpath+=($PLUGIN_PATH)
+fpath+=($PLUGIN_PATH/completions)
 
 # 2. Set default env vars
-# Default $PROJECTS is ~/Projects
 # It is used by quick-cd (c)
 : ${PROJECTS:=~/Projects}
 
-# 3. Ensure we export the $PROJECTS variable
+# 3. Export the variables
 export PROJECTS
+export PATH="$PLUGIN_PATH/bin:$PATH"

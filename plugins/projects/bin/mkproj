@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+#
+# This small program is used to bootstrap new projects using a baseline boilerplate
+
+help() {
+  echo "Mkproj - Create a project boilerplate based on a base project structure"
+  echo ""
+  echo "Usage: mkproj <project_base> <project_folder>"
+  exit
+}
+
+variables() {
+  : "${RUBY_VERSION:="$(rbenv global)"}"
+  : "${NODE_VERSION:="$(nodenv global)"}"
+  : "${CURRENT_YEAR:="$(date +%Y)"}"
+  : "${COPYRIGHT_NAME:="$(gpg -K "$GPG_MAIN_KEY" | grep uid | head -1 | sed -E 's/^uid.*\] (.*) <.*>$/\1/')"}"
+
+  # Defines what are the variables that will be substituted on the project boilerplate
+  available_variables=(RUBY_VERSION NODE_VERSION CURRENT_YEAR COPYRIGHT_NAME)
+}
+
+main() {
+  local project_base=$1
+  local dest_dir=$2
+
+  # Where I store the boilerplate projects
+  local base_dir="$DOTFILES_PATH/data/project-boilerplates"
+  local boilerplate_dir="$base_dir/$project_base"
+
+  # Validate the arguments
+  if [ $# -lt 2 ] || [ "$1" = "--help" ]; then
+    help
+  fi
+
+  if [ -d "$dest_dir" ]; then
+    echo "The directory '$dest_dir' already exists!"
+    exit 1
+  fi
+
+  if ! [ -d "$boilerplate_dir" ]; then
+    echo "There is currently no base project setup for '$project_base'."
+    echo "You can create it on '$boilerplate_dir' and try again."
+    exit 1
+  fi
+
+  # Copy the whole boilerplate, dereferencing the links to the actual files
+  cp -LR "$boilerplate_dir" "$dest_dir"
+
+  # Get the defined variables
+  local envsubst_vars
+  define_variables
+
+  # ... and then replace them
+  local tmpfile; tmpfile="$(mktemp)"
+  while IFS= read -r -d '' file; do
+    envsubst < "$file" "$envsubst_vars" > "$tmpfile" && mv "$tmpfile" "$file"
+  done < <(find "$dest_dir" -type f -print0)
+
+  printf "\e[32m✓\e[0m Project successfully created on folder '\e[1m%s\e[0m'\n" "$dest_dir"
+}
+
+define_variables() {
+  # First get all variables available
+  local available_variables
+  variables
+
+  local var_names=()
+  for var_name in "${available_variables[@]}"; do
+    var_names+=("\$$var_name")
+  done
+
+  # First make the environment variables so that envsubst can see them
+  eval "export ${available_variables[*]}"
+
+  # Now, make the variables in a format that envsubst expects ($VAR,$VAR2,$ETC)
+  # shellcheck disable=SC2116
+  IFS=',' && envsubst_vars=$(echo "${var_names[*]}") && IFS=$' \t\n'
+}
+
+main "$@"
