@@ -21,9 +21,8 @@
       - hub
 
       # DB
-      - sqlitebrowser
       - mariadb
-      - mysql-workbench
+      - dbeaver
 
       # Java stuff
       - jdk-openjdk
