@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# Create a random password
+#
+# Usage: mkpass [<size>]
+
+size=$1
+
+tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w "${size:-14}" | head -n 1
