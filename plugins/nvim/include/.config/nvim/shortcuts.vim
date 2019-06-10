@@ -3,7 +3,11 @@
 let mapleader = "\<Space>"
 
 " Move between buffers
-nmap <Leader><Space> :CtrlPBuffer<CR>
+nmap <Leader><Space> :CommandTBuffer<CR>
+nmap <C-P> :CommandT<CR>
+
+" Autofix with ALE
+nmap <Leader>f :ALEFix<CR>
 
 " Select last yanked text
 nnoremap <leader>v `[v`]

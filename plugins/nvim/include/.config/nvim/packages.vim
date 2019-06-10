@@ -2,7 +2,7 @@
 call plug#begin('~/.config/nvim/plugged')
 
 " Nerdtree
-Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree', { 'commit': '67fa9b3116948466234978aa6287649f98e666bd' }
 
 " Vim Airline
 Plug 'vim-airline/vim-airline'
@@ -74,9 +74,9 @@ Plug 'airblade/vim-gitgutter'
 Plug 'cohama/agit.vim'
 
 " Fuzzy finder
-Plug 'ctrlpvim/ctrlp.vim'
 Plug 'wincent/ferret'
 Plug 'brooth/far.vim'
+Plug 'wincent/command-t', { 'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make' }
 
 " Tags support
 Plug 'ludovicchabant/vim-gutentags'

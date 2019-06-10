@@ -1,20 +1,26 @@
-" Disable Nvim remote plugins
-let g:loaded_python_provider = 1
-let g:loaded_python3_provider = 1
-let g:loaded_ruby_provider = 1
-let g:loaded_node_provider = 1
-let g:loaded_remote_plugins = 1
-
 " NERDTree settings
 "
-" Enable hidden files on NERDTree
 let g:NERDTreeShowHidden=1
-" Keep it when we open a file through the tree
-let g:NERDTreeQuitOnOpen=0
-" Ignore metadata
+let g:NERDTreeQuitOnOpen=1
 let g:NERDTreeIgnore=['^\.git$', '\~$']
+let g:NERDTreeHijackNetrw=1
+let g:NERDTreeMinimalUI=1
+let g:NERDTreeAutoDeleteBuffer=1
+let g:NERDTreeNaturalSort=1
+let g:NERDTreeStatusline="%{exists('b:NERDTree')?fnamemodify(expand(b:NERDTree.root.path.str()), ':~:.'):'NERD'}"
+" Disable C-J, C-K mappings
+let g:NERDTreeMapJumpPrevSibling=""
+let g:NERDTreeMapJumpNextSibling=""
+
 " Disable netrw
 let loaded_netrwPlugin = 1
+
+" Configure CommandT
+let g:CommandTFileScanner="git"
+let g:CommandTGitScanSubmodules=1
+let g:CommandTGitIncludeUntracked=1
+let g:CommandTScanDotDirectories=1
+let g:CommandTAlwaysShowDotFiles=1
 
 " Airline settings
 "
@@ -66,7 +72,6 @@ let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
 let g:ale_change_sign_column_color = 1
 let g:ale_sign_column_always = 1
 let g:ale_javascript_eslint_executable = 'eslint_d'
-let g:ale_linter_aliases = { 'vue': ['javascript', 'css'] }
 let g:ale_fixers = {
 \   'javascript': ['prettier'],
 \   'vue': ['prettier'],
@@ -83,12 +88,8 @@ let g:FerretExecutableArguments = {
 " Use ag over grep
 set grepprg=ag\ --nogroup\ --nocolor\ --hidden\ --ignore\ .git
 
-" Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-let g:ctrlp_user_command = 'ag %s --hidden --ignore .git -l -g ""'
-
 " Matchup settings
 "
-
 " Allow a small delay when highlighting matches
 let g:matchup_matchparen_deferred = 1
 
