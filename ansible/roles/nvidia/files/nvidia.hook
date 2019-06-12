@@ -4,6 +4,7 @@ Operation=Upgrade
 Operation=Remove
 Type=Package
 Target=nvidia
+Target=nvidia-418
 
 [Action]
 Depends=mkinitcpio
