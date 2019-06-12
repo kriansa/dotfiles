@@ -2,6 +2,9 @@
 
 let mapleader = "\<Space>"
 
+" ; is :
+nnoremap ; :
+
 " Move between buffers
 nmap <Leader><Space> :CommandTBuffer<CR>
 nmap <C-P> :CommandT<CR>
@@ -10,7 +13,7 @@ nmap <C-P> :CommandT<CR>
 nmap <Leader>f :ALEFix<CR>
 
 " Select last yanked text
-nnoremap <leader>v `[v`]
+nnoremap <Leader>v `[v`]
 
 " Leader + o creates a blank line above
 nmap <Leader>o o<Esc>
@@ -56,7 +59,13 @@ nnoremap <silent> <S-K> i<CR><ESC>
 " Fugitive
 nmap <silent> <leader>gs :Gstatus<CR>
 nmap <silent> <leader>gp :Gpush<CR>
+nmap <silent> <leader>gP :Gpush<CR>
 nmap <silent> <leader>gb :Gblame<CR>
+
+" ALE
+nnoremap <silent> gd :ALEGoToDefinition<CR>
+nmap <silent> [l <Plug>(ale_previous_wrap)
+nmap <silent> ]l <Plug>(ale_next_wrap)
 
 " Copy filepath + line to clipboard
 nmap <silent> <leader>fl :call YankFilenameLine()<CR>

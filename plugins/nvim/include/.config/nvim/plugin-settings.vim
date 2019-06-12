@@ -47,7 +47,8 @@ let g:airline_mode_map = {
 
 " Turn the status on the right cleaner
 let g:airline_skip_empty_sections = 1
-let g:airline_section_z = '%#__accent_bold#%{g:airline_symbols.linenr}%4l%#__restore__#%#__accent_bold#/%L%#__restore__# :%3v'
+" let g:airline_section_z = '%#__accent_bold#%{g:airline_symbols.linenr}%4l%#__restore__#%#__accent_bold#/%L%#__restore__# :%3v'
+let g:airline_section_z = ''
 let g:airline_section_y = ''
 
 " Change the 'non-versioned' symbol
@@ -77,6 +78,10 @@ let g:ale_fixers = {
 \   'vue': ['prettier'],
 \   'ruby': ['rubocop']
 \}
+
+" Use deoplete.
+let g:deoplete#enable_at_startup = 1
+let g:deoplete#sources = { '_': ['ale'] }
 
 " Ferret
 let g:FerretExecutableArguments = {

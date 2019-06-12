@@ -30,6 +30,7 @@ Plug 'tpope/vim-bundler'
 " Javascript
 Plug 'pangloss/vim-javascript'
 Plug 'moll/vim-node'
+Plug 'maxmellon/vim-jsx-pretty'
 
 " CSS
 Plug 'cakebaker/scss-syntax.vim'
@@ -42,6 +43,7 @@ Plug 'posva/vim-vue'
 
 " Editor features
 Plug 'w0rp/ale'
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 
 " Surrounding and things that should be native
 Plug 'tpope/vim-surround'
@@ -52,6 +54,9 @@ Plug 'tomtom/tcomment_vim'
 Plug 'justinmk/vim-sneak'
 Plug 'AndrewRadev/splitjoin.vim'
 Plug 'andymass/vim-matchup'
+
+" Adds new useful unix commands
+Plug 'tpope/vim-eunuch'
 
 " Text objects
 Plug 'kana/vim-textobj-user'
@@ -77,9 +82,6 @@ Plug 'cohama/agit.vim'
 Plug 'wincent/ferret'
 Plug 'brooth/far.vim'
 Plug 'wincent/command-t', { 'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make' }
-
-" Tags support
-Plug 'ludovicchabant/vim-gutentags'
 
 " Window management
 Plug 'qpkorr/vim-bufkill'
