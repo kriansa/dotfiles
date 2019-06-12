@@ -1,7 +1,8 @@
 bundler
 bundler-audit
 mailcatcher
-solargraph
 rubocop
 rubocop-rspec
+rubocop-rails
+solargraph
 neovim

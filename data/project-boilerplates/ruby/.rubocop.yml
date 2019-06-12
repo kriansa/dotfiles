@@ -1,7 +1,10 @@
-require: rubocop-rspec
+---
+require: 
+  - rubocop-rspec
+  - rubocop-rails
 
 AllCops:
-  TargetRubyVersion: 2.5
+  TargetRubyVersion: 2.6
   Exclude:
     - vendor/**/*
     - spec/fixtures/**/*
