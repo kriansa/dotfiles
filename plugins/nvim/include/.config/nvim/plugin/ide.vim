@@ -1,14 +1,6 @@
 " IDE metadata folder
 let g:ide_metadata_dir = '.git'
 
-" Gutentags configs
-"
-let g:gutentags_ctags_tagfile = g:ide_metadata_dir . '/tags'
-let g:gutentags_ctags_executable = 'vim-tags'
-let g:gutentags_enabled = 0
-" TODO: There is still something to be added here: auto generation of tags for
-" installed gems, ruby stdlib and npm packages
-
 " Adds a layer on top of Obsession plugin so we have a structure
 " that saves every session into the project folder in a file
 " named `.git/session.vim`
@@ -19,7 +11,6 @@ function! LoadSession()
 
   if (filereadable(file))
     execute 'source ' . file
-    let g:gutentags_enabled = 1
 
     if (bufnr('$') > 1)
       " Sometimes when you open a directory, vim creates a buffer named
@@ -47,7 +38,6 @@ function! SaveSession()
     echo "This directory doesn't have a metadir (" . meta_dir . ") !"
   else
     execute ":Obsession " . meta_dir . '/session.vim'
-    let g:gutentags_enabled = 1
   endif
 endfunction
 
