@@ -25,10 +25,6 @@
       # Allow mouting NTFS partitions with read/write
       - ntfs-3g
 
-      # Steam
-      - lib32-nvidia-utils
-      - steam
-
       # Torrent client
       - transmission-gtk
 
