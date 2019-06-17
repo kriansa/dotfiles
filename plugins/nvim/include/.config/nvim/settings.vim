@@ -21,6 +21,7 @@ set autoread          " Enable auto-read of files edited outside vim
 set synmaxcol=300     " Limit syntax highlighting for long lines
 set colorcolumn=80    " Set a width to show a column
 set nofoldenable      " Disable folding
+set lazyredraw        " Do not redraw screen in the middle of a macro.
 
 set list                                  " show hidden chars
 set listchars=tab:▸\ ,eol:¬,space:.       " chars to be displayed
