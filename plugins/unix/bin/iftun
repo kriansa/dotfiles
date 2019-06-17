@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+#
+# iftun - Tunnel traffic through an interface
+#
+# This is a small wrapper around netns to help me connecting to several services using a stablished
+# VPN connection. This is particularly useful for point-to-point (non tunneling) VPNs where you
+# usually don't just redirect all your traffic through it, but it can be used as such. So instead of
+# redirect all your traffic, you can do it selectively only on the program that you need.
+#
+# PS: iftun stands for 'interface tunnel' - A way to tunnel all application trafic through the same
+#                                           network interface (if).
+#
+# Usage: nettun tun0 ssh myserver
+
+function main {
+  local interface=$1
+  shift; local cmdline=("$@")
+
+  # Ensure the parameters are right
+  validate-args "$interface" "${cmdline[@]}"
+
+  # Retrieve the interface's current metadata
+  declare local_ip gateway_ip routes
+  get-interface-metadata "$interface"
+
+  # Move the interface to a network namespace
+  move-interface-to-netns "$interface" "$local_ip" "$gateway_ip"
+
+  # Ensure we always try to "return" the interface back to its original state regardless of whether
+  # the command was stopped successfully or killed. To do that, we set a trap on EXIT signal so
+  # every time the program exits we'll be attempting to 'move it back'.
+  #
+  # Due to the nature of Bash, we can't pass arrays to trap because it works similarly to eval, so
+  # we need to escape the values of the array individually using single quotes. That's why we use
+  # this printf hack.
+  local routes_string; routes_string=$(printf " '%s'" "${routes[@]}")
+  # shellcheck disable=SC2064
+  trap "move-interface-back '$interface' '$local_ip' '$gateway_ip' ${routes_string:1}" EXIT
+  trap "echo" INT
+
+  # Drop privileges and run the command in that namespace
+  run-command-on-netns sudo -u "$USER" "${cmdline[@]}"
+}
+
+function help {
+  echo "iftun - Tunnel traffic through an interface"
+  echo
+  echo "Usage: iftun <interface> <command>"
+  echo
+  echo "Arguments:"
+  echo "  interface   The interface name that you want send the traffic through"
+  echo "  command     The command that you want to execute and its arguments"
+  echo
+  echo "Run 'iftun --help' to display this message."
+}
+
+function run-command-on-netns {
+  sudo ip netns exec vpn "$@"
+}
+
+function validate-args {
+  local interface=$1
+
+  if [ $# -lt 2 ]; then
+    help
+    exit 1
+  fi
+
+  if [ "$1" = "--help" ] || [ "$1" = "help" ]; then
+    help
+    exit
+  fi
+
+  if ! ip addr show "$interface" > /dev/null 2>&1; then
+    echo "Interface not found! Ensure you're connected." >&2
+    exit 1
+  fi
+}
+
+function get-interface-metadata {
+  local interface=$1
+
+  # Get the IP address for this interface
+  local_ip=$(ip addr show "$interface" | grep -Po '(?<=inet )([0-9]+\.?){4}')
+  gateway_ip=$(ip addr show "$interface" | grep -Po '(?<=peer )([0-9]+\.?){4}')
+
+  # Get current routes for this interface
+  mapfile -t routes < <(ip route list | grep "dev $interface")
+}
+
+function move-interface-to-netns {
+  local interface=$1
+  local local_ip=$2
+  local gateway_ip=$3
+
+  # Create the new network namespace
+  sudo ip netns add vpn 2> /dev/null || true
+  sudo ip link set "$interface" netns vpn
+
+  run-command-on-netns ip link set "$interface" up
+  run-command-on-netns ip addr add "$local_ip" peer "$gateway_ip" dev "$interface"
+  run-command-on-netns ip route add default via "$local_ip" dev "$interface"
+}
+
+function move-interface-back {
+  local interface=$1
+  local local_ip=$2
+  local gateway_ip=$3
+  shift 3; local routes=("$@")
+
+  run-command-on-netns ip link set "$interface" netns 1
+  sudo ip netns del vpn
+
+  # Turn on the interface
+  sudo ip link set "$interface" up
+  sudo ip addr add "$local_ip" peer "$gateway_ip" dev "$interface"
+
+  # Remove the one that just got added by our 'ip addr'
+  local route_to_del; route_to_del=$(ip route list | grep "dev $interface")
+
+  # Then re-add the previous routes back in.
+  for route in "${routes[@]}"; do
+    # shellcheck disable=SC2086
+    sudo ip route add $route
+  done
+
+  # Then remove the one we don't want
+  # shellcheck disable=SC2086
+  sudo ip route del $route_to_del
+}
+
+main "$@"

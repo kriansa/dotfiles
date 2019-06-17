@@ -1,0 +1,3 @@
+#compdef tunssh
+
+_ssh "$@"
