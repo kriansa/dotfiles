@@ -19,11 +19,9 @@ nnoremap <Leader>v `[v`]
 nmap <Leader>o o<Esc>
 nmap <Leader>O O<Esc>
 
-" NerdTREE toggle
-nmap <silent> <Leader>. :NERDTreeToggle<CR>
-nmap <silent> <Leader>; :NERDTreeToggle<CR>
-nmap <silent> <Leader>/ :call NERDTreeToggleInCurDir()<CR>
-nmap <silent> <Leader>\ :call NERDTreeToggleInCurDir()<CR>
+" NERDTree
+nmap <silent> ,, :NERDTreeToggle<CR>
+nmap <silent> ,. :call NERDTreeToggleInCurDir()<CR>
 
 " Tab-complete autocompletions
 inoremap <expr><Tab> pumvisible() ? "\<c-n>" : "\<Tab>"
