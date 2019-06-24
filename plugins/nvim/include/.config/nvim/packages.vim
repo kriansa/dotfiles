@@ -2,7 +2,7 @@
 call plug#begin('~/.config/nvim/plugged')
 
 " Nerdtree
-Plug 'scrooloose/nerdtree', { 'commit': '67fa9b3116948466234978aa6287649f98e666bd' }
+Plug 'scrooloose/nerdtree' ", { 'commit': '67fa9b3116948466234978aa6287649f98e666bd' }
 
 " Vim Airline
 Plug 'vim-airline/vim-airline'
@@ -18,6 +18,7 @@ Plug 'rhysd/vim-crystal', { 'for': 'crystal' }
 Plug 'tbastos/vim-lua', { 'for': 'lua' }
 Plug 'keith/swift.vim', { 'for': 'swift' }
 Plug 'elixir-lang/vim-elixir', { 'for': 'elixir' }
+Plug 'jakwings/vim-pony', { 'for': 'pony' }
 
 " Markdown
 " Plug 'SidOfc/mkdx'
