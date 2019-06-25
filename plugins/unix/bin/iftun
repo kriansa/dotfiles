@@ -113,20 +113,33 @@ function move-interface-back {
 
   # Turn on the interface
   sudo ip link set "$interface" up
-  sudo ip addr add "$local_ip" peer "$gateway_ip" dev "$interface"
-
-  # Remove the one that just got added by our 'ip addr'
-  local route_to_del; route_to_del=$(ip route list | grep "dev $interface")
+  sudo ip addr add "$local_ip" peer "$gateway_ip" dev "$interface" noprefixroute
 
   # Then re-add the previous routes back in.
+  re-add-routes "${routes[@]}"
+}
+
+function re-add-routes {
+  local routes=("$@")
+
+  # Store the routes that are dependencies
+  local dependent_routes=()
+
+  # First we need to add the routes that do not depend on other routes (doesn't have via field)
   for route in "${routes[@]}"; do
+    if echo "$route" | grep "via" > /dev/null 2>&1; then
+      dependent_routes+=("$route")
+    else
+      # shellcheck disable=SC2086
+      sudo ip route add $route
+    fi
+  done
+
+  # Then lastly we re-add them
+  for route in "${dependent_routes[@]}"; do
     # shellcheck disable=SC2086
     sudo ip route add $route
   done
-
-  # Then remove the one we don't want
-  # shellcheck disable=SC2086
-  sudo ip route del $route_to_del
 }
 
 main "$@"
