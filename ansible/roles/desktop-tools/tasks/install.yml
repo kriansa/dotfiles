@@ -35,6 +35,7 @@
       - ttf-roboto
       - ttf-croscore
       - noto-fonts-cjk
+      - ttf-joypixels
 
 - name: install ttf-nerd-symbols
   become: true
@@ -66,4 +67,3 @@
     - ttf-iosevka-term
     - ttf-gelasio-ib
     - ttf-comic-neue
-    - ttf-emojione
