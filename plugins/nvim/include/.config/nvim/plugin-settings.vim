@@ -1,3 +1,6 @@
+" External plugins
+let g:ruby_host_prog = systemlist("RBENV_VERSION=$(rbenv global) rbenv which neovim-ruby-host")[0]
+
 " NERDTree settings
 "
 let g:NERDTreeShowHidden=1
@@ -58,7 +61,7 @@ endif
 let g:airline_symbols.notexists = ' '
 
 " Highlight yank
-let g:highlightedyank_highlight_duration = 150
+let g:highlightedyank_highlight_duration = 80
 
 " Configure Vim-Ruby plugin
 let ruby_foldable_groups = 'NONE'
