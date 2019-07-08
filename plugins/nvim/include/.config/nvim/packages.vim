@@ -2,13 +2,14 @@
 call plug#begin('~/.config/nvim/plugged')
 
 " Nerdtree
-Plug 'scrooloose/nerdtree' ", { 'commit': '67fa9b3116948466234978aa6287649f98e666bd' }
+Plug 'scrooloose/nerdtree'
 
 " Vim Airline
 Plug 'vim-airline/vim-airline'
 
 " Obsession (project/session manager)
 Plug 'tpope/vim-obsession'
+Plug 'tpope/vim-projectionist'
 
 " Syntax support
 Plug 'pearofducks/ansible-vim', { 'for': 'ansible' }
@@ -28,6 +29,7 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
 " Ruby
 Plug 'vim-ruby/vim-ruby'
 Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-rails'
 
 " Javascript
 Plug 'pangloss/vim-javascript'
