@@ -5,18 +5,8 @@
 # cd to root path
 cd "$(dirname "$0")/.." || exit;
 
-# Load the dotenv file
-# shellcheck disable=SC1091
-set -a && source ".env" && set +a
-
-# Replace the variables on the template file
-envsubst < ops/terraform/backend.tf-template > ops/terraform/backend.tf
-
-# Then initializes the backend
-ops/bin/terraform init
-
-# Only enable auto-approve when in non-interactive shells
-test -t 0 || flags=(-auto-approve)
-
 # Deploy!
-ops/bin/terraform apply "${flags[@]}"
+cd ops/terraform && terraform-auto \
+  --environment-file="../../.env" \
+  --backend-template-file="backend.tf-template" \
+  apply

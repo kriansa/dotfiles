@@ -1,10 +1,19 @@
-# Define AWS S3 as the backend
-# ============================
+# Define Terraform Remote the backend
+# 
+# This file tf-template exists so that it can dynamically generate the backend.tf using environment
+# variables. This is not natively possible by just using plain Terraform because it's unsupported.
+# So we do that by wrapping the calls to Terraform on the `deploy` shell script. Then, ensure that
+# the dynamically-generated one (backend.tf) is never versioned otherwise it can leak sensitive
+# information.
+
 terraform {
-  backend "s3" {
-    region = "$AWS_DEFAULT_REGION"
-    dynamodb_table = "$TERRAFORM_BACKEND_DYNAMO_TABLE"
-    bucket = "$TERRAFORM_BACKEND_S3_BUCKET"
-    key = "tf-state"
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "$TERRAFORM_ORGNAME"
+    token = "$TERRAFORM_TOKEN"
+
+    workspaces {
+      name = "$TERRAFORM_WORKSPACE"
+    }
   }
 }
