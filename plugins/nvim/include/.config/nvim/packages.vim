@@ -23,6 +23,7 @@ Plug 'jakwings/vim-pony', { 'for': 'pony' }
 " Markdown
 " Plug 'SidOfc/mkdx'
 Plug 'junegunn/vim-easy-align'
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
 
 " Ruby
 Plug 'vim-ruby/vim-ruby'
