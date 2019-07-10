@@ -46,6 +46,7 @@ Plug 'posva/vim-vue'
 " Editor features
 Plug 'w0rp/ale'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'carlitux/deoplete-ternjs'
 
 " Surrounding and things that should be native
 Plug 'tpope/vim-surround'
