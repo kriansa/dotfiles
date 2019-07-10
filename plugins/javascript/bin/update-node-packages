@@ -3,6 +3,9 @@
 # Plugin path
 PLUGIN_PATH=$(cd "$(dirname "$0")/.." || exit; pwd)
 
+# Always use the global Ruby
+export NODENV_VERSION; NODENV_VERSION=$(nodenv global)
+
 # Update npm
 npm install -g npm
 

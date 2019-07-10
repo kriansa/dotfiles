@@ -3,6 +3,9 @@
 # Plugin path
 PLUGIN_PATH=$(cd "$(dirname "$0")/.." || exit; pwd)
 
+# Always use the global Ruby
+export RBENV_VERSION; RBENV_VERSION=$(rbenv global)
+
 # Update Rubygems
 gem update --system
 
