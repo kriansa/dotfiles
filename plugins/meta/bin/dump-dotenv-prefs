@@ -57,7 +57,7 @@ gnome() {
 }
 
 gpg() {
-  echo "Remember to run gpg-backup export to save your Keyring!"
+  gpg-backup export
 }
 
 main
