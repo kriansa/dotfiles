@@ -1,4 +1,6 @@
 #!/bin/sh
 
 # Set the ruby version to the global one
-RBENV_VERSION=$(cat ~/.rbenv/version) exec "$(rbenv which ruby)" "$@"
+export RBENV_VERSION; RBENV_VERSION=$(cat ~/.rbenv/version) 
+test $? -ne 0 && echo "Please set the global ruby version using 'rbenv global <version>'" && exit 1
+exec "$(rbenv which ruby)" "$@"
