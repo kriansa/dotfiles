@@ -30,6 +30,9 @@ set showbreak=↪                           " char to be displayed on wraped lin
 " Clipboard settings
 set clipboard+=unnamed                    " yanks to clipboard
 
+" Spend extra time to generate the smallest possible diff
+set diffopt+=algorithm:patience
+
 " On Linux, yank to clipboard by default, not the PRIMARY (middle mouse btn)
 if has("unix") && !has("mac")
   let g:clipboard = {
