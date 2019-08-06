@@ -5,6 +5,10 @@ let mapleader = "\<Space>"
 " ; is :
 nnoremap ; :
 
+" Don't yank pasted text on visual mode
+vnoremap <silent> p :<C-u>call SmartPaste()<CR>
+vnoremap <silent> P :<C-u>call SmartPaste()<CR>
+
 " Move between buffers
 nmap <Leader><Space> :CommandTBuffer<CR>
 nmap <C-P> :CommandT<CR>
@@ -22,10 +26,6 @@ nmap <Leader>O O<Esc>
 " NERDTree
 nmap <silent> ,, :NERDTreeToggle<CR>
 nmap <silent> ,. :call NERDTreeToggleInCurDir()<CR>
-
-" Tab-complete autocompletions
-inoremap <expr><Tab> pumvisible() ? "\<c-n>" : "\<Tab>"
-inoremap <expr><S-Tab> pumvisible() ? "\<c-p>" : "\<S-Tab>"
 
 " Closes current buffer with <Leader>w
 nnoremap <silent> <Leader>w :call Close()<CR>
@@ -79,9 +79,6 @@ let g:winresizer_start_key = '<Leader>e'
 
 " Align GitHub-flavored Markdown tables
 au FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
-
-" Toggle paste mode with F2
-set pastetoggle=<F2>
 
 " D deletes from the cursor to the end of the line; C changes from the cursor to the end of the
 " line. For some reason, however, Y yanks the entire line, both before and after the cursor. This
