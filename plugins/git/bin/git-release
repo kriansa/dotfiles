@@ -1,369 +1,197 @@
 #!/usr/bin/env bash
+#
+# My own release helper on top of `hub`
+#
+# It helps creating releases for git projects and publishing them to Github without having to
+# remember a whole set of commands (bump version, commit, create tag, push, create release, etc).
+#
+# Usage: git release --sign --version-file=VERSION --use-version-file --artifact "blablabla" \
+#          --prerelease --browse <VERSION>
 
-## Git release
-##
-## My own git flow helper.
-##
-## Usage: git release <start/finish/list> [args]
-##
-## Subcommands:
-##   start          Creates a new release branch
-##   merge          Merge another branch using squash
-##   finish         Merges the current branch into master and creates a tag
-##   list           List all releases
-##   prune          Delete archived branches (prefixed by archived/)
-##
+main() {
+  declare GIT_DIR
+  sanity_check
 
-# Error handler
-trap error_handler ERR
+  declare VERSION OPT_artifacts OPT_version_file OPT_use_version_file OPT_sign
+  declare OPT_prerelease OPT_browse
+  validate_parameters "$@"
 
-function error_handler {
-  EXIT_CODE=$?
+  write_version
+  create_tag
+  push_tag
+  create_release
+}
 
+help() {
+  echo "Usage: git release [OPTIONS] VERSION"
   echo
-  echo "An error has occurred!"
-  echo "Exit code: ${EXIT_CODE}"
+  echo "Options:"
+  echo "  -f, --version-file=<file>   The path to the versioned file where you store the version"
+  echo "                              name."
+  echo "                              Default: VERSION"
+  echo "  -v, --use-version-file      Whether you want to use a version file. When this is enabled,"
+  echo "                              the release version is written to a file (specified by -f) and"
+  echo "                              is commited before creating a tag. Use it when your application"
+  echo "                              relies on some mechanism to detect the current version."
+  echo "                              This is implied when you use -f."
+  echo "  -a, --artifact=<file>       Attach an artifact to the release."
+  echo "                              This parameter can be specified multiple times."
+  echo "  -p, --prerelease            Whether this release should me flagged as 'prerelease' on Github."
+  echo "  -b, --browse                Open the Github release on the browser after finishing."
+  echo "  -s, --sign                  Signs your release message with the configured PGP key."
+  echo "  -h, --help                  Show this message and exit."
+}
+
+error() {
+  echo "$@" >&2
   exit 1
 }
 
-function help {
-  echo "usage:"
-  echo
-  echo "  git release start [name]   creates a new release branch."
-  echo "                             if name is not specified, then it'll be vYY.M.S as in v16.1.1"
-  echo "  git release merge [name]   merges a branch into the current selected release"
-  echo "                             raises an error if you're not checked out in a release"
-  echo "  git release finish [name]  merges the current release into master branch and creates a new tag"
-  echo "                             if name is not specified, then it'll finish the last available release"
-  echo "  git release list           list all releases"
-  echo "  git release prune          delete all branches that has been archived"
-}
-
-function show_error {
-  MSG=$1
-
-  RED='\033[0;31m'
-  NC='\033[0m'
-
-  printf "[${RED}ERROR${NC}] ${MSG}\n"
-  exit
-}
-
-function trim {
-  awk '{$1=$1};1' | sed -e :a -e '/./,$!d;/^\n*$/{$d;N;};/\n$/ba'
-}
-
-function version_sort {
-  sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n
-}
-
-function bump_version {
-  VERSION=$1
-  echo $VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g'
-}
-
-function branch_count {
-  BRANCH_NAME=$1
-  echo $(git branch --list "$BRANCH_NAME" | wc -l | trim)
-}
-
-function get_current_branch {
-  git rev-parse --abbrev-ref HEAD
-}
-
-function update_branch {
-  BRANCH_NAME=$1
-  CURRENT_BRANCH=$(get_current_branch)
-
-  git checkout $BRANCH_NAME
-  git pull origin $BRANCH_NAME
-  git checkout $CURRENT_BRANCH
-}
-
-function archive_branch {
-  BRANCH_NAME=$1
-
-  if [[ ! $BRANCH_NAME =~ /archived/ ]]; then
-    git branch -m $BRANCH_NAME archived/$BRANCH_NAME
-    echo "Branch '${BRANCH_NAME}' renamed to 'archived/${BRANCH_NAME}'"
+sanity_check() {
+  if ! git rev-parse --is-inside-work-tree > /dev/null; then
+    exit 1
   fi
-}
 
-# This function should not be called in a subshell because it needs TTY and sync output
-# The best way to call it is on the same shell context, and it will set a variable
-# called `$author`, so just use it.
-function get_author {
-  BASE_BRANCH=$1
-  BRANCH_NAME=$2
-
-  # Get branch author
-  author=$(git log ${BASE_BRANCH}..${BRANCH_NAME} --oneline --format="%aN <%aE>" | tail -1)
-
-  printf "Author of this branch: ${COLOR_LIGHT_GREEN}${author}${COLOR_NC}\n"
-  read -p "Is that right? (Yn) " -n 1 -r
-  echo
-
-  if [[ ! $REPLY =~ ^[Yy]?$ ]]; then
-    # Display a list of commiters on that branch
-    IFS=$'\n'
-    options=($(git log ${BASE_BRANCH}..${BRANCH_NAME} --oneline --format="%aN <%aE>" | sort | uniq))
-    unset IFS
-
-    echo
-    echo "This is a list of people who committed code into this branch. Please select one of them:"
-
-    select author in "${options[@]}"; do
-      if [[ $author == "" ]]; then
-        show_error "Please select a valid user!"
-      fi
-
-      break
-    done
+  if ! command -v hub > /dev/null 2>&1; then
+    error "The command 'hub' is a dependency and was not found!"
   fi
+
+  GIT_DIR=$(git rev-parse --git-dir 2> /dev/null)
 }
 
-# Set variables based on user input
-COMMAND=$1
+write_version() {
+  test "$OPT_use_version_file" = "false" && return
+  test "$(cat "$OPT_version_file")" = "$VERSION" && return
 
-# Colors
-COLOR_NC='\e[0m'
-COLOR_LIGHT_GREEN='\e[1;32m'
-COLOR_LIGHT_RED='\e[1;31m'
+  echo "$VERSION" > "$OPT_version_file"
+  git add "$OPT_version_file"
+  git commit --only "$OPT_version_file" --message "git-release: prepare for version ${VERSION}"
+}
 
-if [[ $COMMAND != "" ]]; then
-    case $COMMAND in
-        start)
-          # First argument is release_name
-          RELEASE_NAME=$2
+push_tag() {
+  for remote in $(git remote); do
+    git push "$remote" "v${VERSION}"
+  done
+}
 
-          if [[ $RELEASE_NAME = "" ]]; then
+create_tag(){
+  git rev-parse "v${VERSION}" > /dev/null 2>&1 && return
 
-            # This command will search for a tag called vYY.M.S, being S any
-            # decimal number - such as in v16.3.1 - and if does exist, it will
-            # create a new branch bumping that version (v16.3.2).
-            # However, if this branch exists, it'll try to create another branch
-            # bumping that version (let's say v16.3.3).
-            #
-            # This is wanted because let's say you started working on a release
-            # but then a bug came up, you just create another release and merge
-            # the bugfix on it, then release it normally. After that you can
-            # go back to work on you feature release.
-            #
-            # Be aware that is not possible to work in more than 2 releases at
-            # the same time! Once you try to release a third one, it will just
-            # just switch to the last one.
+  # Only setup the TAG_EDITMSG with the placeholder if the file is not present. This is useful
+  # because sometimes a failure in the middle of the tagging process could prevent it from finishing
+  # and we could lose data. This check prevents that from ever happening by only writing to the file
+  # if it's not there ;)
+  test -f "$GIT_DIR/TAG_EDITMSG" || cat <<-MSG > "$GIT_DIR/TAG_EDITMSG"
+	Release v${VERSION}
 
-            BASE_VERSION=$(date +'%y.%-m')
-            LAST_VERSION=$(git tag -l "v$BASE_VERSION.*" | version_sort | tail -1)
+	# Lines starting with '#' are ignored.
+	#
+	# Use the following format for describing the release changes: 
+	# * Cool feature added (#123)
+	# * Nasty bug fixed (#121)
+	MSG
 
-            # If we have a previous version, just bump it; otherwise start from 1
-            if [[ $LAST_VERSION = "" ]]; then
-              NEW_VERSION="v${BASE_VERSION}.1"
-            else
-              NEW_VERSION=$(bump_version $LAST_VERSION)
-            fi
+  if ! edit_with_editor "$GIT_DIR/TAG_EDITMSG"; then
+    error "Fail to edit the release message."
+  fi
 
-            # Now let's check if we're working on this branch already
-            if [[ $(branch_count "release/$NEW_VERSION") != "0" ]]; then
-              # Hey, we have a branch! Let's bump it again!
-              NEW_VERSION=$(bump_version $NEW_VERSION)
-            fi
-          else
-            NEW_VERSION=$RELEASE_NAME
-          fi
+  local extra_flags=()
+  test "$OPT_sign" = "true" && extra_flags+=("--sign")
 
-          # Fine, now create the release branch
-          git checkout -B release/$NEW_VERSION master
+  if ! git tag "${extra_flags[@]}" -F "$GIT_DIR/TAG_EDITMSG" "v${VERSION}"; then
+    error "Fail to create git tag."
+  fi
 
-          echo
-          echo "Merge work on it and then finish it by doing:"
-          echo "  git release finish"
-          ;;
+  # Remove the tag message
+  test -f "$GIT_DIR/TAG_EDITMSG" && rm "$GIT_DIR/TAG_EDITMSG"
+}
 
-        merge)
-          # First argument is the branch name
-          BRANCH_NAME=$2
-          CURRENT_BRANCH=$(get_current_branch)
+create_release() {
+  local extra_flags=()
+  test "$OPT_prerelease" = "true" && extra_flags+=("--prerelease")
+  test "$OPT_browse" = "true" && extra_flags+=("--browse")
 
-          if [[ $BRANCH_NAME = "" ]]; then
-            show_error "Please, specify a branch name!"
-          fi
+  for artifact in "${OPT_artifacts[@]}"; do
+    extra_flags+=("--attach")
+    extra_flags+=("$artifact")
+  done
 
-          if [[ $(branch_count "$BRANCH_NAME") = "0" ]] && [[ $(git branch -r | grep "origin/$BRANCH_NAME") == "" ]]; then
-            show_error "Branch not found (either locally or on origin)!"
-          fi
+  # Get the tag content to the release message
+  git cat-file -p "v${VERSION}" | tail -n +6 | \
+    sed '/^-----BEGIN PGP SIGNATURE-----$/,$d' > "$GIT_DIR/RELEASE_EDITMSG"
 
-          if [[ $(echo $CURRENT_BRANCH | \grep -E --only-matching 'release/.*') = "" ]]; then
-            show_error "Please, check out into the release branch!"
-          fi
+  hub release create "v${VERSION}" -F "$GIT_DIR/RELEASE_EDITMSG" "${extra_flags[@]}"
+}
 
-          if [[ $(git status --porcelain | grep 'M') != "" ]]; then
-            echo "This branch has staged files. Instead of trying to merge '${BRANCH_NAME}', we will just commit what is in it."
-            echo
-            echo "If that's not what you want, then clear your stage area before running this command."
-            read -p "Continue? (Yn)" -n 1 -r
-            echo
+edit_with_editor() {
+  local file="$1"
+  local git_core_editor text_editor
 
-            if [[ $REPLY =~ ^[Nn]$ ]]; then
-              exit
-            fi
+  # Pick the best editor and edit the file
+  git_core_editor=$(git config --get core.editor)
+  text_editor="${GIT_EDITOR:-${git_core_editor:-${VISUAL:-${EDITOR:-vi}}}}"
+  $text_editor "$file"
+}
 
-            # Get branch author and set $author variable
-            get_author $CURRENT_BRANCH $BRANCH_NAME
+validate_parameters() {
+  VERSION="" OPT_artifacts=() OPT_version_file=VERSION OPT_use_version_file=false
+  OPT_sign=false OPT_prerelease=false OPT_browse=false
 
-            # Commit it
-            git commit --author="$author"
-            archive_branch $BRANCH_NAME
-            exit
-          fi
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -a|--artifact)
+        OPT_artifacts+=("$2")
+        shift 2
+        ;;
+      --artifact=*)
+        OPT_artifacts+=("${1#*=}")
+        shift 1
+        ;;
 
-          # The branch is already local
-          if [[ $(branch_count "$BRANCH_NAME") != "0" ]]; then
-            read -p "Update this branch with origin? (Yn) " -n 1 -r
-            echo
+      -f|--version-file)
+        OPT_version_file=$2
+        shift 2
+        ;;
+      --version-file=*)
+        OPT_version_file=${1#*=}
+        shift 1
+        ;;
 
-            if [[ ! $REPLY =~ ^[Yy]?$ ]]; then
-              # Update the branch
-              update_branch $BRANCH_NAME
-            fi
-          else
-            # Update repo from origin
-            git fetch origin
+      -v|--use-version-file)
+        OPT_use_version_file=true
+        shift 1
+        ;;
 
-            # Update the branch
-            update_branch $BRANCH_NAME
-          fi
+      -s|--sign)
+        OPT_sign=true
+        shift 1
+        ;;
 
-          # Get branch author and set `$author` variable
-          get_author $CURRENT_BRANCH $BRANCH_NAME
+      -p|--prerelease)
+        OPT_prerelease=true
+        shift 1
+        ;;
 
-          # Merges the branch using squash
-          git merge --squash $BRANCH_NAME || GIT_ERROR=true
+      -b|--browse)
+        OPT_browse=true
+        shift 1
+        ;;
 
-          if [[ $GIT_ERROR ]]; then
-            show_error "Please, resolve your conflicts, add them to the staging area (git add .) and run this command again."
-          fi
+      -h|--help)
+        help
+        exit
+        ;;
 
-          # Commit it
-          git commit --author="${author}"
-          archive_branch $BRANCH_NAME
-          ;;
-
-        finish)
-          # First argument is release_name
-          RELEASE_NAME=$2
-
-          if [[ $RELEASE_NAME = "" ]]; then
-            RELEASE_BRANCH=$(git branch --list | \grep -E --only-matching 'release/.*' | version_sort | tail -1)
-
-            if [[ $RELEASE_BRANCH = "" ]]; then
-              show_error "No release branch was found."
-            fi
-
-            RELEASE_NAME=$(echo $RELEASE_BRANCH | sed 's/release\///')
-
-          else
-            if [[ $(branch_count "release/$RELEASE_NAME") = "0" ]]; then
-              show_error "Branch not found!"
-            else
-              RELEASE_BRANCH="release/$RELEASE_NAME"
-            fi
-          fi
-
-          echo "Merging $RELEASE_NAME back into master ..."
-
-          # Create release message file
-          RELEASE_MSG_FILE=".git/RELEASE_EDITMSG"
-          if [[ ! -f $RELEASE_MSG_FILE ]]; then
-            echo "Release ${RELEASE_NAME}" > $RELEASE_MSG_FILE
-            echo "" >> $RELEASE_MSG_FILE
-            echo "* ..." >> $RELEASE_MSG_FILE
-            echo "#" >> $RELEASE_MSG_FILE
-            echo "# Add you commit changelog here..." >> $RELEASE_MSG_FILE
-            echo "# Lines starting with '#' will be ignored." >> $RELEASE_MSG_FILE
-          fi
-
-          # Checkout into master then merge it
-          git checkout master
-          git merge --no-ff $RELEASE_BRANCH
-
-          # Generate a tag from master (unless it's created already)
-          if ! [[ $(git tag -l | grep $RELEASE_NAME) ]]; then
-
-            # Pick the best editor and edit the message
-            _GIT_CONFIG_EDITOR=$(git config --get core.editor || true)
-            TEXT_EDITOR="${GIT_EDITOR:-${_GIT_CONFIG_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}"
-            $TEXT_EDITOR $RELEASE_MSG_FILE
-
-            # Tag it!
-            git tag --sign $RELEASE_NAME -F $RELEASE_MSG_FILE
-          fi
-
-          # Delete release branch locally
-          git branch -d $RELEASE_BRANCH
-
-          for r in $(git remote); do
-            # Delete release branch remotely
-            if [[ $(git ls-remote --heads $r $RELEASE_BRANCH) != "" ]]; then
-              git push $r --delete $RELEASE_BRANCH || true
-            fi
-
-            # Send both master and new tag to all remotes
-            git push $r master
-            git push $r $RELEASE_NAME
-          done
-
-          # Create the release draft
-          git show $RELEASE_NAME -s --format="" \
-            | sed -e '1,3d' \
-              -e '/BEGIN PGP SIGNATURE/,/END PGP SIGNATURE/d' \
-               > $RELEASE_MSG_FILE
-
-          # Publish draft to GitHub
-          # Make release through Github API
-          hub release create -f "$RELEASE_MSG_FILE" "$RELEASE_NAME" || true
-
-          # Remove release message
-          test -f $RELEASE_MSG_FILE && rm $RELEASE_MSG_FILE
-          ;;
-
-        prune)
-          branch_count=$(git branch | grep 'archived/' | wc -l | trim)
-          echo "Removing ${branch_count} archived branches..."
-
-          for local_name in $(git branch | grep 'archived/' | cut -c 3-); do
-            original_name=$(echo $local_name | sed -e 's/archived\///')
-            printf "\nRemoving archived branch ${COLOR_LIGHT_GREEN}${original_name}${COLOR_NC}\n"
-
-            for r in $(git remote); do
-              git push --delete $r $original_name || true
-              echo "  Removed from ${r}"
-            done
-
-            git branch -D $local_name
-            echo "  Branch $original_name removed sucessfully!"
-          done
-          ;;
-
-        list)
-          printf "    ${COLOR_LIGHT_GREEN}Released (tags):$COLOR_NC\n"
-          git tag -l "v*" | version_sort | column
-          echo
-          printf "    ${COLOR_LIGHT_RED}Unreleased (branches):$COLOR_NC\n"
-          git branch --list | \grep -E --only-matching 'release/.*' | version_sort | column
-          ;;
-
-        help)
-          help
-          ;;
-
-        *)
-          echo "'$COMMAND' is not a valid command"
-          echo
-          help
-          ;;
+      *)
+        VERSION=$(echo "$1" | sed -E 's/[vV](.*)/\1/')
+        shift 1
+        ;;
     esac
-else
-    echo "You must pass a parameter to release."
-    help
-fi
+  done
+
+  if [ -z "$VERSION" ]; then
+    error "You need to specify a version! (use git release --help for more information)"
+  fi
+}
+
+main "$@"
