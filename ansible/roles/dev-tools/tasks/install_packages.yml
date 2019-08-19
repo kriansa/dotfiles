@@ -57,6 +57,7 @@
     - rbenv
     - ruby-build-git
     - devops-tools-git
+    - ansible-bundler
 
     # Other tools
     - wrk
