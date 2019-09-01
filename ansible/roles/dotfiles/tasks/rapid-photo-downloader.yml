@@ -1,0 +1,6 @@
+---
+- import_tasks: link_files.yml
+  vars:
+    plugin_name: rapid-photo-downloader
+    files:
+      - ".config/Rapid Photo Downloader"

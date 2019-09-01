@@ -16,6 +16,13 @@
       - vlc
       - libx264
 
+      # mpv for some videos
+      - mpv
+
+      # Faster camera download
+      - rapid-photo-downloader
+      - python-tenacity # missing dep until https://bugs.archlinux.org/task/63468 is fixed
+
       # GParted is a GUI partitioner
       - gparted
 

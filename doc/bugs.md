@@ -18,3 +18,13 @@ repository](https://github.com/kriansa/PKGBUILDs/tree/master/pkgs/nvidia-418).
 
 When that gets fixed, I will need to remove the extra package from
 `ansible/roles/nvidia/files/nvidia.hook` as well as from `/etc/pacman.d/hooks/nvidia.hook`.
+
+## rapid-photo-downloader
+
+#### Date: Sept 1, 2019
+
+RPD seems to be with a missing python dependency from default install and we need to install it
+separately. The dependency is `python-tenacity`.
+
+A bug report is [open](https://bugs.archlinux.org/task/63468) and the workaround is to install it
+along with the package.
