@@ -1,11 +1,4 @@
 ---
-- name: install mutter-slim-git
-  become: true
-  become_user: "{{ user_name }}"
-  command: bin/pkg build --install mutter-slim-git
-  args:
-    chdir: /home/{{ user_name }}/Projects/PKGBUILDs
-
 - name: install gnome
   become: true
   pacman: 
