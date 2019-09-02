@@ -85,8 +85,8 @@ Plug 'cohama/agit.vim'
 
 " Fuzzy finder
 Plug 'wincent/ferret'
+Plug 'Yggdroot/LeaderF', { 'do': './install.sh'  }
 Plug 'brooth/far.vim'
-Plug 'wincent/command-t', { 'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make' }
 
 " Window management
 Plug 'qpkorr/vim-bufkill'

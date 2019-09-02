@@ -9,9 +9,9 @@ nnoremap ; :
 vnoremap <silent> p :<C-u>call SmartPaste()<CR>
 vnoremap <silent> P :<C-u>call SmartPaste()<CR>
 
-" Move between buffers
-nmap <Leader><Space> :CommandTBuffer<CR>
-nmap <C-P> :CommandT<CR>
+" LeaderF fuzzy finder
+let g:Lf_ShortcutF="<C-P>"
+let g:Lf_ShortcutB="<Leader><Space>"
 
 " Autofix with ALE
 nmap <Leader>f :ALEFix<CR>

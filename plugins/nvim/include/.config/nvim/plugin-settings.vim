@@ -1,8 +1,7 @@
 " External plugins
 let g:ruby_host_prog = systemlist("RBENV_VERSION=$(rbenv global) rbenv which neovim-ruby-host")[0]
 
-" NERDTree settings
-"
+" NERDTree settings 
 let g:NERDTreeShowHidden=1
 let g:NERDTreeQuitOnOpen=1
 let g:NERDTreeIgnore=['^\.git$', '\~$']
@@ -103,3 +102,23 @@ let g:matchup_matchparen_deferred = 1
 
 " Disable replacing the statusline by the matching delimiter if not on screen
 let g:matchup_matchparen_status_offscreen = 0
+
+" LeaderF (Fuzzy finder)
+"
+" Better for powerline fonts
+let g:Lf_StlSeparator = { 'left': '', 'right': '' }
+
+" See inside git submodules
+let g:Lf_RecurseSubmodules = 1
+
+" See results from bottom to the top
+let g:Lf_ReverseOrder = 1
+
+"  Show hidden files
+let g:Lf_ShowHidden = 1
+
+" Default fuzzy search mode
+let g:Lf_DefaultMode = 'NameOnly'
+
+" Git gutter
+autocmd BufWritePost * GitGutter
