@@ -1,6 +1,6 @@
 ---
 # Are we using hidpi monitor?
-use_hidpi: yes
+use_hidpi: no
 
 # The user we're installing to
 # Should be the same set at base-arch's role

@@ -8,6 +8,15 @@
     - "{{ user_name }}"
     - gdm
 
+- name: scale fonts out when not using hidpi
+  become: true
+  become_user: "{{ item }}"
+  command: dbus-launch gsettings set org.gnome.desktop.interface text-scaling-factor 1.10
+  when: use_hidpi == false
+  loop:
+    - "{{ user_name }}"
+    - gdm
+
 - name: set user avatar
   become: true
   copy:

@@ -40,6 +40,7 @@
   loop:
     - stil-gnome-theme-git
     - gnome-shell-extension-system-monitor-git
+    - gnome-shell-extension-remove-accessibility
 
 - name: enable gdm and networkmanager at boot time
   become: true
