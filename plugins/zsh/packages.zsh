@@ -47,8 +47,12 @@ test -f "$DOTFILES_PATH/packages.local.zsh" && \
 # autosugestions is like an enhanced autocomplete with suggestions
 antigen bundle zsh-users/zsh-autosuggestions
 
-# Load theme
-antigen theme $DOTFILES_PATH/plugins/zsh/themes agnoster --no-local-clone
+# Add extra completions
+antigen bundle zsh-users/zsh-completions
+
+# Use Pure theme
+antigen bundle mafredri/zsh-async
+antigen bundle sindresorhus/pure
 
 # syntax-highlighting must be loaded after executing compinit command and
 # sourcing other plugins

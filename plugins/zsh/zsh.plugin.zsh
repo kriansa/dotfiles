@@ -2,8 +2,8 @@
 #
 PLUGIN_PATH=$0:A:h
 
-# Set the default user. Used by Agnoster theme
-DEFAULT_USER="$(whoami)"
+# Used by Pure theme
+PURE_CMD_MAX_EXEC_TIME=3
 
 # Load additional files
 #
@@ -25,7 +25,6 @@ zle -N edit-command-line
 # Load custom functions
 source $PLUGIN_PATH/lib/functions/clipboard.zsh
 source $PLUGIN_PATH/lib/functions/cut-buffer.zsh
-source $PLUGIN_PATH/lib/functions/expand-with-dots.zsh
 source $PLUGIN_PATH/lib/functions/prepend-sudo.zsh
 source $PLUGIN_PATH/lib/functions/edit-this-folder.zsh
 source $PLUGIN_PATH/lib/functions/title.zsh
@@ -35,4 +34,3 @@ source $PLUGIN_PATH/lib/dir-navigation.zsh
 source $PLUGIN_PATH/lib/history.zsh
 source $PLUGIN_PATH/lib/completion.zsh
 source $PLUGIN_PATH/lib/keybindings.zsh
-source $PLUGIN_PATH/lib/command-time.zsh
