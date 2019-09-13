@@ -17,9 +17,6 @@ bindkey -M vicmd 'j' down-line-or-beginning-search
 # Use tab to choose between the suggestion list on history widget
 bindkey -M menuselect '^o' accept-and-infer-next-history
 
-# Use tab to autocomplete using "..." when loading the completion
-bindkey "^I" expand-or-complete-with-dots # [Tab]
-
 # Do history expansion
 bindkey ' ' magic-space # [Space]
 
