@@ -17,6 +17,9 @@ ZSH_AUTOSUGGEST_USE_ASYNC=true
 # Limit the size of which we enable autosuggestions
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 
+# Use the the two strategies for suggestion
+ZSH_AUTOSUGGEST_STRATEGY=(match_prev_cmd completion)
+
 # Use menu as completion list
 zstyle ':completion:*:*:*:*:*' menu select
 
