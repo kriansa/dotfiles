@@ -25,6 +25,7 @@
 
 ;; Load customizations
 (require 'mine/settings)
+(require 'mine/themes)
 (require 'mine/ui)
 (require 'mine/shortcuts)
 

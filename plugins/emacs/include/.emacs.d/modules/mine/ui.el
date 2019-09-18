@@ -10,59 +10,12 @@
 ;; Icons
 (use-package all-the-icons :ensure t)
 
-(use-package zenburn-theme
-  :disabled
-  :ensure t
-  :config
-  ;; Load it
-  (load-theme 'zenburn t)
+;; Set theme
+(use-package doom-themes :ensure t :config (load-theme 'doom-one t))
 
-  ;;; Custom theme faces
-  (zenburn-with-color-variables
-    (custom-theme-set-faces
-      'zenburn
-
-      ;; Fringe
-      `(fringe ((t (:foreground ,zenburn-fg :background ,zenburn-bg))))
-
-      ;; Whitespace
-      `(whitespace-space ((t (:foreground nil :background nil :inherit 'whitespace-newline))))
-      `(whitespace-empty ((t (:foreground nil :background nil :inherit 'whitespace-newline))))
-      `(whitespace-tab ((t (:foreground nil :background nil :inherit 'whitespace-newline))))
-      `(whitespace-empty ((t (:foreground nil :background nil :inherit 'whitespace-newline))))
-      ; `(whitespace-newline ((t (:foreground ,atom-one-dark-gray :background ,atom-one-dark-bg))))
-
-      ;; Git-gutter
-      `(git-gutter:unchanged ((t (:foreground nil :background ,zenburn-bg :inherit 'default))))
-      `(git-gutter:modified ((t (:foreground ,zenburn-orange :background ,zenburn-bg :inherit 'default))))
-      `(git-gutter:added ((t (:foreground ,zenburn-green+1 :background ,zenburn-bg :inherit 'default))))
-      `(git-gutter:deleted ((t (:foreground ,zenburn-red-1 :background ,zenburn-bg :inherit 'default)))))))
-
-;; Theme
-(use-package atom-one-dark-theme
-  :ensure t
-  :config
-  (atom-one-dark-with-color-variables
-  (custom-theme-set-faces
-  'atom-one-dark
-
-  ;; whitespace-mode
-  `(whitespace-space ((t (:foreground ,atom-one-dark-gray :background ,atom-one-dark-bg))))
-  `(whitespace-empty ((t (:foreground ,atom-one-dark-gray :background ,atom-one-dark-bg))))
-  `(whitespace-tab ((t (:foreground ,atom-one-dark-gray :background ,atom-one-dark-bg))))
-  `(whitespace-empty ((t (:foreground ,atom-one-dark-gray :background ,atom-one-dark-bg))))
-  `(whitespace-newline ((t (:foreground ,atom-one-dark-gray :background ,atom-one-dark-bg))))
-
-  ;; show-paren-mode
-  `(show-paren-match ((t (:foreground ,atom-one-dark-red-1 :background ,atom-one-dark-bg
-                              :underline t))))
-
-  ;; git-gutter
-  `(git-gutter:modified ((t (:foreground ,atom-one-dark-orange-1 :background ,atom-one-dark-bg :inherit 'default))))
-  `(git-gutter:added ((t (:foreground ,atom-one-dark-green :background ,atom-one-dark-bg :inherit 'default))))
-  `(git-gutter:deleted ((t (:foreground ,atom-one-dark-red-1 :background ,atom-one-dark-bg :inherit 'default))))))
-
-  (load-theme 'atom-one-dark t))
+;; Available themes
+;; (use-package zenburn-theme :ensure t :config (load-theme 'zenburn t))
+;; (use-package atom-one-dark-theme :ensure t :config (load-theme 'atom-one-dark t))
 
 ;; General UI settings
 ;; ===================
@@ -83,7 +36,7 @@
 ;; emacs just ask “y/n” instead.
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;; Clear initial annoyances
+;; Clear startup annoyances
 ;; ========================
 
 (setq inhibit-startup-message t) ; Disable startup message
@@ -108,8 +61,8 @@
 ;; Line numbers
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 (add-hook 'text-mode-hook 'display-line-numbers-mode)
-
-(fringe-mode '(20 . 0)) ; Left border
+;; Left border
+(fringe-mode '(20 . 0))
 
 ;; Whitespaces settings
 ;; ====================
@@ -150,11 +103,15 @@
 ;; Default start maximized
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
+;; Modeline
 (use-package doom-modeline
   :ensure t
   :init
   ;; Show column & line numbers on the bar
   (setq column-number-mode t)
+
+  ;; Show the path to the files when visiting symlinks
+  (setq find-file-visit-truename t)
 
   :config
   (setq doom-modeline-buffer-file-name-style 'relative-from-project)
