@@ -18,6 +18,7 @@
 - import_tasks: gpg.yml
 - import_tasks: javascript.yml
 - import_tasks: nvim.yml
+- import_tasks: emacs.yml
 - import_tasks: ruby.yml
 - import_tasks: tmux.yml
 - import_tasks: gnome.yml

@@ -1,0 +1,6 @@
+---
+- import_tasks: link_files.yml
+  vars:
+    plugin_name: emacs
+    files:
+      - .emacs.d

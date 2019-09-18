@@ -1,0 +1,11 @@
+# Ignore project definitions
+projectile-bookmarks.eld
+
+# Ignore last update mark
+.last-package-update-day
+
+# Paths that should not be versioned
+elpa/
+transient/
+.cache/
+auto-save-list/
