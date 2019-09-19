@@ -117,7 +117,7 @@
   (setq doom-modeline-buffer-file-name-style 'relative-from-project)
   (doom-modeline-def-modeline 'main
     '(bar window-number matches buffer-info remote-host buffer-position selection-info)
-    '(objed-state misc-info persp-name irc mu4e github debug input-method buffer-encoding lsp major-mode process vcs checker "     "))
+    '(objed-state misc-info persp-name irc mu4e github debug input-method buffer-encoding lsp major-mode process vcs checker "  "))
 
   (doom-modeline-mode t))
 
