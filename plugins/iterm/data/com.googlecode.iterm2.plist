@@ -462,9 +462,9 @@
 	<key>NSWindow Frame NSFontPanel</key>
 	<string>273 182 580 77 0 0 1680 1027 </string>
 	<key>NSWindow Frame SUStatusFrame</key>
-	<string>635 518 400 129 0 0 1680 1027 </string>
+	<string>1072 743 400 129 0 0 2560 1417 </string>
 	<key>NSWindow Frame SUUpdateAlert</key>
-	<string>530 476 620 392 0 0 1680 1027 </string>
+	<string>970 768 620 392 0 0 2560 1417 </string>
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>611 4 606 469 0 0 2560 1417 </string>
 	<key>NSWindow Frame SharedPreferences</key>
@@ -877,7 +877,7 @@
 			<key>Non-ASCII Ligatures</key>
 			<false/>
 			<key>Normal Font</key>
-			<string>IosevkaNerdFontCM-Light 18</string>
+			<string>Iosevka-Term-Light 18</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<true/>
 			<key>Open Toolbelt</key>
@@ -1117,6 +1117,12 @@
 		<string>3.3.0beta15</string>
 		<string>3.3.2beta1</string>
 		<string>3.3.0beta12</string>
+		<string>3.3.3beta2</string>
+	</array>
+	<key>NoSyncBFPRecents</key>
+	<array>
+		<string>Iosevka</string>
+		<string>Iosevka Term</string>
 	</array>
 	<key>NoSyncFrame_SessionsPreferences</key>
 	<dict>
@@ -1130,7 +1136,7 @@
 		<key>screenFrame</key>
 		<string>{{0, 0}, {2560, 1440}}</string>
 		<key>topLeft</key>
-		<string>{269, 595}</string>
+		<string>{598, 586}</string>
 	</dict>
 	<key>NoSyncHaveRequestedFullDiskAccess</key>
 	<true/>
@@ -1145,7 +1151,7 @@
 	<key>NoSyncLastTipTime</key>
 	<real>575653215.76569104</real>
 	<key>NoSyncLaunchExperienceControllerRunCount</key>
-	<integer>39</integer>
+	<integer>42</integer>
 	<key>NoSyncNeverRemindPrefsChangesLostForFile</key>
 	<true/>
 	<key>NoSyncNeverRemindPrefsChangesLostForFile_selection</key>
@@ -1847,6 +1853,10 @@
 	</array>
 	<key>NoSyncSearchHistory2</key>
 	<array>
+		<string>canceled</string>
+		<string>150000496023257</string>
+		<string>delegates</string>
+		<string>PATH=</string>
 		<string>sudosudo</string>
 		<string>google</string>
 	</array>
@@ -2014,11 +2024,11 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2019-08-19T13:58:51Z</date>
+	<date>2019-09-10T16:32:03Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>SUUpdateRelaunchingMarker</key>
-	<false/>
+	<true/>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>Secure Input</key>
@@ -2116,7 +2126,7 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>3.3.3beta1</string>
+	<string>3.3.3beta2</string>
 	<key>kCPKSelectionViewPreferredModeKey</key>
 	<integer>0</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
