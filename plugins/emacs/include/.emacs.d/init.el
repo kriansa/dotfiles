@@ -29,7 +29,7 @@
 (require 'mine/ui)
 (require 'mine/shortcuts)
 
-;; Keep emacs Custom-settings in separate file
+;; Keep emacs Custom-settings in a separate file
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 
