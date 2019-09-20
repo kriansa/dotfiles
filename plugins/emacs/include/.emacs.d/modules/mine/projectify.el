@@ -81,6 +81,9 @@
   (if (fboundp 'magit-status)
     (setq magit-completing-read-function 'ivy-completing-read))
 
+  ;; Make ag works with hidden files
+  (setq counsel-ag-base-command "ag --nocolor --nogroup --hidden --ignore .git %s")
+
   (ivy-mode 1)
   (counsel-mode 1))
 

@@ -70,7 +70,10 @@
 ;; Ivy (counsel-projectile)
 (use-package counsel-projectile
   :config
-  (define-key evil-normal-state-map (kbd "SPC f") 'counsel-projectile-find-file))
+  ;; Switch from files in different projects
+  (define-key evil-normal-state-map (kbd "C-S-p") 'counsel-projectile-switch-project)
+  ;; Switch files in this project
+  (define-key evil-normal-state-map (kbd "C-p") 'counsel-projectile-find-file))
 
 (use-package expand-region
   :config
