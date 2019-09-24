@@ -25,7 +25,7 @@ Below there are the commands and keybindings so I can remember them.
 * __extract__ `<file>`: Extracts any file
 * __compress__ `<path>`: Quickly compress a directory to .tar.gz or a file to .zip
 * __getchmod__ `<path>`: Gets the octal chmod number of the given path
-* __headers__`<URL>`: Gets the headers from the HTTP URL.
+* __headers__ `<URL>`: Gets the headers from the HTTP URL.
 * __imgcat__ `<file>`: Prints a image to the console
 * __dotenv__ : Exports the .env variables onto the current shell
 * __gpg-backup__ `<import|export> [<path>]`: Saves/load the current gpg keyring into the backup dir
