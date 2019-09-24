@@ -62,7 +62,7 @@
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 (add-hook 'text-mode-hook 'display-line-numbers-mode)
 ;; Left border
-(fringe-mode '(20 . 0))
+(fringe-mode '(nil . 0))
 
 ;; Whitespaces settings
 ;; ====================

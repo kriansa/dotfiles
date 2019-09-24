@@ -37,10 +37,10 @@
       ; `(whitespace-newline ((t (:foreground ,atom-one-dark-gray :background ,atom-one-dark-bg))))
 
       ;; Git-gutter
-      `(git-gutter:unchanged ((t (:foreground nil :background ,zenburn-bg :inherit 'default))))
-      `(git-gutter:modified ((t (:foreground ,zenburn-orange :background ,zenburn-bg :inherit 'default))))
-      `(git-gutter:added ((t (:foreground ,zenburn-green+1 :background ,zenburn-bg :inherit 'default))))
-      `(git-gutter:deleted ((t (:foreground ,zenburn-red-1 :background ,zenburn-bg :inherit 'default)))))))
+      `(git-gutter:unchanged ((t (:foreground nil :background nil :inherit 'default))))
+      `(git-gutter:modified ((t (:foreground ,zenburn-orange :background nil :inherit 'default))))
+      `(git-gutter:added ((t (:foreground ,zenburn-green+1 :background nil :inherit 'default))))
+      `(git-gutter:deleted ((t (:foreground ,zenburn-red-1 :background nil :inherit 'default)))))))
 
 (use-package atom-one-dark-theme
   :defer t
@@ -61,8 +61,8 @@
                                :underline t))))
 
       ;; git-gutter
-      `(git-gutter:modified ((t (:foreground ,atom-one-dark-orange-1 :background ,atom-one-dark-bg :inherit 'default))))
-      `(git-gutter:added ((t (:foreground ,atom-one-dark-green :background ,atom-one-dark-bg :inherit 'default))))
-      `(git-gutter:deleted ((t (:foreground ,atom-one-dark-red-1 :background ,atom-one-dark-bg :inherit 'default)))))))
+      `(git-gutter:modified ((t (:foreground ,atom-one-dark-orange-1 :background nil :inherit 'default))))
+      `(git-gutter:added ((t (:foreground ,atom-one-dark-green :background nil :inherit 'default))))
+      `(git-gutter:deleted ((t (:foreground ,atom-one-dark-red-1 :background nil :inherit 'default)))))))
 
 ;;; themes.el ends here
