@@ -7,6 +7,9 @@
 
 (provide 'mine/shortcuts)
 
+;; Disable shortcuts that aren't helpful
+(global-unset-key (kbd "M-c"))
+
 ;; These shortcut removal is to mimic closely Vim's behavior
 (use-package evil
   :config
