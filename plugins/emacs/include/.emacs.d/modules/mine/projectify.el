@@ -66,13 +66,6 @@
 (use-package treemacs-projectile :ensure t :after treemacs projectile)
 (use-package treemacs-magit :ensure t :after treemacs magit)
 
-;; Flycheck
-(use-package flycheck
-  :ensure t
-  :config
-  (advice-add 'flycheck-eslint-config-exists-p :override (lambda() t))
-  (global-flycheck-mode))
-
 ;; Ivy-mode
 (use-package swiper
   :ensure t
@@ -83,6 +76,15 @@
 
   ;; Make ag works with hidden files
   (setq counsel-ag-base-command "ag --nocolor --nogroup --hidden --ignore .git %s")
+
+  ;; Hide boring buffers
+  (setq ivy-ignore-buffers '("\\` " "\\`\\*"))
+
+  ;; Helper to find the word under the cursor
+  (defun mine/search-word-under-cursor ()
+    "Start searching for the word under the cursor."
+    (interactive)
+    (counsel-ag (thing-at-point 'word)))
 
   (ivy-mode 1)
   (counsel-mode 1))

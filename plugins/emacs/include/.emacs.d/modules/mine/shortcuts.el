@@ -9,6 +9,10 @@
 
 ;; Disable shortcuts that aren't helpful
 (global-unset-key (kbd "M-c"))
+(global-unset-key (kbd "s-h"))
+(global-unset-key (kbd "s-j"))
+(global-unset-key (kbd "s-k"))
+(global-unset-key (kbd "s-l"))
 
 ;; These shortcut removal is to mimic closely Vim's behavior
 (use-package evil
@@ -64,11 +68,15 @@
   (define-key ivy-switch-buffer-map (kbd "C-k") 'ivy-previous-line)
   (define-key ivy-switch-buffer-map (kbd "C-d") 'ivy-switch-buffer-kill)
 
+  ;; Buffer
+  (define-key evil-normal-state-map (kbd "SPC w") 'kill-this-buffer)
+
   ;; Global keys
   (global-set-key (kbd "C-s") 'swiper)
   (global-set-key (kbd "M-x") 'counsel-M-x)
-  (define-key evil-normal-state-map (kbd "SPC s") 'counsel-ag)
-  (define-key evil-normal-state-map (kbd "SPC SPC") 'ivy-switch-buffer))
+  (define-key evil-normal-state-map (kbd "SPC SPC") 'ivy-switch-buffer)
+  (define-key evil-normal-state-map (kbd "SPC a") 'counsel-ag)
+  (define-key evil-normal-state-map (kbd "SPC s") 'mine/search-word-under-cursor))
 
 ;; Ivy (counsel-projectile)
 (use-package counsel-projectile
@@ -89,8 +97,5 @@
 (global-set-key (kbd "C-j") 'windmove-down)
 (global-set-key (kbd "C-k") 'windmove-up)
 (global-set-key (kbd "C-l") 'windmove-right)
-
-; Buffer
-(global-set-key (kbd "s-w") 'kill-this-buffer)
 
 ;;; shortcuts.el ends here
