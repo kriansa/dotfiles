@@ -1,2 +1,2 @@
 # 1. Aliases
-alias e="emacsclient -c"
+alias e="emacsclient -cn"
