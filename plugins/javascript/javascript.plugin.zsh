@@ -7,4 +7,4 @@ if (( $+commands[nodenv] )); then
 fi
 
 # 2. Exports
-export PATH="$PLUGIN_PATH/bin:$PATH"
+export PATH="$PLUGIN_PATH/bin:$HOME/.yarn/bin:$PATH"

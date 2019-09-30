@@ -6,11 +6,11 @@ PLUGIN_PATH=$(cd "$(dirname "$0")/.." || exit; pwd)
 # Always use the global Ruby
 export NODENV_VERSION; NODENV_VERSION=$(nodenv global)
 
-# Update npm
-npm install -g npm
+# Update npm & yarn
+npm install -g npm yarn
 
 while IFS= read -r package; do
-  npm install -g "$package"
+  yarn global add "$package"
 done < "$PLUGIN_PATH/data/packages.txt"
 
 # Ensures that nodenv updates the binstubs
