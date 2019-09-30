@@ -27,10 +27,6 @@
 (scroll-bar-mode -1) ; Disable the scroll bar
 (blink-cursor-mode 0) ; Disable cursor blinking
 
-; Highlight matching parenthesis
-(setq-default show-paren-delay 0)
-(show-paren-mode 1)
-
 ;; Many emacs commands will ask you a “yes/no” question, and you have to type
 ;; the full word “yes” or “no”. (such as when deleting a file) You can make
 ;; emacs just ask “y/n” instead.
@@ -59,32 +55,11 @@
 ;; =================
 
 ;; Line numbers
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
-(add-hook 'text-mode-hook 'display-line-numbers-mode)
+;; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+;; (add-hook 'text-mode-hook 'display-line-numbers-mode)
+
 ;; Left border
 (fringe-mode '(nil . 0))
-
-;; Whitespaces settings
-;; ====================
-;; This enables Emacs to display hidden characters such as spaces and tabs with
-;; visible characters in the code
-
-(require 'whitespace)
-
-;; Which characters we want to see
-(setq whitespace-style
-  (quote (face spaces tabs newline space-mark tab-mark newline-mark)))
-
-;; Set character replacements
-(setq whitespace-display-mappings
-  ;; all numbers are unicode codepoint in decimal. e.g. (insert-char 182 1)
-  '(
-     (space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
-     (newline-mark 10 [172 10]) ; LF is replaced by a "¬"
-     (tab-mark 9 [9656 32 32] [92 32 32]))) ; tab is replaced by a "▸  "
-
-(add-hook 'prog-mode-hook 'whitespace-mode)
-(add-hook 'text-mode-hook 'whitespace-mode)
 
 ;; Settings applied to the window
 ;; ==============================

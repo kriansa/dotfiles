@@ -23,6 +23,12 @@
   (global-unset-key (kbd "C-/"))
   (global-unset-key (kbd "TAB")))
 
+(use-package evil-nerd-commenter
+  :ensure t
+  :config
+  (define-key evil-normal-state-map (kbd "gcc") 'evilnc-comment-or-uncomment-lines)
+  (define-key evil-visual-state-map (kbd "gc") 'evilnc-comment-or-uncomment-lines))
+
 (use-package evil-numbers
   :config
   (define-key evil-normal-state-map (kbd "C-c a") 'evil-numbers/inc-at-pt)

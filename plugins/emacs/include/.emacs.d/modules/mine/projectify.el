@@ -95,6 +95,7 @@
   :config
   ;; Settings
   (setq projectile-completion-system 'ivy)
+  (setq projectile-sort-order 'recently-active)
   (add-to-list 'projectile-globally-ignored-files ".DS_Store")
 
   ;; Enable it globally

@@ -16,9 +16,6 @@
 ; Disable auto-backup files
 (setq make-backup-files nil)
 
-; Enables auto-insert of matching pairs such as parenthesis or brackets
-(electric-pair-mode 1)
-
 ; Supress dired warnings when using Mac/BSD ls
 (when (eq system-type 'darwin)
   (require 'ls-lisp)

@@ -51,10 +51,7 @@
 
     (global-evil-matchit-mode t))
 
-  (use-package evil-commentary
-    :ensure t
-    :config
-    (evil-commentary-mode))
+  (use-package evil-nerd-commenter :ensure t)
 
   (use-package evil-snipe
     :ensure t
