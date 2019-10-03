@@ -7,21 +7,46 @@
 
 (provide 'mine/shortcuts)
 
-;; Disable shortcuts that aren't helpful
-(global-unset-key (kbd "M-c"))
-(global-unset-key (kbd "s-h"))
-(global-unset-key (kbd "s-j"))
-(global-unset-key (kbd "s-k"))
-(global-unset-key (kbd "s-l"))
-
-;; These shortcut removal is to mimic closely Vim's behavior
 (use-package evil
   :config
+  ;; Disable shortcuts that aren't helpful
+  (global-unset-key (kbd "M-c"))
+  (global-unset-key (kbd "s-h"))
+  (global-unset-key (kbd "s-j"))
+  (global-unset-key (kbd "s-k"))
+  (global-unset-key (kbd "s-l"))
+
+  ;; These shortcut removals is to mimic closely Vim's behavior
+  (global-unset-key (kbd "C-h"))
   (global-unset-key (kbd "C-l"))
   (global-unset-key (kbd "C-j"))
   (global-unset-key (kbd "C-k"))
   (global-unset-key (kbd "C-/"))
-  (global-unset-key (kbd "TAB")))
+  (global-unset-key (kbd "TAB"))
+
+  ;; Window navigation
+  (define-key evil-normal-state-map (kbd "C-h") 'windmove-left)
+  (define-key evil-normal-state-map (kbd "C-j") 'windmove-down)
+  (define-key evil-normal-state-map (kbd "C-k") 'windmove-up)
+  (define-key evil-normal-state-map (kbd "C-l") 'windmove-right)
+  ;; From within Treemacs
+  (define-key evil-treemacs-state-map (kbd "C-h") 'windmove-left)
+  (define-key evil-treemacs-state-map (kbd "C-l") 'windmove-right)
+
+  ;; Window management
+  (define-key evil-normal-state-map (kbd "SPC w") 'kill-this-buffer)
+  (define-key evil-normal-state-map (kbd "SPC q") 'delete-window)
+  (define-key evil-normal-state-map (kbd "SPC t") 'mine/toggle-maximize-buffer)
+
+  ;; Remap g-d to make it act just like C-[
+  (define-key evil-normal-state-map (kbd "gd") 'evil-jump-to-tag))
+
+(use-package enh-ruby-mode
+  :config
+  (add-hook 'enh-ruby-mode
+    (defun mine/fix-enh-ruby-keybindings ()
+      "Set the right keybindings for enh-ruby-mode."
+      (define-key enh-ruby-mode-map (kbd "C-j") nil))))
 
 (use-package evil-nerd-commenter
   :ensure t
@@ -74,9 +99,6 @@
   (define-key ivy-switch-buffer-map (kbd "C-k") 'ivy-previous-line)
   (define-key ivy-switch-buffer-map (kbd "C-d") 'ivy-switch-buffer-kill)
 
-  ;; Buffer
-  (define-key evil-normal-state-map (kbd "SPC w") 'kill-this-buffer)
-
   ;; Global keys
   (global-set-key (kbd "C-s") 'swiper)
   (global-set-key (kbd "M-x") 'counsel-M-x)
@@ -95,13 +117,5 @@
 (use-package expand-region
   :config
   (global-set-key (kbd "C-=") 'er/expand-region))
-
-;;; Emacs general commands
-
-;; Window navigation
-(global-set-key (kbd "C-h") 'windmove-left)
-(global-set-key (kbd "C-j") 'windmove-down)
-(global-set-key (kbd "C-k") 'windmove-up)
-(global-set-key (kbd "C-l") 'windmove-right)
 
 ;;; shortcuts.el ends here

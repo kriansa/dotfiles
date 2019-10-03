@@ -15,4 +15,13 @@
   (if (and (get-buffer buffer) (= (buffer-size (get-buffer buffer)) 0))
       (kill-buffer buffer)))
 
+(defun mine/toggle-maximize-buffer ()
+  "Maximize/restore buffer."
+  (interactive)
+  (if (= 1 (length (window-list)))
+    (jump-to-register '_)
+    (progn
+      (window-configuration-to-register '_)
+      (delete-other-windows))))
+
 ;;; functions.el ends here

@@ -26,7 +26,7 @@
         treemacs-max-git-entries               5000
         treemacs-missing-project-action        'ask
         treemacs-no-png-images                 nil
-        treemacs-no-delete-other-windows       t
+        treemacs-no-delete-other-windows       nil
         treemacs-project-follow-cleanup        nil
         treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
         treemacs-position                      'left

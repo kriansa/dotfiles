@@ -40,7 +40,11 @@
   (add-to-list 'auto-mode-alist
     '("\\(?:\\.rb\\|ru\\|rake\\|thor\\|jbuilder\\|gemspec\\|podspec\\|/\\(?:Gem\\|Rake\\|Cap\\|Thor\\|Vagrant\\|Guard\\|Pod\\)file\\)\\'" . enh-ruby-mode))
 
-  (add-hook 'enh-ruby-mode-hook 'mine/set-word-boundaries))
+  (add-hook 'enh-ruby-mode-hook
+    (defun mine/set-ruby-word-boundaries ()
+      "Define what is part of a word for Ruby."
+      (modify-syntax-entry ?_ "w")
+      (modify-syntax-entry ?? "w"))))
 
 (use-package web-mode
   :ensure t
