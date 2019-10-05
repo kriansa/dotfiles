@@ -9,3 +9,9 @@ elpa/
 transient/
 .cache/
 auto-save-list/
+
+# Tempfile for lsp-mode
+.lsp-session-v1
+
+# Ignore all emacs custom settings from versioning
+custom.el

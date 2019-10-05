@@ -22,7 +22,6 @@
   (global-unset-key (kbd "C-j"))
   (global-unset-key (kbd "C-k"))
   (global-unset-key (kbd "C-/"))
-  (global-unset-key (kbd "TAB"))
 
   ;; Window navigation
   (define-key evil-normal-state-map (kbd "C-h") 'windmove-left)
@@ -37,6 +36,22 @@
   (define-key evil-normal-state-map (kbd "SPC w") 'kill-this-buffer)
   (define-key evil-normal-state-map (kbd "SPC q") 'delete-window)
   (define-key evil-normal-state-map (kbd "SPC t") 'mine/toggle-maximize-buffer)
+
+  ;; Increase/decrease font size
+  (define-key global-map (kbd "s-=") 'text-scale-increase)
+  (define-key global-map (kbd "s-+") 'text-scale-increase)
+  (define-key global-map (kbd "s--") 'text-scale-decrease)
+  (define-key global-map (kbd "s-_") 'text-scale-decrease)
+  (define-key global-map (kbd "s-0") 'mine/reset-text-size)
+  (define-key global-map (kbd "s-)") 'mine/reset-text-size)
+
+  ;; Easy add line above/below
+  (define-key evil-normal-state-map (kbd "SPC O") 'mine/create-line-above)
+  (define-key evil-normal-state-map (kbd "SPC o") 'mine/create-line-below)
+  (define-key evil-normal-state-map (kbd "SPC o") 'mine/create-line-below)
+
+  ;; Select pasted content
+  (define-key evil-normal-state-map (kbd "SPC v") 'mine/select-pasted)
 
   ;; Remap g-d to make it act just like C-[
   (define-key evil-normal-state-map (kbd "gd") 'evil-jump-to-tag))
@@ -102,7 +117,7 @@
   ;; Global keys
   (global-set-key (kbd "C-s") 'swiper)
   (global-set-key (kbd "M-x") 'counsel-M-x)
-  (define-key evil-normal-state-map (kbd "SPC SPC") 'ivy-switch-buffer)
+  (define-key evil-normal-state-map (kbd "SPC SPC") 'mine/switch-buffer)
   (define-key evil-normal-state-map (kbd "SPC a") 'counsel-ag)
   (define-key evil-normal-state-map (kbd "SPC s") 'mine/search-word-under-cursor))
 

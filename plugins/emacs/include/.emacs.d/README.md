@@ -1,4 +1,4 @@
-# Emacs.d
+# Emacs
 
 Yes, I use emacs too.
 
@@ -18,13 +18,17 @@ M-x - Run command
 C-s - Search within file
 SPC-s - Find through project
 SPC-f - Find file name
+C-x 2 - Splits horizontally
+C-x 3 - Splits vertically
+C-+ - Increase font size
+C-- - Increase font size
 
 ## Vim stuff
 
 C-c a - Emulates Ctrl-A on VIM (add number)
 C-c x - Emulates Ctrl-X on VIM (subtract number)
 
-### Buffer switch
+### On buffer switch
 
 C-d - Delete(kill) buffer
 

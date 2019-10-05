@@ -69,22 +69,14 @@
 ;; Ivy-mode
 (use-package swiper
   :ensure t
+  :after counsel ivy
   :config
   ;; Ensure compatibility with magit
   (if (fboundp 'magit-status)
     (setq magit-completing-read-function 'ivy-completing-read))
 
   ;; Make ag works with hidden files
-  (setq counsel-ag-base-command "ag --nocolor --nogroup --hidden --ignore .git %s")
-
-  ;; Hide boring buffers
-  (setq ivy-ignore-buffers '("\\` " "\\`\\*"))
-
-  ;; Helper to find the word under the cursor
-  (defun mine/search-word-under-cursor ()
-    "Start searching for the word under the cursor."
-    (interactive)
-    (counsel-ag (thing-at-point 'word)))
+  (setq-default counsel-ag-base-command "ag --nocolor --nogroup --hidden --ignore .git %s")
 
   (ivy-mode 1)
   (counsel-mode 1))
@@ -95,7 +87,7 @@
   :config
   ;; Settings
   (setq projectile-completion-system 'ivy)
-  (setq projectile-sort-order 'recently-active)
+  (setq projectile-sort-order 'recentf)
   (add-to-list 'projectile-globally-ignored-files ".DS_Store")
 
   ;; Enable it globally
@@ -104,6 +96,7 @@
 ;; Ivy-mode & Projectile integration
 (use-package counsel-projectile
   :ensure t
+  :after projectile counsel
   :config
   (counsel-projectile-mode))
 

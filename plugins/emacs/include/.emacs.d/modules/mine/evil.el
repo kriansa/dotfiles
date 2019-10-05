@@ -23,6 +23,13 @@
   (setq evil-want-keybinding nil)
 
   :config
+  ;; Smooth scrolling like Vim
+  (setq scroll-step 1)
+  (setq scroll-margin 0)
+  (setq scroll-conservatively 9999)
+
+  ;; Packages to emulate closely Vim's cool features
+
   (use-package anzu :ensure t)
   (use-package evil-anzu :ensure t)
   (use-package evil-args :ensure t)

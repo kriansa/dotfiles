@@ -1,12 +1,14 @@
 ;;; major-modes.el --- Major modes settings
 ;;;
 ;;; Commentary:
-;;; Customizes all new major modes (usually, those providing a new
-;;; filetype support)
+;;; Customizes all new major modes (usually, those providing a new filetype support)
 ;;;
 ;;; Code:
 
 (provide 'mine/major-modes)
+
+; Initial mode
+(setq-default major-mode 'text-mode)
 
 ;; Ensure we consider `_` as part of a word
 (defun mine/set-word-boundaries ()
@@ -61,7 +63,13 @@
   (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
   (add-hook 'web-mode-hook 'mine/set-word-boundaries))
 
-;; Use sh-mode for .env files
-(add-to-list 'auto-mode-alist '("\\.env\\'" . sh-mode))
+(use-package sh-script
+  :ensure t
+  :config
+  ;; Use sh-mode for .env files
+  (add-to-list 'auto-mode-alist '("\\.env\\'" . sh-mode))
+
+  ;; When saving a file that starts with `#!', make it executable.
+  (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p))
 
 ;;; major-modes.el ends here

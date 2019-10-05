@@ -7,6 +7,25 @@
 
 (provide 'mine/editing-features)
 
+(defun mine/disable-tabs ()
+  "Disable tabs."
+  (interactive)
+  (global-unset-key (kbd "TAB"))
+  (setq-default indent-tabs-mode nil))
+
+;; Automatically save files when switching buffers
+(use-package super-save
+  :ensure t
+  :config
+  (super-save-mode +1)
+  (setq super-save-auto-save-when-idle t)
+
+  ; Disable auto-backup files
+  (setq make-backup-files nil)
+
+  ;; Disable the native auto-save-mode
+  (setq auto-save-default nil))
+
 ;; expand-region allows us to keep expanding the current selection by sexps
 (use-package expand-region :ensure t)
 
@@ -33,7 +52,8 @@
   :ensure t
   :config
   ;; Which characters we want to translate
-  (setq whitespace-style (quote (face tabs newline tab-mark newline-mark)))
+  ;; add spaces space-mark to the list to see spaces
+  (setq whitespace-style '(face tabs newline tab-mark newline-mark))
 
   ;; Set character replacements
   (setq whitespace-display-mappings
@@ -55,6 +75,8 @@
   ;; Workaround for bug that Flycheck sometimes takes too much time looking for an ESLint
   ;; installation
   (advice-add 'flycheck-eslint-config-exists-p :override (lambda() t))
+
+  ;; Makes flycheck faster
   (setq flycheck-check-syntax-automatically '(idle-change mode-enabled save))
   (setq flycheck-idle-change-delay 4)
   (global-flycheck-mode))

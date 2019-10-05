@@ -32,6 +32,9 @@
 ;; emacs just ask “y/n” instead.
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+;; Add file sizes in human-readable units (KB, MB, etc) to dired buffers.
+(setq-default dired-listing-switches "-alh")
+
 ;; Clear startup annoyances
 ;; ========================
 
@@ -45,11 +48,15 @@
 (setq-default initial-scratch-message "")
 
 ;; Remove the *scratch* buffer
-(defun mine/remove-scratch-buffer ()
-  "Remove the scratch buffer."
-  (mine/kill-empty-buffer "*scratch*"))
+(add-hook 'after-change-major-mode-hook
+  (defun mine/remove-scratch-buffer ()
+    "Remove the scratch buffer."
+    (mine/kill-empty-buffer "*scratch*")))
 
-(add-hook 'after-change-major-mode-hook 'mine/remove-scratch-buffer)
+;; Supress dired warnings when using Mac/BSD ls
+(when (eq system-type 'darwin)
+  (require 'ls-lisp)
+  (setq-default ls-lisp-use-insert-directory-program nil))
 
 ;; Left nav settings
 ;; =================
@@ -75,6 +82,18 @@
 
 ;; Set a default font
 (add-to-list 'default-frame-alist '(font . "Iosevka Term:pixelsize=18:weight=normal:slant=normal:width=normal:spacing=100:scalable=true"))
+
+;; Emoji support
+(pcase system-type
+  ('gnu/linux "emoji")
+  ('darwin "Apple Color Emoji"))
+
+(set-fontset-font t 'symbol
+  (font-spec :family
+    (pcase system-type
+      ('gnu/linux "JoyPixels")
+      ('darwin "Apple Color Emoji")))
+  nil 'prepend)
 
 ;; Default start maximized
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
