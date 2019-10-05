@@ -3,4 +3,4 @@
   vars:
     plugin_name: emacs
     files:
-      - .emacs.d
+      - .config/emacs
