@@ -45,6 +45,9 @@
   (add-hook 'prog-mode-hook 'whitespace-mode)
   (add-hook 'text-mode-hook 'whitespace-mode))
 
+;; Right margin bar
+(add-hook 'prog-mode-hook 'display-fill-column-indicator-mode)
+
 ;; Flycheck
 (use-package flycheck
   :ensure t

@@ -6,7 +6,6 @@
 ;;; Code:
 
 ;; Load Emacs Package system and add "modules" to the load-path
-(package-initialize)
 (add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
 
 ;; Load my own package configurations
