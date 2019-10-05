@@ -43,8 +43,9 @@
   (add-hook 'enh-ruby-mode-hook
     (defun mine/set-ruby-word-boundaries ()
       "Define what is part of a word for Ruby."
-      (modify-syntax-entry ?_ "w")
-      (modify-syntax-entry ?? "w"))))
+      (let ((char-list '( _ @ ! ? )))
+        (dolist (char char-list)
+          (modify-syntax_entry (string-to-char char) "w"))))))
 
 (use-package web-mode
   :ensure t
@@ -59,5 +60,8 @@
   (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
   (add-hook 'web-mode-hook 'mine/set-word-boundaries))
+
+;; Use sh-mode for .env files
+(add-to-list 'auto-mode-alist '("\\.env\\'" . sh-mode))
 
 ;;; major-modes.el ends here
