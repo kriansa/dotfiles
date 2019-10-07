@@ -3,11 +3,14 @@
 # Plugin path
 PLUGIN_PATH=$(cd "$(dirname "$0")/.." || exit; pwd)
 
-# Always use the global Ruby
+# Always use the global Node
 export NODENV_VERSION; NODENV_VERSION=$(nodenv global)
 
 # Update npm & yarn
 npm install -g npm yarn
+
+# Ensure we always link global packages to the same location
+yarn config set prefix ~/.config/yarn/global
 
 while IFS= read -r package; do
   yarn global add "$package"

@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# This is a shim for a node executable that should always be executed by the node version defined as
+# the global one.
+#
+# The difference between this one and global-npm-shim is that this one will exec a binary that is
+# located on your global node version, which is installed using `npm install -g`, whereas the latter
+# will locate a binary on the `yarn global` namespace, which does not depend on the node version.
+#
+# Works with nodeenv. To use it just link it to the name of the gem binary you want to execute.
+
+binary=$(basename "$0")
+export NODENV_VERSION; NODENV_VERSION=$(cat ~/.nodenv/version 2> /dev/null)
+test $? -ne 0 && echo "Please set the global ruby version using 'nodenv global <version>'" && exit 1
+
+# Location of the binary is given by `nodenv which`
+shim_path="$(nodenv which "$binary")"
+exec "$shim_path" "$@"

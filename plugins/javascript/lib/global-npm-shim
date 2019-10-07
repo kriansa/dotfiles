@@ -1,15 +1,21 @@
 #!/bin/sh
 #
-# This is a shim for a ruby executable that should always be executed by the node version defined as
-# the global one.
+# This is a shim for any npm executable that should always be executed by the global node version
+# instead of the local one.
 #
 # It's important so that we don't need to keep installing global gems on every node version that we
 # have on our system.
+#
+# I'm currently using yarn global to install global stuff instead of relying on --global flags. It's
+# better because it installs all dependencies into a single folder, making nodejs updates easier.
 #
 # Works with nodeenv. To use it just link it to the name of the gem binary you want to execute.
 
 binary=$(basename "$0")
 export NODENV_VERSION; NODENV_VERSION=$(cat ~/.nodenv/version 2> /dev/null)
 test $? -ne 0 && echo "Please set the global ruby version using 'nodenv global <version>'" && exit 1
-shim_path="$(nodenv which "$binary")"
-exec "$shim_path" "$@"
+
+# This is where all global npm modules are installed.
+global_dir="$HOME/.yarn/bin"
+
+exec "$global_dir/$binary" "$@"
