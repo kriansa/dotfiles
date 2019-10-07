@@ -9,6 +9,10 @@
 (package-initialize)
 (add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
 
+;; Allow 20MB of memory (instead of 0.76MB) before calling garbage collection. This means GC runs
+;; less often, which speeds up some operations.
+(setq gc-cons-threshold 20000000)
+
 ;; Load my own package configurations
 (require 'mine/package-setup)
 

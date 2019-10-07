@@ -50,6 +50,9 @@
   (define-key evil-normal-state-map (kbd "SPC o") 'mine/create-line-below)
   (define-key evil-normal-state-map (kbd "SPC o") 'mine/create-line-below)
 
+  ;; Split line
+  (define-key evil-normal-state-map (kbd "K") 'mine/split-line)
+
   ;; Select pasted content
   (define-key evil-normal-state-map (kbd "SPC v") 'mine/select-pasted)
 

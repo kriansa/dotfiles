@@ -76,6 +76,9 @@
   ;; installation
   (advice-add 'flycheck-eslint-config-exists-p :override (lambda() t))
 
+  ;; Add eslint for web-mode
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+
   ;; Makes flycheck faster
   (setq flycheck-check-syntax-automatically '(idle-change mode-enabled save))
   (setq flycheck-idle-change-delay 4)

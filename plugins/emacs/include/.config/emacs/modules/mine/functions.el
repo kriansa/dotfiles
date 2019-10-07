@@ -59,4 +59,9 @@
          (end-marker (evil-get-marker ?\])))
     (evil-visual-select start-marker end-marker)))
 
+(defun mine/split-line ()
+  "Splits the line under the cursor."
+  (interactive)
+  (newline 1 t))
+
 ;;; functions.el ends here
