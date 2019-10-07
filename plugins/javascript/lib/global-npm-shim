@@ -16,6 +16,6 @@ export NODENV_VERSION; NODENV_VERSION=$(cat ~/.nodenv/version 2> /dev/null)
 test $? -ne 0 && echo "Please set the global ruby version using 'nodenv global <version>'" && exit 1
 
 # This is where all global npm modules are installed.
-global_dir="$HOME/.yarn/bin"
+global_dir="$HOME/.config/yarn/global/bin"
 
 exec "$global_dir/$binary" "$@"
