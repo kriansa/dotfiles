@@ -64,6 +64,11 @@
   (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
   (add-hook 'web-mode-hook 'mine/set-word-boundaries))
 
+(use-package go-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode)))
+
 (use-package sh-script
   :ensure t
   :config
