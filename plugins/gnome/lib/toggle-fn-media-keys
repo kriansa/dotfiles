@@ -41,7 +41,7 @@ fn_keys() {
 }
 
 is_media_on() {
-  test "$(gsettings get org.gnome.settings-daemon.plugins.media-keys volume-mute)" == "'F1'"
+  test "$(gsettings get org.gnome.settings-daemon.plugins.media-keys volume-mute)" == "['F1']"
 }
 
 main
