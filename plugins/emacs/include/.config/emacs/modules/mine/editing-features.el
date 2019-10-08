@@ -77,9 +77,15 @@
   (advice-add 'flycheck-eslint-config-exists-p :override (lambda() t))
 
   ;; Add eslint for web-mode
-  (flycheck-add-mode 'css-stylelint 'web-mode)
   (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-mode 'css-stylelint 'web-mode)
   (flycheck-add-next-checker 'javascript-eslint 'css-stylelint)
+
+  (add-hook 'web-mode-hook
+    (defun mine/set-web-mode-flycheck-checkers ()
+      "Set eslint as the manually selected checker for Web-mode."
+      (interactive)
+      (setq flycheck-checker 'javascript-eslint)))
 
   ;; Makes flycheck faster
   (setq flycheck-check-syntax-automatically '(idle-change mode-enabled save))
@@ -108,4 +114,5 @@
   :commands company-lsp
   :config
   (push 'company-lsp company-backends))
+
 ;;; editing-features.el ends here

@@ -87,7 +87,7 @@
 (set-fontset-font t 'symbol
   (font-spec :family
     (pcase system-type
-      ('gnu/linux "emoji")
+      ('gnu/linux "JoyPixels")
       ('darwin "Apple Color Emoji")))
   nil 'prepend)
 
