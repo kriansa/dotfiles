@@ -1,45 +1,37 @@
 
-# Explain why this change is being made
-
-# Provide links to any relevant tickets, articles or other resources
-
-# 🎨  - :art: - Improving structure / format of the code.
-# ⚡  - :zap: - Improving performance.
-# 🔥  - :fire: - Removing code or files.
-# 🐛  - :bug: - Fixing a bug.
-# 🚑  - :ambulance: - Critical hotfix.
-# ✨  - :sparkles: - Introducing new features.
-# 📝  - :memo: - Writing docs.
-# 🚀  - :rocket: - Deploying stuff.
-# 💄  - :lipstick: - Updating the UI and style files.
-# 🎉  - :tada: - Initial commit.
-# ✅  - :white_check_mark: - Adding tests.
-# 🔒  - :lock: - Fixing security issues.
-# 🍎  - :apple: - Fixing something on macOS.
-# 🐧  - :penguin: - Fixing something on Linux.
-# 🏁  - :checkered_flag: - Fixing something on Windows.
-# 🔖  - :bookmark: - Releasing / Version tags.
-# 🚨  - :rotating_light: - Removing linter warnings.
-# 🚧  - :construction: - Work in progress.
-# 💚  - :green_heart: - Fixing CI Build.
-# ⬇  - :arrow_down: - Downgrading dependencies.
-# ⬆  - :arrow_up: - Upgrading dependencies.
-# 👷  - :construction_worker: - Adding CI build system.
-# 📈  - :chart_with_upwards_trend: - Adding analytics or tracking code.
-# 🔨  - :hammer: - Refactoring code.
-# ➖  - :heavy_minus_sign: - Removing a dependency.
-# 🐳  - :whale: - Work about Docker.
-# ➕  - :heavy_plus_sign: - Adding a dependency.
-# 🔧  - :wrench: - Changing configuration files.
-# 🌐  - :globe_with_meridians: - Internationalization and localization.
-# 💩  - :hankey: - Writing bad code that needs to be improved.
-# ⏪  - :rewind: - Reverting changes.
-# 🔀  - :twisted_rightwards_arrows: - Merging branches.
-# 📦  - :package: - Updating compiled files or packages.
-# 👽  - :alien: - Updating code due to external API changes.
-# 🚚  - :truck: - Moving or renaming files.
-# 📄  - :page_facing_up: - Adding or updating license.
-# 💥  - :boom: - Introducing breaking changes.
-# 🍱  - :bento: - Adding or updating assets.
-# 👌  - :ok_hand: - Updating code due to code review changes.
-# ♿  - :wheelchair: - Improving accesibility.
+# Please use the following guidelines to format your commit
+# messages:
+#
+#     <type>(<scope>): <subject>
+#     <BLANK LINE>
+#     <body>
+#     <BLANK LINE>
+#     <footer>
+#
+# Please note that:
+#  - The HEADER is a single line of max. 50 characters that
+#    contains a succinct description of the change. It contains a
+#    type, an optional scope, and a subject
+#       + <type> describes the kind of change that this commit is
+#                providing. Allowed types are:
+#             * feat (feature)
+#             * fix (bug fix)
+#             * docs (documentation)
+#             * style (formatting, missing semicolons, ...)
+#             * refactor
+#             * test (when adding missing tests)
+#             * chore (maintain)
+#       + <scope> can be anything specifying the place of the commit
+#                 change
+#       + <subject> is a very short description of the change, in
+#                   the following format:
+#             * imperative, present tense: "change" not
+#               "changed"/"changes"
+#             * no capitalised first letter
+#             * no dot (.) at the end
+#  - The BODY should include the motivation for the change and
+#    contrast this with previous behavior and must be phrased in
+#    imperative present tense
+#  - The FOOTER should contain any information about Breaking
+#    Changes and is also the place to reference GitHub issues that
+#    this commit closes
