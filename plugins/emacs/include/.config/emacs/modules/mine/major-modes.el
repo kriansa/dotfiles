@@ -45,9 +45,10 @@
   (add-hook 'enh-ruby-mode-hook
     (defun mine/set-ruby-word-boundaries ()
       "Define what is part of a word for Ruby."
-      (let ((char-list '( _ @ ! ? )))
+      (interactive)
+      (let ((char-list '( "_" "@" "!" "?" )))
         (dolist (char char-list)
-          (modify-syntax_entry (string-to-char char) "w"))))))
+          (modify-syntax-entry (string-to-char char) "w"))))))
 
 (use-package web-mode
   :ensure t

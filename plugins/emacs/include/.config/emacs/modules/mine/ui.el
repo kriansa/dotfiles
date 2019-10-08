@@ -84,14 +84,10 @@
 (add-to-list 'default-frame-alist '(font . "Iosevka Term:pixelsize=18:weight=normal:slant=normal:width=normal:spacing=100:scalable=true"))
 
 ;; Emoji support
-(pcase system-type
-  ('gnu/linux "emoji")
-  ('darwin "Apple Color Emoji"))
-
 (set-fontset-font t 'symbol
   (font-spec :family
     (pcase system-type
-      ('gnu/linux "JoyPixels")
+      ('gnu/linux "emoji")
       ('darwin "Apple Color Emoji")))
   nil 'prepend)
 

@@ -77,7 +77,9 @@
   (advice-add 'flycheck-eslint-config-exists-p :override (lambda() t))
 
   ;; Add eslint for web-mode
+  (flycheck-add-mode 'css-stylelint 'web-mode)
   (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-next-checker 'javascript-eslint 'css-stylelint)
 
   ;; Makes flycheck faster
   (setq flycheck-check-syntax-automatically '(idle-change mode-enabled save))

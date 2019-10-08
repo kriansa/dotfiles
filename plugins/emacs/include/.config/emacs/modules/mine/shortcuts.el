@@ -15,6 +15,7 @@
   (global-unset-key (kbd "s-j"))
   (global-unset-key (kbd "s-k"))
   (global-unset-key (kbd "s-l"))
+  (global-unset-key (kbd "s-x"))
 
   ;; These shortcut removals is to mimic closely Vim's behavior
   (global-unset-key (kbd "C-h"))
@@ -33,7 +34,7 @@
   (define-key evil-treemacs-state-map (kbd "C-l") 'windmove-right)
 
   ;; Window management
-  (define-key evil-normal-state-map (kbd "SPC w") 'kill-this-buffer)
+  (define-key evil-normal-state-map (kbd "SPC w") 'mine/close-and-save-buffer)
   (define-key evil-normal-state-map (kbd "SPC q") 'delete-window)
   (define-key evil-normal-state-map (kbd "SPC t") 'mine/toggle-maximize-buffer)
 

@@ -64,4 +64,10 @@
   (interactive)
   (newline 1 t))
 
+(defun mine/close-and-save-buffer ()
+  "Close and save the current buffer."
+  (interactive)
+  (save-buffer)
+  (kill-this-buffer))
+
 ;;; functions.el ends here
