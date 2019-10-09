@@ -58,6 +58,9 @@
   (require 'ls-lisp)
   (setq-default ls-lisp-use-insert-directory-program nil))
 
+;; Resizing support
+(use-package windsize :ensure t)
+
 ;; Left nav settings
 ;; =================
 
@@ -93,6 +96,15 @@
 
 ;; Default start maximized
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+(use-package dashboard
+  :ensure t
+  :config
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-center-content t)
+  (setq dashboard-startup-banner 'logo)
+  (dashboard-setup-startup-hook))
 
 ;; Modeline
 (use-package doom-modeline

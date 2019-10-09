@@ -70,4 +70,12 @@
   (save-buffer)
   (kill-this-buffer))
 
+(defun mine/get-current-file-line ()
+  "Get the current path name relative to the project."
+  (interactive)
+  (kill-new (concat
+              (file-relative-name buffer-file-name (projectile-project-root))
+              ":" (format-mode-line "%l")))
+  (message "File path copied to clipboard."))
+
 ;;; functions.el ends here

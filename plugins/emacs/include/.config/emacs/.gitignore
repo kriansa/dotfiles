@@ -15,3 +15,6 @@ auto-save-list/
 
 # Ignore all emacs custom settings from versioning
 custom.el
+
+# Recent files
+recentf

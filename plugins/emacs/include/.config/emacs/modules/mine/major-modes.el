@@ -50,6 +50,12 @@
         (dolist (char char-list)
           (modify-syntax-entry (string-to-char char) "w"))))))
 
+(use-package rspec-mode
+  :ensure t
+  :config
+  ;; Autosave buffer when running rspec
+  (setq rspec-autosave-buffer t))
+
 (use-package web-mode
   :ensure t
   :config

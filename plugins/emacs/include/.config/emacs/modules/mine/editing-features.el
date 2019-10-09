@@ -20,11 +20,21 @@
   (super-save-mode +1)
   (setq super-save-auto-save-when-idle t)
 
+  ;; Add few commands to auto-save hook
+  (add-to-list 'super-save-triggers 'evil-switch-to-windows-last-buffer)
+
   ; Disable auto-backup files
   (setq make-backup-files nil)
 
   ;; Disable the native auto-save-mode
   (setq auto-save-default nil))
+
+;; Saves a list of recent opened files
+(use-package recentf
+  :ensure t
+  :config
+  (setq recentf-max-saved-items 500)
+  (recentf-mode))
 
 ;; expand-region allows us to keep expanding the current selection by sexps
 (use-package expand-region :ensure t)
@@ -76,6 +86,9 @@
   ;; installation
   (advice-add 'flycheck-eslint-config-exists-p :override (lambda() t))
 
+  ;; Use eslint_d
+  (setq flycheck-javascript-eslint-executable "eslint_d")
+
   ;; Add eslint for web-mode
   (flycheck-add-mode 'javascript-eslint 'web-mode)
   (flycheck-add-mode 'css-stylelint 'web-mode)
@@ -99,6 +112,10 @@
   :commands lsp
   :config
   ;; Use projectile to guess the root path
+  (setq lsp-auto-guess-root t)
+  ;; Disable Flymake
+  (setq lsp-prefer-flymake nil)
+  ;; Guess the root based on Projectile
   (setq lsp-auto-guess-root t)
   ;; Disable snippets
   (setq lsp-enable-snippet nil))

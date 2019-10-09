@@ -16,6 +16,10 @@
   (global-unset-key (kbd "s-k"))
   (global-unset-key (kbd "s-l"))
   (global-unset-key (kbd "s-x"))
+  ;; Undo-tree
+  (global-unset-key (kbd "C-_"))
+  (global-unset-key (kbd "s-z"))
+  (global-unset-key (kbd "C-/"))
 
   ;; These shortcut removals is to mimic closely Vim's behavior
   (global-unset-key (kbd "C-h"))
@@ -37,6 +41,7 @@
   (define-key evil-normal-state-map (kbd "SPC w") 'mine/close-and-save-buffer)
   (define-key evil-normal-state-map (kbd "SPC q") 'delete-window)
   (define-key evil-normal-state-map (kbd "SPC t") 'mine/toggle-maximize-buffer)
+  (define-key evil-normal-state-map (kbd "SPC =") 'balance-windows)
 
   ;; Increase/decrease font size
   (define-key global-map (kbd "s-=") 'text-scale-increase)
@@ -57,8 +62,21 @@
   ;; Select pasted content
   (define-key evil-normal-state-map (kbd "SPC v") 'mine/select-pasted)
 
+  ;; Copy current file path & line
+  (define-key evil-normal-state-map (kbd "SPC fl") 'mine/get-current-file-line)
+
+  ;; In ruby, g{ will switch the block between do/end and {/}
+  (define-key evil-normal-state-map (kbd "g{") 'enh-ruby-toggle-block)
+
   ;; Remap g-d to make it act just like C-[
   (define-key evil-normal-state-map (kbd "gd") 'evil-jump-to-tag))
+
+(use-package windsize
+  :config
+  (global-set-key (kbd "C-S-<left>") 'windsize-left)
+  (global-set-key (kbd "C-S-<right>") 'windsize-right)
+  (global-set-key (kbd "C-S-<up>") 'windsize-up)
+  (global-set-key (kbd "C-S-<down>") 'windsize-down))
 
 (use-package enh-ruby-mode
   :config
@@ -67,8 +85,12 @@
       "Set the right keybindings for enh-ruby-mode."
       (define-key enh-ruby-mode-map (kbd "C-j") nil))))
 
+(use-package rspec-mode
+  :config
+  (define-key evil-normal-state-map (kbd "SPC rl") 'rspec-verify-single)
+  (define-key evil-normal-state-map (kbd "SPC rf") 'rspec-verify))
+
 (use-package evil-nerd-commenter
-  :ensure t
   :config
   (define-key evil-normal-state-map (kbd "gcc") 'evilnc-comment-or-uncomment-lines)
   (define-key evil-visual-state-map (kbd "gc") 'evilnc-comment-or-uncomment-lines))
@@ -125,9 +147,12 @@
   (define-key evil-normal-state-map (kbd "SPC a") 'counsel-ag)
   (define-key evil-normal-state-map (kbd "SPC s") 'mine/search-word-under-cursor))
 
-;; Ivy (counsel-projectile)
 (use-package counsel-projectile
   :config
+  ;; Switch between implementation and test ([p]rojectile [t]oggle))
+  (define-key evil-normal-state-map (kbd "SPC pt")
+    'projectile-toggle-between-implementation-and-test)
+
   ;; Switch from files in different projects
   (define-key evil-normal-state-map (kbd "C-S-p") 'counsel-projectile-switch-project)
   ;; Switch files in this project

@@ -87,7 +87,14 @@
   :config
   ;; Settings
   (setq projectile-completion-system 'ivy)
-  (setq projectile-sort-order 'recentf)
+
+  ;; Sorting only works if we use 'hybrid as the indexing method. On large projects, it may affect
+  ;; negatively the performance, so beware. If needed, one can set per-project (or folder) variables
+  ;; using Directory Variables.
+  ;; See: https://github.com/bbatsov/projectile/blob/master/doc/projects.md#storing-project-settings
+  (setq projectile-sort-order 'recently-active)
+  (setq projectile-indexing-method 'hybrid)
+
   (add-to-list 'projectile-globally-ignored-files ".DS_Store")
 
   ;; Enable it globally
@@ -105,7 +112,5 @@
   :ensure t
   :config
   (editorconfig-mode 1))
-
-;; Install company mode, (or desktop-mode saveplace)
 
 ;;; projectify.el ends here
