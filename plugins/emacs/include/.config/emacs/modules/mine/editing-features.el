@@ -117,8 +117,19 @@
   (setq lsp-prefer-flymake nil)
   ;; Guess the root based on Projectile
   (setq lsp-auto-guess-root t)
-  ;; Disable snippets
-  (setq lsp-enable-snippet nil))
+  ;; Enable snippets
+  (setq lsp-enable-snippet t))
+
+;; Snippets
+(use-package yasnippet
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook 'yas-minor-mode))
+
+(use-package yasnippet-snippets
+  :ensure t
+  :config
+  (yas-reload-all))
 
 ;; Autocompletion framework
 (use-package company

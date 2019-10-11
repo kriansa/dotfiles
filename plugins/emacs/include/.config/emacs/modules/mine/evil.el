@@ -48,14 +48,6 @@
   (use-package evil-matchit
     :ensure t
     :config
-    (setq evilmi-ruby-extract-keyword-howtos
-      '(("^[ \t]*[^ \t=]+[ \t]*=[ \t]*\\([a-z]+\\)\\( .*\\|(.*\\| *\\)$" 1)
-         ("^[ \t]*\\([a-z]+\\)\\( .*\\|(.*\\| *\\)$" 1)
-         ("^.* \\(do\\) |[a-z0-9A-Z_, *]+| *$" 1)
-         ("^.* \\(do\\) *$" 1)
-         ("^.* \\(begin\\) *$" 1)
-         ("^.* \\(end\\)\\..*$" 1)))
-
     (global-evil-matchit-mode t))
 
   (use-package evil-nerd-commenter :ensure t)
