@@ -3,15 +3,6 @@
   become: true
   file: path=/etc/pacman.d/hooks state=directory mode=0755
 
-- name: enable multilib packages for pacman
-  become: true
-  blockinfile:
-    path: /etc/pacman.conf
-    marker: "# Enable 32-bits libraries ({mark})"
-    block: |
-      [multilib]
-      Include = /etc/pacman.d/mirrorlist
-
 - name: update system
   become: true
   pacman:
