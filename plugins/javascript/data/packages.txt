@@ -7,3 +7,4 @@ eslint-plugin-import
 eslint-config-airbnb-base
 stylelint
 stylelint-config-standard
+vue-language-server
