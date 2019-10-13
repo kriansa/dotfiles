@@ -7,32 +7,28 @@
 
 (provide 'mine/editing-features)
 
-(defun mine/disable-tabs ()
-  "Disable tabs."
-  (interactive)
-  (global-unset-key (kbd "TAB"))
-  (setq-default indent-tabs-mode nil))
-
 ;; Automatically save files when switching buffers
 (use-package super-save
   :ensure t
   :config
-  (super-save-mode +1)
-  (setq super-save-auto-save-when-idle t)
-
-  ;; Add few commands to auto-save hook
+  ;; Add commands to auto-save hook
   (add-to-list 'super-save-triggers 'evil-switch-to-windows-last-buffer)
 
-  ; Disable auto-backup files
+  (setq super-save-auto-save-when-idle t)
+
+  ;; Disable native auto-backup files
   (setq make-backup-files nil)
 
-  ;; Disable the native auto-save-mode
-  (setq auto-save-default nil))
+  ;; Disable native auto-save-mode
+  (setq auto-save-default nil)
+
+  (super-save-mode +1))
 
 ;; Saves a list of recent opened files
 (use-package recentf
   :ensure t
   :config
+  (setq recentf-save-file (expand-file-name ".tmp/recentf" user-emacs-directory))
   (setq recentf-max-saved-items 500)
   (recentf-mode))
 
@@ -41,17 +37,15 @@
 
 (use-package smartparens
   :ensure t
-  :config
+  :hook ((prog-mode text-mode) . mine/smartparens-mode)
+  :init
   (require 'smartparens-config)
 
   (defun mine/smartparens-mode ()
     "Init smartparens mode."
     (interactive)
     (smartparens-mode)
-    (show-smartparens-mode))
-
-  (add-hook 'prog-mode-hook 'mine/smartparens-mode)
-  (add-hook 'text-mode-hook 'mine/smartparens-mode))
+    (show-smartparens-mode)))
 
 ;; Whitespaces settings
 ;; ====================
@@ -59,8 +53,8 @@
 ;; visible characters in the code
 
 (use-package whitespace
-  :ensure t
-  :config
+  :hook ((prog-mode text-mode) . whitespace-mode)
+  :init
   ;; Which characters we want to translate
   ;; add spaces space-mark to the list to see spaces
   (setq whitespace-style '(face tabs newline tab-mark newline-mark))
@@ -71,12 +65,12 @@
     '((space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
       (newline-mark 10 [172 10]) ; LF is replaced by a "¬"
       (tab-mark 9 [9656 32 32] [92 32 32]))) ; tab is replaced by a "▸  "
-
-  (add-hook 'prog-mode-hook 'whitespace-mode)
-  (add-hook 'text-mode-hook 'whitespace-mode))
+)
 
 ;; Right margin bar
-(add-hook 'prog-mode-hook 'display-fill-column-indicator-mode)
+(use-package display-fill-column-indicator
+  :unless (version< emacs-version "27")
+  :hook (prog-mode . display-fill-column-indicator-mode))
 
 ;; Flycheck
 (use-package flycheck
@@ -105,26 +99,10 @@
   (setq flycheck-idle-change-delay 4)
   (global-flycheck-mode))
 
-;; LSP (Language Server Protocol) support
-(use-package lsp-mode
-  :ensure t
-  :hook (prog-mode . lsp)
-  :commands lsp
-  :config
-  ;; Use projectile to guess the root path
-  (setq lsp-auto-guess-root t)
-  ;; Disable Flymake
-  (setq lsp-prefer-flymake nil)
-  ;; Guess the root based on Projectile
-  (setq lsp-auto-guess-root t)
-  ;; Enable snippets
-  (setq lsp-enable-snippet t))
-
 ;; Snippets
 (use-package yasnippet
-  :ensure t
-  :config
-  (add-hook 'prog-mode-hook 'yas-minor-mode))
+  ;; Hooks to prog-mode are already setup by lsp-mode
+  :ensure t)
 
 (use-package yasnippet-snippets
   :ensure t
@@ -137,10 +115,34 @@
   :config
   (global-company-mode))
 
-(use-package company-lsp
-  :after lsp-mode company-mode
-  :commands company-lsp
+;; LSP (Language Server Protocol) support
+(use-package lsp-mode
+  :ensure t
+  :hook (prog-mode . lsp)
+  :commands lsp
   :config
-  (push 'company-lsp company-backends))
+  ;; Use a separate path for the session file
+  (setq lsp-session-file (expand-file-name ".tmp/lsp-session-v1" user-emacs-directory))
+  ;; Use projectile to guess the root path
+  (setq lsp-auto-guess-root t)
+  ;; Disable Flymake
+  (setq lsp-prefer-flymake :none)
+  ;; Enable snippets
+  (setq lsp-enable-snippet t)
+  ;; Times out after 5s
+  (setq lsp-response-timeout 5)
+  ;; Don't make changes I don't explicitely told you to
+  (setq lsp-before-save-edits nil)
+
+  ;; Disable symbol highlighting
+  (setq lsp-enable-symbol-highlighting nil)
+  ;; Disable showing docs on hover
+  (setq lsp-eldoc-enable-hover nil)
+  ;; Disable showing symbol all signatures for a given method. Instead, shows only the current one
+  (setq lsp-signature-render-all nil))
+
+(use-package company-lsp
+  :ensure t
+  :commands company-lsp)
 
 ;;; editing-features.el ends here

@@ -32,6 +32,6 @@
 (require 'mine/shortcuts)
 
 ;; Keep emacs Custom-settings in a separate file
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(setq custom-file (expand-file-name ".tmp/custom.el" user-emacs-directory))
 
 ;;; init.el ends here

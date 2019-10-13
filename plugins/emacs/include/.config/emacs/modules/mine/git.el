@@ -11,12 +11,17 @@
 (use-package magit
   :ensure t
   :config
-  ; Tune diffs
+  ;; Tune diffs
   (setq magit-diff-paint-whitespace-lines 'all)
   (setq magit-diff-paint-whitespace t)
   (setq magit-diff-refine-ignore-whitespace t)
   (setq magit-diff-refine-hunk 'all)
   (setq magit-diff-highlight-trailing t)
+
+  ;; Set transient files to .tmp
+  (setq transient-levels-file (expand-file-name ".tmp/transient-levels.el" user-emacs-directory))
+  (setq transient-values-file (expand-file-name ".tmp/transient-values.el" user-emacs-directory))
+  (setq transient-history-file (expand-file-name ".tmp/transient-history.el" user-emacs-directory))
 
   ;; See below to understand evil-magit shortcuts
   ;; https://github.com/emacs-evil/evil-magit
@@ -40,8 +45,5 @@
 
   ; Enable it globally
   (global-git-gutter-mode t))
-
-;; Disable Emacs native Git client
-(setq vc-handled-backends nil)
 
 ;;; git.el ends here

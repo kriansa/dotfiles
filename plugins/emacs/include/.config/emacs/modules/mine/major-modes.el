@@ -31,6 +31,7 @@
 (use-package terraform-mode :ensure t)
 (use-package hcl-mode :ensure t)
 (use-package yaml-mode :ensure t)
+(use-package typescript-mode :ensure t)
 (use-package dockerfile-mode
   :ensure t
   :config

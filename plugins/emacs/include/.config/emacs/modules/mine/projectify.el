@@ -28,7 +28,7 @@
         treemacs-no-png-images                 nil
         treemacs-no-delete-other-windows       nil
         treemacs-project-follow-cleanup        nil
-        treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+        treemacs-persist-file                  (expand-file-name ".tmp/treemacs-persist" user-emacs-directory)
         treemacs-position                      'left
         treemacs-recenter-distance             0.1
         treemacs-recenter-after-file-follow    nil
@@ -87,6 +87,8 @@
   :config
   ;; Settings
   (setq projectile-completion-system 'ivy)
+  (setq projectile-known-projects-file
+    (expand-file-name ".tmp/projectile-bookmarks.eld" user-emacs-directory))
 
   ;; Sorting only works if we use 'hybrid as the indexing method. On large projects, it may affect
   ;; negatively the performance, so beware. If needed, one can set per-project (or folder) variables

@@ -1,20 +1,4 @@
-# Ignore project definitions
-projectile-bookmarks.eld
-
-# Ignore last update mark
-.last-package-update-day
-
 # Paths that should not be versioned
 elpa/
-transient/
-.cache/
 auto-save-list/
-
-# Tempfile for lsp-mode
-.lsp-session-v1
-
-# Ignore all emacs custom settings from versioning
-custom.el
-
-# Recent files
-recentf
+.tmp/
