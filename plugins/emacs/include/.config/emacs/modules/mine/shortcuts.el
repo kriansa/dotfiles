@@ -16,6 +16,8 @@
   (global-unset-key (kbd "s-k"))
   (global-unset-key (kbd "s-l"))
   (global-unset-key (kbd "s-x"))
+  (global-unset-key (kbd "M-d"))
+  (global-unset-key (kbd "M-v"))
   ;; Undo-tree
   (global-unset-key (kbd "C-_"))
   (global-unset-key (kbd "s-z"))

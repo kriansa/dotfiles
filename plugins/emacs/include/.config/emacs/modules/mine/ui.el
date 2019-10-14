@@ -47,12 +47,6 @@
 ;; Makes *scratch* empty.
 (setq-default initial-scratch-message "")
 
-;; Remove the *scratch* buffer
-(add-hook 'after-change-major-mode-hook
-  (defun mine/remove-scratch-buffer ()
-    "Remove the scratch buffer."
-    (mine/kill-empty-buffer "*scratch*")))
-
 ;; Supress dired warnings when using Mac/BSD ls
 (when (eq system-type 'darwin)
   (require 'ls-lisp)
@@ -96,15 +90,6 @@
 
 ;; Default start maximized
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-
-(use-package dashboard
-  :ensure t
-  :config
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-center-content t)
-  (setq dashboard-startup-banner 'logo)
-  (dashboard-setup-startup-hook))
 
 ;; Modeline
 (use-package doom-modeline
