@@ -1,3 +1,1 @@
-#compdef tunssh
-
-_ssh "$@"
+compdef tunssh=ssh

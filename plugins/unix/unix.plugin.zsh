@@ -9,5 +9,9 @@ function tunssh {
   iftun tun0 SSH_AUTH_SOCK="$SSH_AUTH_SOCK" ssh "$@"
 }
 
+function tunscp {
+  iftun tun0 SSH_AUTH_SOCK="$SSH_AUTH_SOCK" scp "$@"
+}
+
 # Add this plugin path to the fpath completion list
 fpath+=($PLUGIN_PATH/completions)
