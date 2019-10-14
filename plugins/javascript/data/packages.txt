@@ -8,3 +8,5 @@ eslint-config-airbnb-base
 stylelint
 stylelint-config-standard
 vue-language-server
+typescript
+typescript-language-server
