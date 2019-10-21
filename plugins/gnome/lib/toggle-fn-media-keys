@@ -17,13 +17,13 @@ main() {
 }
 
 media_keys() {
-  gsettings set org.gnome.settings-daemon.plugins.media-keys volume-mute 'F1'
-  gsettings set org.gnome.settings-daemon.plugins.media-keys volume-down 'F2'
-  gsettings set org.gnome.settings-daemon.plugins.media-keys volume-up 'F3'
-  gsettings set org.gnome.settings-daemon.plugins.media-keys play 'F4'
-  gsettings set org.gnome.settings-daemon.plugins.media-keys stop 'F5'
-  gsettings set org.gnome.settings-daemon.plugins.media-keys previous 'F6'
-  gsettings set org.gnome.settings-daemon.plugins.media-keys next 'F7'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys volume-mute '["F1"]'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys volume-down '["F2"]'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys volume-up '["F3"]'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys play '["F4"]'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys stop '["F5"]'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys previous '["F6"]'
+  gsettings set org.gnome.settings-daemon.plugins.media-keys next '["F7"]'
 
   notify-send "Keyboard" "F-keys are now media keys (play, next)"
 }
