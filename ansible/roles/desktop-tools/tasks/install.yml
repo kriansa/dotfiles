@@ -40,6 +40,7 @@
 
       # Fonts
       - ttf-roboto
+      - ttf-roboto-mono
       - ttf-croscore
       - noto-fonts-cjk
       - ttf-joypixels
@@ -70,7 +71,6 @@
 
     # Fonts
     - ttf-symbola
-    - ttf-roboto-mono
     - ttf-iosevka-term
     - ttf-gelasio-ib
     - ttf-comic-neue
