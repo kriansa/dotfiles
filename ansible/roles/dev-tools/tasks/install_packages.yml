@@ -8,7 +8,6 @@
     name:
       - python
       - python-pip
-      - tmux
       - gcr # pinentry-gnome3 dependency
       - cowsay
       - neovim
