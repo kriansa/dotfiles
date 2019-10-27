@@ -16,18 +16,7 @@
   (interactive)
   (modify-syntax-entry ?_ "w"))
 
-(use-package markdown-mode
-  :ensure t
-  :config
-  ;; Adds asterisks as a pair to markdown-mode
-  (defvar markdown-electric-pairs '((?* . ?*)) "Electric pairs for markdown-mode.")
-  (defun mine/markdown-add-electric-pairs ()
-    (setq-local electric-pair-pairs (append electric-pair-pairs markdown-electric-pairs))
-    (setq-local electric-pair-text-pairs electric-pair-pairs))
-
-  ;; Loads it only on markdown-mode
-  (add-hook 'markdown-mode-hook 'mine/markdown-add-electric-pairs))
-
+(use-package markdown-mode :ensure t)
 (use-package terraform-mode :ensure t)
 (use-package hcl-mode :ensure t)
 (use-package yaml-mode :ensure t)

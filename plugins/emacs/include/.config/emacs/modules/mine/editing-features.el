@@ -26,14 +26,23 @@
 
 ;; Saves a list of recent opened files
 (use-package recentf
-  :ensure t
   :config
   (setq recentf-save-file (expand-file-name ".tmp/recentf" user-emacs-directory))
+  (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) ".tmp")))
+  (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) "elpa")))
   (setq recentf-max-saved-items 500)
   (recentf-mode))
 
 ;; expand-region allows us to keep expanding the current selection by sexps
 (use-package expand-region :ensure t)
+
+;; Emmet is the old zencode
+(use-package emmet-mode
+  :ensure t
+  :hook ((sgml-mode css-mode) . emmet-mode)
+  :config
+  ;; Move the cursor after expanding
+  (setq emmet-move-cursor-between-quotes t))
 
 (use-package smartparens
   :ensure t

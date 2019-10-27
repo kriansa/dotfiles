@@ -80,12 +80,20 @@
   (global-set-key (kbd "C-S-<up>") 'windsize-up)
   (global-set-key (kbd "C-S-<down>") 'windsize-down))
 
+(use-package emmet-mode
+  :config
+  (define-key evil-insert-state-map (kbd "C-j") 'emmet-expand-line))
+
+(use-package markdown-mode
+  :config
+  ;; Disable default keybindings for cycling header visibility
+  (define-key markdown-mode-map (kbd "S-<tab>") nil)
+  (define-key markdown-mode-map (kbd "S-<iso-lefttab>") nil)
+  (define-key markdown-mode-map (kbd "<backtab>") nil))
+
 (use-package enh-ruby-mode
   :config
-  (add-hook 'enh-ruby-mode
-    (defun mine/fix-enh-ruby-keybindings ()
-      "Set the right keybindings for enh-ruby-mode."
-      (define-key enh-ruby-mode-map (kbd "C-j") nil))))
+  (define-key enh-ruby-mode-map (kbd "C-j") nil))
 
 (use-package rspec-mode
   :config
