@@ -1,7 +1,7 @@
 ---
 # TODO: Arch Linux only. Adapt to work on MacOS.
 
-- set_fact: pinentry_path=/usr/bin/pinentry-gnome3
+- set_fact: pinentry_path={{ dotfiles_path }}/plugins/gnupg/bin/pinentry-gui
 
 # For MacOS, we need to install gnupg, pinentry-mac
 # then link Library/LaunchAgents/org.gnupg.gpg-agent.plist
@@ -10,8 +10,8 @@
 - name: generate .gpg-agent.conf file
   become: true
   become_user: "{{ user_name }}"
-  template: 
-    src: templates/gpg-agent.conf.j2 
+  template:
+    src: templates/gpg-agent.conf.j2
     dest: "{{ dotfiles_path }}/plugins/gnupg/include/.gnupg/gpg-agent.conf"
     mode: 0644
 
