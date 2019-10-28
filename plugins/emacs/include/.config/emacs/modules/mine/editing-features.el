@@ -64,17 +64,23 @@
 (use-package whitespace
   :hook ((prog-mode text-mode) . whitespace-mode)
   :init
-  ;; Which characters we want to translate
-  ;; add spaces space-mark to the list to see spaces
-  (setq whitespace-style '(face tabs newline tab-mark newline-mark))
-
   ;; Set character replacements
   (setq whitespace-display-mappings
     ;; all numbers are unicode codepoint in decimal. e.g. (insert-char 182 1)
     '((space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
       (newline-mark 10 [172 10]) ; LF is replaced by a "¬"
       (tab-mark 9 [9656 32 32] [92 32 32]))) ; tab is replaced by a "▸  "
-)
+
+  ;; Which characters we want to translate
+  ;; add spaces space-mark to the list to see spaces
+  (setq whitespace-style '(face tabs newline tab-mark newline-mark)))
+
+;; Use vdiff (a package that is like vimdiff)
+(use-package vdiff
+  :ensure t
+  :config
+  ;; Whether to lock scrolling by default when starting vdiff
+  (setq vdiff-lock-scrolling t))
 
 ;; Right margin bar
 (use-package display-fill-column-indicator
@@ -153,5 +159,10 @@
 (use-package company-lsp
   :ensure t
   :commands company-lsp)
+
+(use-package lsp-java
+  :ensure t
+  :after lsp
+  :hook (lsp . java-mode))
 
 ;;; editing-features.el ends here

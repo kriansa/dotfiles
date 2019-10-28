@@ -71,15 +71,16 @@
 ;; Style titlebar on MacOS
 (when (eq system-type 'darwin)
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (setq ns-use-proxy-icon nil)
   (setq frame-title-format nil))
 
 ;; On Linux, just disable the whole decoration
 (when (eq system-type 'gnu/linux)
   (add-to-list 'default-frame-alist '(undecorated . t)))
 
-(defun mine/frame-setup (&optional frame)
+(defun mine/frame-setup (frame)
   "Initialize FRAME with sane defaults."
-  (with-selected-frame (or frame (selected-frame))
+  (with-selected-frame frame
     ;; Set the default font
     (set-frame-font (font-spec :family "Iosevka Term" :size 18) nil t)
 
@@ -93,7 +94,7 @@
 
 ;; Call on initialize and after first frame setup
 (add-hook 'after-make-frame-functions 'mine/frame-setup)
-(mine/frame-setup)
+(mine/frame-setup (selected-frame))
 
 ;; Default start maximized
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -110,6 +111,13 @@
 
   :config
   (setq doom-modeline-buffer-file-name-style 'relative-from-project)
+
+  ;; Ensure we always set this variable at frame-opening time
+  (add-hook 'after-make-frame-functions
+    (defun mine/setup-doom-modeline-frame (frame)
+      (with-selected-frame frame
+        (setq doom-modeline-icon (display-graphic-p)))))
+
   (doom-modeline-def-modeline 'main
     '(bar window-number matches buffer-info remote-host buffer-position selection-info)
     '(objed-state misc-info persp-name irc mu4e github debug input-method buffer-encoding lsp major-mode process vcs checker "  "))
