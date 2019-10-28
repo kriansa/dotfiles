@@ -77,16 +77,23 @@
 (when (eq system-type 'gnu/linux)
   (add-to-list 'default-frame-alist '(undecorated . t)))
 
-;; Set a default font
-(add-to-list 'default-frame-alist '(font . "Iosevka Term:pixelsize=18:weight=normal:slant=normal:width=normal:spacing=100:scalable=true"))
+(defun mine/frame-setup (&optional frame)
+  "Initialize FRAME with sane defaults."
+  (with-selected-frame (or frame (selected-frame))
+    ;; Set the default font
+    (set-frame-font (font-spec :family "Iosevka Term" :size 18) nil t)
 
-;; Emoji support
-(set-fontset-font t 'symbol
-  (font-spec :family
-    (pcase system-type
-      ('gnu/linux "JoyPixels")
-      ('darwin "Apple Color Emoji")))
-  nil 'prepend)
+    ;; Emoji support 😀
+    (set-fontset-font "fontset-default" 'unicode
+      (font-spec :family
+        (pcase system-type
+          ('gnu/linux "JoyPixels")
+          ('darwin "Apple Color Emoji")))
+      nil 'prepend)))
+
+;; Call on initialize and after first frame setup
+(add-hook 'after-make-frame-functions 'mine/frame-setup)
+(mine/frame-setup)
 
 ;; Default start maximized
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
