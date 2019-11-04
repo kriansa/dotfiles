@@ -112,7 +112,8 @@
 
 (use-package treemacs
   :config
-  (define-key evil-normal-state-map ",," 'treemacs))
+  (define-key evil-normal-state-map ",," 'treemacs)
+  (define-key evil-treemacs-state-map (kbd "A") 'mine/toggle-maximize-treemacs))
 
 ;; evil-args
 (use-package evil-args

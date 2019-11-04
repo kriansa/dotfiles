@@ -24,6 +24,18 @@
       (window-configuration-to-register '_)
       (delete-other-windows))))
 
+(defun mine/toggle-maximize-treemacs ()
+  "Maximize/restore Treemacs buffer."
+  (interactive)
+  (unless (boundp 'treemacs--original-width)
+    (setq treemacs--original-width treemacs-width))
+  (with-selected-window (treemacs-get-local-window)
+    (setq treemacs-width
+      (if (= treemacs-width treemacs--original-width)
+        (/ (frame-width) 2)
+        treemacs--original-width))
+    (treemacs--set-width treemacs-width)))
+
 (defun mine/reset-text-size ()
   "Reset the text size."
   (interactive)
