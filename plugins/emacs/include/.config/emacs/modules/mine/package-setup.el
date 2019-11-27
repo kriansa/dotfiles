@@ -29,9 +29,9 @@
   (setq
     auto-package-update-prompt-before-update t
     auto-package-update-delete-old-versions t
-    auto-package-update-interval 4
+    auto-package-update-interval 1
     auto-package-update-last-update-day-filename ".tmp/last-package-update-day")
-
-  (auto-package-update-maybe))
+  :config
+  (add-hook 'after-make-frame-functions 'auto-package-update-maybe))
 
 ;;; package-setup.el ends here
