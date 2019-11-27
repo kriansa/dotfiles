@@ -14,7 +14,8 @@
   ;; Add commands to auto-save hook
   (add-to-list 'super-save-triggers 'evil-switch-to-windows-last-buffer)
 
-  (setq super-save-auto-save-when-idle t)
+  ;; Disable autosave on idle
+  (setq super-save-auto-save-when-idle nil)
 
   ;; Disable native auto-backup files
   (setq make-backup-files nil)
