@@ -143,7 +143,7 @@
   (define-key evil-normal-state-map "]c" 'diff-hl-next-hunk)
 
   ; Unstage current hunk
-  (define-key evil-normal-state-map (kbd "SPC h s") 'diff-hl-revert-hunk))
+  (define-key evil-normal-state-map (kbd "SPC h u") 'diff-hl-revert-hunk))
 
 ;; Magit
 (use-package magit

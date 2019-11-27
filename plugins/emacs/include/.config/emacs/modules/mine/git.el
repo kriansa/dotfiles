@@ -35,7 +35,7 @@
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
 
   (setq diff-hl-margin-symbols-alist
-    '((insert . "+") (delete . "_") (change . "~")
+    '((insert . "+") (delete . "‾") (change . "~")
        (unknown . "?") (ignored . " ")))
 
   (diff-hl-margin-mode)
