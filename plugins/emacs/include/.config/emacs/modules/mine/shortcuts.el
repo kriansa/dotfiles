@@ -77,7 +77,7 @@
   (define-key evil-normal-state-map (kbd "K") 'mine/split-line)
 
   ;; Select pasted content
-  (define-key evil-normal-state-map (kbd "SPC v") 'mine/select-pasted)
+  (define-key evil-normal-state-map (kbd "SPC v") 'exchange-point-and-mark)
 
   ;; Copy current file path & line
   (define-key evil-normal-state-map (kbd "SPC fl") 'mine/get-current-file-line)

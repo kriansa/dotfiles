@@ -64,13 +64,6 @@
   (evil-open-above 1)
   (evil-force-normal-state))
 
-(defun mine/select-pasted ()
-  "Select the recently pasted content."
-  (interactive)
-  (let ((start-marker (evil-get-marker ?\[))
-         (end-marker (evil-get-marker ?\])))
-    (evil-visual-select start-marker end-marker)))
-
 (defun mine/split-line ()
   "Splits the line under the cursor."
   (interactive)
