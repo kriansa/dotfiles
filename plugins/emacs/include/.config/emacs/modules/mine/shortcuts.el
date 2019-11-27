@@ -30,6 +30,14 @@
   (global-unset-key (kbd "C-k"))
   (global-unset-key (kbd "C-/"))
 
+  ;; Paste using C-S-v on Linux
+  (when (eq system-type 'gnu/linux)
+    (define-key evil-insert-state-map (kbd "C-S-v") 'yank)
+    (define-key minibuffer-local-map (kbd "C-S-v") 'yank)
+    (use-package ivy
+      :config
+      (define-key ivy-minibuffer-map (kbd "C-S-v") 'yank)))
+
   ;; Window navigation
   (define-key evil-normal-state-map (kbd "C-h") 'windmove-left)
   (define-key evil-normal-state-map (kbd "C-j") 'windmove-down)
