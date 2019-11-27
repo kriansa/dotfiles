@@ -15,6 +15,10 @@
   (global-unset-key (kbd "s-j"))
   (global-unset-key (kbd "s-k"))
   (global-unset-key (kbd "s-l"))
+  (global-unset-key (kbd "M-h"))
+  (global-unset-key (kbd "M-j"))
+  (global-unset-key (kbd "M-k"))
+  (global-unset-key (kbd "M-l"))
   (global-unset-key (kbd "s-x"))
   (global-unset-key (kbd "M-d"))
   (global-unset-key (kbd "M-v"))
@@ -43,9 +47,12 @@
   (define-key evil-normal-state-map (kbd "C-j") 'windmove-down)
   (define-key evil-normal-state-map (kbd "C-k") 'windmove-up)
   (define-key evil-normal-state-map (kbd "C-l") 'windmove-right)
-  ;; From within Treemacs
-  (define-key evil-treemacs-state-map (kbd "C-h") 'windmove-left)
-  (define-key evil-treemacs-state-map (kbd "C-l") 'windmove-right)
+
+  (use-package treemacs
+    :config
+    ;; From within Treemacs
+    (define-key evil-treemacs-state-map (kbd "C-h") 'windmove-left)
+    (define-key evil-treemacs-state-map (kbd "C-l") 'windmove-right))
 
   ;; Window management
   (define-key evil-normal-state-map (kbd "SPC w") 'mine/close-and-save-buffer)
