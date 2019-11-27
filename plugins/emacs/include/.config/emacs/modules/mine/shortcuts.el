@@ -121,16 +121,14 @@
   (define-key evil-inner-text-objects-map "," 'evil-inner-arg)
   (define-key evil-outer-text-objects-map "," 'evil-outer-arg))
 
-;; Git-gutter
-(use-package git-gutter
+(use-package diff-hl
   :config
   ; Jump to next/previous hunk
-  (define-key evil-normal-state-map "[c" 'git-gutter:previous-hunk)
-  (define-key evil-normal-state-map "]c" 'git-gutter:next-hunk)
+  (define-key evil-normal-state-map "[c" 'diff-hl-previous-hunk)
+  (define-key evil-normal-state-map "]c" 'diff-hl-next-hunk)
 
-  ; Stage/unstage current hunk
-  (define-key evil-normal-state-map (kbd "SPC h s") 'git-gutter:stage-hunk)
-  (define-key evil-normal-state-map (kbd "SPC h u") 'git-gutter:revert-hunk))
+  ; Unstage current hunk
+  (define-key evil-normal-state-map (kbd "SPC h s") 'diff-hl-revert-hunk))
 
 ;; Magit
 (use-package magit

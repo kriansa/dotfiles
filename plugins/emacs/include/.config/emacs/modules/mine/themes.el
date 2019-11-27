@@ -15,16 +15,14 @@
   (setq doom-themes-treemacs-enable-variable-pitch nil)
   (doom-themes-treemacs-config)
 
-  (custom-set-faces
-    ; Fix unchanged face so that it doesn't conflict with show-paren-mode
-    ; See: https://github.com/syohex/emacs-git-gutter/issues/150
-    `(git-gutter:unchanged ((t (:background nil :inherit 'default))))
+  ;; Define that themes are safe
+  (setq custom-safe-themes t)
 
-    ;; Fix all other faces so they don't get a background when we select a full
-    ;; line (shift-V)
-    `(git-gutter:modified ((t (:background nil :inherit 'default))))
-    `(git-gutter:added ((t (:background nil :inherit 'default))))
-    `(git-gutter:deleted ((t (:background nil :inherit 'default)))))
+  ;; Fix all faces so they don't get a background when we select a full line (shift-V)
+  (custom-set-faces
+    `(diff-hl-insert ((t (:background nil :inherit 'default))))
+    `(diff-hl-delete ((t (:background nil :inherit 'default))))
+    `(diff-hl-change ((t (:background nil :inherit 'default)))))
 
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
