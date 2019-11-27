@@ -168,6 +168,7 @@
   (global-set-key (kbd "C-s") 'swiper)
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'mine/switch-buffer)
+  (define-key evil-normal-state-map (kbd "C-SPC C-SPC") 'ivy-switch-buffer)
   (define-key evil-normal-state-map (kbd "SPC a") 'counsel-ag)
   (define-key evil-normal-state-map (kbd "SPC s") 'mine/search-word-under-cursor))
 
