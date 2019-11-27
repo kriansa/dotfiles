@@ -28,8 +28,7 @@
 (use-package typescript-mode :ensure t)
 (use-package dockerfile-mode
   :ensure t
-  :config
-  (add-to-list 'auto-mode-alist '("Dockerfile.*\\'" . dockerfile-mode)))
+  :mode ("Dockerfile.*\\'" . dockerfile-mode))
 
 (use-package enh-ruby-mode
   :ensure t
