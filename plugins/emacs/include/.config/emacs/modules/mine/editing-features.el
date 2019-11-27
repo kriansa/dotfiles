@@ -25,6 +25,12 @@
 
   (super-save-mode +1))
 
+;; Use desktop-mode to store sessions
+(use-package desktop
+  :config
+  (setq desktop-path (list (expand-file-name ".tmp" user-emacs-directory)))
+  (desktop-save-mode 1))
+
 ;; Saves a list of recent opened files
 (use-package recentf
   :config
