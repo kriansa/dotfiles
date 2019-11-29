@@ -25,7 +25,6 @@ plugins=(
 
   # IDEs
   nvim
-  tmux
   emacs
 
   # Languages
