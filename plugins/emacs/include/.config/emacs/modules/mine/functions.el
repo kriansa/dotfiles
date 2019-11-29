@@ -72,7 +72,7 @@
 (defun mine/close-and-save-buffer ()
   "Close and save the current buffer."
   (interactive)
-  (save-buffer)
+  (when buffer-file-name (save-buffer))
   (kill-this-buffer))
 
 (defun mine/get-current-file-line ()
