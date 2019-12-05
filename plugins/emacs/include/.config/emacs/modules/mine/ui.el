@@ -106,6 +106,12 @@
   ;; Show column & line numbers on the bar
   (setq column-number-mode t)
 
+  ;; Set the height
+  (setq doom-modeline-height 35)
+
+  ;; Total length of git branches
+  (setq doom-modeline-vcs-max-length 24)
+
   ;; Show the path to the files when visiting symlinks
   (setq find-file-visit-truename t)
 
