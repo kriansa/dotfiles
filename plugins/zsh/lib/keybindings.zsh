@@ -40,8 +40,8 @@ bindkey "^U" _cut-whole-line
 # CTRL-S prepends sudo to the command
 bindkey "^S" _prepend-sudo
 
-# CTRL-X,CTRL-E opens the current folder with $EDITOR
+# CTRL-E opens the current folder with $EDITOR
 bindkey "^E" _edit-this-folder
 
-# Edit this command on your $EDITOR
+# CTRL-X,CTRL-E edits this command on your $EDITOR
 bindkey "^X^E" edit-command-line
