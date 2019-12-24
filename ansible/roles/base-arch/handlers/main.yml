@@ -1,3 +1,4 @@
 ---
 - import_tasks: rebuild_initramfs.yml
 - import_tasks: restart_dbus.yml
+- import_tasks: restart_pulseaudio.yml

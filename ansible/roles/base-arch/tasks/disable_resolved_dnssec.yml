@@ -6,14 +6,16 @@
 # Test: 
 # $ resolvectl query downloadirpf.receita.fazenda.gov.br
 #
+# See: https://github.com/systemd/systemd/issues/9867
 # See: https://github.com/systemd/systemd/issues/9771
 # See: https://github.com/systemd/systemd/labels/dnssec
 # 
 # Disable this snippet as soon as this start working.
 - name: disable DNSSEC for systemd-resolved
   become: true
+  tags: only
   # This line reads "#DNSSEC=allow-downgrade" by default
   lineinfile:
     line: 'DNSSEC=no'
     path: /etc/systemd/resolved.conf
-    regexp: "^DNSSEC="
+    insertafter: "^#DNSSEC="
