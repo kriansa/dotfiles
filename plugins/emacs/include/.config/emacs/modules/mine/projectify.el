@@ -134,7 +134,7 @@
   (setq-default counsel-ag-base-command "ag --nocolor --nogroup --hidden --ignore .git %s")
 
   ;; Hide asterisk buffers by default
-  (setq ivy-ignore-buffers (append ivy-ignore-buffers `("^\*")))
+  (setq ivy-ignore-buffers (append ivy-ignore-buffers `("^\*" "^magit[-a-zA-Z0-9]*:")))
 
   (ivy-mode 1)
   (counsel-mode 1))
