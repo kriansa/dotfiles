@@ -41,16 +41,21 @@
   (interactive)
   (text-scale-set 0))
 
-(defun mine/switch-buffer ()
-  "Switch between buffers that doesn't start with star."
+(defun mine/switch-all-buffers ()
+  "Switch between all Emacs known buffers, without filters."
   (interactive)
-  (let ((ivy-ignore-buffers (append ivy-ignore-buffers `("^\*"))))
+  (let ((ivy-ignore-buffers '("\\` ")))
     (ivy-switch-buffer)))
 
 (defun mine/search-word-under-cursor ()
   "Start searching for the word under the cursor."
   (interactive)
   (counsel-ag (thing-at-point 'word)))
+
+(defun mine/search-selected-text ()
+  "Start searching for the selected text."
+  (interactive)
+  (counsel-ag (buffer-substring-no-properties (mark) (point))))
 
 (defun mine/create-line-below ()
   "Create a new line below and return to normal state."

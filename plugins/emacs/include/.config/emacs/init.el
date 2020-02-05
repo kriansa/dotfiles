@@ -25,6 +25,7 @@
 (require 'mine/projectify)
 (require 'mine/major-modes)
 (require 'mine/editing-features)
+(require 'mine/org)
 
 ;; Load customizations
 (require 'mine/themes)

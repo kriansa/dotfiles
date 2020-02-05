@@ -8,6 +8,61 @@
 
 (provide 'mine/projectify)
 
+;;; This block is the mini-module that makes the thin integration between Treemacs and Projectile.
+;;; Whenever there's a project change on Projectile, its tree will show up on Treemacs.
+
+(defun mine/treemacs-set-single-project-to-default-workspace (project-name project-path)
+  "Set a single project named PROJECT-NAME in the PROJECT-PATH to the default workspace."
+  (treemacs-block
+    (treemacs--invalidate-buffer-project-cache)
+    (-let
+      [file-content (concat "* Default\n" "** " project-name "\n" " - path :: " project-path "\n")]
+      (f-write file-content 'utf-8 treemacs-persist-file)
+      (treemacs--restore)
+      (treemacs--find-workspace)
+      (treemacs--consolidate-projects)
+      (run-hooks 'treemacs-workspace-edit-hook))))
+
+(defvar last-selected-project nil
+  "This is the last project that was previously selected.")
+
+(defun mine/hook-buffer-switched (&rest _)
+  "This is called when Emacs switch between any buffers."
+  (let ((currently-selected-project (projectile-project-root)))
+    (when (and buffer-file-name (not (eq last-selected-project currently-selected-project)))
+      (setq last-selected-project currently-selected-project)
+      (mine/hook-project-switched currently-selected-project))))
+
+(defun mine/hook-project-switched (project-path)
+  "This is called when we detect a project switch.  The new selected project is PROJECT-PATH."
+  (let ((project-name (projectile-project-name project-path)))
+    (mine/treemacs-set-single-project-to-default-workspace project-name project-path)))
+
+(use-package projectile
+  :defer t
+  :config
+  ;; Add hook for when the buffer is switched
+  (advice-add 'select-window :after 'mine/hook-buffer-switched)
+  (add-hook 'window-buffer-change-functions 'mine/hook-buffer-switched))
+
+;;; projectile + treemacs integration ends here.
+
+;; Use desktop-mode to store sessions
+(use-package desktop
+  :config
+  (setq desktop-path (list (expand-file-name ".tmp" user-emacs-directory)))
+  (desktop-save-mode 1))
+
+;; Saves a list of recent opened files
+(use-package recentf
+  :config
+  (setq recentf-save-file (expand-file-name ".tmp/recentf" user-emacs-directory))
+  (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) ".tmp")))
+  (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) "elpa")))
+  (setq recentf-max-saved-items 500)
+  (recentf-mode))
+
+
 (use-package treemacs
   :ensure t
   :config
@@ -77,6 +132,9 @@
 
   ;; Make ag works with hidden files
   (setq-default counsel-ag-base-command "ag --nocolor --nogroup --hidden --ignore .git %s")
+
+  ;; Hide asterisk buffers by default
+  (setq ivy-ignore-buffers (append ivy-ignore-buffers `("^\*")))
 
   (ivy-mode 1)
   (counsel-mode 1))

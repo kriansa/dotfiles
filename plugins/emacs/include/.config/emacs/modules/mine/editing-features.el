@@ -12,7 +12,8 @@
   :ensure t
   :config
   ;; Add commands to auto-save hook
-  (add-to-list 'super-save-triggers 'evil-switch-to-windows-last-buffer)
+  (dolist (item '(evil-switch-to-windows-last-buffer magit magit-status treemacs))
+    (add-to-list 'super-save-triggers item))
 
   ;; Disable autosave on idle
   (setq super-save-auto-save-when-idle nil)
@@ -25,21 +26,6 @@
 
   (super-save-mode +1))
 
-;; Use desktop-mode to store sessions
-(use-package desktop
-  :config
-  (setq desktop-path (list (expand-file-name ".tmp" user-emacs-directory)))
-  (desktop-save-mode 1))
-
-;; Saves a list of recent opened files
-(use-package recentf
-  :config
-  (setq recentf-save-file (expand-file-name ".tmp/recentf" user-emacs-directory))
-  (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) ".tmp")))
-  (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) "elpa")))
-  (setq recentf-max-saved-items 500)
-  (recentf-mode))
-
 ;; expand-region allows us to keep expanding the current selection by sexps
 (use-package expand-region :ensure t)
 
@@ -50,6 +36,11 @@
   :config
   ;; Move the cursor after expanding
   (setq emmet-move-cursor-between-quotes t))
+
+;; Automatically detect the indentation style
+(use-package dtrt-indent
+  :ensure t
+  :hook (prog-mode . dtrt-indent-mode))
 
 (use-package smartparens
   :ensure t
@@ -153,15 +144,13 @@
   (setq lsp-enable-snippet t)
   ;; Times out after 5s
   (setq lsp-response-timeout 5)
-  ;; Don't make changes I don't explicitely told you to
+  ;; Don't make changes I didn't explicitely told you to
   (setq lsp-before-save-edits nil)
 
   ;; Disable symbol highlighting
   (setq lsp-enable-symbol-highlighting nil)
   ;; Disable showing docs on hover
-  (setq lsp-eldoc-enable-hover nil)
-  ;; Disable showing symbol all signatures for a given method. Instead, shows only the current one
-  (setq lsp-signature-render-all nil))
+  (setq lsp-eldoc-enable-hover nil))
 
 (use-package company-lsp
   :ensure t

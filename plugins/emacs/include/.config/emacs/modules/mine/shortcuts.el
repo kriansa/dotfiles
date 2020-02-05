@@ -128,6 +128,7 @@
 (use-package treemacs
   :config
   (define-key evil-normal-state-map ",," 'treemacs)
+  (define-key evil-treemacs-state-map ",," 'treemacs-quit)
   (define-key evil-treemacs-state-map (kbd "A") 'mine/toggle-maximize-treemacs))
 
 ;; evil-args
@@ -167,14 +168,15 @@
   ;; Global keys
   (global-set-key (kbd "C-s") 'swiper)
   (global-set-key (kbd "M-x") 'counsel-M-x)
-  (define-key evil-normal-state-map (kbd "SPC SPC") 'mine/switch-buffer)
-  (define-key evil-normal-state-map (kbd "C-SPC C-SPC") 'ivy-switch-buffer)
+  (define-key evil-normal-state-map (kbd "SPC SPC") 'counsel-projectile-switch-to-buffer)
+  (define-key evil-normal-state-map (kbd "C-SPC C-SPC") 'mine/switch-all-buffers)
   (define-key evil-normal-state-map (kbd "SPC a") 'counsel-ag)
+  (define-key evil-visual-state-map (kbd "SPC s") 'mine/search-selected-text)
   (define-key evil-normal-state-map (kbd "SPC s") 'mine/search-word-under-cursor))
 
 (use-package counsel-projectile
   :config
-  ;; Switch between implementation and test ([p]rojectile [t]oggle))
+  ;; Switch between implementation and test ([p]roject [t]oggle))
   (define-key evil-normal-state-map (kbd "SPC pt")
     'projectile-toggle-between-implementation-and-test)
 
