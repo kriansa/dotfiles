@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#
+# Create a self signed certificate and private key in the current folder
+#
+# Usage: create-self-signed-cert <domain_name>
+
+domain=$1
+
+openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 \
+  -subj "/C=BR/ST=SP/L=Sao Paulo/O=ACME/OU=Technology/CN=$domain"
