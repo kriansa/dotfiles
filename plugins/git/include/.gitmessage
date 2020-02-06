@@ -35,3 +35,7 @@
 #  - The FOOTER should contain any information about Breaking
 #    Changes and is also the place to reference GitHub issues that
 #    this commit closes
+#
+# Magit tips:
+#  - Use `C-c C-c` to commit this message
+#  - Use `C-c C-k` to cancel a commit
