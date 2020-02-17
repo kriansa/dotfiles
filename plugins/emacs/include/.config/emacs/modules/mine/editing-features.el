@@ -12,7 +12,11 @@
   :ensure t
   :config
   ;; Add commands to auto-save hook
-  (dolist (item '(evil-switch-to-windows-last-buffer magit magit-status treemacs))
+  (dolist (item '(evil-switch-to-windows-last-buffer
+                   counsel-projectile-switch-to-buffer
+                   magit
+                   magit-status
+                   treemacs))
     (add-to-list 'super-save-triggers item))
 
   ;; Disable autosave on idle

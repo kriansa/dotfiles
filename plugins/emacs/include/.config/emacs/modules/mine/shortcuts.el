@@ -22,10 +22,15 @@
   (global-unset-key (kbd "s-x"))
   (global-unset-key (kbd "M-d"))
   (global-unset-key (kbd "M-v"))
+
   ;; Undo-tree
-  (global-unset-key (kbd "C-_"))
+  (define-key undo-tree-map (kbd "C-_") nil)
+  (define-key undo-tree-map (kbd "C-/") nil)
+  (define-key undo-tree-map (kbd "C-?") nil)
   (global-unset-key (kbd "s-z"))
-  (global-unset-key (kbd "C-/"))
+
+  ;; C-? to describe a keybinding
+  (global-set-key (kbd "C-?") 'describe-key)
 
   ;; These shortcut removals is to mimic closely Vim's behavior
   (global-unset-key (kbd "C-h"))
@@ -160,10 +165,10 @@
   (define-key ivy-minibuffer-map (kbd "C-d") 'ivy-scroll-up-command)
   (define-key ivy-minibuffer-map (kbd "C-u") 'ivy-scroll-down-command)
   (define-key ivy-minibuffer-map (kbd "C-w") 'backward-kill-word)
+  (define-key ivy-minibuffer-map (kbd "C-x") 'ivy-switch-buffer-kill)
 
-  ;; On buffer switch buffers, use C-d to kill buffers
+  ;; On buffer switch buffers, don't use C-k to kill buffers
   (define-key ivy-switch-buffer-map (kbd "C-k") 'ivy-previous-line)
-  (define-key ivy-switch-buffer-map (kbd "C-d") 'ivy-switch-buffer-kill)
 
   ;; Global keys
   (global-set-key (kbd "C-s") 'swiper)

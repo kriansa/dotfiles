@@ -10,11 +10,12 @@
 ; Initial mode
 (setq-default major-mode 'text-mode)
 
-;; Ensure we consider `_` as part of a word
-(defun mine/set-word-boundaries ()
-  "Define what is part of a word."
-  (interactive)
-  (modify-syntax-entry ?_ "w"))
+;; By default, use _ as part of the words on all prog modes
+(use-package prog-mode
+  :config
+  (add-hook 'prog-mode-hook
+    (defun mine/set-word-boundaries-default ()
+      (modify-syntax-entry ?_ "w"))))
 
 (use-package beancount :mode ("\\.beancount\\'" . beancount-mode))
 (use-package elixir-mode :ensure t)
@@ -62,8 +63,7 @@
   (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-  (add-hook 'web-mode-hook 'mine/set-word-boundaries))
+  (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode)))
 
 (use-package go-mode
   :ensure t
