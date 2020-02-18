@@ -102,7 +102,7 @@
 
 (use-package emmet-mode
   :config
-  (define-key evil-insert-state-map (kbd "C-j") 'emmet-expand-line))
+  (define-key evil-insert-state-map (kbd "C-x ,") 'emmet-expand-line))
 
 (use-package markdown-mode
   :config
