@@ -53,7 +53,7 @@ gnome() {
   gnome_shortcuts
 
   echo "If there are any new configuration to GNOME, please add them to:"
-  echo "  - ansible/roles/gnome/tasks/setup.yml"
+  echo "  - ansible/roles/gnome/tasks/configure_gnome.yml"
 }
 
 gpg() {

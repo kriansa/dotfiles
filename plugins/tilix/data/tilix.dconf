@@ -13,7 +13,7 @@ terminal-title-style='none'
 theme-variant='dark'
 use-overlay-scrollbar=true
 use-tabs=true
-window-style='disable-csd-hide-toolbar'
+window-style='borderless'
 
 [keybindings]
 app-new-session='<Alt>t'
@@ -53,6 +53,7 @@ win-switch-to-session-9='<Alt>9'
 
 [profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d]
 background-color='#1E1F29'
+background-transparency-percent=0
 badge-color='#AC7EA8'
 badge-color-set=false
 badge-position='northeast'
@@ -60,6 +61,7 @@ badge-text=''
 bold-color-set=false
 cursor-blink-mode='off'
 cursor-colors-set=false
+cursor-shape='block'
 dim-transparency-percent=44
 font='Iosevka Term 12'
 foreground-color='#F8F8F2'
