@@ -13,7 +13,6 @@
 # Disable this snippet as soon as this start working.
 - name: disable DNSSEC for systemd-resolved
   become: true
-  tags: only
   # This line reads "#DNSSEC=allow-downgrade" by default
   lineinfile:
     line: 'DNSSEC=no'
