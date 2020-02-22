@@ -4,9 +4,22 @@ This is a list of current bugs I'm tracking for my setup.
 
 ## systemd-resolved
 
-DNSSEC resolution is not falling back to normal DNS when a domain has a bad signature.
+* DNSSEC resolution is not falling back to normal DNS when a domain has a bad signature.
 
-This is being worked around [here](ansible/roles/base-arch/tasks/disable_resolved_dnssec.yml).
+  This is being worked around [here](ansible/roles/base-arch/tasks/disable_resolved_dnssec.yml).
+
+## PulseAudio
+
+* Delayed volume changes
+  PulseAudio enables by default "deferred volume", which is a way to overcome some issues caused by
+  the "flat volume" configuration enabled by default on most distros.
+  One of the side effects of deferred volume is a small delay while changing the volume of the HW
+  output. On Arch, flat volume is disabled, so it doesn't make sense to keep deferred volume on as
+  well.
+
+  This is being worked around [here](ansible/roles/base-arch/tasks/fix_delayed_volume.yml).
+ 
+  See: https://bugs.archlinux.org/task/46904
 
 ## GNOME
 

@@ -11,7 +11,6 @@
 - name: disable deferred volume on PulseAudio
   become: true
   notify: restart pulseaudio
-  tags: only
   lineinfile:
     line: "enable-deferred-volume = no"
     path: /etc/pulse/daemon.conf
