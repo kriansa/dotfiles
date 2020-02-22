@@ -1,6 +1,7 @@
 ---
 - name: add cifs drive credentials file
-  tags: only
+  become: true
+  become_user: "{{ user_name }}"
   copy:
     dest: "{{ home_path }}/.drive-smb-credentials"
     mode: 0600
@@ -10,7 +11,6 @@
 
 - name: add drive fstab entry
   become: true
-  tags: only
   blockinfile:
     path: /etc/fstab
     marker: "# Enable network attached Drive ({mark})"
