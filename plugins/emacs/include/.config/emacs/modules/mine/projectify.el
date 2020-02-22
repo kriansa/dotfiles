@@ -15,8 +15,8 @@
   "Set a single project named PROJECT-NAME in the PROJECT-PATH to the default workspace."
   (treemacs-block
     (treemacs--invalidate-buffer-project-cache)
-    (-let
-      [file-content (concat "* Default\n" "** " project-name "\n" " - path :: " project-path "\n")]
+    (let
+      ((file-content (concat "* Default\n" "** " project-name "\n" " - path :: " project-path "\n")))
       (f-write file-content 'utf-8 treemacs-persist-file)
       (treemacs--restore)
       (treemacs--find-workspace)
@@ -24,19 +24,21 @@
       (run-hooks 'treemacs-workspace-edit-hook))))
 
 (defvar last-selected-project nil
-  "This is the last project that was previously selected.")
+  "This is the path of the last selected project.")
 
 (defun mine/hook-buffer-switched (&rest _)
   "This is called when Emacs switch between any buffers."
-  (let ((currently-selected-project (projectile-project-root)))
-    (when (and buffer-file-name (not (eq last-selected-project currently-selected-project)))
-      (setq last-selected-project currently-selected-project)
-      (mine/hook-project-switched currently-selected-project))))
+  (let ((current-project-path (projectile-project-root)))
+    (when (and buffer-file-name (not (equal last-selected-project current-project-path)))
+      (let ((current-project-name (projectile-project-name current-project-path)))
+        (setq last-selected-project current-project-path)
+        (mine/hook-project-switched current-project-name current-project-path)))))
 
-(defun mine/hook-project-switched (project-path)
-  "This is called when we detect a project switch.  The new selected project is PROJECT-PATH."
-  (let ((project-name (projectile-project-name project-path)))
-    (mine/treemacs-set-single-project-to-default-workspace project-name project-path)))
+(defun mine/hook-project-switched (project-name project-path)
+  "This is called when we detect a project switch.
+The new selected project is PROJECT-PATH.
+and the the PROJECT-NAME is the name set by projectile."
+  (mine/treemacs-set-single-project-to-default-workspace project-name project-path))
 
 (use-package projectile
   :defer t

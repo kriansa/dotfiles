@@ -26,6 +26,16 @@
 (menu-bar-mode -1) ; Disable menu bar
 (scroll-bar-mode -1) ; Disable the scroll bar
 (blink-cursor-mode 0) ; Disable cursor blinking
+(setq-default truncate-lines t) ; Enable line truncation by default
+
+;; Ensure we have line truncation disabled on Help buffers
+(add-hook 'help-mode-hook
+  (defun mine/disable-line-truncation ()
+    "Disable line truncation, even in split windows."
+    (let ((inhibit-message t) ; No messages in the echo area
+           message-log-max ; No messages in the *Messages* buffer
+           truncate-partial-width-windows) ; No truncation in split windows
+      (toggle-truncate-lines 0))))
 
 ;; Many emacs commands will ask you a “yes/no” question, and you have to type
 ;; the full word “yes” or “no”. (such as when deleting a file) You can make

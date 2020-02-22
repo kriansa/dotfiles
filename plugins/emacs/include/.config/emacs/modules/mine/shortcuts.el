@@ -32,6 +32,10 @@
   ;; C-? to describe a keybinding
   (global-set-key (kbd "C-?") 'describe-key)
 
+  ;; C-x 2 and C-x 3 opens new windows and switch to them immediately
+  (global-set-key "\C-x2" (lambda () (interactive)(split-window-vertically) (other-window 1)))
+  (global-set-key "\C-x3" (lambda () (interactive)(split-window-horizontally) (other-window 1)))
+
   ;; These shortcut removals is to mimic closely Vim's behavior
   (global-unset-key (kbd "C-h"))
   (global-unset-key (kbd "C-l"))
@@ -170,9 +174,9 @@
   ;; On buffer switch buffers, don't use C-k to kill buffers
   (define-key ivy-switch-buffer-map (kbd "C-k") 'ivy-previous-line)
 
-  ;; Global keys
-  (global-set-key (kbd "C-s") 'swiper)
   (global-set-key (kbd "M-x") 'counsel-M-x)
+  (define-key evil-normal-state-map (kbd "C-s") 'swiper-isearch)
+  (define-key evil-visual-state-map (kbd "C-s") 'swiper-isearch-thing-at-point)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'counsel-projectile-switch-to-buffer)
   (define-key evil-normal-state-map (kbd "C-SPC C-SPC") 'mine/switch-all-buffers)
   (define-key evil-normal-state-map (kbd "SPC a") 'counsel-ag)
