@@ -5,3 +5,9 @@ use_hidpi: no
 # The user we're installing to
 # Should be the same set at base-arch's role
 user_name: dpereira
+
+# Network CIFS share for my user
+shared_drive:
+  location: //nas.lan/daniel
+  username: "{{ user_name }}"
+  password: "{{ lookup('passwordstore', 'Network/NAS-Drive-Password') }}"

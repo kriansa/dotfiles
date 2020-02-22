@@ -1,0 +1,19 @@
+---
+- name: add cifs drive credentials file
+  tags: only
+  copy:
+    dest: "{{ home_path }}/.drive-smb-credentials"
+    mode: 0600
+    content: |
+      username={{ shared_drive.username }}
+      password={{ shared_drive.password }}
+
+- name: add drive fstab entry
+  become: true
+  tags: only
+  blockinfile:
+    path: /etc/fstab
+    marker: "# Enable network attached Drive ({mark})"
+    block: |
+      # /home/{{ user_name }}/Drive
+      {{ shared_drive.location }}	{{ home_path }}/Drive	cifs	_netdev,vers=3.0,x-gvfs-hide,credentials={{ home_path }}/.drive-smb-credentials,uid={{ user_name }},gid={{ user_name }},iocharset=utf8,noauto,x-systemd.automount,x-systemd.mount-timeout=5,x-systemd.requires=nss-lookup.target,rw	0	0
