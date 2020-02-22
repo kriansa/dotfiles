@@ -31,6 +31,10 @@
       # Enable MTP protocol (for connecting phones)
       - gvfs-mtp
 
+      # Enable NFS & SMB on Nautilus
+      - gvfs-nfs
+      - gvfs-smb
+
 - name: install AUR packages for customized gnome
   become: true
   become_user: "{{ user_name }}"

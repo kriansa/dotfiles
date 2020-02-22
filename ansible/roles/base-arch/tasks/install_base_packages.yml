@@ -12,7 +12,7 @@
 - name: install base packages
   become: true
   notify: restart dbus
-  pacman: 
+  pacman:
     state: present
     name:
       - base-devel
@@ -23,6 +23,7 @@
       - git
       - zsh
       - rsync
+      - nfs-utils
       - gnupg
       - tree
       - htop
