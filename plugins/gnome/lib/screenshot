@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+#
+# This utility is a wrapper arond gnome-screenshot that takes screen shots using the same file name
+# format used by macOS screenshots. This is useful for keeping consistency between the OSes since
+# I use the same folder for screenshots on both systems.
+
+name="Screen Shot $(date "+%F") at $(date "+%I.%M.%S %p")"
+path=$(gsettings get org.gnome.gnome-screenshot auto-save-directory | cut -d "'" -f 2)
+ext=$(gsettings get org.gnome.gnome-screenshot default-file-type | cut -d "'" -f 2)
+
+gnome-screenshot -f "$path/$name.$ext" "$@"

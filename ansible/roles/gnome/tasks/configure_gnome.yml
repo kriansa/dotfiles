@@ -67,8 +67,8 @@
     - { path: org.gtk.Settings.FileChooser, name: sort-order, value: "ascending" }
     - { path: org.gtk.Settings.FileChooser, name: sort-column, value: "name" }
     # Backgrounds
-    - { path: org.gnome.desktop.background, name: picture-uri, value: "file://{{ home_path }}/Mountains/morning/adventure-alps-climb.jpg" }
-    - { path: org.gnome.desktop.screensaver, name: picture-uri, value: "file://{{ home_path }}/Mountains/morning/adventure-alps-climb.jpg" }
+    - { path: org.gnome.desktop.background, name: picture-uri, value: "file://{{ home_path }}/Drive/Media/Wallpapers/far_cry_4.jpg" }
+    - { path: org.gnome.desktop.screensaver, name: picture-uri, value: "file://{{ home_path }}/Drive/Media/Wallpapers/far_cry_4.jpg" }
     # Set keyboard rate & delay
     - { path: org.gnome.desktop.peripherals.keyboard, name: repeat-interval, value: "uint32 30" }
     - { path: org.gnome.desktop.peripherals.keyboard, name: delay, value: "uint32 250" }
