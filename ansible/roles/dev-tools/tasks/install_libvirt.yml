@@ -1,0 +1,15 @@
+---
+- name: install libvirt
+  become: true
+  pacman: 
+    state: present
+    name:
+      - qemu
+      - virt-manager
+      - ebtables
+      - dnsmasq
+      - dmidecode # This is an optional dependency for libvirtd
+
+- name: enable libvirt at boot time
+  become: true
+  systemd: state=started enabled=yes name=libvirtd.service

@@ -3,7 +3,7 @@
 
 - name: install development packages
   become: true
-  pacman: 
+  pacman:
     state: present
     name:
       - python
@@ -26,13 +26,6 @@
       # Java stuff
       - jdk-openjdk
       - gradle
-
-      # Virtualization stuff
-      - qemu
-      - virt-manager
-      - ebtables
-      - dnsmasq
-      - dmidecode # This is an optional dependency for libvirtd
 
       # DevOps tools
       - ansible
