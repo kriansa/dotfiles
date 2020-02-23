@@ -3,3 +3,4 @@
 - import_tasks: install_docker.yml
 - import_tasks: install_node.yml
 - import_tasks: install_ruby.yml
+- import_tasks: enable_services.yml

@@ -32,6 +32,7 @@
       - virt-manager
       - ebtables
       - dnsmasq
+      - dmidecode # This is an optional dependency for libvirtd
 
       # DevOps tools
       - ansible
