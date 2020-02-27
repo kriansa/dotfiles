@@ -8,6 +8,7 @@ user_name: dpereira
 
 # Network CIFS share for my user
 shared_drive:
-  location: //nas.lan/daniel
+  media_location: //nas.lan/media
+  drive_location: nas.lan:/mnt/pool1/Daniel/Unix
   username: "{{ user_name }}"
   password: "{{ lookup('passwordstore', 'Network/NAS-Drive-Password') }}"
