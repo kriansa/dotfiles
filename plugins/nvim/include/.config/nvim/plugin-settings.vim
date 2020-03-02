@@ -1,7 +1,7 @@
 " External plugins
 let g:ruby_host_prog = systemlist("RBENV_VERSION=$(rbenv global) rbenv which neovim-ruby-host")[0]
 
-" NERDTree settings 
+" NERDTree settings
 let g:NERDTreeShowHidden=1
 let g:NERDTreeQuitOnOpen=1
 let g:NERDTreeIgnore=['^\.git$', '\~$']
@@ -57,7 +57,7 @@ let g:airline_section_y = ''
 if !exists('g:airline_symbols')
   let g:airline_symbols = {}
 endif
-let g:airline_symbols.notexists = ' '
+let g:airline_symbols.notexists = ' [new]'
 
 " Highlight yank
 let g:highlightedyank_highlight_duration = 80
