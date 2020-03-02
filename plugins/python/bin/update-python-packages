@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Plugin path
+PLUGIN_PATH=$(cd "$(dirname "$0")/.." || exit; pwd)
+
+# Install all packages described by requirements.txt as well as their dependencies, even if they've
+# been installed already
+pip install --user --upgrade --upgrade-strategy eager \
+  --requirement "$PLUGIN_PATH/data/requirements.txt"
