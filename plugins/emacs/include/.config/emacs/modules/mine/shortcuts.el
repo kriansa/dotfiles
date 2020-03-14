@@ -97,16 +97,17 @@
   ;; Remap g-d to make it act just like C-[
   (define-key evil-normal-state-map (kbd "gd") 'evil-jump-to-tag))
 
+(use-package smerge-mode
+  :config
+  ;; Use better bindings for usage with evil-mode
+  (define-key evil-normal-state-map (kbd "SPC dp") 'smerge-keep-current))
+
 (use-package windsize
   :config
   (global-set-key (kbd "C-S-<left>") 'windsize-left)
   (global-set-key (kbd "C-S-<right>") 'windsize-right)
   (global-set-key (kbd "C-S-<up>") 'windsize-up)
   (global-set-key (kbd "C-S-<down>") 'windsize-down))
-
-(use-package emmet-mode
-  :config
-  (define-key evil-insert-state-map (kbd "C-x ,") 'emmet-expand-line))
 
 (use-package markdown-mode
   :config

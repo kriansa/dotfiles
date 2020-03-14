@@ -65,6 +65,9 @@
   (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode)))
 
+(use-package json-mode
+  :ensure t)
+
 (use-package go-mode
   :ensure t
   :config

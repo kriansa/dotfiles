@@ -28,6 +28,18 @@
   (setq scroll-margin 0)
   (setq scroll-conservatively 9999)
 
+  ;; evil-emacs-state is annoying, the following function and hook automatically
+  ;; switch back to evil-normal-state whenever the evil-emacs-state is entered.
+  ;; It allows a more consistent navigation experience among all mode maps.
+  ;; To enter special commands of custom mode maps, just enter the insert mode :-)
+  ;; See: https://gist.github.com/syl20bnr/4447166
+  (defun evil-emacs-state-2-evil-normal-state ()
+    (evil-normal-state)
+    (remove-hook 'post-command-hook 'evil-emacs-state-2-evil-normal-state))
+  (add-hook 'evil-emacs-state-entry-hook
+    (lambda ()
+      (add-hook 'post-command-hook 'evil-emacs-state-2-evil-normal-state)))
+
   ;; Packages to emulate closely Vim's cool features
 
   (use-package anzu :ensure t)

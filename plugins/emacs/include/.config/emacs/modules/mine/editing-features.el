@@ -33,18 +33,13 @@
 ;; expand-region allows us to keep expanding the current selection by sexps
 (use-package expand-region :ensure t)
 
-;; Emmet is the old zencode
-(use-package emmet-mode
-  :ensure t
-  :hook ((sgml-mode css-mode) . emmet-mode)
-  :config
-  ;; Move the cursor after expanding
-  (setq emmet-move-cursor-between-quotes t))
-
 ;; Automatically detect the indentation style
 (use-package dtrt-indent
   :ensure t
-  :hook (prog-mode . dtrt-indent-mode))
+  :hook (prog-mode . dtrt-indent-mode)
+  :config
+  (setq dtrt-indent-max-lines 100)
+  (setq dtrt-indent-verbosity 0))
 
 (use-package smartparens
   :ensure t
@@ -123,6 +118,7 @@
 
 (use-package yasnippet-snippets
   :ensure t
+  :after yasnippet
   :config
   (yas-reload-all))
 
@@ -130,39 +126,52 @@
 (use-package company
   :ensure t
   :config
+  (defun mine/company-backend-with-yas (backends)
+    "Add :with company-yasnippet to company BACKENDS.
+Taken from https://github.com/syl20bnr/spacemacs/pull/179."
+    (if (and (listp backends) (memq 'company-yasnippet backends))
+      backends
+      (append (if (consp backends)
+                backends
+                (list backends))
+        '(:with company-yasnippet))))
+
+  ;; add yasnippet to all backends
+  (setq company-backends (mapcar #'mine/company-backend-with-yas company-backends))
+
   (global-company-mode))
 
-;; LSP (Language Server Protocol) support
-(use-package lsp-mode
-  :ensure t
-  :hook (prog-mode . lsp)
-  :commands lsp
-  :config
-  ;; Use a separate path for the session file
-  (setq lsp-session-file (expand-file-name ".tmp/lsp-session-v1" user-emacs-directory))
-  ;; Use projectile to guess the root path
-  (setq lsp-auto-guess-root t)
-  ;; Disable Flymake
-  (setq lsp-prefer-flymake :none)
-  ;; Enable snippets
-  (setq lsp-enable-snippet t)
-  ;; Times out after 5s
-  (setq lsp-response-timeout 5)
-  ;; Don't make changes I didn't explicitely told you to
-  (setq lsp-before-save-edits nil)
+;; ;; LSP (Language Server Protocol) support
+;; (use-package lsp-mode
+;;   :ensure t
+;;   :hook (prog-mode . lsp)
+;;   :commands lsp
+;;   :config
+;;   ;; Use a separate path for the session file
+;;   (setq lsp-session-file (expand-file-name ".tmp/lsp-session-v1" user-emacs-directory))
+;;   ;; Use projectile to guess the root path
+;;   (setq lsp-auto-guess-root t)
+;;   ;; Disable Flymake
+;;   (setq lsp-prefer-flymake :none)
+;;   ;; Enable snippets
+;;   (setq lsp-enable-snippet t)
+;;   ;; Times out after 5s
+;;   (setq lsp-response-timeout 5)
+;;   ;; Don't make changes I didn't explicitely told you to
+;;   (setq lsp-before-save-edits nil)
 
-  ;; Disable symbol highlighting
-  (setq lsp-enable-symbol-highlighting nil)
-  ;; Disable showing docs on hover
-  (setq lsp-eldoc-enable-hover nil))
+;;   ;; Disable symbol highlighting
+;;   (setq lsp-enable-symbol-highlighting nil)
+;;   ;; Disable showing docs on hover
+;;   (setq lsp-eldoc-enable-hover nil))
 
-(use-package company-lsp
-  :ensure t
-  :commands company-lsp)
+;; (use-package company-lsp
+;;   :ensure t
+;;   :commands company-lsp)
 
-(use-package lsp-java
-  :ensure t
-  :after lsp
-  :hook (lsp . java-mode))
+;; (use-package lsp-java
+;;   :ensure t
+;;   :after lsp
+;;   :hook (lsp . java-mode))
 
 ;;; editing-features.el ends here

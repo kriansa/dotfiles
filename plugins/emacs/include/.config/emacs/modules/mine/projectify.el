@@ -50,10 +50,10 @@ and the the PROJECT-NAME is the name set by projectile."
 ;;; projectile + treemacs integration ends here.
 
 ;; Use desktop-mode to store sessions
-(use-package desktop
-  :config
-  (setq desktop-path (list (expand-file-name ".tmp" user-emacs-directory)))
-  (desktop-save-mode 1))
+;; (use-package desktop
+;;   :config
+;;   (setq desktop-path (list (expand-file-name ".tmp" user-emacs-directory)))
+;;   (desktop-save-mode 1))
 
 ;; Saves a list of recent opened files
 (use-package recentf
@@ -156,6 +156,7 @@ and the the PROJECT-NAME is the name set by projectile."
   ;; See: https://github.com/bbatsov/projectile/blob/master/doc/projects.md#storing-project-settings
   (setq projectile-sort-order 'recently-active)
   (setq projectile-indexing-method 'hybrid)
+  (setq projectile-enable-caching t)
 
   (add-to-list 'projectile-globally-ignored-files ".DS_Store")
 
