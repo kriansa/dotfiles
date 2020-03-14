@@ -149,6 +149,8 @@ and the the PROJECT-NAME is the name set by projectile."
   (setq projectile-completion-system 'ivy)
   (setq projectile-known-projects-file
     (expand-file-name ".tmp/projectile-bookmarks.eld" user-emacs-directory))
+  (setq projectile-cache-file
+    (expand-file-name ".tmp/projectile.cache" user-emacs-directory))
 
   ;; Sorting only works if we use 'hybrid as the indexing method. On large projects, it may affect
   ;; negatively the performance, so beware. If needed, one can set per-project (or folder) variables
