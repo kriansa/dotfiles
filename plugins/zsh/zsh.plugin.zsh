@@ -17,6 +17,7 @@ fi
 # Setup aliases
 alias sudo="sudo " # Pass aliases to root account
 alias ag="ag --hidden --ignore .git"
+alias cdo="cd ~/Downloads"
 
 # Load ZSH native functions
 autoload -U edit-command-line
