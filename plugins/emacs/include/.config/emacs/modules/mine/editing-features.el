@@ -33,6 +33,10 @@
 ;; expand-region allows us to keep expanding the current selection by sexps
 (use-package expand-region :ensure t)
 
+;; Enable usage of dead keys on non-US keyboards
+;; See: https://www.emacswiki.org/emacs/DeadKeys
+(use-package iso-transl)
+
 ;; Automatically detect the indentation style
 (use-package dtrt-indent
   :ensure t
@@ -113,7 +117,7 @@
 
 ;; Snippets
 (use-package yasnippet
-  ;; Hooks to prog-mode are already setup by lsp-mode
+  :hook (prog-mode . yas-minor-mode)
   :ensure t)
 
 (use-package yasnippet-snippets

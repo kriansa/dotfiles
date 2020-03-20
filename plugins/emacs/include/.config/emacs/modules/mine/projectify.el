@@ -45,15 +45,10 @@ and the the PROJECT-NAME is the name set by projectile."
   :config
   ;; Add hook for when the buffer is switched
   (advice-add 'select-window :after 'mine/hook-buffer-switched)
-  (add-hook 'window-buffer-change-functions 'mine/hook-buffer-switched))
+  (add-hook 'window-buffer-change-functions 'mine/hook-buffer-switched)
+  (add-hook 'delete-frame-functions 'mine/close-project))
 
 ;;; projectile + treemacs integration ends here.
-
-;; Use desktop-mode to store sessions
-;; (use-package desktop
-;;   :config
-;;   (setq desktop-path (list (expand-file-name ".tmp" user-emacs-directory)))
-;;   (desktop-save-mode 1))
 
 ;; Saves a list of recent opened files
 (use-package recentf
@@ -63,7 +58,6 @@ and the the PROJECT-NAME is the name set by projectile."
   (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) "elpa")))
   (setq recentf-max-saved-items 500)
   (recentf-mode))
-
 
 (use-package treemacs
   :ensure t

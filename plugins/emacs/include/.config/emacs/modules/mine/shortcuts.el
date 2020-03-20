@@ -110,6 +110,12 @@
   (define-key evil-treemacs-state-map (kbd "C-h") 'windmove-left)
   (define-key evil-treemacs-state-map (kbd "C-l") 'windmove-right))
 
+(use-package company
+  :defer t
+  :config
+  (define-key company-active-map (kbd "C-w") nil)
+  (define-key evil-insert-state-map (kbd "C-SPC") 'company-complete))
+
 (use-package evil-collection
   :defer t
   :config

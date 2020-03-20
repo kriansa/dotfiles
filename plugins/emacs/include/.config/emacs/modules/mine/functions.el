@@ -106,4 +106,13 @@
         (set-window-buffer other-window this-buffer)
         (select-window other-window)))))
 
+(defun mine/close-project (&rest _)
+  "Save and kill all buffers for the current project."
+  (interactive)
+  (projectile-save-project-buffers)
+  (let ((always-true (lambda (orig-fun &rest args) t)))
+    (advice-add 'yes-or-no-p :around always-true)
+    (projectile-kill-buffers)
+    (advice-remove 'yes-or-no-p always-true)))
+
 ;;; functions.el ends here
