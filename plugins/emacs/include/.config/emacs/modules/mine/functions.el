@@ -88,4 +88,22 @@
               ":" (format-mode-line "%l")))
   (message "File path copied to clipboard."))
 
+(defun mine/swap-windows (dir)
+  "Swap the content between two windows on the DIR direction (up, down, left or right)."
+  (interactive)
+  (let* ((other-window (windmove-find-other-window dir nil nil))
+          (other-buffer (window-buffer other-window))
+          (other-bufname (buffer-name other-buffer))
+          (this-buffer (window-buffer (selected-window)))
+          (this-bufname (buffer-name this-buffer)))
+    (if (or (null other-window)
+          (string-prefix-p " *Minibuf" other-bufname)
+          (string-prefix-p " *Treemacs-Scoped-Buffer" other-bufname)
+          (string-prefix-p " *Treemacs-Scoped-Buffer" this-bufname))
+        (user-error "No window %s from selected window" dir)
+      (progn
+        (set-window-buffer (selected-window) other-buffer)
+        (set-window-buffer other-window this-buffer)
+        (select-window other-window)))))
+
 ;;; functions.el ends here

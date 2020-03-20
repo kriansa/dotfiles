@@ -124,22 +124,33 @@ and the the PROJECT-NAME is the name set by projectile."
 (use-package treemacs-magit :ensure t :after treemacs magit)
 
 ;; Ivy-mode
-(use-package swiper
+(use-package ivy
   :ensure t
-  :after counsel ivy
   :config
-  ;; Ensure compatibility with magit
-  (if (fboundp 'magit-status)
-    (setq magit-completing-read-function 'ivy-completing-read))
-
-  ;; Make ag works with hidden files
-  (setq-default counsel-ag-base-command "ag --nocolor --nogroup --hidden --ignore .git %s")
-
   ;; Hide asterisk buffers by default
   (setq ivy-ignore-buffers (append ivy-ignore-buffers `("^\*" "^magit[-a-zA-Z0-9]*:")))
 
-  (ivy-mode 1)
+  ;; Highlights virtual buffers when completing buffer names.
+  (setq ivy-use-virtual-buffers t)
+
+  (ivy-mode 1))
+
+;; Ensure compatibility with magit
+(use-package ivy
+  :ensure t
+  :after magit
+  :config
+  (setq magit-completing-read-function 'ivy-completing-read))
+
+(use-package counsel
+  :ensure t
+  :after ivy
+  :config
+  ;; Make ag works with hidden files
+  (setq-default counsel-ag-base-command "ag --nocolor --nogroup --hidden --ignore .git %s")
   (counsel-mode 1))
+
+(use-package swiper :ensure t)
 
 ;; Projectile
 (use-package projectile

@@ -65,6 +65,14 @@
   (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode)))
 
+(use-package js2-mode
+  :ensure t
+  :hook (js-mode . js2-minor-mode)
+  :config
+  ;; Disable js2-mode linting because we're using Flycheck already
+  (setq js2-mode-show-parse-errors nil)
+  (setq js2-mode-show-strict-warnings nil))
+
 (use-package json-mode
   :ensure t)
 

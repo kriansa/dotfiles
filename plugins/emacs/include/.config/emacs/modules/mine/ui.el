@@ -27,6 +27,7 @@
 (scroll-bar-mode -1) ; Disable the scroll bar
 (blink-cursor-mode 0) ; Disable cursor blinking
 (setq-default truncate-lines t) ; Enable line truncation by default
+(setq-default cursor-in-non-selected-windows nil) ; Disable cursor in non selected windows
 
 ;; Ensure we have line truncation disabled on Help buffers
 (add-hook 'help-mode-hook
@@ -124,6 +125,9 @@
 
   ;; Show the path to the files when visiting symlinks
   (setq find-file-visit-truename t)
+
+  ;; Whether display the buffer encoding.
+  (setq doom-modeline-buffer-encoding nil)
 
   :config
   (setq doom-modeline-buffer-file-name-style 'relative-from-project)

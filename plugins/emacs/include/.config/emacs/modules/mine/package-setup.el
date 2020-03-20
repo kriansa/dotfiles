@@ -14,7 +14,6 @@
 
 ;; Prevent emacs to load all packages at startup
 (setq package-enable-at-startup nil)
-
 ;; Ensure we have use-package
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -33,6 +32,13 @@
     auto-package-update-interval 1
     auto-package-update-last-update-day-filename ".tmp/last-package-update-day")
   :config
-  (add-hook 'after-make-frame-functions 'auto-package-update-maybe))
+  (defun mine/auto-update-when-open-frame (frame)
+    "Automatically invoke auto-update when frame is open"
+    (interactive)
+    (with-selected-frame frame
+      (auto-package-update-maybe)))
+
+  (add-hook 'after-make-frame-functions 'mine/auto-update-when-open-frame)
+  (when (not (daemonp)) (mine/auto-update-when-open-frame (selected-frame))))
 
 ;;; package-setup.el ends here
