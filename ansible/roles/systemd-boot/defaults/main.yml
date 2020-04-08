@@ -13,7 +13,7 @@ dualboot_windows: yes
 silent_boot: no
 
 # What's the default OS we want to boot to
-default_loader: arch
+default_loader: arch.conf
 
 # Installation user - It's used to install packages without root privileges
 # This user should match with base-arch's role

@@ -21,3 +21,12 @@
 - name: lock root password
   become: true
   command: passwd -l root
+
+- name: check for lingering
+  command: loginctl show-user "{{ user_name }}" --property=Linger 2>/dev/null | grep -q 'yes'
+  register: result
+  failed_when: ( result.rc not in [ 0, 1 ] )
+
+- name: enable lingering
+  when: result.rc == 1
+  command: loginctl enable-linger "{{ user_name }}"

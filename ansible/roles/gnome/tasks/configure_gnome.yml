@@ -82,6 +82,12 @@
     - { path: org.gnome.shell.extensions.system-monitor, name: icon-display, value: "false" }
     - { path: org.gnome.shell.extensions.system-monitor, name: gpu-show-menu, value: "true" }
     - { path: org.gnome.shell.extensions.system-monitor, name: disk-usage-style, value: "'none'" }
+    # Night light
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-temperature, value: "uint32 4700" }
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-enabled, value: "true" }
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-schedule-automatic, value: "false" }
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-schedule-from, value: "21.0" }
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-schedule-to, value: "6.0" }
     # Gedit preferences
     - { path: org.gnome.gedit.preferences.editor, name: auto-save, value: "false" }
     - { path: org.gnome.gedit.preferences.editor, name: wrap-mode, value: "'none'" }

@@ -19,6 +19,9 @@
       # mpv for some videos
       - mpv
 
+      # Subtitles editor
+      - gaupol
+
       # Faster camera download
       - rapid-photo-downloader
 
@@ -32,7 +35,7 @@
       - ntfs-3g
 
       # Torrent client
-      - transmission-gtk
+      - transmission-remote-gtk
 
       # Office tools
       - libreoffice-fresh

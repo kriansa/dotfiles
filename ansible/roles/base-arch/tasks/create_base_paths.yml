@@ -7,12 +7,4 @@
     - Drive
     - Downloads
     - Projects
-
-- name: link media external drive to the home folder
-  become: true
-  become_user: "{{ user_name }}"
-  file:
-    src: "{{ home_path }}/Drive/Media"
-    dest: "{{ home_path }}/Media"
-    state: link
-    force: yes
+    - Media
