@@ -13,7 +13,7 @@
       - neovim
       - ncdu
       - jq
-      - the_silver_searcher
+      - ripgrep
       - aws-cli
       - shellcheck
       - tilix
@@ -33,9 +33,6 @@
 
       # LastPass CLI (lpass)
       - lastpass-cli
-
-      # Android Development
-      - android-tools
 
 - name: install development packages on AUR
   become: true

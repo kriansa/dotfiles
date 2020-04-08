@@ -140,8 +140,7 @@ and the the PROJECT-NAME is the name set by projectile."
   :ensure t
   :after ivy
   :config
-  ;; Make ag works with hidden files
-  (setq-default counsel-ag-base-command "ag --nocolor --nogroup --hidden --ignore .git %s")
+  (setq counsel-rg-base-command "rg -M 120 --with-filename --no-heading --line-number --color=never --hidden --ignore-file=$DOTFILES_PATH/.rgignore %s")
   (counsel-mode 1))
 
 (use-package swiper :ensure t)

@@ -254,7 +254,7 @@
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (define-key evil-normal-state-map (kbd "SPC SPC") 'counsel-projectile-switch-to-buffer)
   (define-key evil-normal-state-map (kbd "C-SPC C-SPC") 'mine/switch-all-buffers)
-  (define-key evil-normal-state-map (kbd "SPC a") 'counsel-ag)
+  (define-key evil-normal-state-map (kbd "SPC a") 'counsel-rg)
   (define-key evil-visual-state-map (kbd "SPC s") 'mine/search-selected-text)
   (define-key evil-normal-state-map (kbd "SPC s") 'mine/search-word-under-cursor))
 

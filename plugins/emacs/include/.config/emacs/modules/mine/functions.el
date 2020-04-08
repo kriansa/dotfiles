@@ -50,12 +50,12 @@
 (defun mine/search-word-under-cursor ()
   "Start searching for the word under the cursor."
   (interactive)
-  (counsel-ag (thing-at-point 'word)))
+  (counsel-rg (thing-at-point 'word)))
 
 (defun mine/search-selected-text ()
   "Start searching for the selected text."
   (interactive)
-  (counsel-ag (buffer-substring-no-properties (mark) (point))))
+  (counsel-rg (buffer-substring-no-properties (mark) (point))))
 
 (defun mine/create-line-below ()
   "Create a new line below and return to normal state."
