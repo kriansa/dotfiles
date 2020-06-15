@@ -2,7 +2,8 @@
 call plug#begin('~/.config/nvim/plugged')
 
 " Nerdtree
-Plug 'scrooloose/nerdtree'
+Plug 'preservim/nerdtree'
+Plug 'justinmk/vim-dirvish'
 
 " Vim Airline
 Plug 'vim-airline/vim-airline'
@@ -20,6 +21,7 @@ Plug 'tbastos/vim-lua', { 'for': 'lua' }
 Plug 'keith/swift.vim', { 'for': 'swift' }
 Plug 'elixir-lang/vim-elixir', { 'for': 'elixir' }
 Plug 'jakwings/vim-pony', { 'for': 'pony' }
+Plug 'fatih/vim-go', { 'for': 'golang', 'do': ':GoUpdateBinaries' }
 
 " Markdown
 " Plug 'SidOfc/mkdx'
@@ -76,6 +78,8 @@ Plug 'tyrannicaltoucan/vim-quantum'
 Plug 'crusoexia/vim-monokai'
 Plug 'KabbAmine/yowish.vim'
 Plug 'rakr/vim-one'
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'rakr/vim-two-firewatch'
 
 " Git support
 Plug 'tpope/vim-fugitive'
@@ -84,13 +88,15 @@ Plug 'cohama/agit.vim'
 
 " Fuzzy finder
 Plug 'wincent/ferret'
-Plug 'Yggdroot/LeaderF', { 'do': './install.sh'  }
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
 Plug 'brooth/far.vim'
 
 " Window management
 Plug 'qpkorr/vim-bufkill'
 Plug 'simeji/winresizer'
 Plug 'troydm/zoomwintab.vim'
+Plug 'junegunn/goyo.vim'
 
 " Highlighted yank
 Plug 'machakann/vim-highlightedyank'

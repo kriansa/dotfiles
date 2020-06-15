@@ -4,25 +4,17 @@ let g:ruby_host_prog = systemlist("RBENV_VERSION=$(rbenv global) rbenv which neo
 " NERDTree settings
 let g:NERDTreeShowHidden=1
 let g:NERDTreeQuitOnOpen=1
+let g:NERDTreeSortHiddenFirst=1
 let g:NERDTreeIgnore=['^\.git$', '\~$']
+let g:NERDTreeRespectWildIgnore=1
 let g:NERDTreeHijackNetrw=1
 let g:NERDTreeMinimalUI=1
 let g:NERDTreeAutoDeleteBuffer=1
 let g:NERDTreeNaturalSort=1
 let g:NERDTreeStatusline="%{exists('b:NERDTree')?fnamemodify(expand(b:NERDTree.root.path.str()), ':~:.'):'NERD'}"
-" Disable C-J, C-K mappings
-let g:NERDTreeMapJumpPrevSibling=""
-let g:NERDTreeMapJumpNextSibling=""
 
 " Disable netrw
 let loaded_netrwPlugin = 1
-
-" Configure CommandT
-let g:CommandTFileScanner="git"
-let g:CommandTGitScanSubmodules=1
-let g:CommandTGitIncludeUntracked=1
-let g:CommandTScanDotDirectories=1
-let g:CommandTAlwaysShowDotFiles=1
 
 " Airline settings
 "
@@ -83,17 +75,17 @@ let g:ale_fixers = {
 
 " Use deoplete.
 let g:deoplete#enable_at_startup = 1
-let g:deoplete#sources = { '_': ['ale'] }
+call g:deoplete#custom#option('sources', { '_': ['ale'] })
 
 " Ferret
 let g:FerretExecutableArguments = {
-\  'ag': '--vimgrep --width 4096 --hidden --ignore .git'
+\  'rg': '--vimgrep -M 120 --hidden --ignore-file=' . $DOTFILES_PATH . '/.rgignore'
 \}
 
-" The Silver Searcher
+" Ripgrep
 "
-" Use ag over grep
-set grepprg=ag\ --nogroup\ --nocolor\ --hidden\ --ignore\ .git
+" Use rg over grep
+set grepprg=rg\ --no-heading\ -M\ 120\ --color=never\ --hidden\ --ignore-file=$DOTFILES_PATH/.rgignore
 
 " Matchup settings
 "
@@ -103,22 +95,23 @@ let g:matchup_matchparen_deferred = 1
 " Disable replacing the statusline by the matching delimiter if not on screen
 let g:matchup_matchparen_status_offscreen = 0
 
-" LeaderF (Fuzzy finder)
-"
-" Better for powerline fonts
-let g:Lf_StlSeparator = { 'left': '', 'right': '' }
+" Set defaults for Goyo
+let g:goyo_linenr = 1
+let g:goyo_width = "40%"
+let g:goyo_height = "100%"
 
-" See inside git submodules
-let g:Lf_RecurseSubmodules = 1
+" Settings for fzf
+let g:fzf_layout = { 'window': {
+                \ 'width': 0.9,
+                \ 'height': 0.7,
+                \ 'highlight': 'Comment',
+                \ 'rounded': v:false } }
 
-" See results from bottom to the top
-let g:Lf_ReverseOrder = 1
+" [Buffers] Jump to the existing window if possible
+let g:fzf_buffers_jump = 1
 
-"  Show hidden files
-let g:Lf_ShowHidden = 1
-
-" Default fuzzy search mode
-let g:Lf_DefaultMode = 'NameOnly'
+" My own autosave (plugins/write-files.vim)
+let g:auto_save = 1
 
 " Git gutter
-autocmd BufWritePost * GitGutter
+autocmd BufWritePost,TextChanged,TextChangedI * GitGutter

@@ -5,13 +5,12 @@ let mapleader = "\<Space>"
 " ; is :
 nnoremap ; :
 
-" Don't yank pasted text on visual mode
-vnoremap <silent> p :<C-u>call SmartPaste()<CR>
-vnoremap <silent> P :<C-u>call SmartPaste()<CR>
+" fzf
+nmap <Leader><Space> :Buffers<CR>
+nmap <C-P> :GitFiles<CR>
 
-" LeaderF fuzzy finder
-let g:Lf_ShortcutF="<C-P>"
-let g:Lf_ShortcutB="<Leader><Space>"
+" Goyo
+nmap <silent> <Leader>d :Goyo<CR>
 
 " Autofix with ALE
 nmap <Leader>f :ALEFix<CR>
@@ -25,7 +24,10 @@ nmap <Leader>O O<Esc>
 
 " NERDTree
 nmap <silent> ,, :NERDTreeToggle<CR>
-nmap <silent> ,. :call NERDTreeToggleInCurDir()<CR>
+nmap <silent> ,. :NERDTreeFind<CR>zz
+" Disable C-J, C-K mappings
+let g:NERDTreeMapJumpPrevSibling=""
+let g:NERDTreeMapJumpNextSibling=""
 
 " Closes current buffer with <Leader>w
 nnoremap <silent> <Leader>w :call Close()<CR>
@@ -84,3 +86,15 @@ au FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
 " line. For some reason, however, Y yanks the entire line, both before and after the cursor. This
 " map makes Y yank from the cursor to EOL.
 nnoremap Y y$
+
+" Make n always search forward and N backward
+nnoremap <expr> n 'Nn'[v:searchforward]
+nnoremap <expr> N 'nN'[v:searchforward]
+
+" delete without yanking
+nnoremap <leader>d "_d
+vnoremap <leader>d "_d
+
+" replace currently selected text with default register
+" without yanking it
+vnoremap <leader>p "_dP

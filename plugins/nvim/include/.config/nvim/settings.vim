@@ -84,6 +84,3 @@ autocmd InsertLeave * set nopaste
 
 " Terminal settings
 autocmd TermOpen term://* setlocal nolist
-
-" Autosave files when changing files or losing focus
-autocmd BufLeave,FocusLost * silent! call WriteBuffer()
