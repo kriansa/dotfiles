@@ -16,7 +16,6 @@ fi
 
 # Setup aliases
 alias sudo="sudo " # Pass aliases to root account
-alias ag="rg --hidden --ignore-file=$DOTFILES_PATH/.rgignore"
 alias rg="rg --hidden --ignore-file=$DOTFILES_PATH/.rgignore"
 alias cdo="cd ~/Downloads"
 
