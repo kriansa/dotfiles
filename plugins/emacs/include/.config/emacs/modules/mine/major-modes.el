@@ -28,6 +28,7 @@
 (use-package yaml-mode :ensure t)
 (use-package typescript-mode :ensure t)
 (use-package groovy-mode :ensure t)
+(use-package lua-mode :ensure t :mode "\\.lua\\'" :interpreter "lua")
 (use-package dockerfile-mode
   :ensure t
   :mode ("Dockerfile.*\\'" . dockerfile-mode))

@@ -146,28 +146,31 @@ Taken from https://github.com/syl20bnr/spacemacs/pull/179."
   (global-company-mode))
 
 ;; ;; LSP (Language Server Protocol) support
-;; (use-package lsp-mode
-;;   :ensure t
-;;   :hook (prog-mode . lsp)
-;;   :commands lsp
-;;   :config
-;;   ;; Use a separate path for the session file
-;;   (setq lsp-session-file (expand-file-name ".tmp/lsp-session-v1" user-emacs-directory))
-;;   ;; Use projectile to guess the root path
-;;   (setq lsp-auto-guess-root t)
-;;   ;; Disable Flymake
-;;   (setq lsp-prefer-flymake :none)
-;;   ;; Enable snippets
-;;   (setq lsp-enable-snippet t)
-;;   ;; Times out after 5s
-;;   (setq lsp-response-timeout 5)
-;;   ;; Don't make changes I didn't explicitely told you to
-;;   (setq lsp-before-save-edits nil)
+(use-package lsp-mode
+  :ensure t
+  :after flycheck
+  :hook (prog-mode . lsp)
+  :commands lsp
+  :config
+  ;; Performance optimizations
+  (setq read-process-output-max (* 1024 1024)) ;; 1mb
+  (setq lsp-prefer-capf t)
 
-;;   ;; Disable symbol highlighting
-;;   (setq lsp-enable-symbol-highlighting nil)
-;;   ;; Disable showing docs on hover
-;;   (setq lsp-eldoc-enable-hover nil))
+  ;; Use a separate path for the session file
+  (setq lsp-session-file (expand-file-name ".tmp/lsp-session-v1" user-emacs-directory))
+  ;; Use projectile to guess the root path
+  (setq lsp-auto-guess-root t)
+  ;; Enable snippets
+  (setq lsp-enable-snippet t)
+  ;; Times out after 5s
+  (setq lsp-response-timeout 5)
+  ;; Don't make changes I didn't explicitely told you to
+  (setq lsp-before-save-edits nil)
+
+  ;; Disable symbol highlighting
+  (setq lsp-enable-symbol-highlighting nil)
+  ;; Disable showing docs on hover
+  (setq lsp-eldoc-enable-hover nil))
 
 ;; (use-package company-lsp
 ;;   :ensure t
