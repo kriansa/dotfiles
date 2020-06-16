@@ -26,7 +26,7 @@ endfunction
 
 " Callback function to automatically save the current buffer if needed
 function! AutoSave()
-  if s:GetVar('auto_save', 0) == 0
+  if g:auto_save == 0
     return
   end
 
