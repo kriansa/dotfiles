@@ -4,3 +4,4 @@
     plugin_name: xorg
     files:
       - .Xresources
+      - .XCompose
