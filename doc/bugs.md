@@ -52,3 +52,10 @@ This is a list of current bugs I'm tracking for my setup.
 
   More info: https://gitlab.gnome.org/GNOME/gdm/commit/5cd78602d3d4c8355869151875fc317e8bcd5f08
   See: https://gitlab.gnome.org/GNOME/gdm/blob/master/NEWS
+
+* GNOME-Keyring password change sync
+  Whenever we change passwords, the keyring doesn't seem to pick up the new password.
+
+  The workaround is done [here](ansible/roles/gnome/tasks/configure_gnome.yml).
+
+  See: https://bugs.archlinux.org/task/67846

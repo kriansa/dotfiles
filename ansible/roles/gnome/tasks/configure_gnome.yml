@@ -29,6 +29,12 @@
   become_user: "{{ user_name }}"
   shell: dbus-launch dconf load / < "{{ role_path }}/files/shortcuts.dconf"
 
+- name: synchronize user password changes for gnome-keyring
+  become: true
+  lineinfile:
+    path: /etc/pam.d/passwd
+    line: password	optional	pam_gnome_keyring.so
+
 - name: configure gnome applications
   become: true
   become_user: "{{ user_name }}"
