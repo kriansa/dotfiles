@@ -9,9 +9,6 @@ nnoremap ; :
 nmap <Leader><Space> :Buffers<CR>
 nmap <C-P> :GitFiles<CR>
 
-" Goyo
-nmap <silent> <Leader>d :Goyo<CR>
-
 " Autofix with ALE
 nmap <Leader>f :ALEFix<CR>
 
@@ -33,7 +30,10 @@ let g:NERDTreeMapJumpNextSibling=""
 nnoremap <silent> <Leader>w :call Close()<CR>
 
 " Toggles zoom between the current buffer
-nnoremap <silent> <Leader>t :call ToggleFullScreen()<CR>
+nnoremap <silent> <Leader>tt :call ToggleFullScreen()<CR>
+
+" Goyo
+nmap <silent> <Leader>tg :Goyo<CR>
 
 " Closes current selected window with <Leader>q
 nnoremap <silent> <Leader>q :wincmd q<CR>
@@ -69,6 +69,7 @@ nmap <silent> ]l <Plug>(ale_next_wrap)
 
 " Copy filepath + line to clipboard
 nmap <silent> <leader>fl :call YankFilenameLine()<CR>
+nmap <silent> <leader>ff :call YankFilename()<CR>
 
 " Make all splits with equal size
 nnoremap <silent> <Leader>= :wincmd =<CR>
@@ -95,6 +96,5 @@ nnoremap <expr> N 'nN'[v:searchforward]
 nnoremap <leader>d "_d
 vnoremap <leader>d "_d
 
-" replace currently selected text with default register
-" without yanking it
+" replace currently selected text with default register without yanking it
 vnoremap <leader>p "_dP

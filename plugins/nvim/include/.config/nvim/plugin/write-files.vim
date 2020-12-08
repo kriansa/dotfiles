@@ -30,7 +30,7 @@ function! AutoSave()
     return
   end
 
-  WriteBuffer()
+  call WriteBuffer()
 endfunction
 
 " Toggles the auto-save feature
