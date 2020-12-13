@@ -43,17 +43,15 @@
     - { path: org.gnome.desktop.interface, name: clock-show-date, value: "true" }
     - { path: org.gnome.desktop.privacy, name: remember-recent-files, value: "false" }
     # Configure keyboard
-    - { path: org.gnome.desktop.input-sources, name: sources, value: "[('xkb', 'br')]" }
-    - { path: org.gnome.desktop.input-sources, name: xkb-options, value: "['caps:ctrl_modifier']" }
     - { path: org.gnome.settings-daemon.peripherals.keyboard, name: numlock-state, value: "'on'" }
+    # Configure mouse
+    - { path: org.gnome.desktop.peripherals.mouse, name: speed, value: "-1.0" }
     # Disable auto-suspend
     - { path: org.gnome.settings-daemon.plugins.power, name: sleep-inactive-ac-type, value: "nothing" }
     # Disable media auto-run
     - { path: org.gnome.desktop.media-handling, name: autorun-never, value: "true" }
     # Theme
     - { path: org.gnome.desktop.interface, name: gtk-theme, value: "Adwaita" }
-    - { path: org.gnome.desktop.interface, name: icon-theme, value: "stil-icons" }
-    - { path: org.gnome.shell.extensions.user-theme, name: name, value: "stil-shell-theme" }
     # Fonts
     - { path: org.gnome.desktop.interface, name: monospace-font-name, value: "Roboto Mono 11" }
     - { path: org.gnome.desktop.interface, name: font-name, value: "Roboto Condensed, 11" }
@@ -68,6 +66,7 @@
     - { path: org.gnome.nautilus.icon-view, name: default-zoom-level, value: "small" }
     - { path: org.gnome.nautilus.window-state, name: maximized, value: "true" }
     - { path: org.gtk.Settings.FileChooser, name: show-hidden, value: "true" }
+    - { path: org.gnome.nautilus.preferences, name: click-policy, value: "'single'" }
     # FileChooser sorting
     - { path: org.gtk.Settings.FileChooser, name: sort-directories-first, value: "true" }
     - { path: org.gtk.Settings.FileChooser, name: sort-order, value: "ascending" }
