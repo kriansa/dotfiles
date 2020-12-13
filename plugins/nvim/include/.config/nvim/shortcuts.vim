@@ -7,10 +7,13 @@ nnoremap ; :
 
 " fzf
 nmap <Leader><Space> :Buffers<CR>
-nmap <C-P> :GitFiles<CR>
+nmap <C-P> :Files<CR>
 
 " Autofix with ALE
 nmap <Leader>f :ALEFix<CR>
+
+" C-Space reload completion list
+inoremap <silent><expr> <c-space> coc#refresh()
 
 " Select last yanked text
 nnoremap <Leader>v `[v`]

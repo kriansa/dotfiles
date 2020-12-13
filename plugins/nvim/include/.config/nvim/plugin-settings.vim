@@ -64,6 +64,7 @@ let ruby_fold = 0
 let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
 
 " Ale
+let g:ale_disable_lsp = 1 " Disable LSP so we let CoC handle it
 let g:ale_change_sign_column_color = 1
 let g:ale_sign_column_always = 1
 let g:ale_javascript_eslint_executable = 'eslint_d'
@@ -72,10 +73,6 @@ let g:ale_fixers = {
 \   'vue': ['prettier'],
 \   'ruby': ['rubocop']
 \}
-
-" Use deoplete.
-let g:deoplete#enable_at_startup = 1
-call g:deoplete#custom#option('sources', { '_': ['ale'] })
 
 " Ferret
 let g:FerretExecutableArguments = {
@@ -109,6 +106,10 @@ let g:fzf_layout = { 'window': {
 
 " [Buffers] Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
+
+" Configure fzf
+let $FZF_DEFAULT_OPTS = "--bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-b:page-up,ctrl-f:page-down"
+let $FZF_DEFAULT_COMMAND = 'rg --hidden --ignore-file=' . $DOTFILES_PATH . '/.rgignore --files -g ""'
 
 " My own autosave (plugins/write-files.vim)
 let g:auto_save = 1

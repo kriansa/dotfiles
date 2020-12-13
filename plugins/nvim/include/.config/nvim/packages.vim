@@ -21,7 +21,6 @@ Plug 'tbastos/vim-lua', { 'for': 'lua' }
 Plug 'keith/swift.vim', { 'for': 'swift' }
 Plug 'elixir-lang/vim-elixir', { 'for': 'elixir' }
 Plug 'jakwings/vim-pony', { 'for': 'pony' }
-Plug 'fatih/vim-go', { 'for': 'golang', 'do': ':GoUpdateBinaries' }
 
 " Markdown
 " Plug 'SidOfc/mkdx'
@@ -49,7 +48,15 @@ Plug 'posva/vim-vue'
 
 " Editor features
 Plug 'w0rp/ale'
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+Plug 'neoclide/coc-tsserver', { 'do': 'yarn install --frozen-lockfile' }
+Plug 'neoclide/coc-css', { 'do': 'yarn install --frozen-lockfile' }
+Plug 'neoclide/coc-html', { 'do': 'yarn install --frozen-lockfile' }
+Plug 'neoclide/coc-json', { 'do': 'yarn install --frozen-lockfile' }
+Plug 'neoclide/coc-yaml', { 'do': 'yarn install --frozen-lockfile' }
+Plug 'neoclide/coc-vetur', { 'do': 'yarn install --frozen-lockfile' }
+Plug 'neoclide/coc-solargraph', { 'do': 'yarn install --frozen-lockfile' }
+Plug 'josa42/coc-go', { 'do': 'yarn install --frozen-lockfile' }
 
 " Surrounding and things that should be native
 Plug 'tpope/vim-surround'
