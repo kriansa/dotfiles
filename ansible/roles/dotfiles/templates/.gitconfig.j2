@@ -21,6 +21,7 @@
 	ui = true
 [core]
 	excludesfile = ~/.gitignore
+	attributesfile = ~/.gitattributes
 	autocrlf = input
 [gpg]
 	program = gpg
@@ -33,3 +34,13 @@
 [push]
 	default = current
 	followTags = true
+[rebase]
+	autoStash = true
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+	rebase = true
+[diff "rspec"]
+	xfuncname = "^[ \t]*((RSpec|describe|context|it|before|after|around|feature|scenario|background)[ \t].*)$"
+[diff "swift"]
+	xfuncname = ^[ \t]*((class|func)[ \t].*)$
