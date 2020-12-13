@@ -1,7 +1,7 @@
 ---
 - name: install common desktop packages
   become: true
-  pacman: 
+  pacman:
     state: present
     name:
       # Browsers
@@ -36,6 +36,9 @@
 
       # Office tools
       - libreoffice-fresh
+
+      # Wire
+      - wire-desktop
 
       # Fonts
       - ttf-roboto

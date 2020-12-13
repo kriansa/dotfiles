@@ -17,7 +17,9 @@
       - aws-cli
       - shellcheck
       - tilix
-      - hub
+      - github-cli
+      - fzf
+      - bat
 
       # DB
       - mariadb
@@ -48,6 +50,3 @@
     - ruby-build-git
     - devops-tools-git
     - ansible-bundler
-
-    # Other tools
-    - wrk
