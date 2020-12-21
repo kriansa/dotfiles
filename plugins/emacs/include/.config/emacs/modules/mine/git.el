@@ -21,11 +21,7 @@
   ;; Set transient files to .tmp
   (setq transient-levels-file (expand-file-name ".tmp/transient-levels.el" user-emacs-directory))
   (setq transient-values-file (expand-file-name ".tmp/transient-values.el" user-emacs-directory))
-  (setq transient-history-file (expand-file-name ".tmp/transient-history.el" user-emacs-directory))
-
-  ;; See below to understand evil-magit shortcuts
-  ;; https://github.com/emacs-evil/evil-magit
-  (use-package evil-magit :ensure t))
+  (setq transient-history-file (expand-file-name ".tmp/transient-history.el" user-emacs-directory)))
 
 ;; Display gutter for VCS modified files
 (use-package diff-hl

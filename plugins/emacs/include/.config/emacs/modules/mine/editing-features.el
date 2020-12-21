@@ -143,18 +143,26 @@ Taken from https://github.com/syl20bnr/spacemacs/pull/179."
   ;; add yasnippet to all backends
   (setq company-backends (mapcar #'mine/company-backend-with-yas company-backends))
 
+  ;; Allow faster completions
+  (setq company-minimum-prefix-length 1)
+  (setq company-idle-delay 0.0)
+
   (global-company-mode))
 
-;; ;; LSP (Language Server Protocol) support
+;; LSP (Language Server Protocol) support
 (use-package lsp-mode
   :ensure t
   :after flycheck
-  :hook (prog-mode . lsp)
+  :hook ((enh-ruby-mode . lsp)
+          (web-mode . lsp)
+          (sh-mode . lsp)
+          (js-mode . lsp))
   :commands lsp
   :config
   ;; Performance optimizations
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
-  (setq lsp-prefer-capf t)
+  (setq lsp-completion-provider :capf)
+  (setq lsp-idle-delay 0.500)
 
   ;; Use a separate path for the session file
   (setq lsp-session-file (expand-file-name ".tmp/lsp-session-v1" user-emacs-directory))
@@ -166,19 +174,18 @@ Taken from https://github.com/syl20bnr/spacemacs/pull/179."
   (setq lsp-response-timeout 5)
   ;; Don't make changes I didn't explicitely told you to
   (setq lsp-before-save-edits nil)
+  ;; Disable the headerline breadcrumb
+  (setq lsp-headerline-breadcrumb-enable nil)
+
+  ;; Disable integration with flycheck
+  ;; Currently, using lsp as a backend checker for flycheck, will prevent other checkers from
+  ;; running, in which case they are a better option than the LSP one.
+  ;; See: https://github.com/flycheck/flycheck/issues/1762
+  (setq lsp-diagnostics-provider :none)
 
   ;; Disable symbol highlighting
   (setq lsp-enable-symbol-highlighting nil)
   ;; Disable showing docs on hover
   (setq lsp-eldoc-enable-hover nil))
-
-;; (use-package company-lsp
-;;   :ensure t
-;;   :commands company-lsp)
-
-;; (use-package lsp-java
-;;   :ensure t
-;;   :after lsp
-;;   :hook (lsp . java-mode))
 
 ;;; editing-features.el ends here

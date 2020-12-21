@@ -25,12 +25,6 @@
   (global-unset-key (kbd "M-d"))
   (global-unset-key (kbd "M-v"))
 
-  ;; Undo-tree
-  (define-key undo-tree-map (kbd "C-_") nil)
-  (define-key undo-tree-map (kbd "C-/") nil)
-  (define-key undo-tree-map (kbd "C-?") nil)
-  (global-unset-key (kbd "s-z"))
-
   ;; C-? to describe a keybinding
   (global-set-key (kbd "C-?") 'describe-key)
 
@@ -131,7 +125,9 @@
   (evil-define-key 'normal special-mode-map (kbd "C-j") nil)
   (evil-define-key 'normal special-mode-map (kbd "C-k") nil)
   (evil-define-key 'visual special-mode-map (kbd "SPC") nil)
-  (evil-define-key 'normal special-mode-map (kbd "SPC") nil))
+  (evil-define-key 'normal special-mode-map (kbd "SPC") nil)
+  ;; Go-mode integration
+  (evil-define-key 'normal go-mode-map (kbd "K") nil))
 
 ;; The line-break from js2-mode is far superior than emacs/evil's one.
 ;; Let's just bind RET/o/O to it
@@ -245,6 +241,9 @@
   (define-key ivy-minibuffer-map (kbd "C-w") 'backward-kill-word)
   (define-key ivy-minibuffer-map (kbd "C-x") 'ivy-switch-buffer-kill)
 
+  ;;  Exits with the current input instead of the current candidate
+  (define-key ivy-minibuffer-map (kbd "<C-return>") 'ivy-immediate-done)
+
   ;; On buffer switch buffers, don't use C-k to kill buffers
   (define-key ivy-switch-buffer-map (kbd "C-k") 'ivy-previous-line))
 
@@ -267,7 +266,7 @@
 (use-package counsel-projectile
   :defer t
   :config
-  ;; Switch between implementation and test ([p]roject [t]oggle))
+  ;; Switch between implementation and test ([p]roject [T]est toggle))
   (define-key evil-normal-state-map (kbd "SPC pt")
     'projectile-toggle-between-implementation-and-test)
 

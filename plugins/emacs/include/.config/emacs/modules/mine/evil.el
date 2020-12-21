@@ -22,6 +22,9 @@
   ; This is required by evil-collection
   (setq evil-want-keybinding nil)
 
+  ;; Use emacs 28 native undo-redo plugin
+  (setq evil-undo-system 'undo-redo)
+
   :config
   ;; Smooth scrolling like Vim
   (setq scroll-step 1)
@@ -47,7 +50,6 @@
   (use-package evil-args :ensure t)
 
   ;; Required packages
-  (use-package undo-tree :ensure t)
   (use-package goto-chg :ensure t)
   (use-package evil-numbers :ensure t)
 

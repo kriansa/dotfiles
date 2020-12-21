@@ -18,12 +18,6 @@
   ;; Define that themes are safe
   (setq custom-safe-themes t)
 
-  ;; Fix all faces so they don't get a background when we select a full line (shift-V)
-  (custom-set-faces
-    `(diff-hl-insert ((t (:background nil :inherit 'default))))
-    `(diff-hl-delete ((t (:background nil :inherit 'default))))
-    `(diff-hl-change ((t (:background nil :inherit 'default)))))
-
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
