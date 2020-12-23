@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# This script will update my local Ruby installation using rbenv.
+# - It will first ensure I have the latest Ruby version, then proceed with updating the packages
+# - Then it will remove the previously installed version to keep the system clean
+
+version=$(curl https://cache.ruby-lang.org/pub/ruby/index.txt 2> /dev/null | \
+  grep -Ev 'ruby-[0-9.]+-' | tail -1 | awk '{ print $1 }' | sed 's/ruby-//')
+
+current_version=$(rbenv global)
+
+if [ "$current_version" == "$version" ]; then
+  echo "Latest version already installed (v$version)"
+else
+  rbenv install "$version"
+  rbenv global "$version"
+
+  if [ "$current_version" != "system" ]; then
+    echo "Uninstalling previous version (v$current_version)"
+    rbenv uninstall -f "$current_version"
+  fi
+fi
+
+echo "Updating packages..."
+update-ruby-packages

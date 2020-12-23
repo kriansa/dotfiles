@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# This small script is used to centralize all commands I use to keep my computer updated and run
+# them interactively without having to remember each one since this is such a repetitive process
+
+main() {
+  echo -e "\e[1;33mStarting system upgrade\e[0m"
+
+  run "Update system packages" "sudo pacman -Syu"
+  run "Update AUR packages" "cd ~/Projects/PKGBUILDs && bin/pkg upgrade -a"
+  run "Update Ruby and its global packages" "update-ruby"
+  run "Update Node and its global packages" "update-node"
+  run "Update Python global packages" "update-python-packages"
+}
+
+run() {
+  local desc=$1; shift
+  local command=$*
+  local len=$(( ${#desc} + 2 ))
+
+  echo
+  printf -- "-%.0s" $(seq 1 $len)
+  echo
+  echo -e "\e[0;32m•\e[0m \e[1m$desc\e[0m"
+  echo -e "\e[0;33m+\e[0m \e[2m$command\e[0m"
+  printf -- "-%.0s" $(seq 1 $len)
+  echo
+
+  # Reset timer
+  SECONDS=0
+
+  if ! eval "$command"; then
+    echo -e "\e[0;31mCommand \`\e[2m$command\e[0;31m\` failed in \e[1m$(show-time)\e[0m"
+    exit 1
+  else
+    echo -e "Command \`\e[2m$command\e[0m\` finished in \e[1m$(show-time)\e[0m"
+  fi
+}
+
+show-time() {
+  date -d@$SECONDS -u +%H:%M:%S
+}
+
+main

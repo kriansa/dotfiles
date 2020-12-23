@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# This script will update my local nodejs installation using nodenv.
+# - It will first ensure I have the latest node version, then proceed with updating the packages
+# - Then it will remove the previously installed version to keep the system clean
+
+version=$(curl https://nodejs.org/dist/index.json 2> /dev/null \
+  | jq -r 'map(select(.lts != false)) | sort_by(.version[1:] | split(".") | map(tonumber)) | last | .version[1:]')
+
+current_version=$(nodenv global)
+
+if [ "$current_version" == "$version" ]; then
+  echo "Latest version already installed (v$version)"
+else
+  nodenv install "$version"
+  nodenv global "$version"
+
+  if [ "$current_version" != "system" ]; then
+    echo "Uninstalling previous version (v$current_version)"
+    nodenv uninstall -f "$current_version"
+  fi
+fi
+
+echo "Updating packages..."
+update-node-packages

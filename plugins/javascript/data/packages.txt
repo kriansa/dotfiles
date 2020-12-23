@@ -1,4 +1,3 @@
-tern
 eslint
 eslint_d
 eslint-plugin-html
@@ -10,3 +9,5 @@ stylelint-config-standard
 vue-language-server
 typescript
 typescript-language-server
+bash-language-server
+vscode-html-languageserver-bin
