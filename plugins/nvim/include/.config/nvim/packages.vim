@@ -21,6 +21,7 @@ Plug 'tbastos/vim-lua', { 'for': 'lua' }
 Plug 'keith/swift.vim', { 'for': 'swift' }
 Plug 'elixir-lang/vim-elixir', { 'for': 'elixir' }
 Plug 'jakwings/vim-pony', { 'for': 'pony' }
+Plug 'slim-template/vim-slim', { 'for': 'slim' }
 
 " Markdown
 " Plug 'SidOfc/mkdx'
