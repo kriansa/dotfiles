@@ -1,5 +1,5 @@
 # Local plugins
-plugins=(
+_local_plugins=(
   # Shell & utilities
   zsh
   projects
@@ -20,7 +20,6 @@ plugins=(
   dotenv
 
   # Development platforms
-  iot
   terraform
 
   # IDEs
@@ -29,30 +28,24 @@ plugins=(
 
   # Languages
   ruby
-  python
   javascript
-  lein
+  python
   java
 )
 
-for plugin in $plugins; do
-  antigen bundle $DOTFILES_PATH/plugins $plugin --no-local-clone
-done
+# Remote plugins
+_remote_plugins=(
+  # autosugestions is like an enhanced autocomplete with suggestions
+  zsh-users/zsh-autosuggestions
 
-# Load local (private) packages
-test -f "$DOTFILES_PATH/packages.local.zsh" && \
-  source "$DOTFILES_PATH/packages.local.zsh"
+  # Add extra completions
+  zsh-users/zsh-completions
 
-# autosugestions is like an enhanced autocomplete with suggestions
-antigen bundle zsh-users/zsh-autosuggestions
+  # Use Pure theme
+  mafredri/zsh-async
+  sindresorhus/pure
 
-# Add extra completions
-antigen bundle zsh-users/zsh-completions
-
-# Use Pure theme
-antigen bundle mafredri/zsh-async
-antigen bundle sindresorhus/pure
-
-# syntax-highlighting must be loaded after executing compinit command and
-# sourcing other plugins
-antigen bundle zsh-users/zsh-syntax-highlighting
+  # syntax-highlighting must be loaded after executing compinit command and
+  # sourcing other plugins
+  zsh-users/zsh-syntax-highlighting
+)

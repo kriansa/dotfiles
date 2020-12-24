@@ -2,9 +2,6 @@
 #
 PLUGIN_PATH=$0:A:h
 
-# Used by Pure theme
-PURE_CMD_MAX_EXEC_TIME=3
-
 # Load additional files
 #
 # Stash your environment variables in ~/.localrc. This means they'll stay out
@@ -18,6 +15,12 @@ fi
 alias sudo="sudo " # Pass aliases to root account
 alias rg="rg --hidden --ignore-file=$DOTFILES_PATH/.rgignore"
 alias cdo="cd ~/Downloads"
+
+# Ignore everything past this line if the session is not interactive
+[[ ! -o interactive ]] && return
+
+# Configuration for Pure theme
+PURE_CMD_MAX_EXEC_TIME=3
 
 # Load ZSH native functions
 autoload -U edit-command-line

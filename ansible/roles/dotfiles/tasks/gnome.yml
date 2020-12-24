@@ -9,3 +9,4 @@
       - .config/gtk-4.0
       - .config/nautilus
       - .config/mimeapps.list
+      - .local/share/applications
