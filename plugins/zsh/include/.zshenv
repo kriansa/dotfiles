@@ -5,6 +5,9 @@
 # and are not just for the sake of UI, but also functionality, such as building the right $PATH and
 # few other environment variables.
 
+# Just make sure we never execute this on interactive sessions
+[[ -o interactive ]] && return
+
 # Set the path to this dotfiles
 export DOTFILES_PATH=$HOME/.dotfiles
 
