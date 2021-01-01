@@ -9,79 +9,79 @@
 #          --prerelease --browse <VERSION>
 
 help() {
-  echo "Usage: git release [OPTIONS] VERSION"
-  echo
-  echo "Options:"
-  echo "  -f, --version-file=<file>   The path to the versioned file where you store the version"
-  echo "                              name."
-  echo "                              Default: VERSION"
-  echo "  -v, --use-version-file      Whether you want to use a version file. When this is enabled,"
-  echo "                              the release version is written to a file (specified by -f) and"
-  echo "                              is commited before creating a tag. Use it when your application"
-  echo "                              relies on some mechanism to detect the current version."
-  echo "                              This is implied when you use -f."
-  echo "  -a, --artifact=<file>       Attach an artifact to the release."
-  echo "                              This parameter can be specified multiple times."
-  echo "  -p, --prerelease            Whether this release should me flagged as 'prerelease' on Github."
-  echo "  -b, --browse                Open the Github release on the browser after finishing."
-  echo "  -s, --sign                  Signs your release message with the configured PGP key."
-  echo "  -h                          Show this message and exit."
+	echo "Usage: git release [OPTIONS] VERSION"
+	echo
+	echo "Options:"
+	echo "  -f, --version-file=<file>   The path to the versioned file where you store the version"
+	echo "                              name."
+	echo "                              Default: VERSION"
+	echo "  -v, --use-version-file      Whether you want to use a version file. When this is enabled,"
+	echo "                              the release version is written to a file (specified by -f) and"
+	echo "                              is commited before creating a tag. Use it when your application"
+	echo "                              relies on some mechanism to detect the current version."
+	echo "                              This is implied when you use -f."
+	echo "  -a, --artifact=<file>       Attach an artifact to the release."
+	echo "                              This parameter can be specified multiple times."
+	echo "  -p, --prerelease            Whether this release should me flagged as 'prerelease' on Github."
+	echo "  -b, --browse                Open the Github release on the browser after finishing."
+	echo "  -s, --sign                  Signs your release message with the configured PGP key."
+	echo "  -h                          Show this message and exit."
 }
 
 main() {
-  declare GIT_DIR
-  sanity_check
+	declare GIT_DIR
+	sanity_check
 
-  declare VERSION OPT_artifacts OPT_version_file OPT_use_version_file OPT_sign
-  declare OPT_prerelease OPT_browse
-  validate_parameters "$@"
+	declare VERSION OPT_artifacts OPT_version_file OPT_use_version_file OPT_sign
+	declare OPT_prerelease OPT_browse
+	validate_parameters "$@"
 
-  write_version
-  create_tag
-  push_tag
-  create_release
+	write_version
+	create_tag
+	push_tag
+	create_release
 }
 
 error() {
-  echo "$@" >&2
-  exit 1
+	echo "$@" >&2
+	exit 1
 }
 
 sanity_check() {
-  if ! git rev-parse --is-inside-work-tree > /dev/null; then
-    exit 1
-  fi
+	if ! git rev-parse --is-inside-work-tree > /dev/null; then
+		exit 1
+	fi
 
-  if ! command -v gh > /dev/null 2>&1; then
-    error "The command 'gh' is a dependency and was not found!"
-  fi
+	if ! command -v gh > /dev/null 2>&1; then
+		error "The command 'gh' is a dependency and was not found!"
+	fi
 
-  GIT_DIR=$(git rev-parse --git-dir 2> /dev/null)
+	GIT_DIR=$(git rev-parse --git-dir 2> /dev/null)
 }
 
 write_version() {
-  test "$OPT_use_version_file" = "false" && return
-  test "$(cat "$OPT_version_file")" = "$VERSION" && return
+	test "$OPT_use_version_file" = "false" && return
+	test "$(cat "$OPT_version_file")" = "$VERSION" && return
 
-  echo "$VERSION" > "$OPT_version_file"
-  git add "$OPT_version_file"
-  git commit --only "$OPT_version_file" --message "chore: prepare for version ${VERSION}"
+	echo "$VERSION" > "$OPT_version_file"
+	git add "$OPT_version_file"
+	git commit --only "$OPT_version_file" --message "chore: prepare for version ${VERSION}"
 }
 
 push_tag() {
-  for remote in $(git remote); do
-    git push "$remote" "v${VERSION}"
-  done
+	for remote in $(git remote); do
+		git push "$remote" "v${VERSION}"
+	done
 }
 
 create_tag(){
-  git rev-parse "v${VERSION}" > /dev/null 2>&1 && return
+	git rev-parse "v${VERSION}" > /dev/null 2>&1 && return
 
-  # Only setup the TAG_EDITMSG with the placeholder if the file is not present. This is useful
-  # because sometimes a failure in the middle of the tagging process could prevent it from finishing
-  # and we could lose data. This check prevents that from ever happening by only writing to the file
-  # if it's not there ;)
-  test -f "$GIT_DIR/TAG_EDITMSG" || cat <<-MSG > "$GIT_DIR/TAG_EDITMSG"
+	# Only setup the TAG_EDITMSG with the placeholder if the file is not present. This is useful
+	# because sometimes a failure in the middle of the tagging process could prevent it from finishing
+	# and we could lose data. This check prevents that from ever happening by only writing to the file
+	# if it's not there ;)
+	test -f "$GIT_DIR/TAG_EDITMSG" || cat <<-MSG > "$GIT_DIR/TAG_EDITMSG"
 	Release v${VERSION}
 
 	# Lines starting with '#' are ignored.
@@ -91,103 +91,103 @@ create_tag(){
 	# * Nasty bug fixed (#121)
 	MSG
 
-  if ! edit_with_editor "$GIT_DIR/TAG_EDITMSG"; then
-    error "Fail to edit the release message."
-  fi
+	if ! edit_with_editor "$GIT_DIR/TAG_EDITMSG"; then
+		error "Fail to edit the release message."
+	fi
 
-  local extra_flags=()
-  test "$OPT_sign" = "true" && extra_flags+=("--sign")
+	local extra_flags=()
+	test "$OPT_sign" = "true" && extra_flags+=("--sign")
 
-  if ! git tag "${extra_flags[@]}" -F "$GIT_DIR/TAG_EDITMSG" "v${VERSION}"; then
-    error "Fail to create git tag."
-  fi
+	if ! git tag "${extra_flags[@]}" -F "$GIT_DIR/TAG_EDITMSG" "v${VERSION}"; then
+		error "Fail to create git tag."
+	fi
 
-  # Remove the tag message
-  test -f "$GIT_DIR/TAG_EDITMSG" && rm "$GIT_DIR/TAG_EDITMSG"
+	# Remove the tag message
+	test -f "$GIT_DIR/TAG_EDITMSG" && rm "$GIT_DIR/TAG_EDITMSG"
 }
 
 create_release() {
-  local extra_flags=()
-  test "$OPT_prerelease" = "true" && extra_flags+=("--prerelease")
+	local extra_flags=()
+	test "$OPT_prerelease" = "true" && extra_flags+=("--prerelease")
 
-  # Get the tag content to the release message
-  git cat-file -p "v${VERSION}" | tail -n +6 | \
-    sed '/^-----BEGIN PGP SIGNATURE-----$/,$d' > "$GIT_DIR/RELEASE_EDITMSG"
+	# Get the tag content to the release message
+	git cat-file -p "v${VERSION}" | tail -n +6 | \
+		sed '/^-----BEGIN PGP SIGNATURE-----$/,$d' > "$GIT_DIR/RELEASE_EDITMSG"
 
-  gr release create "v${VERSION}" "${OPT_artifacts[@]}" --notes-file "$GIT_DIR/RELEASE_EDITMSG" "${extra_flags[@]}"
-  test "$OPT_browse" = "true" && gh release view "v${VERSION}" --web
+	gr release create "v${VERSION}" "${OPT_artifacts[@]}" --notes-file "$GIT_DIR/RELEASE_EDITMSG" "${extra_flags[@]}"
+	test "$OPT_browse" = "true" && gh release view "v${VERSION}" --web
 }
 
 edit_with_editor() {
-  local file="$1"
-  local git_core_editor text_editor
+	local file="$1"
+	local git_core_editor text_editor
 
-  # Pick the best editor and edit the file
-  git_core_editor=$(git config --get core.editor)
-  text_editor="${GIT_EDITOR:-${git_core_editor:-${VISUAL:-${EDITOR:-vi}}}}"
-  $text_editor "$file"
+	# Pick the best editor and edit the file
+	git_core_editor=$(git config --get core.editor)
+	text_editor="${GIT_EDITOR:-${git_core_editor:-${VISUAL:-${EDITOR:-vi}}}}"
+	$text_editor "$file"
 }
 
 validate_parameters() {
-  VERSION="" OPT_artifacts=() OPT_version_file=VERSION OPT_use_version_file=false
-  OPT_sign=false OPT_prerelease=false OPT_browse=false
+	VERSION="" OPT_artifacts=() OPT_version_file=VERSION OPT_use_version_file=false
+	OPT_sign=false OPT_prerelease=false OPT_browse=false
 
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      -a|--artifact)
-        OPT_artifacts+=("$2")
-        shift 2
-        ;;
-      --artifact=*)
-        OPT_artifacts+=("${1#*=}")
-        shift 1
-        ;;
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			-a|--artifact)
+				OPT_artifacts+=("$2")
+				shift 2
+				;;
+			--artifact=*)
+				OPT_artifacts+=("${1#*=}")
+				shift 1
+				;;
 
-      -f|--version-file)
-        OPT_version_file=$2
-        shift 2
-        ;;
-      --version-file=*)
-        OPT_version_file=${1#*=}
-        shift 1
-        ;;
+			-f|--version-file)
+				OPT_version_file=$2
+				shift 2
+				;;
+			--version-file=*)
+				OPT_version_file=${1#*=}
+				shift 1
+				;;
 
-      -v|--use-version-file)
-        OPT_use_version_file=true
-        shift 1
-        ;;
+			-v|--use-version-file)
+				OPT_use_version_file=true
+				shift 1
+				;;
 
-      -s|--sign)
-        OPT_sign=true
-        shift 1
-        ;;
+			-s|--sign)
+				OPT_sign=true
+				shift 1
+				;;
 
-      -p|--prerelease)
-        OPT_prerelease=true
-        shift 1
-        ;;
+			-p|--prerelease)
+				OPT_prerelease=true
+				shift 1
+				;;
 
-      -b|--browse)
-        OPT_browse=true
-        shift 1
-        ;;
+			-b|--browse)
+				OPT_browse=true
+				shift 1
+				;;
 
-      -h)
-        help
-        exit
-        ;;
+			-h)
+				help
+				exit
+				;;
 
-      *)
-        VERSION=$(echo "$1" | sed -E 's/[vV](.*)/\1/')
-        shift 1
-        ;;
-    esac
-  done
+			*)
+				VERSION=$(echo "$1" | sed -E 's/[vV](.*)/\1/')
+				shift 1
+				;;
+		esac
+	done
 
-  if [ -z "$VERSION" ]; then
-    help
-    exit 1
-  fi
+	if [ -z "$VERSION" ]; then
+		help
+		exit 1
+	fi
 }
 
 main "$@"
