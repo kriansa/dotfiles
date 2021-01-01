@@ -1,6 +1,6 @@
 # Bugs
 
-This is a list of current bugs I'm tracking for my setup.
+This is a list of upstream bugs I'm currently working around and tracking for my setup.
 
 ## systemd-resolved
 
