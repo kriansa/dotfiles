@@ -7,7 +7,7 @@ main() {
   echo -e "\e[1;33mStarting system upgrade\e[0m"
 
   run "Update system packages" "sudo pacman -Syu"
-  run "Update AUR packages" "cd ~/Projects/PKGBUILDs && bin/pkg upgrade -a"
+  run "Update AUR packages" "pacom upgrade -a"
   run "Update Ruby and its global packages" "update-ruby"
   run "Update Node and its global packages" "update-node"
   run "Update Python global packages" "update-python-packages"
