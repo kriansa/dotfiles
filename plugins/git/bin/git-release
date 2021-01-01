@@ -1,26 +1,12 @@
 #!/usr/bin/env bash
 #
-# My own release helper on top of `hub`
+# My own release helper on top of `gh`
 #
 # It helps creating releases for git projects and publishing them to Github without having to
 # remember a whole set of commands (bump version, commit, create tag, push, create release, etc).
 #
 # Usage: git release --sign --version-file=VERSION --use-version-file --artifact "blablabla" \
 #          --prerelease --browse <VERSION>
-
-main() {
-  declare GIT_DIR
-  sanity_check
-
-  declare VERSION OPT_artifacts OPT_version_file OPT_use_version_file OPT_sign
-  declare OPT_prerelease OPT_browse
-  validate_parameters "$@"
-
-  write_version
-  create_tag
-  push_tag
-  create_release
-}
 
 help() {
   echo "Usage: git release [OPTIONS] VERSION"
@@ -39,7 +25,21 @@ help() {
   echo "  -p, --prerelease            Whether this release should me flagged as 'prerelease' on Github."
   echo "  -b, --browse                Open the Github release on the browser after finishing."
   echo "  -s, --sign                  Signs your release message with the configured PGP key."
-  echo "  -h, --help                  Show this message and exit."
+  echo "  -h                          Show this message and exit."
+}
+
+main() {
+  declare GIT_DIR
+  sanity_check
+
+  declare VERSION OPT_artifacts OPT_version_file OPT_use_version_file OPT_sign
+  declare OPT_prerelease OPT_browse
+  validate_parameters "$@"
+
+  write_version
+  create_tag
+  push_tag
+  create_release
 }
 
 error() {
@@ -52,8 +52,8 @@ sanity_check() {
     exit 1
   fi
 
-  if ! command -v hub > /dev/null 2>&1; then
-    error "The command 'hub' is a dependency and was not found!"
+  if ! command -v gh > /dev/null 2>&1; then
+    error "The command 'gh' is a dependency and was not found!"
   fi
 
   GIT_DIR=$(git rev-parse --git-dir 2> /dev/null)
@@ -65,7 +65,7 @@ write_version() {
 
   echo "$VERSION" > "$OPT_version_file"
   git add "$OPT_version_file"
-  git commit --only "$OPT_version_file" --message "git-release: prepare for version ${VERSION}"
+  git commit --only "$OPT_version_file" --message "chore: prepare for version ${VERSION}"
 }
 
 push_tag() {
@@ -86,7 +86,7 @@ create_tag(){
 
 	# Lines starting with '#' are ignored.
 	#
-	# Use the following format for describing the release changes: 
+	# Use the following format for describing the release changes:
 	# * Cool feature added (#123)
 	# * Nasty bug fixed (#121)
 	MSG
@@ -109,18 +109,13 @@ create_tag(){
 create_release() {
   local extra_flags=()
   test "$OPT_prerelease" = "true" && extra_flags+=("--prerelease")
-  test "$OPT_browse" = "true" && extra_flags+=("--browse")
-
-  for artifact in "${OPT_artifacts[@]}"; do
-    extra_flags+=("--attach")
-    extra_flags+=("$artifact")
-  done
 
   # Get the tag content to the release message
   git cat-file -p "v${VERSION}" | tail -n +6 | \
     sed '/^-----BEGIN PGP SIGNATURE-----$/,$d' > "$GIT_DIR/RELEASE_EDITMSG"
 
-  hub release create "v${VERSION}" -F "$GIT_DIR/RELEASE_EDITMSG" "${extra_flags[@]}"
+  gr release create "v${VERSION}" "${OPT_artifacts[@]}" --notes-file "$GIT_DIR/RELEASE_EDITMSG" "${extra_flags[@]}"
+  test "$OPT_browse" = "true" && gh release view "v${VERSION}" --web
 }
 
 edit_with_editor() {
@@ -177,7 +172,7 @@ validate_parameters() {
         shift 1
         ;;
 
-      -h|--help)
+      -h)
         help
         exit
         ;;
@@ -190,7 +185,8 @@ validate_parameters() {
   done
 
   if [ -z "$VERSION" ]; then
-    error "You need to specify a version! (use git release --help for more information)"
+    help
+    exit 1
   fi
 }
 
