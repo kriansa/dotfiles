@@ -9,7 +9,7 @@ export LS_COLORS="di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=
 if [[ "$OSTYPE" == darwin* ]]; then
   alias ls="ls -G"
 elif [[ "$OSTYPE" == linux* ]]; then
-  alias ls="ls --color=auto --group-directories-first"
+  alias ls="ls --color=auto --group-directories-first -v"
 fi
 
 # Changing between directories
@@ -23,8 +23,8 @@ alias -g .....='../../../..'
 alias -g ......='../../../../..'
 
 # List directory contents
-alias l='ls -lAh'
-alias ll='ls -lh'
+alias l='ls -lAhv'
+alias ll='ls -lhv'
 
 # Easily create & cd to directory
 function mcd () { mkdir -p $1 && cd $1 }
