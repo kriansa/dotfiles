@@ -40,6 +40,9 @@ main() {
 	create_tag
 	push_tag
 	create_release
+
+	# Make sure we always return true when all goes ok
+	true
 }
 
 error() {
@@ -111,10 +114,18 @@ create_release() {
 	test "$OPT_prerelease" = "true" && extra_flags+=("--prerelease")
 
 	# Get the tag content to the release message
-	git cat-file -p "v${VERSION}" | tail -n +6 | \
-		sed '/^-----BEGIN PGP SIGNATURE-----$/,$d' > "$GIT_DIR/RELEASE_EDITMSG"
+	git cat-file -p "v${VERSION}" | tail -n +7 | \
+		sed -e '/^-----BEGIN PGP SIGNATURE-----$/,$d' \
+		-e :a -e '/./,$!d;/^\n*$/{$d;N;};/\n$/ba' > "$GIT_DIR/RELEASE_EDITMSG"
 
-	gr release create "v${VERSION}" "${OPT_artifacts[@]}" --notes-file "$GIT_DIR/RELEASE_EDITMSG" "${extra_flags[@]}"
+	# Then get the title (first line on tag)
+	local title; title="$(git cat-file -p "v${VERSION}" | tail -n +7 | head -1)"
+
+	gh release create "v${VERSION}" "${OPT_artifacts[@]}" \
+		--title "$title" \
+		--notes-file "$GIT_DIR/RELEASE_EDITMSG" "${extra_flags[@]}"
+
+  # Open in browser if requested
 	test "$OPT_browse" = "true" && gh release view "v${VERSION}" --web
 }
 
