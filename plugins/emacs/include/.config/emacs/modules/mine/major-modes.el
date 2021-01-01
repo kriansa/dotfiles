@@ -88,6 +88,13 @@
   ;; Use sh-mode for .env files
   (add-to-list 'auto-mode-alist '("\\.env\\'" . sh-mode))
 
+  ;; Add highlight to bash constructs
+  (use-package smartparens
+    :config
+    (sp-local-pair 'sh-mode "if" "fi" :actions '(navigate))
+    (sp-local-pair 'sh-mode "for" "done" :actions '(navigate))
+    (sp-local-pair 'sh-mode "while" "done" :actions '(navigate)))
+
   ;; When saving a file that starts with `#!', make it executable.
   (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p))
 
