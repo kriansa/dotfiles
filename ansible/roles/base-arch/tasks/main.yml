@@ -1,7 +1,7 @@
 ---
 - import_tasks: install_base_packages.yml
 - import_tasks: add_user.yml
-- import_tasks: add_custom_repo.yml
+- import_tasks: install_pacom.yml
 - import_tasks: adjust_ntp.yml
 - import_tasks: create_base_paths.yml
 - import_tasks: disable_resolved_dnssec.yml

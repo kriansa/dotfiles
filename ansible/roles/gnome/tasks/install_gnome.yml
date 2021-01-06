@@ -35,16 +35,10 @@
       - gvfs-nfs
       - gvfs-smb
 
-- name: install AUR packages for customized gnome
-  become: true
-  become_user: "{{ user_name }}"
-  command: bin/pkg build --install {{ item }}
-  args:
-    chdir: /home/{{ user_name }}/Projects/PKGBUILDs
-  loop:
-    - stil-gnome-theme-git
-    - gnome-shell-extension-system-monitor-git
-    - gnome-shell-extension-remove-accessibility
+      # ---------------------
+      # Packages on AUR/pacom
+      - gnome-shell-extension-system-monitor-git
+      - gnome-shell-extension-remove-accessibility
 
 - name: enable gdm and networkmanager at boot time
   become: true

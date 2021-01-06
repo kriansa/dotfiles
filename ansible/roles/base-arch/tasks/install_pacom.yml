@@ -1,0 +1,85 @@
+---
+- name: check if pacom is installed
+  package_facts:
+    manager: pacman
+
+- name: install pacom
+  when: "'pacom' not in ansible_facts.packages"
+  block:
+    - name: create a temp folder to build pacom
+      become: true
+      file: path=/tmp/pacom state=directory mode=0755 owner={{ user_name }} group={{ user_name }}
+
+    - name: download and extract pacom from aur
+      become: true
+      become_user: "{{ user_name }}"
+      unarchive:
+        remote_src: yes
+        src: https://aur.archlinux.org/cgit/aur.git/snapshot/pacom.tar.gz
+        dest: /tmp/pacom
+
+    - name: build and install pacom
+      become: true
+      become_user: "{{ user_name }}"
+      command: makepkg --noconfirm --noprogressbar --nocolor --force --syncdeps --install
+      args:
+        chdir: /tmp/pacom
+
+    - name: remove temp folder with pacom build
+      become: true
+      become_user: "{{ user_name }}"
+      file: path=/tmp/pacom state=absent
+
+- name: check if pacom git database exists
+  stat:
+    path: /home/{{ user_name }}/.local/share/pacom/git-db
+  register: pacom_db
+
+- name: create pacom git database
+  when: not pacom_db.stat.isdir
+  block:
+    - name: create folder for pacom database
+      become: true
+      file: path={{ item }} state=directory mode=0755 owner={{ user_name }} group={{ user_name }}
+      loop:
+        - /home/{{ user_name }}/.local/share/pacom
+        - /home/{{ user_name }}/.local/share/pacom/pacman-repo
+
+    - name: clone my pacom git db using HTTPS
+      become: true
+      become_user: "{{ user_name }}"
+      git:
+        repo: https://github.com/kriansa/.pacom-git-db
+        dest: /home/{{ user_name }}/.local/share/pacom/git-db
+        force: true
+
+    - name: update pacom remote to use SSH instead of HTTPS
+      become: true
+      become_user: "{{ user_name }}"
+      command: git remote set-url origin git@github.com:kriansa/.pacom-git-db.git
+      args:
+        chdir: /home/{{ user_name }}/.local/share/pacom/git-db
+
+- name: create custom pacman repository for usage with pacom
+  become: true
+  become_user: "{{ user_name }}"
+  notify: update pacman db
+  command: repo-add /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar
+  args:
+    creates: /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar
+
+- name: add pacom repository to pacman config
+  become: true
+  notify: update pacman db
+  blockinfile:
+    path: /etc/pacman.conf
+    marker: "# Pacom repository ({mark})"
+    block: |
+      [pacom]
+      SigLevel = Optional TrustAll
+      Server = file:///home/{{ user_name }}/.local/share/pacom/pacman-repo
+
+- name: build all pacom packages in the git database
+  become: true
+  become_user: "{{ user_name }}"
+  command: pacom build -a

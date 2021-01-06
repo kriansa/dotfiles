@@ -36,17 +36,15 @@
       # LastPass CLI (lpass)
       - lastpass-cli
 
-- name: install development packages on AUR
-  become: true
-  become_user: "{{ user_name }}"
-  command: bin/pkg build --install {{ item }}
-  args:
-    chdir: /home/{{ user_name }}/Projects/PKGBUILDs
-  loop:
-    # Common development sdks
-    - nodenv
-    - nodenv-node-build-git
-    - rbenv
-    - ruby-build-git
-    - devops-tools-git
-    - ansible-bundler
+      # ---------------------
+      # Packages on AUR/pacom
+      - emacs-git
+
+      # Common development SDKs
+      - nodenv
+      - nodenv-node-build-git
+      - rbenv
+      - ruby-build-git
+      - devops-tools-git
+      - ansible-bundler
+      - heroku-cli

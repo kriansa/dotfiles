@@ -47,32 +47,37 @@
       - noto-fonts-cjk
       - ttf-joypixels
 
-- name: install ttf-nerd-symbols
+      # ---------------------
+      # Packages on AUR/pacom
+
+      # Ananicy
+      - ananicy-git
+
+      # Beancount
+      - beancount
+      - fava
+
+      # Spotify
+      - spotify
+
+      # Slack/zoom
+      - slack-desktop
+      - zoom
+
+      # Yed
+      - yed
+
+      # Dropbox
+      - dropbox
+      - nautilus-dropbox
+
+      # Fonts
+      - ttf-symbola
+      - ttf-iosevka-term
+      - ttf-gelasio-ib
+      - ttf-comic-neue
+      - ttf-nerd-glyphs
+
+- name: enable ananicy at boot time
   become: true
-  become_user: "{{ user_name }}"
-  command: bin/pkg build --install ttf-nerd-glyphs
-  args:
-    chdir: /home/{{ user_name }}/Projects/PKGBUILDs
-
-- name: install AUR packages
-  become: true
-  become_user: "{{ user_name }}"
-  command: bin/pkg build --install {{ item }}
-  args:
-    chdir: /home/{{ user_name }}/Projects/PKGBUILDs
-  loop:
-    # Spotify
-    - spotify
-
-    # Slack
-    - slack-desktop
-
-    # Dropbox
-    - dropbox
-    - nautilus-dropbox
-
-    # Fonts
-    - ttf-symbola
-    - ttf-iosevka-term
-    - ttf-gelasio-ib
-    - ttf-comic-neue
+  systemd: name=ananicy enabled=true state=started
