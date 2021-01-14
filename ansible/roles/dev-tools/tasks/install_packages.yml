@@ -32,6 +32,8 @@
       # DevOps tools
       - ansible
       - terraform
+      - terragrunt
+      - kubectl
 
       # LastPass CLI (lpass)
       - lastpass-cli

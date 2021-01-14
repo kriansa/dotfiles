@@ -16,11 +16,8 @@ _local_plugins=(
   # Development utilities
   git
   gnupg
-  docker
+  devops
   dotenv
-
-  # Development platforms
-  terraform
 
   # IDEs
   nvim
