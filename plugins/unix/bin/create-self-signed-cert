@@ -4,7 +4,47 @@
 #
 # Usage: create-self-signed-cert <domain_name>
 
-domain=$1
+usage() {
+	echo "Usage: create-self-signed-cert <CN> [DAYS] [ORG_UNIT] [ORG] [CITY] [STATE] [COUNTRY]"
+	echo ""
+	echo "  Creates a self signed certificate for the CN domain."
+	echo "  If not specified, the parameters have the following defaults:"
+	echo "    Days: $days"
+	echo "    Org Unit: $ou"
+	echo "    Organization: $org"
+	echo "    City: $city"
+	echo "    State: $state"
+	echo "    Country: $country"
+}
 
-openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 \
-  -subj "/C=BR/ST=SP/L=Sao Paulo/O=ACME/OU=Technology/CN=$domain"
+set_defaults() {
+	days=${days:-365}
+	ou=${ou:-Technology}
+	org=${org:-ACME}
+	city=${city:-"Sao Paulo"}
+	state=${state:-SP}
+	country=${country:-BR}
+}
+
+main() {
+	domain=$1
+	days=$2
+	ou=$3
+	org=$4
+	city=$5
+	state=$6
+	country=$7
+
+	set_defaults
+
+	case $1 in
+		-h|--help)
+			usage
+			exit
+	esac
+
+	openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days "$days" \
+  	-subj "/C=$country/ST=$state/L=$city/O=$org/OU=$ou/CN=$domain"
+}
+
+main "$@"

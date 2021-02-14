@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# This small utility connects to a URL and fetch its SSL certificate and display it in the terminal
+
+usage() {
+	echo "Usage: show-https-cert <SERVER> [<PORT>]"
+	echo ""
+	echo "  Connects to SERVER in the specific PORT. Don't prepend SERVER with the protocol"
+	echo "  (such as https://) because it's meant to be the address only."
+	echo "  If PORT is not specified, it's assumed to be 443."
+}
+
+url=$1
+port=$2
+
+case $url in
+	http:*|https:*)
+		usage
+		exit 1
+		;;
+
+	--help|-h)
+		usage
+		exit
+esac
+
+if [ -z "$port" ]; then
+	port=443
+fi
+
+openssl s_client -connect "$url:$port" </dev/null 2>/dev/null | openssl x509 -noout -text
