@@ -71,7 +71,8 @@ let g:ale_javascript_eslint_executable = 'eslint_d'
 let g:ale_fixers = {
 \   'javascript': ['prettier'],
 \   'vue': ['prettier'],
-\   'ruby': ['rubocop']
+\   'ruby': ['rubocop'],
+\	  'tf': ['terraform']
 \}
 
 " Ferret
