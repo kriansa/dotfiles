@@ -1,0 +1,25 @@
+---
+- name: add uids to /etc/subuid
+  become: true
+  lineinfile: create=yes path=/etc/subuid line="{{ user_name }}:10000:65536"
+
+- name: add uids to /etc/subgid
+  become: true
+  lineinfile: create=yes path=/etc/subgid line="{{ user_name }}:10000:65536"
+
+- name: create /etc/containers/nodocker
+  become: true
+  file: path=/etc/containers/nodocker state=touch modification_time=preserve access_time=preserve
+
+- name: install podman packages
+  become: true
+  pacman:
+    state: present
+    name:
+      - podman
+      - podman-docker
+      - docker-compose
+
+- name: enable podman.socket so we can use docker-compose
+  become: true
+  systemd: state=started enabled=yes name=podman.socket
