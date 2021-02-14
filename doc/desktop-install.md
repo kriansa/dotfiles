@@ -187,7 +187,7 @@ First edit `/etc/mkinitcpio.conf` in the HOOKS line, and:
 ##### 20B. Configure boot (without LUKS)
 If you aren't using LUKS, then configure `/etc/mkinitcpio.conf` this way:
 1. Replace `udev` by `systemd` on HOOKS
-2. Add `sd-lvm2` between `block` and `filesystems` on HOOKS
+2. Add `lvm2` between `block` and `filesystems` on HOOKS
 
 > **Extra:** Regardless of LUKS, if you have enough space on your EFI
 > partition, let's also disable the compression by adding the following line:
