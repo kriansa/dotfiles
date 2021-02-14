@@ -19,6 +19,7 @@
       - pacman-contrib
       - sudo
       - wget
+      - openbsd-netcat
       - openssh
       - python
       - git
