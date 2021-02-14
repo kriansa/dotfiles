@@ -24,5 +24,4 @@ Please refer to [Contributing](CONTRIBUTING.md) for more details.
 
 ## License
 
-This project is licensed under the BSD 3-Clause License - see the [LICENSE.md](LICENSE.md) file for
-details.
+This project is licensed under the Apache v2 License - see the [LICENSE](LICENSE) file for details.

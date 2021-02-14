@@ -28,5 +28,4 @@ Please make sure to update tests as appropriate. For more information, please re
 
 ## License
 
-This project is licensed under the BSD 3-Clause License - see the [LICENSE.md](LICENSE.md) file for
-details.
+This project is licensed under the Apache v2 License - see the [LICENSE](LICENSE) file for details.
