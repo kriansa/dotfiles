@@ -16,6 +16,7 @@
     state: present
     name:
       - base-devel
+      - pacman-contrib
       - sudo
       - wget
       - openssh

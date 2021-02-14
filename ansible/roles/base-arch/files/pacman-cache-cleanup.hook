@@ -1,0 +1,12 @@
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Keep the last cache and currently package.
+When = PostTransaction
+Depends = pacman-contrib
+Exec = /usr/bin/paccache -rk2
