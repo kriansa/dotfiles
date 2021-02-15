@@ -1,12 +1,5 @@
 # UTF-8 (Unicode) compose sequences
-#
-# Use the sequences from current locale
-include "%L"
 
-# Two nice additions -- maybe add to en_US.UTF8?
-<Multi_key> <quotedbl> <backslash> 	: "〝" U301d	# REVERSED DOUBLE PRIME QUOTATION MARK
-<Multi_key> <quotedbl> <slash>  	: "〞" U301e	# DOUBLE PRIME QUOTATION MARK
-
-#  Overriding C with acute:
-<dead_acute> <C> 			: "Ç" Ccedilla	# LATIN CAPITAL LETTER C WITH CEDILLA
-<dead_acute> <c> 			: "ç" ccedilla	# LATIN SMALL LETTER C WITH CEDILLA
+# Overrides C acute with Ccedilla:
+<dead_acute> <C> 			: "Ç" "Ccedilla"
+<dead_acute> <c> 			: "ç" "ccedilla"
