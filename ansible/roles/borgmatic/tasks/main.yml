@@ -1,0 +1,17 @@
+---
+- name: install borgmatic
+  become: true
+  pacman: name=borgmatic state=present
+
+- name: create systemd timer for borgmatic
+  notify: reload systemd
+  become: true
+  copy: src=files/borgmatic.timer dest=/etc/systemd/system/borgmatic.timer mode=0644
+
+- name: create systemd service for borgmatic
+  notify: reload systemd
+  become: true
+  template:
+    src: files/borgmatic.service
+    dest: /etc/systemd/system/borgmatic.service
+    mode: 0644

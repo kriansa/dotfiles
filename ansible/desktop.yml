@@ -7,6 +7,7 @@
   - role: nvidia
   - role: gnome
   - role: desktop-tools
+  - role: borgmatic
   - role: yubikey
   - role: dev-tools
   - role: dotfiles
