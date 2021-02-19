@@ -77,7 +77,3 @@
       - ttf-gelasio-ib
       - ttf-comic-neue
       - ttf-nerd-glyphs
-
-- name: enable ananicy at boot time
-  become: true
-  systemd: name=ananicy enabled=true state=started
