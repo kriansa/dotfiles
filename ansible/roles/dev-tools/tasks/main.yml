@@ -1,6 +1,4 @@
 ---
 - import_tasks: install_packages.yml
 - import_tasks: install_podman.yml
-- import_tasks: install_node.yml
-- import_tasks: install_ruby.yml
 - import_tasks: install_libvirt.yml

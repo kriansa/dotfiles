@@ -1,6 +1,4 @@
 ---
-# TODO: Arch Linux only. Adapt to work on MacOS.
-
 - name: install development packages
   become: true
   pacman:
@@ -50,3 +48,17 @@
       - devops-tools-git
       - ansible-bundler
       - heroku-cli
+
+- name: install/update ruby and packages
+  become: true
+  become_user: "{{ user_name }}"
+  shell: eval "$(rbenv init -)" && "{{ playbook_dir | dirname }}/plugins/ruby/bin/update-ruby"
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin"
+
+- name: install/update node and packages
+  become: true
+  become_user: "{{ user_name }}"
+  shell: eval "$(nodenv init -)" && "{{ playbook_dir | dirname }}/plugins/javascript/bin/update-node"
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin"
