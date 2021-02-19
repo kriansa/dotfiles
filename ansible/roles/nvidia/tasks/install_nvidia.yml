@@ -9,15 +9,6 @@
       - nvidia-settings
       - libva-vdpau-driver
 
-- name: add nvidia kernel parameter to use DRM mode (for grub)
-  become: true
-  notify: rebuild grub
-  when: "'grub' in role_names"
-  lineinfile:
-    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet nvidia-drm.modeset=1"'
-    path: /etc/default/grub
-    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT="
-
 - name: add nvidia kernel parameter to use DRM mode (for systemd-boot)
   become: true
   when: "'systemd-boot' in role_names"
