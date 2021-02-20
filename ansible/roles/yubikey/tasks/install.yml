@@ -1,7 +1,11 @@
 ---
-- name: install yubikey manager
+- name: install yubikey software
   become: true
-  pacman: name=yubikey-manager state=present
+  pacman: 
+    state: present
+    name: 
+      - yubikey-manager 
+      - pam-u2f
 
 - name: install smartcard libs/tools
   become: true

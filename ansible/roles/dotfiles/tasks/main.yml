@@ -26,6 +26,7 @@
 - import_tasks: tilix.yml
 - import_tasks: vlc.yml
 - import_tasks: xorg.yml
+- import_tasks: yubikey.yml
 - import_tasks: zsh.yml
 
 - name: update dotfiles remote to use SSH instead of HTTPS
