@@ -1,0 +1,7 @@
+---
+- name: limit journal log retention size
+  become: true
+  lineinfile:
+    path: /etc/systemd/journald.conf
+    regexp: "^#?SystemMaxUse="
+    line: "SystemMaxUse=500M"

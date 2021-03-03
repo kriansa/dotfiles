@@ -8,3 +8,4 @@
 - import_tasks: enable_basic_services.yml
 - import_tasks: configure_pacman.yml
 - import_tasks: fix_delayed_volume.yml
+- import_tasks: configure_journal.yml
