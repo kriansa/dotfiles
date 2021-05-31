@@ -22,6 +22,9 @@ Plug 'keith/swift.vim', { 'for': 'swift' }
 Plug 'elixir-lang/vim-elixir', { 'for': 'elixir' }
 Plug 'jakwings/vim-pony', { 'for': 'pony' }
 Plug 'slim-template/vim-slim', { 'for': 'slim' }
+Plug 'jvirtanen/vim-hcl', { 'for': 'hcl' }
+Plug 'cespare/vim-toml', { 'for': 'toml' }
+Plug 'HerringtonDarkholme/yats.vim', { 'for': 'typescript' }
 
 " Markdown
 " Plug 'SidOfc/mkdx'

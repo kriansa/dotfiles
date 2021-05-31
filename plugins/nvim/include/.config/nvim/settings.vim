@@ -28,6 +28,9 @@ set list                                  " show hidden chars
 set listchars=tab:▸\ ,eol:¬,space:.       " chars to be displayed
 set showbreak=↪                           " char to be displayed on wraped lines
 
+set shell=bash                            " Always use bash as the shell. My ZSH is kind of heavy
+                                          " and makes vim-fugitive slow
+
 " Clipboard settings
 set clipboard+=unnamed                    " yanks to clipboard
 

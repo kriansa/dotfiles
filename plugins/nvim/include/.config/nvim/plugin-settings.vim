@@ -13,6 +13,9 @@ let g:NERDTreeAutoDeleteBuffer=1
 let g:NERDTreeNaturalSort=1
 let g:NERDTreeStatusline="%{exists('b:NERDTree')?fnamemodify(expand(b:NERDTree.root.path.str()), ':~:.'):'NERD'}"
 
+" Disable deprecated commands on fugitive
+let fugitive_legacy_commands = 0
+
 " Disable netrw
 let loaded_netrwPlugin = 1
 
@@ -55,8 +58,11 @@ let g:airline_symbols.notexists = ' [new]'
 let g:highlightedyank_highlight_duration = 80
 
 " Configure Vim-Ruby plugin
+let ruby_fold = 0
 let ruby_foldable_groups = 'NONE'
 let ruby_spellcheck_strings = 0
+let g:ruby_indent_assignment_style = 'variable'
+let g:ruby_indent_hanging_elements = 0
 " Folding in Ruby is expensive
 let ruby_fold = 0
 
@@ -67,12 +73,13 @@ let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
 let g:ale_disable_lsp = 1 " Disable LSP so we let CoC handle it
 let g:ale_change_sign_column_color = 1
 let g:ale_sign_column_always = 1
-let g:ale_javascript_eslint_executable = 'eslint_d'
 let g:ale_fixers = {
-\   'javascript': ['prettier'],
-\   'vue': ['prettier'],
-\   'ruby': ['rubocop'],
-\	  'tf': ['terraform']
+\  '*': ['remove_trailing_lines', 'trim_whitespace'],
+\  'javascript': ['prettier'],
+\  'vue': ['prettier'],
+\  'ruby': ['rubocop'],
+\  'tf': ['terraform'],
+\  'python': ['black']
 \}
 
 " Ferret

@@ -9,9 +9,6 @@ nnoremap ; :
 nmap <Leader><Space> :Buffers<CR>
 nmap <C-P> :Files<CR>
 
-" Autofix with ALE
-nmap <Leader>f :ALEFix<CR>
-
 " C-Space reload completion list
 inoremap <silent><expr> <c-space> coc#refresh()
 
@@ -60,19 +57,28 @@ tnoremap <D-Bs> <Esc>q
 nnoremap <silent> <S-K> i<CR><ESC>
 
 " Fugitive
-nmap <silent> <leader>gs :Gstatus<CR>
-nmap <silent> <leader>gp :Gpush<CR>
-nmap <silent> <leader>gP :Gpush<CR>
-nmap <silent> <leader>gb :Gblame<CR>
+nmap <silent> <leader>gs :Git<CR>
+nmap <silent> <leader>gp :Git push<CR>
+nmap <silent> <leader>gP :Git push<CR>
+nmap <silent> <leader>gb :Git blame<CR>
 
 " ALE
-nnoremap <silent> gd :ALEGoToDefinition<CR>
+" nnoremap <silent> gd :ALEGoToDefinition<CR>
 nmap <silent> [l <Plug>(ale_previous_wrap)
 nmap <silent> ]l <Plug>(ale_next_wrap)
+nmap <Leader>f <Plug>(ale_fix)
+
+" CoC
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <leader>ac <Plug>(coc-codeaction)
+nmap <leader>qf <Plug>(coc-fix-current)
 
 " Copy filepath + line to clipboard
-nmap <silent> <leader>fl :call YankFilenameLine()<CR>
-nmap <silent> <leader>ff :call YankFilename()<CR>
+nmap <silent> <leader>yl :call YankFilenameLine()<CR>
+nmap <silent> <leader>yf :call YankFilename()<CR>
 
 " Make all splits with equal size
 nnoremap <silent> <Leader>= :wincmd =<CR>
