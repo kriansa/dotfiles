@@ -66,15 +66,15 @@ nmap <silent> <leader>gb :Git blame<CR>
 " nnoremap <silent> gd :ALEGoToDefinition<CR>
 nmap <silent> [l <Plug>(ale_previous_wrap)
 nmap <silent> ]l <Plug>(ale_next_wrap)
-nmap <Leader>f <Plug>(ale_fix)
+nmap <Leader>ff <Plug>(ale_fix)
 
 " CoC
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
-nmap <leader>ac <Plug>(coc-codeaction)
-nmap <leader>qf <Plug>(coc-fix-current)
+nmap <leader>fc <Plug>(coc-fix-current)
+" nmap <leader>ac <Plug>(coc-codeaction)
 
 " Copy filepath + line to clipboard
 nmap <silent> <leader>yl :call YankFilenameLine()<CR>

@@ -3,7 +3,7 @@ let g:ruby_host_prog = systemlist("RBENV_VERSION=$(rbenv global) rbenv which neo
 
 " NERDTree settings
 let g:NERDTreeShowHidden=1
-let g:NERDTreeQuitOnOpen=1
+let g:NERDTreeQuitOnOpen=0
 let g:NERDTreeSortHiddenFirst=1
 let g:NERDTreeIgnore=['^\.git$', '\~$']
 let g:NERDTreeRespectWildIgnore=1
@@ -76,6 +76,7 @@ let g:ale_sign_column_always = 1
 let g:ale_fixers = {
 \  '*': ['remove_trailing_lines', 'trim_whitespace'],
 \  'javascript': ['prettier'],
+\  'typescript': ['prettier'],
 \  'vue': ['prettier'],
 \  'ruby': ['rubocop'],
 \  'tf': ['terraform'],
@@ -102,7 +103,7 @@ let g:matchup_matchparen_status_offscreen = 0
 
 " Set defaults for Goyo
 let g:goyo_linenr = 1
-let g:goyo_width = "40%"
+let g:goyo_width = "60%"
 let g:goyo_height = "100%"
 
 " Settings for fzf
