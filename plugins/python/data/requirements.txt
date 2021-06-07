@@ -1,1 +1,4 @@
 pynvim
+pylint
+mypy
+black
