@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 #
-# iftun - Tunnel traffic through an interface
+# iftun - Tunnel application traffic through a specific interface
 #
 # This is a small wrapper around netns to help me connecting to several services using a stablished
-# VPN connection. This is particularly useful for point-to-point (non tunneling) VPNs where you
+# VPN connection. This is particularly useful for point-to-point (split-tunnel) VPNs where you
 # usually don't just redirect all your traffic through it, but it can be used as such. So instead of
-# redirect all your traffic, you can do it selectively only on the program that you need.
+# redirecting all your traffic over a tun, you can do it selectively only on the application that
+# you need.
 #
 # PS: iftun stands for 'interface tunnel' - A way to tunnel all application trafic through the same
 #                                           network interface (if).
 #
-# Usage: nettun tun0 ssh myserver
+# Usage: iftun eth1 ssh myserver
 
 function main {
   local interface=$1
