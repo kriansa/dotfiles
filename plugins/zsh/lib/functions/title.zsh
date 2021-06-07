@@ -21,6 +21,10 @@ function title {
       print -Pn "\e]2;$2:q\a" # set window name
       print -Pn "\e]1;$1:q\a" # set tab name
       ;;
+    tmux*)
+      tmux rename-window "$1"
+      test "$2" != "$1" && tmux rename-session "$2"
+      ;;
     screen*)
       print -Pn "\ek$1:q\e\\" # set screen hardstatus
       ;;

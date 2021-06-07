@@ -1,0 +1,16 @@
+---
+key_bindings:
+  # Send C-Fn on certain keystrokes so we pick them up on tmux
+  - { key: Return, mods: Shift|Alt, chars: "\x1b[21;5~" }
+  - { key: Tab, mods: Control|Shift, chars: "\x1b[19;5~" }
+  - { key: Tab, mods: Control, chars: "\x1b[20;5~" }
+
+shell:
+  program: /bin/bash
+  args:
+    - -l
+    - -c
+    - "tmux attach || tmux"
+
+env:
+  TERM: xterm-256color
