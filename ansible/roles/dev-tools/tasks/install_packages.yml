@@ -6,6 +6,7 @@
     name:
       - python
       - python-pip
+      - python-poetry
       - gcr # pinentry-gnome3 dependency
       - cowsay
       - neovim

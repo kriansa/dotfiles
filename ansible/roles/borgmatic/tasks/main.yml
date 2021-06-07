@@ -1,7 +1,11 @@
 ---
 - name: install borgmatic
   become: true
-  pacman: name=borgmatic state=present
+  pacman:
+    state: present
+    name:
+      - borgmatic
+      - python-llfuse
 
 - name: create systemd timer for borgmatic
   notify: reload systemd

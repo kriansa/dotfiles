@@ -19,6 +19,7 @@
       - podman
       - podman-docker
       - docker-compose
+      - cni-plugin-dnsname
 
 - name: enable podman.socket so we can use docker-compose
   become: true
