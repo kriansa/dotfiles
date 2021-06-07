@@ -1,4 +1,3 @@
-bundler
 bundler-audit
 mailcatcher
 rubocop
