@@ -9,6 +9,13 @@ alias d='docker'
 alias dc='docker-compose'
 alias k='kubectl'
 
+k-list-all() {
+	namespace=$1
+
+	kubectl api-resources --verbs=list --namespaced -o name | \
+		xargs -n 1 kubectl get --show-kind --ignore-not-found -n $namespace
+}
+
 # 3. Enable autocompletion commands
 # Enable autocompletion for terraform
 if [ $commands[terraform] ]; then
