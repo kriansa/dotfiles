@@ -6,6 +6,7 @@
     name:
       - libglvnd
       - nvidia
+      - nvidia-lts
       - nvidia-settings
       - libva-vdpau-driver
 
