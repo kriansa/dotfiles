@@ -20,7 +20,6 @@
 - import_tasks: git.yml
 - import_tasks: gnome.yml
 - import_tasks: gpg.yml
-- import_tasks: javascript.yml
 - import_tasks: nvim.yml
 - import_tasks: python.yml
 - import_tasks: rapid-photo-downloader.yml

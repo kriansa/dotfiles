@@ -1,11 +1,4 @@
-eslint
-eslint_d
-eslint-plugin-html
-eslint-plugin-vue
-eslint-plugin-import
-eslint-config-airbnb-base
-stylelint
-stylelint-config-standard
+alex
 vue-language-server
 typescript
 typescript-language-server

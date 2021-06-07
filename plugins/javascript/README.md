@@ -6,3 +6,7 @@ Whenever there's an update to nodejs, please follow the following steps:
 
 1. Update the global nodenv version using `nodenv global <newversion>`
 2. Run `update-node-packages`
+
+## Examples
+
+In the `examples` folder you'll find some examples/models of linter configuration.
