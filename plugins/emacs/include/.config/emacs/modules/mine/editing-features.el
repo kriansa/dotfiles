@@ -96,9 +96,6 @@
   ;; installation
   (advice-add 'flycheck-eslint-config-exists-p :override (lambda() t))
 
-  ;; Use eslint_d
-  (setq flycheck-javascript-eslint-executable "eslint_d")
-
   ;; Add eslint for web-mode
   (flycheck-add-mode 'javascript-eslint 'web-mode)
   (flycheck-add-mode 'css-stylelint 'web-mode)
