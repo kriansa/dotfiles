@@ -15,3 +15,7 @@
     src: files/borgmatic.service
     dest: /etc/systemd/system/borgmatic.service
     mode: 0644
+
+- name: enable systemd timer for borgmatic
+  become: true
+  systemd: state=started enabled=yes name=borgmatic.timer
