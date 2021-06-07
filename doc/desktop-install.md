@@ -195,7 +195,7 @@ If you aren't using LUKS, then configure `/etc/mkinitcpio.conf` this way:
 
 
 ##### 21. Generate initramfs
-    # mkinitcpio -p linux
+    # mkinitcpio -P
 
 ##### 22. Install [systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot)
     # bootctl install
