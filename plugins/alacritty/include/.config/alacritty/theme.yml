@@ -1,4 +1,7 @@
 ---
+# Live config reload (changes require restart)
+live_config_reload: true
+
 window:
   decorations: none
   startup_mode: Maximized
@@ -6,8 +9,9 @@ window:
 font:
   normal:
     family: Iosevka Term
-    style: Regular
-  size: 14
+    style: Light
+  size: 20
+  use_thin_strokes: false
 
 # Colors (Dracula)
 colors:

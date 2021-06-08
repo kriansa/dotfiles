@@ -1,12 +1,66 @@
 ---
 key_bindings:
-  # Send C-Fn on certain keystrokes so we pick them up on tmux
-  - { key: Return, mods: Shift|Alt, chars: "\x1b[21;5~" }
-  - { key: Tab, mods: Control|Shift, chars: "\x1b[19;5~" }
-  - { key: Tab, mods: Control, chars: "\x1b[20;5~" }
+  # Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map
+  # CMD-D to tmux, then use it as the following:
+  # `- { key: D, mods: Command, chars: "\x1cd" }`
+  # And then "capture it" on tmux keybindings as if they are using a C-\ prefix (by using a custom
+  # key table):
+  # `bind -T alacritty d split-window -h`
+
+  # Linux bindings (need to use replace Alt by Command)
+  - { key: T, mods: Alt, chars: "\x1ct" }
+  - { key: D, mods: Alt, chars: "\x1cd" }
+  - { key: D, mods: Alt|Shift, chars: "\x1cD" }
+  - { key: Return, mods: Alt|Shift, chars: "\x1c\x0d" }
+  - { key: H, mods: Alt, chars: "\x1ch" }
+  - { key: J, mods: Alt, chars: "\x1cj" }
+  - { key: K, mods: Alt, chars: "\x1ck" }
+  - { key: L, mods: Alt, chars: "\x1cl" }
+  - { key: H, mods: Alt|Shift, chars: "\x1cH" }
+  - { key: J, mods: Alt|Shift, chars: "\x1cJ" }
+  - { key: K, mods: Alt|Shift, chars: "\x1cK" }
+  - { key: L, mods: Alt|Shift, chars: "\x1cL" }
+  - { key: Key0, mods: Alt, chars: "\x1c0" }
+  - { key: Key1, mods: Alt, chars: "\x1c1" }
+  - { key: Key2, mods: Alt, chars: "\x1c2" }
+  - { key: Key3, mods: Alt, chars: "\x1c3" }
+  - { key: Key4, mods: Alt, chars: "\x1c4" }
+  - { key: Key5, mods: Alt, chars: "\x1c5" }
+  - { key: Key6, mods: Alt, chars: "\x1c6" }
+  - { key: Key7, mods: Alt, chars: "\x1c7" }
+  - { key: Key8, mods: Alt, chars: "\x1c8" }
+  - { key: Key9, mods: Alt, chars: "\x1c9" }
+
+  # MacOS bindings (need to use replace Alt by Command)
+  - { key: T, mods: Command, chars: "\x1ct" }
+  - { key: D, mods: Command, chars: "\x1cd" }
+  - { key: D, mods: Command|Shift, chars: "\x1cD" }
+  - { key: Return, mods: Command|Shift, chars: "\x1c\x0d" }
+  - { key: H, mods: Command, chars: "\x1ch" }
+  - { key: J, mods: Command, chars: "\x1cj" }
+  - { key: K, mods: Command, chars: "\x1ck" }
+  - { key: L, mods: Command, chars: "\x1cl" }
+  - { key: H, mods: Command|Shift, chars: "\x1cH" }
+  - { key: J, mods: Command|Shift, chars: "\x1cJ" }
+  - { key: K, mods: Command|Shift, chars: "\x1cK" }
+  - { key: L, mods: Command|Shift, chars: "\x1cL" }
+  - { key: Key0, mods: Command, chars: "\x1c0" }
+  - { key: Key1, mods: Command, chars: "\x1c1" }
+  - { key: Key2, mods: Command, chars: "\x1c2" }
+  - { key: Key3, mods: Command, chars: "\x1c3" }
+  - { key: Key4, mods: Command, chars: "\x1c4" }
+  - { key: Key5, mods: Command, chars: "\x1c5" }
+  - { key: Key6, mods: Command, chars: "\x1c6" }
+  - { key: Key7, mods: Command, chars: "\x1c7" }
+  - { key: Key8, mods: Command, chars: "\x1c8" }
+  - { key: Key9, mods: Command, chars: "\x1c9" }
+
+  # Cross-platform bindings (not using Alt or Command)
+  - { key: Tab, mods: Control, chars: "\x1c\x09" }
+  - { key: Tab, mods: Control|Shift, chars: "\x1c\x1B[Z" }
 
 shell:
-  program: /bin/bash
+  program: /bin/zsh
   args:
     - -l
     - -c
