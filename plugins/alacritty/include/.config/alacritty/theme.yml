@@ -5,12 +5,19 @@ live_config_reload: true
 window:
   decorations: none
   startup_mode: Maximized
+  title: Terminal
+  padding:
+    x: 2
 
 font:
   normal:
     family: Iosevka Term
     style: Light
-  size: 20
+  bold:
+    style: Regular
+  size: 18
+  glyph_offset:
+    y: 1
   use_thin_strokes: false
 
 # Colors (Dracula)

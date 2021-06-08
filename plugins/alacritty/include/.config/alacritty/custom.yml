@@ -1,4 +1,9 @@
 ---
+scrolling:
+  # Maximum number of lines in the scrollback buffer.
+  # Specifying '0' will disable scrolling.
+  history: 0
+
 key_bindings:
   # Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map
   # CMD-D to tmux, then use it as the following:
@@ -54,6 +59,11 @@ key_bindings:
   - { key: Key7, mods: Command, chars: "\x1c7" }
   - { key: Key8, mods: Command, chars: "\x1c8" }
   - { key: Key9, mods: Command, chars: "\x1c9" }
+
+  # MacOS bindings for matching Linux environment (\x1B = ESC)
+  - { key: Back, mods: Command, chars: "\x1Bq" }
+  - { key: Left, mods: Option, chars: "\x1B[1;5D" }
+  - { key: Right, mods: Option, chars: "\x1B[1;5C" }
 
   # Cross-platform bindings (not using Alt or Command)
   - { key: Tab, mods: Control, chars: "\x1c\x09" }
