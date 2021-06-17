@@ -60,6 +60,9 @@ key_bindings:
   - { key: Key8, mods: Command, chars: "\x1c8" }
   - { key: Key9, mods: Command, chars: "\x1c9" }
 
+  # Apparently, C-6 doesn't work by default on Alacritty/Mac
+  - { key: Key6, mods: Control, chars: "\x1e" }
+
   # MacOS bindings for matching Linux environment (\x1B = ESC)
   - { key: Back, mods: Command, chars: "\x1Bq" }
   - { key: Left, mods: Option, chars: "\x1B[1;5D" }
