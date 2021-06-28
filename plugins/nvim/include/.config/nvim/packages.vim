@@ -25,6 +25,7 @@ Plug 'slim-template/vim-slim', { 'for': 'slim' }
 Plug 'jvirtanen/vim-hcl', { 'for': 'hcl' }
 Plug 'cespare/vim-toml', { 'for': 'toml' }
 Plug 'HerringtonDarkholme/yats.vim', { 'for': 'typescript' }
+Plug 'pantharshit00/vim-prisma', { 'for': 'prisma' }
 
 " Markdown
 " Plug 'SidOfc/mkdx'

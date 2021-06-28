@@ -87,6 +87,9 @@ let g:ale_fixers = {
 let g:FerretExecutableArguments = {
 \  'rg': '--vimgrep -M 120 --hidden --ignore-file=' . $DOTFILES_PATH . '/.rgignore'
 \}
+" Disable async search (workaround for ripgrep 13+)
+let g:FerretNvim=0
+let g:FerretJob=0
 
 " Ripgrep
 "
