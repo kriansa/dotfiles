@@ -13,7 +13,7 @@ if command -v resolvectl > /dev/null 2>&1; then
     exit 1
   fi
 
-  resolvectl query "public-ip-$ip_id.lan" --legend=false | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
+  resolvectl query "public-ip-$ip_id.lan.cx" --legend=false | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
 else
   curl ifconfig.co
 fi
