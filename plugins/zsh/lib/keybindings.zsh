@@ -33,6 +33,8 @@ bindkey "^[[1;5D" backward-word
 # Home and end
 bindkey "^[[H" beginning-of-line # [Home] - begining of line
 bindkey "^[[F" end-of-line # [End] - end of line
+bindkey "^[[1~" beginning-of-line # [Home] - begining of line
+bindkey "^[[4~" end-of-line # [End] - end of line
 
 # CTRL-U cuts the line
 bindkey "^U" _cut-whole-line
