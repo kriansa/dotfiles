@@ -73,15 +73,20 @@ let g:node_filetypes = ["javascript", "json", "jsx", "vue"]
 let g:ale_disable_lsp = 1 " Disable LSP so we let CoC handle it
 let g:ale_change_sign_column_color = 1
 let g:ale_sign_column_always = 1
+let g:ale_linters = {'ruby': ['standardrb']}
 let g:ale_fixers = {
 \  '*': ['remove_trailing_lines', 'trim_whitespace'],
 \  'javascript': ['prettier'],
 \  'typescript': ['prettier'],
 \  'vue': ['prettier'],
-\  'ruby': ['rubocop'],
+\  'ruby': ['standardrb', 'remove_trailing_lines', 'trim_whitespace'],
 \  'tf': ['terraform'],
 \  'python': ['black']
 \}
+
+" Editorconfig
+let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+let g:EditorConfig_preserve_formatoptions = 1
 
 " Ferret
 let g:FerretExecutableArguments = {

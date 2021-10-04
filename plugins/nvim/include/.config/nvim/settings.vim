@@ -81,6 +81,10 @@ set wildignore=node_modules,vendor/bundle,.git,.DS_Store
 " Consider dashes as keywords so we can use autocompletion
 set iskeyword+=\-
 
+" Set autoformatting options
+" See help in :h fo-table
+set formatoptions-=tc
+
 " Autocommands
 
 " Exit paste when leaving InsertMode
