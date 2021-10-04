@@ -1,7 +1,8 @@
 ---
 - name: install libvirt
   become: true
-  pacman: 
+  notify: enable libvirtd socket activation
+  pacman:
     state: present
     name:
       - qemu
