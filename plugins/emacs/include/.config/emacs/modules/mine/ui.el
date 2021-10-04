@@ -11,7 +11,7 @@
 (use-package all-the-icons :ensure t)
 
 ;; Set theme
-(use-package doom-themes :ensure t :config (load-theme 'doom-one t))
+(use-package doom-themes :ensure t :config (load-theme 'doom-one-light t))
 
 ;; Available themes
 ;; (use-package zenburn-theme :ensure t :config (load-theme 'zenburn t))

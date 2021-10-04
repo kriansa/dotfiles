@@ -38,4 +38,4 @@ endfunction
 " color yowish
 
 " One
-color one-dark
+color one-light

@@ -9,7 +9,3 @@ let g:airline_theme = "one"
 
 " Override the name
 let g:colors_name = "one-light"
-
-" Override the colors
-highlight NonText guifg = #EAEAEB
-highlight SpecialKey guifg = #EAEAEB
