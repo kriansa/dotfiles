@@ -1,4 +1,7 @@
 ---
+# Live config reload (changes require restart)
+live_config_reload: true
+
 scrolling:
   # Maximum number of lines in the scrollback buffer.
   # Specifying '0' will disable scrolling.
@@ -71,6 +74,12 @@ key_bindings:
   # Cross-platform bindings (not using Alt or Command)
   - { key: Tab, mods: Control, chars: "\x1c\x09" }
   - { key: Tab, mods: Control|Shift, chars: "\x1c\x1B[Z" }
+
+  # Disable original Alacritty bindings for Search/ViMode
+  - { key: F, mods: Command|Control, action: ReceiveChar }
+  - { key: F, mods: Command, mode: ~Search, action: ReceiveChar }
+  - { key: Space, mods: Shift|Control, mode: ~Search, action: ReceiveChar }
+  - { key: F, mods: Control|Shift, mode: ~Search, action: ReceiveChar }
 
 shell:
   program: /bin/zsh
