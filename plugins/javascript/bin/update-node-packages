@@ -17,4 +17,5 @@ while IFS= read -r package; do
 done < "$PLUGIN_PATH/data/packages.txt"
 
 # Ensures that nodenv updates the binstubs
+test -f "$HOME/.nodenv/shims/.nodenv-shim" && rm "$HOME/.nodenv/shims/.nodenv-shim"
 nodenv rehash
