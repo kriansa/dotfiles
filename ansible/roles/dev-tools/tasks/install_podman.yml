@@ -1,4 +1,18 @@
 ---
+- name: install podman packages
+  become: true
+  pacman:
+    state: present
+    name:
+      - podman
+      - docker-compose
+      - cni-plugin-dnsname
+
+      # Currently, two bugs prevent me to fully use `podman` as `docker` replacement. See: bugs.md
+      # When those are fixed, then replace `docker` by `podman-docker`
+      # - podman-docker
+      - docker
+
 - name: add uids to /etc/subuid
   become: true
   lineinfile: create=yes path=/etc/subuid line="{{ user_name }}:10000:65536"
@@ -11,16 +25,10 @@
   become: true
   file: path=/etc/containers/nodocker state=touch modification_time=preserve access_time=preserve
 
-- name: install podman packages
+# When podman issues gets fixed (see bugs.md) then uncomment this and remove the docker task below
+# - name: enable podman.socket so we can use docker-compose
+#   become: true
+#   systemd: state=started enabled=yes name=podman.socket
+- name: enable docker.socket so we can use docker-compose
   become: true
-  pacman:
-    state: present
-    name:
-      - podman
-      - podman-docker
-      - docker-compose
-      - cni-plugin-dnsname
-
-- name: enable podman.socket so we can use docker-compose
-  become: true
-  systemd: state=started enabled=yes name=podman.socket
+  systemd: state=started enabled=yes name=docker.socket
