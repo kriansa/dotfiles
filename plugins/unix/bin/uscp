@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-#
-# SCP wrapper that disables host authentication.
-
-scp -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking no" -o "LogLevel ERROR" "$@"

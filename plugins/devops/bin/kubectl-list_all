@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#
+# This is a kubectl subcommand used to list all components in a given namespace
+
+namespace=$1
+
+kubectl api-resources --verbs=list --namespaced -o name | \
+	xargs -n 1 kubectl get --show-kind --ignore-not-found -n $namespace

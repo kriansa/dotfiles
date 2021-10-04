@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#
+# This helps calling a URL by resolving its address to any arbitrary IP
+
+ip=$1
+host=$2
+
+curl -kvv --no-keepalive -H "Host: $host" --resolve "$host:443:$ip" "https://$host"
