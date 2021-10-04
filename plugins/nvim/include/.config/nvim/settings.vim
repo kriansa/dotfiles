@@ -13,7 +13,7 @@ set noshowmode        " Disable showing the mode (such as -- INSERT --) in the b
 set noswapfile        " Never create swap files
 set nobackup          " Disable usage of backup files (~)
 set nowritebackup     " Disable creation of backup files
-set mouse=            " Disables the mouse
+set mouse=a           " Enable the mouse
 set visualbell t_vb=  " Disable bells on errors
 set laststatus=2      " Always enable bottom status line (airline)
 set hlsearch          " Enable search highlight
