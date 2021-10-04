@@ -12,3 +12,4 @@
     mode: 0600
   loop:
     - Admin VLAN
+    - Internet

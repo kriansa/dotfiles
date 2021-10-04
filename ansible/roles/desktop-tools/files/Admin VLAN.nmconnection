@@ -2,7 +2,6 @@
 id=Admin VLAN
 uuid=0849d8e0-70ac-47bc-9112-9aad18956a8f
 type=vlan
-interface-name=Admin
 permissions=
 timestamp=1610897810
 
@@ -16,7 +15,7 @@ egress-priority-map=
 flags=1
 id=1010
 ingress-priority-map=
-parent=8a929ca3-a591-439b-82ca-4b1d21f021d5
+parent=5d7c1c92-4944-3326-897c-bc65e34a1b2c
 
 [ipv4]
 dns-search=
