@@ -59,3 +59,22 @@ This is a list of upstream bugs I'm currently working around and tracking for my
   The workaround is done [here](ansible/roles/gnome/tasks/configure_gnome.yml).
 
   See: https://bugs.archlinux.org/task/67846
+
+## Podman
+
+Using podman as a complete replacement for `docker` is a work in progress. Although the developments
+have evolved over the last year, it still has two major issues before I do the full transition:
+
+1. Rootless containers aren't fully compatible with docker-compose yet due to a lack of possibility
+   to set a default value for `userns`. This is reported and being tracked by
+   `https://github.com/containers/podman/pull/11317` and `https://github.com/containers/podman/issues/11350`
+2. Running spare containers off of a docker-compose with a running service is not currently
+   possible. This is reported and being tracked by `https://github.com/containers/podman/issues/11717`
+
+While both bugs aren't fully fixed, I'm running a workaround for the `userns` so that I always run
+docker as root and therefore I won't be able to use the rooless mode. This is currently being done
+by the files `plugins/devops/bin/docker` and `plugins/devops/bin/docker-compose`. When the first bug
+is fixed then remove both of them, as well as the entry on `/etc/sudoers.d/10-wheel`
+
+As for the second bug, the only thing is to avoid using `docker-compose run` for running services,
+and replace that call by a `docker-compose exec` wherever possible.
