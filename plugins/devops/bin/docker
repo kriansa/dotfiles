@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# This is a stub for executing docker and docker-compose always as root.
+# 
+# We do it like that so we can temporarily workaround the issue that podman currently doesn't
+# support setting userns parameter for the docker-compose API, thus making rootless docker-compose
+# not compatible with its docker counterpart.
+#
+# This is reported and being tracked by `https://github.com/containers/podman/issues/11717`
+#
+# When this is fixed, please remember to also remove the docker entry on `/etc/sudoers.d/10-wheel`
+# See: bugs.md
+
+command="$(basename "$0")"
+sudo "/usr/bin/$command" "$@"

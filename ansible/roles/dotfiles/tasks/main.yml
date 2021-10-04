@@ -14,7 +14,6 @@
 - import_tasks: ansible.yml
 - import_tasks: alacritty.yml
 - import_tasks: borgmatic.yml
-- import_tasks: devops.yml
 - import_tasks: emacs.yml
 - import_tasks: fontconfig.yml
 - import_tasks: git.yml
