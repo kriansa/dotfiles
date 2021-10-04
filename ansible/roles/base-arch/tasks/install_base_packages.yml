@@ -37,6 +37,7 @@
       - p7zip
       - zip
       - hdparm
+      - lsof
       - bind-tools   # dig
       - ldns         # for drill tool (dig with DNSSEC)
       - xclip        # for interaction with the clipboard
