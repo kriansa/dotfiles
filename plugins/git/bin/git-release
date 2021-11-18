@@ -64,9 +64,12 @@ sanity_check() {
 
 write_version() {
 	test "$OPT_use_version_file" = "false" && return
-	test "$(cat "$OPT_version_file")" = "$VERSION" && return
 
+	# Writes the desired version to the version file, and if it's already commited, then we consider
+	# this step as done and return early
 	echo "$VERSION" > "$OPT_version_file"
+	test git diff-index --quiet HEAD -- "$OPT_version_file" && return
+
 	git add "$OPT_version_file"
 	git commit --only "$OPT_version_file" --message "chore: prepare for version ${VERSION}"
 }
