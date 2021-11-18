@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+#
+# This is a small utility that is more of a "documentation-as-script" so I can make version bumps to
+# my PKGBUILDs faster and more consistently.
+
+main() {
+	if [ ! -r PKGBUILD ]; then
+		echo -e "\e[1;31mFAILURE:\e[0m This folder does not contain a readable \e[1;35mPKGBUILD\e[0m file!"
+		exit 1
+	fi
+
+	if git diff-index --quiet HEAD PKGBUILD; then
+		echo -e "\e[1;31mFAILURE:\e[0m You need to update your package by changing the \e[1;35mPKGBUILD\e[0m first!"
+		automatically_change_pkgbuild
+		exit 1
+	fi
+
+	publish_pkg_upgrade
+}
+
+automatically_change_pkgbuild() {
+	# Checks if this PKGBUILD has a Github repo as source to do the automatic bump, otherwise just
+	# skips it and lets the user do it
+	repo=$(grep '[[:blank:]]url =' .SRCINFO | awk '{ print $3 }' | grep -Po '(?<=github.com/).*')
+	test "$repo" = "" && return
+
+	# Also checks if the PKGBUILD is using `sha256sum` as well
+	grep 'sha256sums=(.*)' PKGBUILD > /dev/null || return
+
+	# Then we'll do the change for them
+	latest_ver=$(curl -s "https://api.github.com/repos/${repo}/releases/latest" \
+		| grep tag_name | cut -d '"' -f 4)
+	pkgver=${latest_ver/#v/}
+	shasum=$(curl -sL "https://github.com/${repo}/archive/${latest_ver}.tar.gz" \
+		| shasum -a 256 | awk '{ print $1 }')
+
+	# Then we check if the latest version is already here, and if so, we simply skip all of this
+	version=$(get_current_local_version)
+	if [ "$version" = "$pkgver" ]; then
+		echo "This package is already at the latest version available on Github (v$version)"
+		exit 1
+	fi
+
+	sed --in-place='' \
+		-e "s/sha256sums=(.*)/sha256sums=($shasum)/" -e "s/pkgver=.*/pkgver=$pkgver/" PKGBUILD
+
+	echo -e "For your convenience, the automatic version bump was made so it tracks the latest version of the Github repo \e[1;35m${repo}\e[0m"
+	echo -e "Please check the changes on \e[1;35mPKGBUILD\e[0m and if everything is correct, run this command again!"
+}
+
+get_current_local_version() {
+	grep '[[:blank:]]pkgver =' .SRCINFO | awk '{ print $3 }'
+}
+
+publish_pkg_upgrade() {
+	echo "Updating your .SRCINFO and publishing the update..."
+	makepkg --printsrcinfo > .SRCINFO
+	version=$(get_current_local_version)
+	git add .SRCINFO PKGBUILD
+	git commit --only .SRCINFO PKGBUILD --message "feat: update to ${version}"
+	git remote | xargs -I R git push R HEAD
+	echo "Done!"
+}
+
+main
