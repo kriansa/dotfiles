@@ -4,7 +4,7 @@
 # for details.
 location:
     # List of source directories to backup (required). Globs and
-    # tildes are expanded.
+    # tildes are expanded. Do not backslash spaces in path names.
     source_directories:
         - /home
         - /etc
@@ -84,8 +84,10 @@ location:
         # - /etc/borgmatic/patterns
 
     # Any paths matching these patterns are excluded from backups.
-    # Globs and tildes are expanded. See the output of "borg help
-    # patterns" for more details.
+    # Globs and tildes are expanded. (Note however that a glob
+    # pattern must either start with a glob or be an absolute
+    # path.) Do not backslash spaces in path names. See the output
+    # of "borg help patterns" for more details.
     exclude_patterns:
       - /home/*/Dropbox
       - /home/*/.dropbox
@@ -129,18 +131,19 @@ location:
 storage:
     # The standard output of this command is used to unlock the
     # encryption key. Only use on repositories that were
-    # initialized with passcommand/repokey encryption. Note that
-    # if both encryption_passcommand and encryption_passphrase are
-    # set, then encryption_passphrase takes precedence. Defaults
-    # to not set.
+    # initialized with passcommand/repokey/keyfile encryption.
+    # Note that if both encryption_passcommand and
+    # encryption_passphrase are set, then encryption_passphrase
+    # takes precedence. Defaults to not set.
     # encryption_passcommand: secret-tool lookup borg-repository repo-name
 
     # Passphrase to unlock the encryption key with. Only use on
-    # repositories that were initialized with passphrase/repokey
-    # encryption. Quote the value if it contains punctuation, so
-    # it parses correctly. And backslash any quote or backslash
-    # literals as well. Defaults to not set.
-    # encryption_passphrase: mysecret
+    # repositories that were initialized with
+    # passphrase/repokey/keyfile encryption. Quote the value if it
+    # contains punctuation, so it parses correctly. And backslash
+    # any quote or backslash literals as well. Defaults to not
+    # set.
+    # encryption_passphrase: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 
     # Number of seconds between each checkpoint during a
     # long-running backup. See
@@ -175,7 +178,7 @@ storage:
 
     # Base path used for various Borg directories. Defaults to
     # $HOME, ~$USER, or ~.
-    # borg_base_directory: /var/lib/borg
+    # borg_base_directory: /path/to/base
 
     # Path for Borg configuration files. Defaults to
     # $borg_base_directory/.config/borg
@@ -326,7 +329,7 @@ hooks:
     # List of one or more shell commands or scripts to execute
     # before creating a backup, run once per configuration file.
     # before_backup:
-        # - echo "Starting backup."
+        # - echo "Starting a backup."
 
     # List of one or more shell commands or scripts to execute
     # before pruning, run once per configuration file.
@@ -346,7 +349,7 @@ hooks:
     # List of one or more shell commands or scripts to execute
     # after creating a backup, run once per configuration file.
     # after_backup:
-        # - echo "Finished backups."
+        # - echo "Finished a backup."
 
     # List of one or more shell commands or scripts to execute
     # after pruning, run once per configuration file.
@@ -399,7 +402,7 @@ hooks:
         # that using this database hook implicitly enables
         # both read_special and one_file_system (see
         # above) to support dump and restore streaming.
-        # - name: all
+        # - name: users
 
           # Database hostname to connect to. Defaults to
           # connecting via local Unix socket.
@@ -412,12 +415,12 @@ hooks:
           # Defaults to the username of the current user.
           # You probably want to specify the "postgres"
           # superuser here when the database name is "all".
-          # username: postgres
+          # username: dbuser
 
           # Password with which to connect to the database.
           # Omitting a password will only work if PostgreSQL
           # is configured to trust the configured username
-          # without a password, or you create a ~/.pgpass
+          # without a password or you create a ~/.pgpass
           # file.
           # password: trustsome1
 
@@ -466,7 +469,7 @@ hooks:
         # that using this database hook implicitly enables
         # both read_special and one_file_system (see
         # above) to support dump and restore streaming.
-        # - name: all
+        # - name: users
 
           # Database hostname to connect to. Defaults to
           # connecting via local Unix socket.
@@ -477,7 +480,7 @@ hooks:
 
           # Username with which to connect to the database.
           # Defaults to the username of the current user.
-          # username: root
+          # username: dbuser
 
           # Password with which to connect to the database.
           # Omitting a password will only work if MySQL is
