@@ -70,6 +70,7 @@ set complete+=kspell    " Use spell completion when spell check is enabled
 set ignorecase   " Make search case insensitive
 set smartcase    " When searching with a uppercase letter, enable case-sensitive
 set inccommand=split
+set redrawtime=300
 
 " Open new split panes to right and bottom, which feels more natural
 set splitbelow
