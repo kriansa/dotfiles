@@ -14,9 +14,12 @@
   become: true
   template: src=templates/loader.conf.j2 dest=/boot/loader/loader.conf mode=0644
 
-- name: copy linux entry
+- name: copy linux entries
   become: true
-  template: src=templates/arch.conf.j2 dest=/boot/loader/entries/arch.conf mode=0644
+  template: src=templates/{{ item }}.j2 dest=/boot/loader/entries/{{ item }} mode=0644
+  loop:
+    - arch.conf
+    - arch-lts.conf
 
 - name: add pacman hook to update systemd-boot on upgrades
   become: true

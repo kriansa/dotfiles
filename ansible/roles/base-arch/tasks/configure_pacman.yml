@@ -6,3 +6,10 @@
 - name: add pacman hook to cleanup the cache
   become: true
   copy: src=files/pacman-cache-cleanup.hook dest=/etc/pacman.d/hooks/pacman-cache-cleanup.hook mode=0644
+
+- name: enable sending logs to journald
+  become: true
+  lineinfile:
+    path: /etc/pacman.conf
+    regexp: '^#?UseSyslog'
+    line: 'UseSyslog'
