@@ -2,6 +2,21 @@
 
 This is a list of upstream bugs I'm currently working around and tracking for my setup.
 
+## nvidia
+
+* Since 495.29+, NVIDIA drivers will flood `dbus` with messages and quickly fill up journal logs.
+
+  While there are no current NVIDIA response on this subject, the community has come up with a
+  workaround that involves creating a fake dbus service to blackhole all drivers messages and
+  prevent cluttering your logs with garbage. Someone packaged that into a
+  [AUR](https://aur.archlinux.org/packages/nvidia-fake-powerd/).
+
+  This workaround is currently installed [here](ansible/roles/base-arch/tasks/install_nvidia.yml),
+  and it uses a AUR that is managed by my Pacom install. Whenever this bug ceases to exist, we must
+  also remove the `nvidia-fake-powerd` package.
+
+  See: https://forums.developer.nvidia.com/t/bug-nvidia-v495-29-05-driver-spamming-dbus-enabled-applications-with-invalid-messages/192892/15
+
 ## systemd-resolved
 
 * DNSSEC resolution is not falling back to normal DNS when a domain has a bad signature.
@@ -28,27 +43,14 @@ This is a list of upstream bugs I'm currently working around and tracking for my
   needed to disable it manually by explicitely setting it on GDM. Newer
   versions (> 3.30.1) has it disabled automatically for setups with Nvidia.
 
-  The workaround for that was removed on 2cc16c102cee83a1c479efbf97f7e34472b299ac.
+  The workaround for that was removed on 2cc16c102cee83a1c479efbf97f7e34472b299ac, however they
+  added it back on GNOME 41.1. Unfortunately Wayland on proprietary NVIDIA is not at a state where
+  all applications work seemlessly, so I had to disable it again (see it on
+  `roles/gnome/tasks/configure_gnome.yml`). It still somewhat buggy on Alacritty and Firefox needs
+  an extra env variable to support it, so I'm simply using X11 instead.
 
-  If you ever face something weird again, just reactivate the task with the 
-  following lines:
-
-  ```yaml
-  # If GDM ever gets troublesome when using Wayland, it's better to disable it
-  # from loading from Wayland and use Xorg instead
-  # This is an issue with NVIDIA
-  # See: https://bugs.archlinux.org/task/53284
-    - name: disable Wayland on GDM
-    become: true
-    when: "'nvidia' in role_names"
-    lineinfile:
-  path: /etc/gdm/custom.conf
-  line: "WaylandEnable=false"
-  regexp: "#?WaylandEnable=false"
-  ```
-
-  It's important to note that since GDM release 3.30.1, Wayland on NVIDIA has been disabled by
-  default, apparently due to issues with GLX on proprietary NVIDIA drivers.
+  It's important to note that between GDM releases 3.30.1 and 41.1, Wayland on NVIDIA had been
+  disabled by default, apparently due to issues with GLX on proprietary NVIDIA drivers.
 
   More info: https://gitlab.gnome.org/GNOME/gdm/commit/5cd78602d3d4c8355869151875fc317e8bcd5f08
   See: https://gitlab.gnome.org/GNOME/gdm/blob/master/NEWS
