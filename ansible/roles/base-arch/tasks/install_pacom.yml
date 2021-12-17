@@ -51,8 +51,8 @@
       git:
         repo: https://github.com/kriansa/.pacom-git-db
         dest: /home/{{ user_name }}/.local/share/pacom/git-db
+        recursive: no
         depth: 1
-        force: true
 
     - name: initialize submodules for pacom git db
       become: true
