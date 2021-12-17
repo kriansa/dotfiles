@@ -72,9 +72,9 @@
   become: true
   become_user: "{{ user_name }}"
   notify: update pacman repo db
-  command: repo-add /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar
+  command: repo-add /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar.gz
   args:
-    creates: /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar
+    creates: /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar.gz
 
 - name: add pacom repository to pacman config
   become: true
