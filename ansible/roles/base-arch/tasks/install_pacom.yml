@@ -16,7 +16,7 @@
       unarchive:
         remote_src: yes
         src: https://aur.archlinux.org/cgit/aur.git/snapshot/pacom.tar.gz
-        dest: /tmp/pacom
+        dest: /tmp
 
     - name: build and install pacom
       become: true
