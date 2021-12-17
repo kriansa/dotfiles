@@ -10,3 +10,7 @@
       - ebtables
       - dnsmasq
       - dmidecode # This is an optional dependency for libvirtd
+
+- name: add {{ user_name }} to group libvirt
+  become: true
+  user: name={{ user_name }} groups=libvirt append=yes
