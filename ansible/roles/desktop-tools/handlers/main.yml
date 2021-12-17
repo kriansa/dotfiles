@@ -2,8 +2,3 @@
 - name: restart network
   become: true
   systemd: state=restarted name=NetworkManager
-
-- name: update pacman repo db
-  become: true
-  pacman:
-    update_cache: yes

@@ -2,3 +2,4 @@
 - import_tasks: rebuild_initramfs.yml
 - import_tasks: restart_dbus.yml
 - import_tasks: restart_pulseaudio.yml
+- import_tasks: update_pacman_repo.yml

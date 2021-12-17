@@ -1,0 +1,5 @@
+---
+- name: update pacman repo db
+  become: true
+  pacman:
+    update_cache: yes
