@@ -1,6 +1,6 @@
 ---
-  # Disable Wayland on proprietary Nvidia drivers
-  # See: https://bugs.archlinux.org/task/53284
+# Disable Wayland on proprietary Nvidia drivers
+# See: https://bugs.archlinux.org/task/53284
 - name: disable Wayland on GDM
   become: true
   lineinfile:
