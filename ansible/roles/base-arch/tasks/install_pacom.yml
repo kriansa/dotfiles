@@ -63,14 +63,14 @@
 - name: create custom pacman repository for usage with pacom
   become: true
   become_user: "{{ user_name }}"
-  notify: update pacman db
+  notify: update pacman repo db
   command: repo-add /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar
   args:
     creates: /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar
 
 - name: add pacom repository to pacman config
   become: true
-  notify: update pacman db
+  notify: update pacman repo db
   blockinfile:
     path: /etc/pacman.conf
     marker: "# Pacom repository ({mark})"
