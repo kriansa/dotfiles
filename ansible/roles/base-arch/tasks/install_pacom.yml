@@ -36,7 +36,7 @@
   register: pacom_db
 
 - name: create pacom git database
-  when: not pacom_db.stat.isdir
+  when: pacom_db.stat.isdir is not defined
   block:
     - name: create folder for pacom database
       become: true
