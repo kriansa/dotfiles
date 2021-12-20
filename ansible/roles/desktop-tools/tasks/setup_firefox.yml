@@ -7,7 +7,7 @@
 - name: get the path of the new profile
   become: true
   become_user: "{{ user_name }}"
-  command: grep -Po "(?<=^Default=).*(?=\.default)" ~/.mozilla/firefox/profiles.ini
+  command: grep -Po "(?<=^Default=).*" ~/.mozilla/firefox/installs.ini
   register: profile_name
 
 - set_fact: profile_prefs="~/.mozilla/firefox/{{ profile_name.stdout }}/prefs.js"
