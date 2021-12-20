@@ -123,5 +123,4 @@
     - { path: org.gnome.gedit.preferences.ui, name: statusbar-visible, value: "true" }
     - { path: org.gnome.gedit.preferences.ui, name: bottom-panel-visible, value: "false" }
     - { path: org.gnome.gedit.preferences.ui, name: side-panel-visible, value: "true" }
-    - { path: org.gnome.gedit.preferences.ui, name: toolbar-visible, value: "true" }
     - { path: org.gnome.gedit.preferences.ui, name: show-tabs-mode, value: "'auto'" }
