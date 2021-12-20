@@ -20,6 +20,7 @@
       - base-devel
       - pacman-contrib
       - sudo
+      - avahi
       - wget
       - openbsd-netcat
       - openssh
@@ -42,10 +43,6 @@
       - ldns         # for drill tool (dig with DNSSEC)
       - xclip        # for interaction with the clipboard
       - reflector    # to update the mirrorlist with the best mirrors
-
-- name: install avahi
-  become: true
-  notify: restart dbus
-  pacman: name=avahi state=present
+      - rebuild-detector # detect packages that needs rebuild
 
 - meta: flush_handlers

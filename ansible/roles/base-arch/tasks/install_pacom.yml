@@ -58,7 +58,7 @@
       become: true
       become_user: "{{ user_name }}"
       command:
-        cmd: git submodule update --init --recommend-shallow --jobs 6
+        cmd: git submodule update --init --recommend-shallow --jobs 12
         chdir: /home/{{ user_name }}/.local/share/pacom/git-db
 
     - name: update pacom remote to use SSH instead of HTTPS
