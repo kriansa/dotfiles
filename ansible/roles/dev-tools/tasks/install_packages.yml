@@ -10,6 +10,7 @@
       - gcr # pinentry-gnome3 dependency
       - cowsay
       - neovim
+      - emacs
       - ncdu
       - jq
       - ripgrep
@@ -39,7 +40,6 @@
 
       # ---------------------
       # Packages on AUR/pacom
-      - emacs-git
 
       # Common development SDKs
       - nodenv

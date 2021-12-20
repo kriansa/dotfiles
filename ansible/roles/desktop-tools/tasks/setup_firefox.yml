@@ -10,7 +10,7 @@
   command: grep -Po "(?<=^Default=).*" ~/.mozilla/firefox/installs.ini
   register: profile_name
 
-- set_fact: profile_prefs="~/.mozilla/firefox/{{ profile_name.stdout }}/prefs.js"
+- set_fact: profile_prefs="~/.mozilla/firefox/{{ profile_name.stdout }}/user.js"
 
 - name: change firefox settings
   become: true
