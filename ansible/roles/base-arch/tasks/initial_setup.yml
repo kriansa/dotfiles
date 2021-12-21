@@ -1,0 +1,16 @@
+---
+- name: install default locale
+  become: true
+  community.general.locale_gen:
+    name: en_US.UTF-8
+    state: present
+
+- name: set locale to /etc/locale.conf
+  become: true
+  copy:
+    content: "LANG=en_US.UTF-8"
+    dest: /etc/locale.conf
+
+- name: set the hostname
+  ansible.builtin.hostname:
+    name: Arch-Home.lan.cx

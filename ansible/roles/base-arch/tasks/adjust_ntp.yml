@@ -6,3 +6,9 @@
 - name: enable ntp synchronization
   become: true
   command: timedatectl set-ntp true
+
+- name: set timezone
+  become: true
+  community.general.timezone:
+    name: America/Sao_Paulo
+    hwclock: UTC
