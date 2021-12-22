@@ -11,7 +11,6 @@
     dest: "{{ dotfiles_path }}"
     update: no
 
-- import_tasks: ansible.yml
 - import_tasks: alacritty.yml
 - import_tasks: borgmatic.yml
 - import_tasks: emacs.yml
@@ -23,7 +22,6 @@
 - import_tasks: python.yml
 - import_tasks: rapid-photo-downloader.yml
 - import_tasks: ruby.yml
-- import_tasks: tilix.yml
 - import_tasks: tmux.yml
 - import_tasks: vlc.yml
 - import_tasks: xorg.yml
