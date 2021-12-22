@@ -3,5 +3,4 @@
   vars:
     plugin_name: python
     files:
-      - .config/yapf
       - .config/pylintrc
