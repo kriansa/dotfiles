@@ -2,7 +2,7 @@
 - name: install nvim plugins
   become: true
   become_user: "{{ user_name }}"
-  command: nvim -c PlugInstall -c qa
+  command: nvim --headless +PlugInstall +qa
 
 - name: install/update ruby and packages
   become: true
