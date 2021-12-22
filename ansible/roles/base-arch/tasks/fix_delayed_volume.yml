@@ -1,4 +1,11 @@
 ---
+- name: ensure we have pulseaudio installed
+  become: true
+  pacman:
+    state: present
+    name:
+      - pulseaudio
+
 # PulseAudio enables by default "deferred volume", which is a way to overcome some issues caused by
 # the "flat volume" configuration enabled by default on most distros.
 # One of the side effects of deferred volume is a small delay while changing the volume of the HW
