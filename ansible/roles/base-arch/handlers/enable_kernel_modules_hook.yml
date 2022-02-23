@@ -1,0 +1,4 @@
+---
+- name: enable kernel modules hook
+  become: true
+  systemd: enabled=yes name=kernel-modules-hook

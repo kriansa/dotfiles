@@ -11,7 +11,9 @@
 
 - name: install base packages
   become: true
-  notify: restart dbus
+  notify: 
+    - restart dbus
+    - enable kernel modules hook
   pacman:
     state: present
     name:
@@ -19,9 +21,9 @@
       - linux-lts
       - base-devel
       - iptables-nft
-      - pacman-contrib
       - sudo
       - avahi
+      - pulseaudio
       - wget
       - openbsd-netcat
       - openssh
@@ -43,7 +45,10 @@
       - bind-tools   # dig
       - ldns         # for drill tool (dig with DNSSEC)
       - xclip        # for interaction with the clipboard
-      - reflector    # to update the mirrorlist with the best mirrors
-      - rebuild-detector # detect packages that needs rebuild
+      # Pacman/update tools
+      - reflector            # to update the mirrorlist with the best mirrors
+      - rebuild-detector     # detect packages that needs rebuild
+      - pacman-contrib       # extra tools for pacman
+      - kernel-modules-hook  # no downtime on kernel updates
 
 - meta: flush_handlers

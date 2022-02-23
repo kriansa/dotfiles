@@ -3,3 +3,4 @@
 - import_tasks: restart_dbus.yml
 - import_tasks: restart_pulseaudio.yml
 - import_tasks: update_pacman_repo.yml
+- import_tasks: enable_kernel_modules_hook.yml

@@ -1,0 +1,12 @@
+---
+- name: install docker packages
+  become: true
+  pacman:
+    state: present
+    name:
+      - docker
+      - docker-compose
+
+- name: enable docker.socket so we can use docker-compose
+  become: true
+  systemd: state=started enabled=yes name=docker.socket

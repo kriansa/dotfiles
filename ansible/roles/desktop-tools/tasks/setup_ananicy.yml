@@ -1,4 +1,0 @@
----
-- name: enable ananicy at boot time
-  become: true
-  systemd: name=ananicy enabled=true state=started

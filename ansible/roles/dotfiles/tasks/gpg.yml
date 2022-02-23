@@ -25,10 +25,8 @@
     plugin_name: gnupg
     files:
       - .gnupg/gpg-agent.conf
-      - .gnupg/dirmngr.conf
       - .gnupg/gpg.conf
       - .gnupg/sshcontrol
-      - .gnupg/sks-keyservers.netCA.pem
 
 - name: import public gpg from the card
   become: true

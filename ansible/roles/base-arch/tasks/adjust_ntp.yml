@@ -1,8 +1,4 @@
 ---
-- name: enable ntp servers for systemd-timesyncd
-  become: true
-  copy: src=files/timesyncd.conf dest=/etc/systemd/timesyncd.conf mode=0644
-
 - name: enable ntp synchronization
   become: true
   command: timedatectl set-ntp true

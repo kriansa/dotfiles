@@ -1,4 +1,5 @@
 ---
 - import_tasks: install_packages.yml
-- import_tasks: install_podman.yml
+# - import_tasks: install_podman.yml
+- import_tasks: install_docker.yml
 - import_tasks: install_libvirt.yml

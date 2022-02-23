@@ -33,9 +33,6 @@
       # Office tools
       - libreoffice-fresh
 
-      # Wire
-      - wire-desktop
-
       # Fonts
       - ttf-roboto
       - ttf-roboto-mono
@@ -45,9 +42,7 @@
 
       # ---------------------
       # Packages on AUR/pacom
-
-      # Ananicy
-      - ananicy-git
+      - overdue # complement for pacman
 
       # Beancount
       - beancount
@@ -73,3 +68,13 @@
       - ttf-gelasio-ib
       - ttf-comic-neue
       - ttf-nerd-glyphs
+
+- name: install ananicy
+  become: true
+  notify: enable ananicy at boot time
+  pacman: state=present name=ananicy-git
+
+- name: install psi-notify
+  become: true
+  notify: enable psi-notify at boot time
+  pacman: state=present name=psi-notify

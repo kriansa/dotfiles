@@ -13,3 +13,10 @@
     path: /etc/pacman.conf
     regexp: '^#?UseSyslog'
     line: 'UseSyslog'
+
+- name: enable parallel downloads
+  become: true
+  lineinfile:
+    path: /etc/pacman.conf
+    regexp: '^#?ParallelDownloads'
+    line: 'ParallelDownloads = 5'

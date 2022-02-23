@@ -27,6 +27,7 @@
 - import_tasks: xorg.yml
 - import_tasks: yubikey.yml
 - import_tasks: zsh.yml
+- import_tasks: psi-notify.yml
 - import_tasks: install_dotfiles.yml
 
 - name: update dotfiles remote to use SSH instead of HTTPS

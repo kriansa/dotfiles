@@ -32,11 +32,7 @@
       # DevOps tools
       - ansible
       - terraform
-      - terragrunt
       - kubectl
-
-      # LastPass CLI (lpass)
-      - lastpass-cli
 
       # ---------------------
       # Packages on AUR/pacom
@@ -49,3 +45,4 @@
       - devops-tools-git
       - ansible-bundler
       - heroku-cli
+      - concourse-fly

@@ -5,9 +5,7 @@
 - import_tasks: add_user.yml
 - import_tasks: install_pacom.yml
 - import_tasks: create_base_paths.yml
-- import_tasks: disable_resolved_dnssec.yml
 - import_tasks: enable_basic_services.yml
 - import_tasks: configure_pacman.yml
-- import_tasks: fix_delayed_volume.yml
 - import_tasks: configure_journal.yml
 - import_tasks: install_nvidia.yml

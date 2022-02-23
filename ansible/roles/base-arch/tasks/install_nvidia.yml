@@ -19,10 +19,11 @@
   become: true
   copy: dest=/etc/X11/xorg.conf.d/01-monitor.conf src=files/xorg-monitor.conf
 
-- name: install workaround nvidia bug for drivers >= 495.29.05
+- name: enable nvidia power-related services
   become: true
-  pacman: state=present name=nvidia-fake-powerd
-
-- name: enable workaround nvidia bug for drivers >= 495.29.05
-  become: true
-  systemd: state=started enabled=yes name=nvidia-fake-powerd
+  systemd:
+    enabled: yes
+    name: "{{ item }}"
+  loop:
+    - nvidia-suspend
+    - nvidia-hibernate
