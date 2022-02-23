@@ -1,6 +1,10 @@
 " External plugins
 let g:ruby_host_prog = systemlist("RBENV_VERSION=$(rbenv global) rbenv which neovim-ruby-host")[0]
 
+" Disable Perl and Node
+let g:loaded_perl_provider = 0
+let g:loaded_node_provider = 0
+
 " NERDTree settings
 let g:NERDTreeShowHidden=1
 let g:NERDTreeQuitOnOpen=0
@@ -79,8 +83,9 @@ let g:ale_fixers = {
 \  'javascript': ['prettier'],
 \  'typescript': ['prettier'],
 \  'vue': ['prettier'],
-\  'ruby': ['standardrb', 'remove_trailing_lines', 'trim_whitespace'],
+\  'ruby': ['standardrb'],
 \  'tf': ['terraform'],
+\  'markdown': ['remark-lint'],
 \  'python': ['black']
 \}
 
@@ -92,9 +97,6 @@ let g:EditorConfig_preserve_formatoptions = 1
 let g:FerretExecutableArguments = {
 \  'rg': '--vimgrep -M 120 --hidden --ignore-file=' . $DOTFILES_PATH . '/.rgignore'
 \}
-" Disable async search (workaround for ripgrep 13+)
-let g:FerretNvim=0
-let g:FerretJob=0
 
 " Ripgrep
 "

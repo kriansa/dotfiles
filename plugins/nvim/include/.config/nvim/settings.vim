@@ -33,26 +33,10 @@ set shell=bash                            " Always use bash as the shell. My ZSH
                                           " and makes vim-fugitive slow
 
 " Clipboard settings
-set clipboard+=unnamed                    " yanks to clipboard
+set clipboard+=unnamedplus                " yanks to clipboard
 
 " Spend extra time to generate the smallest possible diff
 set diffopt+=algorithm:patience
-
-" On Linux, yank to clipboard by default, not the PRIMARY (middle mouse btn)
-if has("unix") && !has("mac")
-  let g:clipboard = {
-        \   'name': 'xclip-clipboard',
-        \   'copy': {
-        \      '+': 'xclip -selection clipboard',
-        \      '*': 'xclip -selection clipboard',
-        \    },
-        \   'paste': {
-        \      '+': 'xclip -selection clipboard -o',
-        \      '*': 'xclip -selection clipboard -o',
-        \   },
-        \   'cache_enabled': 1,
-        \ }
-endif
 
 " Indentation settings
 set expandtab           " Convert tabs into spaces
