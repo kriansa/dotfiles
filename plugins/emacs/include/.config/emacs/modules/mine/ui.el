@@ -70,8 +70,8 @@
 ;; =================
 
 ;; Line numbers
-;; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-;; (add-hook 'text-mode-hook 'display-line-numbers-mode)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(add-hook 'text-mode-hook 'display-line-numbers-mode)
 
 ;; Left border
 (fringe-mode '(nil . 0))
@@ -93,7 +93,7 @@
   "Initialize FRAME with sane defaults."
   (with-selected-frame frame
     ;; Set the default font
-    (set-frame-font (font-spec :family "Iosevka Term" :size 18) nil t)
+    (set-frame-font (font-spec :family "Iosevka Term" :size 20) nil t)
 
     ;; Emoji support 😀
     (set-fontset-font "fontset-default" 'unicode

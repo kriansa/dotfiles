@@ -19,9 +19,10 @@
 
 (use-package beancount :mode ("\\.beancount\\'" . beancount-mode))
 (use-package elixir-mode :ensure t)
-(use-package gitattributes-mode :ensure t)
-(use-package gitconfig-mode :ensure t)
-(use-package gitignore-mode :ensure t)
+(use-package git-modes
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.dockerignore\\'" . gitignore-mode)))
 (use-package markdown-mode :ensure t)
 (use-package terraform-mode :ensure t)
 (use-package hcl-mode :ensure t)
