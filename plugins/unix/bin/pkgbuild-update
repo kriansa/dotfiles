@@ -46,6 +46,7 @@ automatically_change_pkgbuild() {
 
 	echo -e "For your convenience, the automatic version bump was made so it tracks the latest version of the Github repo \e[1;35m${repo}\e[0m"
 	echo -e "Please check the changes on \e[1;35mPKGBUILD\e[0m and if everything is correct, run this command again!"
+	git diff PKGBUILD
 }
 
 get_current_local_version() {
