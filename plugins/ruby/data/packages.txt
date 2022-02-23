@@ -1,7 +1,10 @@
 bundler-audit
-mailcatcher
+reek
+brakeman
+standardrb
 rubocop
 rubocop-rspec
 rubocop-rails
 solargraph
 neovim
+mailcatcher
