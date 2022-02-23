@@ -4,7 +4,6 @@ _local_plugins=(
   zsh
   projects
   unix
-  tilix
   lastpass
 
   # Dotfiles maintainance
@@ -17,7 +16,6 @@ _local_plugins=(
   git
   gnupg
   devops
-  dotenv
 
   # IDEs
   nvim
