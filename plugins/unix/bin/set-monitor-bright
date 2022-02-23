@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# A small helper to set the monitor brightness to either high or low in a single command
+#
+# Requires ddccontrol
+
+main() {
+	arg=$1
+
+	if [ "$arg" = "--help" ] || [ "$arg" == "-h" ]; then
+		usage && exit
+	fi
+
+	if [ "$arg" != "high" ] && [ "$arg" != "low" ]; then
+		usage && exit 1
+	fi
+
+	$arg > /dev/null 2>&1; status=$?
+
+	if [ $status -eq 0 ]; then
+		echo "Monitor brightness set to $(tput bold)$arg$(tput sgr0)"
+	else
+		echo "An error has occourred! Please check the output of ddccontrol!"
+		exit 1
+	fi
+}
+
+usage() {
+	echo "Usage: set-monitor-bright <low|high>"
+}
+
+low() {
+	sudo ddccontrol -r 0x10 -w 30 dev:/dev/i2c-4
+	sudo ddccontrol -r 0x12 -w 30 dev:/dev/i2c-4
+}
+
+high() {
+	sudo ddccontrol -r 0x10 -w 60 dev:/dev/i2c-4
+	sudo ddccontrol -r 0x12 -w 60 dev:/dev/i2c-4
+}
+
+main "$@"

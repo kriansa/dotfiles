@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#
+# This adds a layer on top of `fly` to add a convenience feature so that we can use fly without
+# specifying the target on every command.
+#
+# If you don't pass the `-t` (or --target) argument, then it assumes you want to use the `default`
+# one.
+#
+# See: https://concourse-ci.org/fly.html#fly-login
+
+main() {
+	if has_target "$@"; then
+		/usr/bin/fly "$@"
+	else
+		/usr/bin/fly --target default "$@"
+	fi
+}
+
+has_target() {
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			-t|--target|--target=*) return 0 ;;
+			*) shift ;;
+		esac
+	done
+
+	return 1
+}
+
+main "$@"
