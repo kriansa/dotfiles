@@ -1,0 +1,385 @@
+#!/usr/bin/env python3
+# vim: shiftwidth=4
+#
+# confup - Update your existing configurations based on the dotfiles settings.
+#
+# External dependencies:
+# - PyYAML (Arch: python-yaml)
+
+from pathlib import Path
+from typing import Any
+from textwrap import dedent
+import os, sys, yaml
+
+class CLI:
+    """
+    Usage: dotup [load|unload]
+
+    Update your $HOME configuration files based upon the dotfiles arrangement.
+    It reads the existing $HOME/.dotfiles/dotfiles.yml to decide which modules to load.
+
+    If you don't pass the first argument, it is assumed that you meant `load` and the
+    configuration will be reloaded.
+
+    Arguments:
+        load                Load up whatever is configured on your dotfiles.yml
+                            (default if not specified)
+        unload              Unload whatever had been previously loaded based on your state db
+    Options:
+        --help              Show this help message
+    """
+
+    @staticmethod
+    def start():
+        """Entry point for this CLI application"""
+        try:
+            if len(sys.argv) == 1 or sys.argv[1].casefold() == "load":
+                return Stower().load()
+
+            if sys.argv[1].casefold() == "unload":
+                return Stower().unload()
+
+            return CLI.help()
+
+        except Exception as err:
+            return Term.error(err)
+
+    @staticmethod
+    def help():
+        """Shows up the help message"""
+        print(dedent(CLI.__doc__).strip())
+
+
+class State:
+    """Manage the state database"""
+    file: str = ""
+    state: dict[str, Any] = {
+        "links": [],
+        "local_links": [],
+    }
+
+    def __init__(self, file):
+        self.file = file
+        self._load()
+
+    def add_symlink(self, symlink):
+        """Adds a reference of an added symlink to the state DB"""
+        self.state["links"].append(symlink)
+        self._dump()
+
+    def add_local_symlink(self, symlink):
+        """Adds a reference of a locally added symlink to the state DB"""
+        self.state["local_links"].append(symlink)
+        self._dump()
+
+    def symlinks(self):
+        """Retrieves a list of stored symlinks in the state DB"""
+        return self.state["links"]
+
+    def local_symlinks(self):
+        """Retrieves a list of local-scoped symlinks stored in the state DB"""
+        return self.state["local_links"]
+
+    def erase_symlinks(self):
+        """Erase the entire list of symlinks and local symlinks in the state DB"""
+        self.state["links"] = []
+        self.state["local_links"] = []
+        self._dump()
+
+    def _load(self):
+        if not os.path.exists(self.file):
+            return
+
+        try:
+            with open(self.file, "r", encoding = "UTF-8") as file:
+                self.state = self.state | yaml.load(file, Loader=yaml.loader.SafeLoader)
+        except Exception as err:
+            raise RuntimeError(f"Unable to read state file at '{self.file}'") from err
+
+    BANNER = """
+        ############################################################################
+        # This file is a representational state of your currently installed dotfiles
+        # It is required in order to provide correct functionality
+        #
+        # Recommendations:
+        # 1. Do not delete this file
+        # 2. Keep it under version control
+        ############################################################################
+    """
+
+    def _dump(self):
+        try:
+            with open(self.file, "w", encoding = "UTF-8") as file:
+                file.write(dedent(self.BANNER).strip() + "\n")
+                file.write("---\n")
+                file.write(yaml.dump(self.state))
+        except Exception as err:
+            raise RuntimeError(f"Unable to save state file at '{self.file}'") from err
+
+
+class Term:
+    """
+    All terminal output related functions
+    """
+    @staticmethod
+    def status(*messages, indent = 1):
+        """Formats and outputs a standardized status message in the terminal"""
+        message = " ".join(str(msg) for msg in messages)
+        pad_str = "  " * (indent - 1)
+        print(f"\033[1m{pad_str} ➡️\033[0m {message}")
+
+    @staticmethod
+    def success(*messages, indent = 1):
+        """Formats and outputs a standardized success messages in the terminal"""
+        message = " ".join(str(msg) for msg in messages)
+        pad_str = "  " * (indent - 1)
+        print(f"\033[1;32m{pad_str} ✔️\033[0m \033[1m{message}\033[0m")
+
+    @staticmethod
+    def error(exception):
+        """Formats and outputs a standardized exception message in the terminal"""
+        ex = exception
+        err_title = "Error"
+        indent = 0
+
+        while True:
+            print(f"{' ' * indent}\033[1m{err_title}:\033[0m {ex}")
+            if ex.__cause__:
+                ex = ex.__cause__
+                indent += 2
+                err_title = "Caused by"
+            else:
+                return
+
+
+class Stower:
+    """
+    Reads both existing state and dotfiles configuration and properly install them as necessary
+    """
+    dotfiles_path: str = ""
+    destination_path: str = ""
+    settings_path: str = ""
+    state: State | None = None
+    settings: dict[str, Any] = {}
+
+    def __init__(self, dotfiles_path = "~/.dotfiles", destination_path = "~"):
+        self.dotfiles_path = os.path.expanduser(dotfiles_path)
+        self.destination_path = os.path.expanduser(destination_path)
+        self.settings_path = f"{self.dotfiles_path}/dotfiles.yml"
+
+    def unload(self):
+        """Unload all previously loaded dotfiles based on the state"""
+        self._load_state()
+        self._clear_symlinks()
+        Term.status("Configuration unloaded")
+
+    def load(self):
+        """With all settings loaded, this will setup all enabled modules"""
+        self.unload()
+
+        Term.status("Loading settings")
+        self._load_settings()
+        for module in self.settings["modules"]:
+            self._load_module(module, self.settings["module_config"].get(module, {}))
+
+        Term.success("Dotfiles loaded successfully!")
+
+    def _load_state(self):
+        """Load the existing state database"""
+        self.state = State(f"{self.dotfiles_path}/data/state.yml")
+
+    def _load_settings(self):
+        """Load all dotfiles settings recursively"""
+        try:
+            self.settings = yaml.load(
+                Path(self.settings_path).read_text("UTF-8"),
+                Loader=yaml.loader.SafeLoader,
+            )
+
+            if "module_config" not in self.settings:
+                self.settings["module_config"] = {}
+
+            for module in self.settings["modules"]:
+                module_config_file = f"${self.dotfiles_path}/modules/{module}/config.yml"
+                if os.path.exists(module_config_file):
+                    self.settings["module_config"][module] = yaml.load(
+                        Path(module_config_file).read_text("UTF-8"),
+                        Loader=yaml.loader.SafeLoader,
+                    )
+
+                return self
+        except Exception as err:
+            raise RuntimeError(f"Failure to load settings from {self.settings_path}") from err
+
+    def _module_path(self, module):
+        return f"{self.dotfiles_path}/modules/{module}"
+
+    def _load_module(self, module, settings):
+        Term.status(f"Loading module '{module}'")
+        if not os.path.isdir(self._module_path(module)):
+            raise RuntimeError(f"Module folder '{module}' not found")
+
+        # Link include files
+        self._load_module_symlinks(module)
+        Term.status("Files linked", indent = 2)
+
+        # Load shell config files
+        self._load_module_shell_plugins(module)
+        Term.status("Shell configured", indent = 2)
+
+        # Load binary files
+        self._load_module_bins(module)
+        Term.status("Binary files linked", indent = 2)
+
+    def _load_module_symlinks(self, module):
+        for link in self._list_module_links(module):
+            self._symlink(f"modules/{module}/include/{link}", link)
+
+    def _load_module_shell_plugins(self, module):
+        for link in self._list_module_shell_links(module):
+            if link == "init.fish":
+                dest = f"modules/fish/include/.config/fish/conf.d/{module}_init.fish"
+            else:
+                dest = f"modules/fish/include/.config/fish/{link}"
+
+            self._symlink_internal(f"modules/{module}/{link}", dest)
+
+    def _load_module_bins(self, module):
+        for file in self._list_module_bins(module):
+            self._symlink(f"modules/{module}/bin/{file}", f".bin/{file}")
+
+    def _list_module_shell_links(self, module) -> list[str]:
+        module_path = self._module_path(module)
+        shell_folders = ["completions", "functions"]
+
+        linkable_files: list[str] = []
+        for shell_folder in shell_folders:
+            folder = f"{module_path}/{shell_folder}"
+            if not os.path.isdir(folder):
+                continue
+            linkable_files += [f"{shell_folder}/{file}" for file in os.listdir(folder)]
+
+        if os.path.exists(f"{module_path}/init.fish"):
+            linkable_files.append("init.fish")
+
+        return linkable_files
+
+    def _list_module_links(self, module) -> list[str]:
+        include_path = f"{self._module_path(module)}/include"
+        if not os.path.isdir(include_path):
+            return []
+
+        linkable_paths: list[str] = []
+        for root, _dirs, files in os.walk(include_path):
+            rel_root = root.removeprefix(f"{include_path}/")
+
+            # Just skips this entire folder if their parent is already marked for symlinking
+            path_already_linked = [True for path in linkable_paths if rel_root.startswith(path)]
+            if path_already_linked:
+                continue
+
+            if root != include_path and not Stower.symlinked_denied(rel_root):
+                linkable_paths.append(rel_root)
+                continue
+
+            for file in files:
+                linkable_paths.append(f"{rel_root}/{file}")
+
+        return linkable_paths
+
+    def _list_module_bins(self, module) -> list[str]:
+        bin_path = f"{self._module_path(module)}/bin"
+        if not os.path.isdir(bin_path):
+            return []
+
+        return os.listdir(bin_path)
+
+    @staticmethod
+    def symlinked_denied(path) -> bool:
+        """
+        Returns whether the specified path is in the paths deny_list, meaning that this specific
+        path can not be symlinked.
+
+        E.g. If we're testing the path /etc and /etc/etcd is in the denylist, then /etc can't be
+        symlinked because there's a child node that can't.
+        """
+        for denial in Stower.paths_denylist():
+            if denial.startswith(path):
+                return True
+        return False
+
+    @staticmethod
+    def paths_denylist() -> list[str]:
+        """This is a list of paths that shouldn't never be symlinked, only their child nodes"""
+        return [
+            ".local/share",             # XDG_DATA_HOME
+            ".config",                  # XDG_CONFIG_HOME
+            ".local/state",             # XDG_STATE_HOME
+            ".cache",                   # XDG_CACHE_HOME
+            ".local/share/applications" # Desktop entries
+        ]
+
+    def _symlink(self, origin, destination):
+        """
+        Creates a symlink between an origin inside dotfiles to a destination at destination_path
+        """
+        try:
+            sym_from = f"{self.dotfiles_path}/{origin}"
+            sym_to = f"{self.destination_path}/{destination}"
+
+            if not os.path.exists(sym_from):
+                raise RuntimeError(f"File {sym_from} was not found!")
+
+            if os.path.exists(sym_to):
+                raise RuntimeError(f"File {sym_to} already exists!")
+
+            os.makedirs(os.path.dirname(sym_to), exist_ok = True)
+            os.symlink(sym_from, sym_to)
+            self.state.add_symlink(destination)
+        except Exception as err:
+            raise RuntimeError(f"Failed to symlink file {origin} at {destination}") from err
+
+    def _symlink_internal(self, origin, destination):
+        """
+        This is similar to _symlink, but it is meant to link an internal module to another
+        already internal module (such as linking shell plugins)
+        """
+        try:
+            sym_from = f"{self.dotfiles_path}/{origin}"
+            sym_to = f"{self.dotfiles_path}/{destination}"
+
+            if not os.path.exists(sym_from):
+                raise RuntimeError(f"File {sym_from} was not found!")
+
+            if os.path.exists(sym_to):
+                raise RuntimeError(f"File {sym_to} already exists!")
+
+            # Internally we want to create relative links only
+            relpath_from = os.path.relpath(sym_from, os.path.dirname(sym_to))
+
+            os.makedirs(os.path.dirname(sym_to), exist_ok = True)
+            os.symlink(relpath_from, sym_to)
+            self.state.add_local_symlink(destination)
+        except Exception as err:
+            raise RuntimeError(f"Failed to symlink file {origin} at {destination}") from err
+
+    def _clear_symlinks(self):
+        """Clear all symlinks created by dotfiles, both internal and external ones"""
+        for file in self.state.symlinks():
+            symlink = f"{self.destination_path}/{file}"
+
+            # Make sure we only ever delete symlinks we know we linked
+            if os.path.islink(symlink) and os.readlink(symlink).startswith(self.dotfiles_path):
+                os.remove(symlink)
+
+        for file in self.state.local_symlinks():
+            symlink = f"{self.dotfiles_path}/{file}"
+            link_path = os.path.realpath(f"{os.path.dirname(symlink)}/{os.readlink(symlink)}")
+
+            # Make sure we only ever delete symlinks we know we linked
+            if os.path.islink(symlink) and link_path.startswith(self.dotfiles_path):
+                os.remove(symlink)
+
+        self.state.erase_symlinks()
+
+CLI.start()
