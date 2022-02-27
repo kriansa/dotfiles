@@ -13,6 +13,18 @@
 #
 # Usage: iftun eth1 ssh myserver
 
+function help {
+  echo "iftun - Tunnel traffic through an interface"
+  echo
+  echo "Usage: iftun <interface> <command>"
+  echo
+  echo "Arguments:"
+  echo "  interface   The interface name that you want send the traffic through"
+  echo "  command     The command that you want to execute and its arguments"
+  echo
+  echo "Run 'iftun --help' to display this message."
+}
+
 function main {
   local interface=$1
   shift; local cmdline=("$@")
@@ -43,22 +55,6 @@ function main {
   run-command-on-netns sudo -u "$USER" "${cmdline[@]}"
 }
 
-function help {
-  echo "iftun - Tunnel traffic through an interface"
-  echo
-  echo "Usage: iftun <interface> <command>"
-  echo
-  echo "Arguments:"
-  echo "  interface   The interface name that you want send the traffic through"
-  echo "  command     The command that you want to execute and its arguments"
-  echo
-  echo "Run 'iftun --help' to display this message."
-}
-
-function run-command-on-netns {
-  sudo ip netns exec vpn "$@"
-}
-
 function validate-args {
   local interface=$1
 
@@ -76,6 +72,10 @@ function validate-args {
     echo "Interface not found! Ensure you're connected." >&2
     exit 1
   fi
+}
+
+function run-command-on-netns {
+  sudo ip netns exec vpn "$@"
 }
 
 function get-interface-metadata {
