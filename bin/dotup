@@ -186,7 +186,7 @@ class Stower:
 
     def _load_state(self):
         """Load the existing state database"""
-        self.state = State(f"{self.dotfiles_path}/data/state.yml")
+        self.state = State(f"{self.dotfiles_path}/dotstate.yml")
 
     def _load_settings(self):
         """Load all dotfiles settings recursively"""
@@ -271,7 +271,7 @@ class Stower:
 
         linkable_paths: list[str] = []
         for root, _dirs, files in os.walk(include_path):
-            rel_root = root.removeprefix(f"{include_path}/")
+            rel_root = root.removeprefix(f"{include_path}").lstrip("/")
 
             # Just skips this entire folder if their parent is already marked for symlinking
             path_already_linked = [True for path in linkable_paths if rel_root.startswith(path)]
@@ -283,7 +283,7 @@ class Stower:
                 continue
 
             for file in files:
-                linkable_paths.append(f"{rel_root}/{file}")
+                linkable_paths.append(os.path.join(rel_root, file))
 
         return linkable_paths
 
@@ -312,11 +312,12 @@ class Stower:
     def paths_denylist() -> list[str]:
         """This is a list of paths that shouldn't never be symlinked, only their child nodes"""
         return [
-            ".local/share",             # XDG_DATA_HOME
-            ".config",                  # XDG_CONFIG_HOME
-            ".local/state",             # XDG_STATE_HOME
-            ".cache",                   # XDG_CACHE_HOME
-            ".local/share/applications" # Desktop entries
+            ".local/share",              # XDG_DATA_HOME
+            ".config",                   # XDG_CONFIG_HOME
+            ".local/state",              # XDG_STATE_HOME
+            ".cache",                    # XDG_CACHE_HOME
+            ".gnupg",                    # GnuPG metadata
+            ".config/vlc",               # VLC metadata
         ]
 
     def _symlink(self, origin, destination):
