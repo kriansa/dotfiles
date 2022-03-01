@@ -7,7 +7,7 @@
     comment: "{{ user_comment }}"
     # https://wiki.archlinux.org/index.php/users_and_groups
     groups: wheel,log,systemd-journal,uucp
-    shell: /usr/bin/zsh
+    shell: /usr/bin/fish
     # Set the password to "123" so we can log in using GDM
     # Then, it's advised that we should change this password.
     update_password: on_create

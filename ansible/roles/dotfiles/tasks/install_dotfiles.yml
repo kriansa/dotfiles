@@ -1,19 +1,26 @@
 ---
-- name: install nvim plugins
-  become: true
-  become_user: "{{ user_name }}"
-  command: nvim --headless +PlugInstall +qa
+- stat: path="{{ dotfiles_path }}"
+  register: dotfiles_exist
 
-- name: install/update ruby and packages
+- name: download dotfiles
   become: true
   become_user: "{{ user_name }}"
-  shell: eval "$(rbenv init -)" && "{{ playbook_dir | dirname }}/plugins/ruby/bin/update-ruby"
-  environment:
-    PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin:/home/{{ user_name }}/.dotfiles/plugins/ruby/bin"
+  when: dotfiles_exist.stat.exists == false
+  git:
+    repo: https://github.com/kriansa/dotfiles.git
+    dest: "{{ dotfiles_path }}"
+    update: no
 
-- name: install/update node and packages
+- name: update dotfiles remote to use SSH instead of HTTPS
   become: true
   become_user: "{{ user_name }}"
-  shell: eval "$(nodenv init -)" && "{{ playbook_dir | dirname }}/plugins/javascript/bin/update-node"
-  environment:
-    PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin:/home/{{ user_name }}/.dotfiles/plugins/javascript/bin"
+  command: git remote set-url origin git@github.com:kriansa/dotfiles.git
+  args:
+    chdir: "{{ dotfiles_path }}"
+
+- name: execute dotup
+  become: true
+  become_user: "{{ user_name }}"
+  command: 
+    chdir: "{{ dotfiles_path }}"
+    cmd: bin/dotup

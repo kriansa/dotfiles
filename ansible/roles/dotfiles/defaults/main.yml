@@ -6,8 +6,3 @@ user_name: dpereira
 # Set common paths
 home_path: /home/{{ user_name }}
 dotfiles_path: /home/{{ user_name }}/.dotfiles
-
-git_author:
-  name: Daniel Pereira
-  email: zdaniel.gp@gmail.com
-  gpg_signing_key: BC277BE09E8A6F1059C3911B3E7884756312F945

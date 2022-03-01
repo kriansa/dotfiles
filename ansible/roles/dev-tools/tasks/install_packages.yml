@@ -4,35 +4,46 @@
   pacman:
     state: present
     name:
+      # Editors
+      - neovim
+      - emacs
+      - dbeaver
+
+      # Utilities
+      - jq
+      - shellcheck
+      - github-cli
+      - python-cookiecutter
+
+      # Shell utils
+      - alacritty
+      - fzf
+      - bat
+      - exa
+      - ripgrep
+      - cowsay
+      - ncdu
+
+      # DB (docker to rule them all)
+      # - mariadb
+      # - postgresql
+
+      # Python dev
       - python
       - python-pip
       - python-poetry
-      - gcr # pinentry-gnome3 dependency
-      - cowsay
-      - neovim
-      - emacs
-      - ncdu
-      - jq
-      - ripgrep
-      - aws-cli
-      - shellcheck
-      - alacritty
-      - github-cli
-      - fzf
-      - bat
 
-      # DB
-      - mariadb
-      - dbeaver
-
-      # Java stuff
+      # Java dev
       - jdk-openjdk
       - gradle
 
       # DevOps tools
+      - aws-cli
       - ansible
       - terraform
+      - python-dotenv
       - kubectl
+      - kubectx
 
       # ---------------------
       # Packages on AUR/pacom

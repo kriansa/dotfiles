@@ -1,6 +1,3 @@
-# Ignore local packages file
-packages.local.zsh
-
 # Ignore python compiled metadata
 __pycache__
 .mypy_cache

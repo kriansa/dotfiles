@@ -89,4 +89,5 @@ shell:
     - "tmux attach || tmux"
 
 env:
+  # Enable true-color support
   TERM: xterm-256color

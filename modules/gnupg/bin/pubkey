@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 #
 # Usage: pubkey [--stdout]
 # Description: Pipe my SSH public key to my clipboard. If you pass the parameter --stdout then it's
@@ -13,8 +13,7 @@ public_key=$(gpg --export-ssh-key $GPG_MAIN_KEY | \
   sed "s/openpgp:.*/$key_description/")
 
 if [ "$1" != "--stdout" ]; then
-  source $DOTFILES_PATH/plugins/zsh/lib/functions/clipboard.zsh
-  echo $public_key | clipcopy
+  echo $public_key | pbcopy
   echo '=> Public key copied to clipboard.'
 else
   echo $public_key

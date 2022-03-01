@@ -35,6 +35,9 @@
       - gvfs-nfs
       - gvfs-smb
 
+      # pinentry-gnome3 dependency
+      - gcr
+
       # ---------------------
       # Packages on AUR/pacom
       - gnome-shell-extension-system-monitor-git

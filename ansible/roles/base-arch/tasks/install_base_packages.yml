@@ -29,7 +29,7 @@
       - openssh
       - python
       - git
-      - zsh
+      - fish
       - rsync
       - nfs-utils
       - gnupg

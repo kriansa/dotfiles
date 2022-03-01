@@ -5,7 +5,6 @@ SETUVAR --export ABBR_TIPS_REGEXES:\x28\x5e\x28\x5cw\x2b\x5cs\x2b\x29\x2b\x28\x2
 SETUVAR --export __ABBR_TIPS_KEYS:a__fish_key_reader\x1ek
 SETUVAR --export __ABBR_TIPS_VALUES:\x27\x1e/usr/bin/fish_key_reader\x1ekubectl
 SETUVAR __fish_initialized:3100
-SETUVAR _fish_abbr_k:kubectl
 SETUVAR _fisher_andreiborisov_2F_sponge_files:/home/dpereira/\x2econfig/fish/functions/_sponge_clear_state\x2efish\x1e/home/dpereira/\x2econfig/fish/functions/_sponge_on_exit\x2efish\x1e/home/dpereira/\x2econfig/fish/functions/_sponge_on_postexec\x2efish\x1e/home/dpereira/\x2econfig/fish/functions/_sponge_on_preexec\x2efish\x1e/home/dpereira/\x2econfig/fish/functions/_sponge_on_prompt\x2efish\x1e/home/dpereira/\x2econfig/fish/functions/_sponge_remove_from_history\x2efish\x1e/home/dpereira/\x2econfig/fish/functions/sponge_filter_failed\x2efish\x1e/home/dpereira/\x2econfig/fish/functions/sponge_filter_matched\x2efish\x1e/home/dpereira/\x2econfig/fish/conf\x2ed/sponge\x2efish
 SETUVAR _fisher_gazorby_2F_fish_2D_abbreviation_2D_tips_files:/home/dpereira/\x2econfig/fish/functions/__abbr_tips_bind_newline\x2efish\x1e/home/dpereira/\x2econfig/fish/functions/__abbr_tips_bind_space\x2efish\x1e/home/dpereira/\x2econfig/fish/functions/__abbr_tips_init\x2efish\x1e/home/dpereira/\x2econfig/fish/conf\x2ed/abbr_tips\x2efish
 SETUVAR _fisher_jorgebucaran_2F_fisher_files:/home/dpereira/\x2econfig/fish/functions/fisher\x2efish\x1e/home/dpereira/\x2econfig/fish/completions/fisher\x2efish
