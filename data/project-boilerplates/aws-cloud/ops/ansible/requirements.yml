@@ -1,5 +1,0 @@
-# Download required Ansible roles
-#
-- src: https://github.com/kriansa/ansible-roles
-  name: kriansa
-  version: master

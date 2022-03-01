@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# Small shim to add cross-platform support for pbcopy/pbpaste
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  /usr/bin/pbcopy "$@"
+else
+  xclip -in -selection clipboard
+fi

@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+#
+# This program is layer on top of htop to filter processes by their name or PID and get statistics
+# for their entire process tree.
+#
+# The name is a short for "filtered" top.
+#
+# Usage: ftop [<NAME>, ...] [-p <PID>, ...]
+
+main() {
+  parse_cli "$@"
+  set_all_pids_from_process_names
+
+  if [ "${#OPT_pids[@]}" -gt 0 ]; then
+    htop -p "$(get_recursive_process_list "${OPT_pids[@]}" | paste -s -d,)"
+  else
+    htop
+  fi
+}
+
+usage() {
+  echo "ftop - A small layer on top of htop to filter the process by their name or PID."
+  echo ""
+  echo "Usage: ftop [<NAME>, ...] [-p <PID>, ...]"
+  echo ""
+  echo "Shows the process statistics (htop) limited by the PROCESS_NAME and PID process tree."
+  echo "Pass different arguments separated by spaces. If there are multiple process PIDs with that"
+  echo "same process name, the filter will capture all of them. If you need to be more specific, use"
+  echo "the PIDs instead."
+  echo ""
+  echo "Options:"
+  echo "  -p     Reads all arguments past this flag as PIDs"
+}
+
+# Parse the command line and set the global variables OPT_pids and OPT_process_names
+parse_cli() {
+  local parse_pids=false
+
+  # This will be set process-wide
+  OPT_pids=()
+  OPT_process_names=()
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -p)
+        parse_pids=true
+        shift 1
+        ;;
+
+      --help|-h)
+        usage
+        exit
+        ;;
+
+      *)
+        if [ "$parse_pids" = true ]; then
+          OPT_pids+=("$1")
+        else
+          OPT_process_names+=("$1")
+        fi
+
+        shift 1
+        ;;
+    esac
+  done
+}
+
+# Append all the process PIDs to the OPT_pids variable
+set_all_pids_from_process_names() {
+  if [ "${#OPT_process_names[@]}" -gt 0 ]; then
+    for process_name in "${OPT_process_names[@]}"; do
+      mapfile -O "${#OPT_pids[@]}" -t OPT_pids < <(pgrep "$process_name")
+    done
+  fi
+}
+
+# Get a list of all threads spawned by the main process and its children
+get_recursive_process_list() {
+  local pids=("$@")
+
+  # Get the thread list from the main process
+  get_child_threads "${pids[@]}"
+
+  # Then, get the thread list for each of its children
+  for child_pid in $(get_child_processes "${pids[@]}"); do
+    get_child_threads "$child_pid"
+  done
+}
+
+# Get all the child processes that have been spanwed by the process
+get_child_processes() {
+  local pids=("$@")
+
+  for pid in "${pids[@]}"; do
+    cat "/proc/$pid/task/$pid/children"
+  done
+}
+
+# Get all threads (including the main thread with the main process ID) from a given process
+get_child_threads() {
+  local pids=("$@")
+  local output=
+
+  for pid in "${pids[@]}"; do
+    output+=$(ls -1 "/proc/$pid/task")
+    output+=$'\n'
+  done
+
+  echo "${output%$'\n'}" | sort | uniq
+}
+
+main "$@"

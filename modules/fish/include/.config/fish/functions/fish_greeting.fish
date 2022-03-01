@@ -1,0 +1,1 @@
+../../../../../fortunes/functions/fish_greeting.fish

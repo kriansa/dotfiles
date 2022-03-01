@@ -1,5 +1,29 @@
 ---
 modules:
+  - alacritty
   - fish
   - fortunes
   - meta
+  - unix
+  - projects
+  - python
+  - borgmatic
+  - fontconfig
+  - devops
+  - lastpass
+  - gnupg
+  # Enable on Mac
+  # - gnupg-mac
+  - yubikey
+  - vlc
+  - xorg
+  - git
+  - ruby
+  - tmux
+  - rapid-photo-downloader
+  - psi-notify
+  - gnome
+  - emacs
+  - java
+  - nvim
+  - javascript

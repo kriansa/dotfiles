@@ -1,0 +1,1 @@
+../../../../../nvim/functions/sv.fish

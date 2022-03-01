@@ -1,0 +1,96 @@
+############################################################################
+# This file is a representational state of your currently installed dotfiles
+# It is required in order to provide correct functionality
+#
+# Recommendations:
+# 1. Do not delete this file
+# 2. Keep it under version control
+############################################################################
+---
+links:
+- .config/alacritty
+- .config/starship.toml
+- .config/fish
+- .bin/update-system
+- .bin/iftun
+- .bin/pkgbuild-update
+- .bin/extract
+- .bin/ftop
+- .bin/imgcat
+- .bin/getchmod
+- .bin/compress
+- .bin/pbcopy
+- .bin/set-monitor-bright
+- .bin/pbpaste
+- .bin/mkpass
+- .bin/update-python-packages
+- .config/borgmatic
+- .config/fontconfig
+- .bin/create-self-signed-cert
+- .bin/show-https-cert
+- .bin/headers
+- .bin/kubectl-list_all
+- .bin/debug-tls-cert
+- .bin/fly
+- .gnupg/gpg-agent.conf
+- .gnupg/gpg.conf
+- .gnupg/sshcontrol
+- .bin/pinentry-gui
+- .bin/pubkey
+- .bin/gpg-backup
+- .config/Yubico
+- .config/vlc/vlcrc
+- .Xresources
+- .XCompose
+- .gitconfig
+- .gitmessage
+- .gitattributes
+- .bin/git-release
+- .gemrc
+- .pryrc
+- .bin/standardrb
+- .bin/update-ruby-packages
+- .bin/update-ruby
+- .bin/mailcatcher
+- .bin/solargraph
+- .bin/rubocop
+- .bin/bundle-audit
+- .config/tmux
+- .config/Rapid Photo Downloader
+- .config/psi-notify
+- .local/share/applications
+- .config/mimeapps.list
+- .config/gtk-4.0
+- .config/gtk-3.0
+- .config/nautilus
+- .config/gtk-2.0
+- .bin/screenshot
+- .config/emacs
+- .bin/e
+- .config/nvim
+- .bin/update-node
+- .bin/update-node-packages
+local_links:
+- modules/fish/include/.config/fish/functions/fish_greeting.fish
+- modules/fish/include/.config/fish/conf.d/fortunes_init.fish
+- modules/fish/include/.config/fish/functions/dotup.fish
+- modules/fish/include/.config/fish/functions/dote.fish
+- modules/fish/include/.config/fish/functions/dotcd.fish
+- modules/fish/include/.config/fish/conf.d/meta_init.fish
+- modules/fish/include/.config/fish/functions/l.fish
+- modules/fish/include/.config/fish/completions/c.fish
+- modules/fish/include/.config/fish/functions/c.fish
+- modules/fish/include/.config/fish/functions/mcd.fish
+- modules/fish/include/.config/fish/conf.d/projects_init.fish
+- modules/fish/include/.config/fish/conf.d/python_init.fish
+- modules/fish/include/.config/fish/conf.d/devops_init.fish
+- modules/fish/include/.config/fish/conf.d/lastpass_init.fish
+- modules/fish/include/.config/fish/conf.d/gnupg_init.fish
+- modules/fish/include/.config/fish/conf.d/git_init.fish
+- modules/fish/include/.config/fish/conf.d/ruby_init.fish
+- modules/fish/include/.config/fish/conf.d/emacs_init.fish
+- modules/fish/include/.config/fish/conf.d/java_init.fish
+- modules/fish/include/.config/fish/functions/v.fish
+- modules/fish/include/.config/fish/functions/sv.fish
+- modules/fish/include/.config/fish/conf.d/nvim_init.fish
+- modules/fish/include/.config/fish/conf.d/javascript_init.fish

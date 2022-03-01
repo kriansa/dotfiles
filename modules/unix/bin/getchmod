@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#
+# Usage: getchmod <file>
+# Description: Gets the decimal chmod of a given file/path
+
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  stat --format "%a" "$1"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  stat -f "%OLp" "$1"
+fi

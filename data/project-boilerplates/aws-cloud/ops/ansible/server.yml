@@ -1,6 +1,0 @@
----
-- hosts: all
-
-  roles:
-    - role: kriansa/os-base
-      hostname: my-server

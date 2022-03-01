@@ -1,0 +1,220 @@
+#!/usr/bin/env bash
+# vim: noexpandtab
+#
+# iftun - Tunnel application traffic through a specific interface
+#
+# This is a small wrapper around netns to help me connecting to several services using a stablished
+# VPN connection. This is particularly useful for point-to-point (split-tunnel) VPNs where you
+# usually don't just redirect all your traffic through it, but it can be used selectively as such.
+# Then, instead of redirecting all your traffic over a tun, you can do it selectively only on the
+# application that you need.
+#
+# PS: iftun stands for 'interface tunnel' - A way to tunnel all application trafic through the same
+#                                           network interface (if).
+#
+# Usage: iftun eth1 ssh myserver
+
+function help {
+	echo "iftun - Tunnel traffic through an interface"
+	echo
+	echo "Usage: iftun [OPTIONS] <interface> <command> [<arg> ...]"
+	echo
+	echo "Arguments:"
+	echo "  interface   The interface name that you want send the traffic through"
+	echo "  command     The command that you want to execute and its arguments"
+	echo
+	echo "Options:"
+	echo "  --gateway-ipv4=IP   This is usually not necessary, but sometimes an interface"
+	echo "                      doesn't make explicit which is its gateway and the connection"
+	echo "                      might not work because of that. In that case, you can make the"
+	echo "                      IP address for the gateway explicit by using this option."
+	echo "  --gateway-ipv6=IP   The same thing above, but for IPv6."
+	echo "  --help              Show this message"
+}
+
+# Set these variables globally as they will be needed by every function
+declare interface gateway_v4 gateway_v6 cmdline
+declare ipv4_addresses ipv6_addresses routes_v4 routes_v6
+
+function main {
+	# Parse the arguments and set the global variables interface, gateway and cmdline
+	parse-args "$@"
+
+	# Ensure the parameters are right
+	validate-args "$interface" "${cmdline[@]}"
+
+	# Retrieve the interface's current metadata
+	get-interface-metadata
+
+	# Move the interface to a separate network namespace
+	move-interface-to-netns
+
+	# Make sure we move the interface back to its place whenever this script ends
+	trap move-interface-back EXIT
+	trap echo INT
+
+	# Drop privileges and run the command in that namespace
+	sudo -E ip netns exec vpn /bin/sh -s <<-SCRIPT
+		# netns disables ping to non-root users by default - we override this behavior
+		sysctl net.ipv4.ping_group_range='0 2147483647' > /dev/null
+		su --shell /bin/sh --preserve-environment --session-command "${cmdline[@]}" "$USER"
+	SCRIPT
+}
+
+function parse-args {
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			--help|-h) help; exit ;;
+			--gateway-ipv4=*) gateway_v4="${1#*=}"; shift ;;
+			--gateway-ipv6=*) gateway_v6="${1#*=}"; shift ;;
+
+			# Handle invalid arguments
+			--gateway-ipv4) echo "Please use --gateway-ipv4=IP with the '=' sign"; exit 1 ;;
+			--gateway-ipv6) echo "Please use --gateway-ipv6=IP with the '=' sign"; exit 1 ;;
+			-*) echo "Invalid option: $1"; exit 1 ;;
+
+			# No options, then we can start parsing args below
+			*) break ;;
+		esac
+	done
+
+	interface=$1
+	shift; cmdline=("$@")
+}
+
+function validate-args {
+	local interface=$1
+
+	if [ -z "$interface" ]; then
+		echo "You need to specify an interface." >&2
+		exit 1
+	fi
+
+	if [ ${#cmdline[@]} -lt 1 ]; then
+		echo "You need to specify a command to run." >&2
+		exit 1
+	fi
+
+	if ! ip addr show "$interface" > /dev/null 2>&1; then
+		echo "Interface '$interface' not found! Ensure you're connected first." >&2
+		exit 1
+	fi
+}
+
+function sudo_ip {
+	response=$(sudo ip "$@" 2>&1); status=$?
+
+	if [ $status -ne 0 ] && [ "$response" != "RTNETLINK answers: File exists" ]; then
+		echo "Command 'sudo ip $*' failed: $response"
+	fi
+
+	return $status
+}
+
+function get-interface-metadata {
+	# Get the IP addresses for this interface
+	# For inet (ipv4) addresses, we must ignore FLAGS and the interface name (usually as the suffix).
+	# FLAGS: [-]permanent, [-]dynamic, [-]secondary, [-]primary, [-]tentative, [-]deprecated,
+	#        [-]dadfailed, [-]temporary
+	mapfile -t ipv4_addresses < <(ip addr show "$interface" | grep "inet " | \
+		grep -Po "(?<=inet ).*(?= $interface)" | \
+		sed -Ee "s/-?(permanent|dynamic|secondary|primary|tentative|deprecated|dadfailed|temporary)//g" \
+		-e "s/ +/ /g")
+
+	# For inet6 (ipv6) addresses, we ignore the link-local IPs (fe80::) and the option stable-privacy
+	# We ignore link-local IP addresses becaus kernel will automatically assign an IP for us
+	mapfile -t ipv6_addresses < <(ip addr show "$interface" | grep inet6 | grep -Po "(?<=inet6 ).*" | \
+		grep -v '^fe80:' | sed -Ee "s/(stable-privacy)//g" -e "s/ +/ /g")
+
+	# Get current routes for this interface
+	mapfile -t routes_v4 < <(ip -4 route list table all | grep "dev $interface")
+	mapfile -t routes_v6 < <(ip -6 route list table all | grep "dev $interface")
+}
+
+function move-interface-to-netns {
+	# Create the new network namespace
+	sudo_ip netns add vpn 2> /dev/null || true
+	sudo_ip link set "$interface" netns vpn
+
+	sudo_ip -n vpn link set "$interface" up
+
+	# Add existing IP addresses
+	for ipv4 in "${ipv4_addresses[@]}"; do
+		# shellcheck disable=SC2086
+		sudo_ip -n vpn addr add $ipv4 dev "$interface"
+	done
+
+	for ipv6 in "${ipv6_addresses[@]}"; do
+		# shellcheck disable=SC2086
+		sudo_ip -n vpn addr add $ipv6 dev "$interface"
+	done
+
+	# Add a default route
+	local route=(dev "$interface")
+	test -n "$gateway_v4" && local route+=("via $gateway_v4")
+	sudo_ip -4 -n vpn route add default "${route[@]}"
+
+	if [ "${#ipv6_addresses[@]}" -gt 0 ]; then
+		local route=(dev "$interface")
+		test -n "$gateway_v6" && local route+=("via $gateway_v6")
+		sudo_ip -6 -n vpn route add default "${route[@]}"
+	fi
+}
+
+function move-interface-back {
+	sudo_ip -n vpn link set "$interface" netns 1
+	sudo_ip netns del vpn
+
+	for ipv4 in "${ipv4_addresses[@]}"; do
+		# shellcheck disable=SC2086
+		sudo_ip addr add $ipv4 dev "$interface"
+	done
+
+	for ipv6 in "${ipv6_addresses[@]}"; do
+		# shellcheck disable=SC2086
+		sudo_ip addr add $ipv6 dev "$interface"
+	done
+
+	re-add-routes
+}
+
+function re-add-routes {
+	# Check how routes are today
+	local current_routes_v4; current_routes_v4="$(ip -4 route list table all | grep "dev $interface")"
+	local current_routes_v6; current_routes_v6="$(ip -6 route list table all | grep "dev $interface")"
+
+	add-routes 4 "$current_routes_v4" "${routes_v4[@]}"
+	add-routes 6 "$current_routes_v6" "${routes_v6[@]}"
+}
+
+function add-routes {
+	local route_version=$1
+	shift; local existing_routes=$1
+	shift; local routes=("$@")
+
+	# Store the routes that are dependencies
+	local head_routes=()
+	local tail_routes=()
+
+	# First we need to add the routes that do not depend on other routes (doesn't have via field)
+	for route in "${routes[@]}"; do
+		if echo "$route" | grep "via" > /dev/null 2>&1; then
+			head_routes+=("$route")
+		else
+			tail_routes+=("$route")
+		fi
+	done
+
+	local ordered_routes=("${head_routes[@]}" "${tail_routes[@]}")
+
+	# Then lastly we re-add them
+	for route in "${ordered_routes[@]}"; do
+		# We don't re-add routes that by some reason already exist
+		[[ "$existing_routes" == *"$route"* ]] && continue
+
+		# shellcheck disable=SC2086
+		sudo_ip -$route_version route add $route || echo "Failed: $route"
+	done
+}
+
+main "$@"

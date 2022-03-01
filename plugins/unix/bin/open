@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-#
-# Usage: open <file>
-
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
-  xdg-open "$@"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  /usr/bin/open "$@"
-fi

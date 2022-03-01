@@ -1,2 +1,0 @@
-#compdef mkproj
-_arguments ":file:_files -/ -W $DOTFILES_PATH/data/project-boilerplates"

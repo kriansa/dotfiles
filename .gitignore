@@ -1,5 +1,6 @@
 # Ignore local packages file
 packages.local.zsh
 
-# Ignore Antigen ZWC files
-*.zwc
+# Ignore python compiled metadata
+__pycache__
+.mypy_cache
