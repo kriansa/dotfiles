@@ -19,6 +19,7 @@
       - alacritty
       - fzf
       - bat
+      - fd
       - exa
       - ripgrep
       - cowsay
