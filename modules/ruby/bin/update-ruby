@@ -4,22 +4,64 @@
 # - It will first ensure I have the latest Ruby version, then proceed with updating the packages
 # - Then it will remove the previously installed version to keep the system clean
 
-version=$(curl https://cache.ruby-lang.org/pub/ruby/index.txt 2> /dev/null | \
-  grep -Ev 'ruby-[0-9.]+-' | tail -1 | awk '{ print $1 }' | sed 's/ruby-//')
+set -o pipefail
 
-current_version=$(rbenv global)
+main() {
+  trap exit INT
+  install_asdf_plugin
+  upgrade_ruby_version
+  upgrade_ruby_packages
+}
 
-if [ "$current_version" == "$version" ]; then
-  echo "Latest version already installed (v$version)"
-else
-  rbenv install "$version"
-  rbenv global "$version"
-
-  if [ "$current_version" != "system" ]; then
-    echo "Uninstalling previous version (v$current_version)"
-    rbenv uninstall -f "$current_version"
+install_asdf_plugin() {
+  if ! asdf plugin list | grep '^ruby$' &> /dev/null; then
+    echo "Installing asdf ruby plugin"
+    asdf plugin add ruby https://github.com/asdf-vm/asdf-ruby.git
   fi
-fi
+}
 
-echo "Updating packages..."
-update-ruby-packages
+global_ruby_version() {
+  cd && asdf current ruby 2> /dev/null | awk '{ print $2 }'
+}
+
+upgrade_ruby_version() {
+  version=$(curl https://cache.ruby-lang.org/pub/ruby/index.txt 2> /dev/null | \
+    grep -Ev 'ruby-[0-9.]+-' | tail -1 | awk '{ print $1 }' | sed 's/ruby-//')
+
+  installed_version=$(global_ruby_version)
+
+  if [ "$installed_version" == "$version" ]; then
+    echo "Latest version already installed (v$version)"
+    return
+  fi
+
+  echo "Installing latest version (v$version)"
+  asdf plugin update ruby
+  asdf install ruby "$version"
+  asdf global ruby "$version"
+
+  # Return if this is the first install
+  test "$installed_version" = "" && return
+
+  echo "Uninstalling previous version (v$installed_version)"
+  asdf uninstall ruby "$installed_version"
+}
+
+upgrade_ruby_packages() {
+  echo "Updating packages..."
+
+  # Always use the global Ruby
+  export ASDF_RUBY_VERSION; ASDF_RUBY_VERSION=$(global_ruby_version)
+
+  # Update Rubygems
+  gem update --system
+
+  while IFS= read -r package; do
+    gem install "$package"
+  done < "$HOME/.dotfiles/modules/ruby/data/packages.txt"
+
+  # Remove older gem versions
+  gem cleanup
+}
+
+main

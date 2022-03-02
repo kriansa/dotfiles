@@ -4,22 +4,64 @@
 # - It will first ensure I have the latest node version, then proceed with updating the packages
 # - Then it will remove the previously installed version to keep the system clean
 
-version=$(curl https://nodejs.org/dist/index.json 2> /dev/null \
-  | jq -r 'map(select(.lts != false)) | sort_by(.version[1:] | split(".") | map(tonumber)) | last | .version[1:]')
+set -o pipefail
 
-current_version=$(nodenv global)
+main() {
+  trap exit INT
+  install_asdf_plugin
+  upgrade_node_version
+  upgrade_node_packages
+}
 
-if [ "$current_version" == "$version" ]; then
-  echo "Latest version already installed (v$version)"
-else
-  nodenv install "$version"
-  nodenv global "$version"
-
-  if [ "$current_version" != "system" ]; then
-    echo "Uninstalling previous version (v$current_version)"
-    nodenv uninstall -f "$current_version"
+install_asdf_plugin() {
+  if ! asdf plugin list | grep '^nodejs$' &> /dev/null; then
+    echo "Installing asdf nodejs plugin"
+    asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
   fi
-fi
+}
 
-echo "Updating packages..."
-update-node-packages
+global_node_version() {
+  cd && asdf current nodejs 2> /dev/null | awk '{ print $2 }'
+}
+
+upgrade_node_version() {
+  version=$(curl https://nodejs.org/dist/index.json 2> /dev/null \
+    | jq -r 'map(select(.lts != false)) | sort_by(.version[1:] | split(".") | map(tonumber)) | last | .version[1:]')
+
+  installed_version=$(global_node_version)
+
+  if [ "$installed_version" == "$version" ]; then
+    echo "Latest version already installed (v$version)"
+    return
+  fi
+
+  echo "Installing latest version (v$version)"
+  asdf plugin update nodejs
+  asdf install nodejs "$version"
+  asdf global nodejs "$version"
+
+  # Return if this is the first install
+  test "$installed_version" = "" && return
+
+  echo "Uninstalling previous version (v$installed_version)"
+  asdf uninstall nodejs "$installed_version"
+}
+
+upgrade_node_packages() {
+  echo "Updating packages..."
+
+  # Always use the global nodejs
+  export ASDF_NODEJS_VERSION; ASDF_NODEJS_VERSION=$(global_node_version)
+
+  # Update npm & yarn
+  npm install -g npm yarn
+
+  # Ensure we always link global packages to the same location
+  yarn config set prefix ~/.config/yarn/global
+
+  while IFS= read -r package; do
+    yarn global add "$package"
+  done < "$HOME/.dotfiles/modules/javascript/data/packages.txt"
+}
+
+main

@@ -5,11 +5,15 @@
 #
 # It's important so that we don't need to keep installing global gems on every Ruby version that we
 # have on our system.
-#
-# Works with rbenv. To use it just link it to the name of the gem binary you want to execute.
 
 binary=$(basename "$0")
-export RBENV_VERSION; RBENV_VERSION=$(cat ~/.rbenv/version 2> /dev/null)
-test $? -ne 0 && echo "Please set the global ruby version using 'rbenv global <version>'" && exit 1
-shim_path="$(rbenv which "$binary")"
+
+export ASDF_RUBY_VERSION; ASDF_RUBY_VERSION=$(grep '^ruby .*' ~/.tool-versions | awk '{ print $2 }')
+status=$?
+
+if [ $status -ne 0 ]; then
+  echo "Please set the global ruby version using 'asdf global ruby <version>'" && exit 1
+fi
+
+shim_path="$(asdf which "$binary")"
 exec "$shim_path" "$@"

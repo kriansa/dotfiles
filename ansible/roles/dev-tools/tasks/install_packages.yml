@@ -50,10 +50,7 @@
       # Packages on AUR/pacom
 
       # Common development SDKs
-      - nodenv
-      - nodenv-node-build-git
-      - rbenv
-      - ruby-build-git
+      - asdf-vm
       - devops-tools-git
       - ansible-bundler
       - heroku-cli

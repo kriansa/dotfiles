@@ -27,3 +27,4 @@ modules:
   - java
   - nvim
   - javascript
+  - asdf

@@ -69,7 +69,8 @@ links:
 - .bin/e
 - .config/nvim
 - .bin/update-node
-- .bin/update-node-packages
+- .asdfrc
+- .tool-versions
 local_links:
 - modules/fish/include/.config/fish/functions/fish_greeting.fish
 - modules/fish/include/.config/fish/conf.d/fortunes_init.fish
@@ -88,10 +89,10 @@ local_links:
 - modules/fish/include/.config/fish/conf.d/lastpass_init.fish
 - modules/fish/include/.config/fish/conf.d/gnupg_init.fish
 - modules/fish/include/.config/fish/conf.d/git_init.fish
-- modules/fish/include/.config/fish/conf.d/ruby_init.fish
 - modules/fish/include/.config/fish/conf.d/emacs_init.fish
 - modules/fish/include/.config/fish/conf.d/java_init.fish
 - modules/fish/include/.config/fish/functions/v.fish
 - modules/fish/include/.config/fish/functions/sv.fish
 - modules/fish/include/.config/fish/conf.d/nvim_init.fish
 - modules/fish/include/.config/fish/conf.d/javascript_init.fish
+- modules/fish/include/.config/fish/conf.d/asdf_init.fish
