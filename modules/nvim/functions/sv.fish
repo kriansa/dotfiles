@@ -1,3 +1,3 @@
 function sv --wraps=$EDITOR --description "Opens $EDITOR with sudo"
-  sudo -E $EDITOR
+  sudo -E $EDITOR $argv
 end
