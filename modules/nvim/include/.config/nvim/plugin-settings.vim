@@ -1,7 +1,7 @@
-" External plugins
-let g:ruby_host_prog = systemlist("RBENV_VERSION=$(rbenv global) rbenv which neovim-ruby-host")[0]
-
-" Disable Perl and Node
+" Disable all external plugin integrations
+let g:loaded_python_provider = 0
+let g:loaded_python3_provider = 0
+let g:loaded_ruby_provider = 0
 let g:loaded_perl_provider = 0
 let g:loaded_node_provider = 0
 

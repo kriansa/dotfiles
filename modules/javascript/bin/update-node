@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# This script will update my local nodejs installation using nodenv.
+# This script will update my local nodejs installation using asdf-vm.
 # - It will first ensure I have the latest node version, then proceed with updating the packages
 # - Then it will remove the previously installed version to keep the system clean
 
