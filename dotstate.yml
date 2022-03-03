@@ -78,6 +78,7 @@ local_links:
 - modules/fish/include/.config/fish/functions/dote.fish
 - modules/fish/include/.config/fish/functions/dotcd.fish
 - modules/fish/include/.config/fish/conf.d/meta_init.fish
+- modules/fish/include/.config/fish/functions/ls.fish
 - modules/fish/include/.config/fish/functions/l.fish
 - modules/fish/include/.config/fish/conf.d/unix_init.fish
 - modules/fish/include/.config/fish/completions/c.fish
