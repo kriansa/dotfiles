@@ -1,0 +1,1 @@
+../../../../../unix/functions/rm.fish
