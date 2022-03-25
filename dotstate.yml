@@ -26,12 +26,14 @@ links:
 - .bin/update-python-packages
 - .config/borgmatic
 - .config/fontconfig
-- .bin/create-self-signed-cert
-- .bin/show-https-cert
+- .config/pulse/daemon.conf
 - .bin/headers
 - .bin/kubectl-list_all
+- .bin/make-cert
 - .bin/debug-tls-cert
 - .bin/fly
+- .bin/get-https-cert
+- .bin/make-dockerconfig
 - .gnupg/gpg-agent.conf
 - .gnupg/gpg.conf
 - .gnupg/sshcontrol
@@ -49,7 +51,6 @@ links:
 - .gemrc
 - .pryrc
 - .bin/standardrb
-- .bin/update-ruby-packages
 - .bin/update-ruby
 - .bin/mailcatcher
 - .bin/solargraph
@@ -59,7 +60,6 @@ links:
 - .config/Rapid Photo Downloader
 - .config/psi-notify
 - .local/share/applications
-- .config/mimeapps.list
 - .config/gtk-4.0
 - .config/gtk-3.0
 - .config/nautilus
@@ -78,6 +78,7 @@ local_links:
 - modules/fish/include/.config/fish/functions/dote.fish
 - modules/fish/include/.config/fish/functions/dotcd.fish
 - modules/fish/include/.config/fish/conf.d/meta_init.fish
+- modules/fish/include/.config/fish/functions/rm.fish
 - modules/fish/include/.config/fish/functions/ls.fish
 - modules/fish/include/.config/fish/functions/l.fish
 - modules/fish/include/.config/fish/conf.d/unix_init.fish
