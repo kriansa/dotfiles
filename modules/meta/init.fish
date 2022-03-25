@@ -1,1 +1,1 @@
-set --global DOTFILES_PATH ~/.dotfiles
+set --global --export DOTFILES_PATH ~/.dotfiles

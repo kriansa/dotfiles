@@ -1,5 +1,5 @@
 # Add ~/.bin to path
-fish_add_path --path --move --global $HOME/.bin
+fish_add_path --path --global $HOME/.bin
 
 if status is-interactive
   # Load theme
@@ -15,4 +15,13 @@ if status is-interactive
 
   #  Configure fzf.fish
   set --global fzf_fd_opts --hidden --exclude=.git
+
+  # Add navigational helpers
+  function ...
+  ../..
+  end
+
+  function ....
+    ../../..
+  end
 end
