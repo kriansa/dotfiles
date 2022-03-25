@@ -15,6 +15,9 @@ local function init()
     packer.init({ disable_commands = true })
   end
 
+  -- Make sure we unload all required plugins first
+  require('plenary.reload').reload_module('plugins')
+
   packer.reset()
   local use = packer.use
 
