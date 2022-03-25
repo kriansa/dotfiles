@@ -6,5 +6,4 @@ rubocop
 rubocop-rspec
 rubocop-rails
 solargraph
-neovim
 mailcatcher
