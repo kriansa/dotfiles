@@ -81,6 +81,7 @@ local_links:
 - modules/fish/include/.config/fish/functions/rm.fish
 - modules/fish/include/.config/fish/functions/ls.fish
 - modules/fish/include/.config/fish/functions/l.fish
+- modules/fish/include/.config/fish/functions/cc.fish
 - modules/fish/include/.config/fish/conf.d/unix_init.fish
 - modules/fish/include/.config/fish/completions/c.fish
 - modules/fish/include/.config/fish/functions/c.fish
