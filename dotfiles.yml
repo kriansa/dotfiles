@@ -9,6 +9,7 @@ modules:
   - python
   - borgmatic
   - fontconfig
+  - pulseaudio
   - devops
   - lastpass
   - gnupg

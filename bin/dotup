@@ -318,6 +318,7 @@ class Stower:
             ".cache",                    # XDG_CACHE_HOME
             ".gnupg",                    # GnuPG metadata
             ".config/vlc",               # VLC metadata
+            ".config/pulse",             # PulseAudio
         ]
 
     def _symlink(self, origin, destination):
