@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+#
+# A program that does something
+
+set -o pipefail -o nounset
+trap exit INT
+
+help() {
+  echo "Usage: mycli [OPTIONS] <ARG1> [<ARG2>]"
+  echo
+  echo "Do something very interesting"
+  echo
+  echo "Arguments:"
+  echo "  <ARG1>          Do something to this arg"
+  echo "  <ARG2>          (optional) if specified, do something else to this arg"
+  echo
+  echo "Options:"
+  echo "  -o, --option <option>   Do something differently"
+  echo "  --default               Set as a default"
+  echo "  -h, --help              Show this help message"
+}
+
+parse_cli() {
+  ARGS=()
+  local _parse_opts=0
+
+  while [ $# -gt 0 ]; do
+    # At this point on we're only supposed to parse the arguments, not options
+    if [ $_parse_opts -eq 1 ]; then
+      ARGS+=("$1")
+      shift
+      continue
+    fi
+
+    case $1 in
+      # Parse an option in alternative ways
+      --option=*)
+        OPTION=${1#*=}
+        shift
+        ;;
+      -o|--option)
+        test -z "${2:-}" && echo "No value for $1" && exit 1
+        OPTION="$2"
+        shift; shift
+        ;;
+
+      # Flag option
+      --default)
+        DEFAULT=YES
+        shift
+        ;;
+
+      --help|-h)
+        help
+        exit
+        ;;
+
+      --)
+        _parse_opts=1
+        shift
+        ;;
+      -*)
+        echo "Unknown option: $1"
+        exit 1
+        ;;
+      *)
+        ARGS+=("$1")
+        shift
+        ;;
+    esac
+  done
+}
+
+validate_args() {
+  if test -z "${1:-}"; then
+    echo "The parameter 'ARG1' is mandatory!"
+    exit 1
+  fi
+}
+
+main() {
+  declare ARGS OPTION DEFAULT
+  parse_cli "$@"; set -- "${ARGS[@]}"
+  validate_args "$@"
+
+  arg1=$1
+  arg2=${2:-default}
+
+  echo "arg1: $arg1, arg2: $arg2, option: ${OPTION:-none}, default: $DEFAULT"
+}
+
+main "$@"
