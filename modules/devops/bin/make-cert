@@ -2,19 +2,19 @@
 #
 # Create a self signed certificate and private key in the current folder
 #
-# Usage: create-self-signed-cert <domain_name>
+# Usage: make-cert <domain_name>
 
 usage() {
-	echo "Usage: create-self-signed-cert <CN> [DAYS] [ORG_UNIT] [ORG] [CITY] [STATE] [COUNTRY]"
+	echo "Usage: make-cert <CN> [DAYS] [ORG_UNIT] [ORG] [CITY] [STATE] [COUNTRY]"
 	echo ""
-	echo "  Creates a self signed certificate for the CN domain."
-	echo "  If not specified, the parameters have the following defaults:"
-	echo "    Days: $days"
-	echo "    Org Unit: $ou"
-	echo "    Organization: $org"
-	echo "    City: $city"
-	echo "    State: $state"
-	echo "    Country: $country"
+	echo "Creates a self signed certificate for the CN domain."
+	echo "If not specified, the parameters have the following defaults:"
+	echo "  Days: $days"
+	echo "  Org Unit: $ou"
+	echo "  Organization: $org"
+	echo "  City: $city"
+	echo "  State: $state"
+	echo "  Country: $country"
 }
 
 set_defaults() {
@@ -38,7 +38,7 @@ main() {
 	set_defaults
 
 	case $1 in
-		-h|--help)
+		-h|--help|"")
 			usage
 			exit
 	esac

@@ -3,11 +3,11 @@
 # This small utility connects to a URL and fetch its SSL certificate and display it in the terminal
 
 usage() {
-	echo "Usage: show-https-cert <SERVER> [<PORT>]"
+	echo "Usage: get-https-cert <SERVER> [<PORT>]"
 	echo ""
-	echo "  Connects to SERVER in the specific PORT. Don't prepend SERVER with the protocol"
-	echo "  (such as https://) because it's meant to be the address only."
-	echo "  If PORT is not specified, it's assumed to be 443."
+	echo "Connects to SERVER in the specific PORT. Don't prepend SERVER with the protocol"
+	echo "(such as https://) because it's meant to be the address only."
+	echo "If PORT is not specified, it's assumed to be 443."
 }
 
 url=$1
@@ -19,7 +19,7 @@ case $url in
 		exit 1
 		;;
 
-	--help|-h)
+	--help|-h|"")
 		usage
 		exit
 esac

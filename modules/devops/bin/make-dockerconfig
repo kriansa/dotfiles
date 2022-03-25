@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#
+# Creates a docker-config.json file
+
+help() {
+  echo "Usage: make-dockerconfig [OPTIONS] [<FILE_OUTPUT>]"
+  echo
+  echo "Create a dockerconfig.json file to be used as a Kubernetes secret or a local Docker install."
+  echo
+  echo "Arguments and options:"
+  echo "  <FILE_OUTPUT>   (optional) if specified, write the output to it instead of stdout"
+  echo "  -h, --help      Show this help message"
+}
+
+main() {
+  ARGS=()
+
+  while [ $# -gt 0 ]; do
+    case $1 in
+      --help|-h) help && exit ;;
+      *)
+        ARGS+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  set -- "${ARGS[@]}"
+
+  output=${1:-/dev/stdout}
+  echo "Configuring Docker registry credentials"
+
+  echo "Docker server (e.g. ghcr.io)"
+  read -rp '> ' SERVER
+  echo "Docker username (e.g. Github username)"
+  read -rp '> ' USER
+  echo "Docker password (e.g. Github PAT)"
+  read -rp '> ' PASSWORD
+
+  AUTH=$(echo "${USER}:${PASSWORD}" | base64 -w0)
+  echo "{ \"auths\": { \"${SERVER}\": { \"auth\": \"${AUTH}\" } } }" > "$output"
+
+  if [ "$output" != "/dev/stdout" ]; then
+    echo "Docker config written to '$output'"
+  fi
+}
+
+main "$@"
