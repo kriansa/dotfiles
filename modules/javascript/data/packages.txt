@@ -3,5 +3,4 @@ prettier
 typescript
 typescript-language-server
 bash-language-server
-vue-language-server
-vscode-html-languageserver-bin
+vls
