@@ -11,7 +11,7 @@
 
 - name: install base packages
   become: true
-  notify: 
+  notify:
     - restart dbus
     - enable kernel modules hook
   pacman:
@@ -33,7 +33,6 @@
       - rsync
       - nfs-utils
       - gnupg
-      - tree
       - htop
       - unzip
       - unrar
@@ -42,7 +41,6 @@
       - zip
       - hdparm
       - lsof
-      - bind-tools   # dig
       - ldns         # for drill tool (dig with DNSSEC)
       - xclip        # for interaction with the clipboard
       # Pacman/update tools
