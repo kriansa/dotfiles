@@ -40,9 +40,15 @@ return function(use)
         hijack_netrw = false,
         hijack_unnamed_buffer_when_opening = false,
         view = {
+          hide_root_folder = true,
           mappings = {
             custom_only = true,
             list = mappings.nvim_tree,
+          },
+        },
+        filters = {
+          custom = {
+            ".git"
           },
         },
       })

@@ -10,6 +10,7 @@ return function(use)
             },
             literal = {
               Dangerfile = "ruby",
+              [".env"] = "sh",
               [".nycrc"] = "javascript",
             },
           }
