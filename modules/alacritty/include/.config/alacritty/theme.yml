@@ -7,15 +7,13 @@ window:
   startup_mode: Maximized
   title: Terminal
   padding:
-    x: 2
+    x: 4
 
 font:
   normal:
     family: Iosevka Term
     style: Regular
   size: 14
-  glyph_offset:
-    y: 1
 
 cursor:
   # Cursor style
