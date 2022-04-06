@@ -1,7 +1,7 @@
 ---
 - name: install gnome
   become: true
-  pacman: 
+  pacman:
     state: present
     name:
       - xorg
@@ -23,7 +23,9 @@
       - seahorse
       - evince
       - gedit
-      - gthumb
+
+      # Image view
+      - nomacs
 
       # Shell extensions
       - gnome-shell-extensions

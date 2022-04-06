@@ -12,8 +12,7 @@ window:
 font:
   normal:
     family: Iosevka Term
-    style: Regular
-  size: 14
+  size: 17
 
 cursor:
   # Cursor style
