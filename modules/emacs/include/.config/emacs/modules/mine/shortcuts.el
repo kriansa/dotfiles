@@ -201,8 +201,8 @@
 (use-package treemacs
   :defer t
   :config
-  (define-key evil-normal-state-map ",," 'treemacs)
-  (define-key evil-treemacs-state-map ",," 'treemacs-quit)
+  (define-key evil-normal-state-map "\\" 'treemacs)
+  (define-key evil-treemacs-state-map "\\" 'treemacs-quit)
   (define-key evil-treemacs-state-map (kbd "A") 'mine/toggle-maximize-treemacs))
 
 ;; evil-args

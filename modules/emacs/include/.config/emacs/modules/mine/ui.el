@@ -41,7 +41,7 @@
 ;; Many emacs commands will ask you a “yes/no” question, and you have to type
 ;; the full word “yes” or “no”. (such as when deleting a file) You can make
 ;; emacs just ask “y/n” instead.
-(defalias 'yes-or-no-p 'y-or-n-p)
+(setq use-short-answers t)
 
 ;; Add file sizes in human-readable units (KB, MB, etc) to dired buffers.
 (setq-default dired-listing-switches "-alh")
@@ -93,10 +93,10 @@
   "Initialize FRAME with sane defaults."
   (with-selected-frame frame
     ;; Set the default font
-    (set-frame-font (font-spec :family "Iosevka Term" :size 20) nil t)
+    (set-frame-font (font-spec :family "Iosevka Term" :weight 'semi-light :size 22) nil t)
 
     ;; Emoji support 😀
-    (set-fontset-font "fontset-default" 'unicode
+    (set-fontset-font t 'emoji
       (font-spec :family
         (pcase system-type
           ('gnu/linux "JoyPixels")
