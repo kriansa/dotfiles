@@ -45,6 +45,9 @@
   (define-key evil-normal-state-map (kbd "C-k") 'windmove-up)
   (define-key evil-normal-state-map (kbd "C-l") 'windmove-right)
 
+  ;; Use ; as an alias to :
+  (define-key evil-normal-state-map (kbd ";") 'evil-ex)
+
   ;; Window movement
   (define-key evil-normal-state-map (kbd "C-M-k") (lambda () (interactive) (mine/swap-windows 'up)))
   (define-key evil-normal-state-map (kbd "C-M-j") (lambda () (interactive) (mine/swap-windows 'down)))
@@ -77,7 +80,8 @@
   (define-key evil-normal-state-map (kbd "SPC v") 'exchange-point-and-mark)
 
   ;; Copy current file path & line
-  (define-key evil-normal-state-map (kbd "SPC fl") 'mine/get-current-file-line)
+  (define-key evil-normal-state-map (kbd "SPC yf") 'mine/get-current-file)
+  (define-key evil-normal-state-map (kbd "SPC yl") 'mine/get-current-file-line)
 
   ;; In ruby, g{ will switch the block between do/end and {/}
   (define-key evil-normal-state-map (kbd "g{") 'enh-ruby-toggle-block)

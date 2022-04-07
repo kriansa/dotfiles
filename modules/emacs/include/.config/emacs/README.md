@@ -14,7 +14,7 @@ After checking out this repo, please run the following:
 
 M-: - Eval code
 M-x - Run command
-,, - Open Treemacs
+\ - Open Treemacs
 C-s - Search within file
 SPC-s - Find through project
 SPC-f - Find file name

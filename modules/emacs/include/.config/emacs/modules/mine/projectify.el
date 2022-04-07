@@ -111,46 +111,7 @@ and the the PROJECT-NAME is the name set by projectile."
     (`(t . t)
      (treemacs-git-mode 'deferred))
     (`(t . _)
-      (treemacs-git-mode 'simple)))
-
-  ;; Integration with projectile
-  (use-package projectile
-    :defer t
-    :config
-    (defun mine/delete-from-cache (file)
-      ;; Ensure we also delete it from recentf, which is the default ordering backend used by
-      ;; projectile, otherwise it will keep showing up on projectile-project-files
-      (setq recentf-list (delete file recentf-list))
-      (let ((file-relative (file-relative-name file (projectile-project-root))))
-        (ignore-errors (projectile-purge-file-from-cache file-relative))))
-
-    ;; Partially copied from https://github.com/bbatsov/projectile/blob/master/projectile.el#L968
-    (defun mine/add-to-cache (file)
-      (let* ((current-project (projectile-project-root))
-              (abs-current-file file)
-              (current-file (file-relative-name abs-current-file current-project)))
-        (unless (or (projectile-file-cached-p current-file current-project)
-                  (projectile-ignored-directory-p (file-name-directory abs-current-file))
-                  (projectile-ignored-file-p abs-current-file))
-          (puthash current-project
-            (cons current-file (gethash current-project projectile-projects-cache))
-            projectile-projects-cache)
-          (projectile-serialize-cache))))
-
-    (defun mine/move-on-cache (old new)
-      (mine/delete-from-cache old)
-      (mine/add-to-cache new))
-
-    (defun mine/copy-on-cache (src dest)
-      (mine/add-to-cache dest))
-
-    (defun mine/rename-file-on-cache (old new)
-      (mine/move-from-cache old new))
-
-    (setq treemacs-delete-file-functions 'mine/delete-from-cache
-          treemacs-move-file-functions 'mine/move-on-cache
-          treemacs-copy-file-functions 'mine/copy-on-cache
-          treemacs-rename-file-functions 'mine/rename-file-on-cache)))
+      (treemacs-git-mode 'simple))))
 
 (use-package treemacs-evil :ensure t :after treemacs evil)
 (use-package treemacs-projectile :ensure t :after treemacs projectile)

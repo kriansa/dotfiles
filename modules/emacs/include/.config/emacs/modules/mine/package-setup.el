@@ -9,8 +9,8 @@
 ; Repositories
 (setq package-archives
   '(("melpa" . "https://melpa.org/packages/")
-     ("gnu" . "https://elpa.gnu.org/packages/")
-     ("org" . "https://orgmode.org/elpa/")))
+     ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+     ("gnu" . "https://elpa.gnu.org/packages/")))
 
 ;; Prevent emacs to load all packages at startup
 (setq package-enable-at-startup nil)

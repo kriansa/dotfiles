@@ -80,6 +80,12 @@
   (when buffer-file-name (save-buffer))
   (kill-this-buffer))
 
+(defun mine/get-current-file ()
+  "Get the current path name relative to the project."
+  (interactive)
+  (kill-new (file-relative-name buffer-file-name (projectile-project-root)))
+  (message "File path copied to clipboard."))
+
 (defun mine/get-current-file-line ()
   "Get the current path name relative to the project."
   (interactive)
@@ -88,6 +94,7 @@
               ":" (format-mode-line "%l")))
   (message "File path copied to clipboard."))
 
+;; This function is useful but currently not being assigned to any keybinding
 (defun mine/swap-windows (dir)
   "Swap the content between two windows on the DIR direction (up, down, left or right)."
   (interactive)
