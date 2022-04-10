@@ -140,10 +140,4 @@
 
   (doom-modeline-mode t))
 
-;; Dim inactive buffers
-(use-package dimmer
-  :ensure t
-  :config
-  (dimmer-mode t))
-
 ;;; ui.el ends here

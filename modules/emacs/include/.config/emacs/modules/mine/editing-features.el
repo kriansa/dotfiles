@@ -85,8 +85,21 @@
 
 ;; Right margin bar
 (use-package display-fill-column-indicator
-  :unless (version< emacs-version "27")
   :hook (prog-mode . display-fill-column-indicator-mode))
+
+;; Code-formatting
+(use-package format-all
+  :ensure t
+  :after flycheck
+  :config
+  (defun mine/set-ruby-formatter ()
+    "Set the proper ruby formatter based on the which config file the project has"
+    (setq-local format-all-formatters
+      (if (flycheck-locate-config-file '(".rubocop.yml") 'ruby-rubocop)
+        '(("Ruby" rubocop))
+        '(("Ruby" standardrb)))))
+
+  (add-hook 'enh-ruby-mode-hook 'mine/set-ruby-formatter))
 
 ;; Flycheck
 (use-package flycheck
@@ -106,6 +119,14 @@
       "Set eslint as the manually selected checker for Web-mode."
       (interactive)
       (setq flycheck-checker 'javascript-eslint)))
+
+  (defun mine/set-ruby-checker ()
+    "Set the proper ruby checker based on the which config file the project has"
+    (if (flycheck-locate-config-file '(".rubocop.yml") 'ruby-rubocop)
+      (setq-local flycheck-checker 'ruby-rubocop)
+      (setq-local flycheck-checker 'ruby-standard)))
+
+  (add-hook 'enh-ruby-mode-hook 'mine/set-ruby-checker)
 
   ;; Makes flycheck faster
   (setq flycheck-check-syntax-automatically '(idle-change mode-enabled save))

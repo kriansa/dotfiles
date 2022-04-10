@@ -163,6 +163,11 @@
   ;; Use better bindings for usage with evil-mode
   (define-key evil-normal-state-map (kbd "SPC dp") 'smerge-keep-current))
 
+(use-package format-all
+  :defer t
+  :config
+  (define-key evil-normal-state-map (kbd "SPC f") 'format-all-buffer))
+
 (use-package windsize
   :defer t
   :config
