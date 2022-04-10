@@ -6,6 +6,6 @@
 ;;; Code:
 (provide 'mine/org)
 
-(use-package org :ensure t)
+(use-package org :straight t)
 
 ;;; org.el ends here

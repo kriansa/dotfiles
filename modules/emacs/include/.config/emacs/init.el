@@ -6,12 +6,14 @@
 ;;; Code:
 
 ;; Load Emacs Package system and add "modules" to the load-path
-(package-initialize)
 (add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
 
 ;; Allow 100MB of memory (instead of 0.76MB) before calling garbage collection. This means GC runs
 ;; less often, which speeds up some operations.
 (setq gc-cons-threshold 100000000)
+
+;; Keep emacs Custom-settings in a separate file
+(setq custom-file (expand-file-name ".tmp/custom.el" user-emacs-directory))
 
 ;; Load my own package configurations
 (require 'mine/package-setup)
@@ -31,8 +33,5 @@
 (require 'mine/themes)
 (require 'mine/ui)
 (require 'mine/shortcuts)
-
-;; Keep emacs Custom-settings in a separate file
-(setq custom-file (expand-file-name ".tmp/custom.el" user-emacs-directory))
 
 ;;; init.el ends here

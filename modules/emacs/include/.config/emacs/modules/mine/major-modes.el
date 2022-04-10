@@ -18,24 +18,24 @@
       (modify-syntax-entry ?_ "w"))))
 
 (use-package beancount :mode ("\\.beancount\\'" . beancount-mode))
-(use-package elixir-mode :ensure t)
+(use-package elixir-mode :straight t)
 (use-package git-modes
-  :ensure t
+  :straight t
   :config
   (add-to-list 'auto-mode-alist '("\\.dockerignore\\'" . gitignore-mode)))
-(use-package markdown-mode :ensure t)
-(use-package terraform-mode :ensure t)
-(use-package hcl-mode :ensure t)
-(use-package yaml-mode :ensure t)
-(use-package typescript-mode :ensure t)
-(use-package groovy-mode :ensure t)
-(use-package lua-mode :ensure t :mode "\\.lua\\'" :interpreter "lua")
+(use-package markdown-mode :straight t)
+(use-package terraform-mode :straight t)
+(use-package hcl-mode :straight t)
+(use-package yaml-mode :straight t)
+(use-package typescript-mode :straight t)
+(use-package groovy-mode :straight t)
+(use-package lua-mode :straight t :mode "\\.lua\\'" :interpreter "lua")
 (use-package dockerfile-mode
-  :ensure t
+  :straight t
   :mode ("Dockerfile.*\\'" . dockerfile-mode))
 
 (use-package enh-ruby-mode
-  :ensure t
+  :straight t
   :config
   (add-to-list 'auto-mode-alist
     '("\\(?:\\.rb\\|ru\\|rake\\|thor\\|jbuilder\\|gemspec\\|podspec\\|/\\(?:Gem\\|Rake\\|Cap\\|Thor\\|Vagrant\\|Guard\\|Pod\\)file\\)\\'" . enh-ruby-mode))
@@ -48,14 +48,40 @@
         (dolist (char char-list)
           (modify-syntax-entry (string-to-char char) "w"))))))
 
+;; Configure flycheck for enh-ruby-mode
+(use-package flycheck
+  :defer t
+  :after enh-ruby-mode
+  :config
+  (add-hook 'enh-ruby-mode-hook
+    (defun mine/set-ruby-checker ()
+      "Set the proper ruby checker based on the which config file the project has"
+      (setq-local flycheck-checker
+        (if (flycheck-locate-config-file '(".rubocop.yml") 'ruby-rubocop)
+          'ruby-rubocop
+          'ruby-standard)))))
+
+;; Configure format-all for enh-ruby-mode
+(use-package format-all
+  :defer t
+  :after enh-ruby-mode flycheck
+  :config
+  (add-hook 'enh-ruby-mode-hook
+    (defun mine/set-ruby-formatter ()
+      "Set the proper ruby formatter based on the which config file the project has"
+      (setq-local format-all-formatters
+        (if (flycheck-locate-config-file '(".rubocop.yml") 'ruby-rubocop)
+          '(("Ruby" rubocop))
+          '(("Ruby" standardrb)))))))
+
 (use-package rspec-mode
-  :ensure t
+  :straight t
   :config
   ;; Autosave buffer when running rspec
   (setq rspec-autosave-buffer t))
 
 (use-package web-mode
-  :ensure t
+  :straight t
   :config
   (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
@@ -68,35 +94,37 @@
   (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode)))
 
 (use-package js2-mode
-  :ensure t
+  :straight t
   :hook (js-mode . js2-minor-mode)
   :config
   ;; Disable js2-mode linting because we're using Flycheck already
   (setq js2-mode-show-parse-errors nil)
   (setq js2-mode-show-strict-warnings nil))
 
-(use-package json-mode
-  :ensure t)
+(use-package json-mode :straight t)
 
 (use-package go-mode
-  :ensure t
+  :straight t
   :config
   (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode)))
 
 (use-package sh-script
-  :ensure t
+  :straight t
   :config
   ;; Use sh-mode for .env files
   (add-to-list 'auto-mode-alist '("\\.env\\'" . sh-mode))
 
-  ;; Add highlight to bash constructs
-  (use-package smartparens
-    :config
-    (sp-local-pair 'sh-mode "if" "fi" :actions '(navigate))
-    (sp-local-pair 'sh-mode "for" "done" :actions '(navigate))
-    (sp-local-pair 'sh-mode "while" "done" :actions '(navigate)))
-
   ;; When saving a file that starts with `#!', make it executable.
   (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p))
+
+;; Add highlight to bash constructs
+(use-package smartparens
+  :defer t
+  :after sh-script
+  :config
+  (sp-local-pair 'sh-mode "if" "fi" :actions '(navigate))
+  (sp-local-pair 'sh-mode "for" "done" :actions '(navigate))
+  (sp-local-pair 'sh-mode "while" "done" :actions '(navigate)))
+
 
 ;;; major-modes.el ends here

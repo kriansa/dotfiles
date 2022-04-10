@@ -9,7 +9,7 @@
 
 ;; Automatically save files when switching buffers
 (use-package super-save
-  :ensure t
+  :straight t
   :config
   ;; Add commands to auto-save hook
   (dolist (item '(evil-switch-to-windows-last-buffer
@@ -31,22 +31,18 @@
   (super-save-mode +1))
 
 ;; expand-region allows us to keep expanding the current selection by sexps
-(use-package expand-region :ensure t)
-
-;; Enable usage of dead keys on non-US keyboards
-;; See: https://www.emacswiki.org/emacs/DeadKeys
-(use-package iso-transl)
+(use-package expand-region :straight t)
 
 ;; Automatically detect the indentation style
 (use-package dtrt-indent
-  :ensure t
+  :straight t
   :hook (prog-mode . dtrt-indent-mode)
   :config
   (setq dtrt-indent-max-lines 100)
   (setq dtrt-indent-verbosity 0))
 
 (use-package smartparens
-  :ensure t
+  :straight t
   :hook ((prog-mode text-mode) . mine/smartparens-mode)
   :init
   (require 'smartparens-config)
@@ -78,32 +74,23 @@
 
 ;; Use vdiff (a package that is like vimdiff)
 (use-package vdiff
-  :ensure t
+  :straight t
   :config
   ;; Whether to lock scrolling by default when starting vdiff
   (setq vdiff-lock-scrolling t))
 
 ;; Right margin bar
 (use-package display-fill-column-indicator
-  :hook (prog-mode . display-fill-column-indicator-mode))
+  :hook ((prog-mode text-mode) . display-fill-column-indicator-mode))
 
 ;; Code-formatting
 (use-package format-all
-  :ensure t
-  :after flycheck
-  :config
-  (defun mine/set-ruby-formatter ()
-    "Set the proper ruby formatter based on the which config file the project has"
-    (setq-local format-all-formatters
-      (if (flycheck-locate-config-file '(".rubocop.yml") 'ruby-rubocop)
-        '(("Ruby" rubocop))
-        '(("Ruby" standardrb)))))
-
-  (add-hook 'enh-ruby-mode-hook 'mine/set-ruby-formatter))
+  :commands format-all-buffer format-all-region format-all-ensure-formatter format-all-mode
+  :straight t)
 
 ;; Flycheck
 (use-package flycheck
-  :ensure t
+  :straight t
   :config
   ;; Workaround for bug that Flycheck sometimes takes too much time looking for an ESLint
   ;; installation
@@ -117,16 +104,7 @@
   (add-hook 'web-mode-hook
     (defun mine/set-web-mode-flycheck-checkers ()
       "Set eslint as the manually selected checker for Web-mode."
-      (interactive)
-      (setq flycheck-checker 'javascript-eslint)))
-
-  (defun mine/set-ruby-checker ()
-    "Set the proper ruby checker based on the which config file the project has"
-    (if (flycheck-locate-config-file '(".rubocop.yml") 'ruby-rubocop)
-      (setq-local flycheck-checker 'ruby-rubocop)
-      (setq-local flycheck-checker 'ruby-standard)))
-
-  (add-hook 'enh-ruby-mode-hook 'mine/set-ruby-checker)
+      (setq-local flycheck-checker 'javascript-eslint)))
 
   ;; Makes flycheck faster
   (setq flycheck-check-syntax-automatically '(idle-change mode-enabled save))
@@ -136,17 +114,17 @@
 ;; Snippets
 (use-package yasnippet
   :hook (prog-mode . yas-minor-mode)
-  :ensure t)
+  :straight t)
 
 (use-package yasnippet-snippets
-  :ensure t
+  :straight t
   :after yasnippet
   :config
   (yas-reload-all))
 
 ;; Autocompletion framework
 (use-package company
-  :ensure t
+  :straight t
   :config
   (defun mine/company-backend-with-yas (backends)
     "Add :with company-yasnippet to company BACKENDS.
@@ -169,7 +147,7 @@ Taken from https://github.com/syl20bnr/spacemacs/pull/179."
 
 ;; LSP (Language Server Protocol) support
 (use-package lsp-mode
-  :ensure t
+  :straight t
   :after flycheck
   :hook ((enh-ruby-mode . lsp)
           (web-mode . lsp)

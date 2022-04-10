@@ -17,7 +17,7 @@
 
 ;; Magit
 (use-package magit
-  :ensure t
+  :straight t
   :after transient
   :config
   ;; Tune diffs
@@ -30,7 +30,7 @@
 ;; Display gutter for VCS modified files
 (use-package diff-hl
   :defines diff-hl-margin-symbols-alist
-  :ensure t
+  :straight t
   :config
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
 

@@ -6,39 +6,29 @@
 ;;; Code:
 (provide 'mine/package-setup)
 
-; Repositories
-(setq package-archives
-  '(("melpa" . "https://melpa.org/packages/")
-     ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-     ("gnu" . "https://elpa.gnu.org/packages/")))
+;;; Configure straight.el
 
-;; Prevent emacs to load all packages at startup
-(setq package-enable-at-startup nil)
-;; Ensure we have use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; Ensure we use shallow clones to save bandwidth
+(setq straight-vc-git-default-clone-depth 1)
 
-(eval-when-compile
-  (require 'use-package))
+;; Install straight.el
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-;; Auto-updater
-(use-package auto-package-update
-  :ensure t
-  :init
-  (setq
-    auto-package-update-prompt-before-update t
-    auto-package-update-delete-old-versions t
-    auto-package-update-interval 1
-    auto-package-update-last-update-day-filename ".tmp/last-package-update-day")
-  :config
-  (defun mine/auto-update-when-open-frame (frame)
-    "Automatically invoke auto-update when frame is open"
-    (interactive)
-    (with-selected-frame frame
-      (auto-package-update-maybe)))
+;; Ensure we have use-package installed
+(straight-use-package 'use-package)
 
-  (add-hook 'after-make-frame-functions 'mine/auto-update-when-open-frame)
-  (when (not (daemonp)) (mine/auto-update-when-open-frame (selected-frame))))
+;; Load use-package
+(eval-when-compile (require 'use-package))
 
 ;;; package-setup.el ends here

@@ -41,7 +41,7 @@ and the the PROJECT-NAME is the name set by projectile."
   (mine/treemacs-set-single-project-to-default-workspace project-name project-path))
 
 (use-package projectile
-  :defer t
+  :straight t
   :config
   ;; Add hook for when the buffer is switched
   (advice-add 'select-window :after 'mine/hook-buffer-switched)
@@ -60,7 +60,7 @@ and the the PROJECT-NAME is the name set by projectile."
   (recentf-mode))
 
 (use-package treemacs
-  :ensure t
+  :straight t
   :config
   (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
         treemacs-deferred-git-apply-delay      0.5
@@ -113,13 +113,13 @@ and the the PROJECT-NAME is the name set by projectile."
     (`(t . _)
       (treemacs-git-mode 'simple))))
 
-(use-package treemacs-evil :ensure t :after treemacs evil)
-(use-package treemacs-projectile :ensure t :after treemacs projectile)
-(use-package treemacs-magit :ensure t :after treemacs magit)
+(use-package treemacs-evil :straight t :after treemacs evil)
+(use-package treemacs-projectile :straight t :after treemacs projectile)
+(use-package treemacs-magit :straight t :after treemacs magit)
 
 ;; Ivy-mode
 (use-package ivy
-  :ensure t
+  :straight t
   :config
   ;; Hide asterisk buffers by default
   (setq ivy-ignore-buffers (append ivy-ignore-buffers `("^\*" "^magit[-a-zA-Z0-9]*:")))
@@ -131,23 +131,22 @@ and the the PROJECT-NAME is the name set by projectile."
 
 ;; Ensure compatibility with magit
 (use-package ivy
-  :ensure t
+  :straight t
   :after magit
   :config
   (setq magit-completing-read-function 'ivy-completing-read))
 
 (use-package counsel
-  :ensure t
+  :straight t
   :after ivy
   :config
   (setq counsel-rg-base-command "rg -M 120 --with-filename --no-heading --line-number --color=never --hidden --ignore-file=$DOTFILES_PATH/.rgignore %s")
   (counsel-mode 1))
 
-(use-package swiper :ensure t)
+(use-package swiper :straight t)
 
 ;; Projectile
 (use-package projectile
-  :ensure t
   :config
   ;; Settings
   (setq projectile-completion-system 'ivy)
@@ -171,15 +170,17 @@ and the the PROJECT-NAME is the name set by projectile."
 
 ;; Ivy-mode & Projectile integration
 (use-package counsel-projectile
-  :ensure t
+  :straight t
   :after projectile counsel
   :config
   (counsel-projectile-mode))
 
 ;; Editorconfig (requires install of core editorconfig package)
 (use-package editorconfig
-  :ensure t
+  :straight t
   :config
   (editorconfig-mode 1))
+
+;; (use-package amno1/emacs-term-toggle )
 
 ;;; projectify.el ends here

@@ -12,7 +12,7 @@
 ;; https://github.com/ninrod/dotfiles/tree/master/emacs
 
 (use-package evil
-  :ensure t
+  :straight t
   :init
   ; evil settings
   (setq evil-want-C-u-scroll t)
@@ -43,62 +43,62 @@
     (lambda ()
       (add-hook 'post-command-hook 'evil-emacs-state-2-evil-normal-state)))
 
-  ;; Packages to emulate closely Vim's cool features
-
-  (use-package anzu :ensure t)
-  (use-package evil-anzu :ensure t)
-  (use-package evil-args :ensure t)
-
-  ;; Required packages
-  (use-package goto-chg :ensure t)
-  (use-package evil-numbers :ensure t)
-
-  ;; Evil collection is collection of evil mappings for the entire Emacs
-  (use-package evil-collection
-    :ensure t
-    :config
-    (evil-collection-init))
-
-  (use-package evil-matchit
-    :ensure t
-    :config
-    (global-evil-matchit-mode t))
-
-  (use-package evil-nerd-commenter :ensure t)
-
-  (use-package evil-snipe
-    :ensure t
-    :config
-    (evil-snipe-mode t)
-    (evil-snipe-override-mode t)
-    ;; Avoid issues with magit-mode buffers
-    (add-hook 'magit-mode-hook 'turn-off-evil-snipe-override-mode))
-
-  (use-package evil-surround
-    :ensure t
-    :config
-    (global-evil-surround-mode t))
-
-  (use-package evil-goggles
-    :ensure t
-    :config
-    (setq evil-goggles-duration 0.100
-          evil-goggles-enable-delete nil
-          evil-goggles-enable-indent nil
-          evil-goggles-enable-yank t
-          evil-goggles-enable-join nil
-          evil-goggles-enable-fill-and-move nil
-          evil-goggles-enable-paste nil
-          evil-goggles-enable-shift nil
-          evil-goggles-enable-surround nil
-          evil-goggles-enable-commentary nil
-          evil-goggles-enable-nerd-commenter nil
-          evil-goggles-enable-replace-with-register nil
-          evil-goggles-enable-set-marker nil)
-
-    (evil-goggles-mode))
-
   ;; Turn on evil-mode globally
   (evil-mode t))
+
+;; Packages to emulate closely Vim's cool features
+
+(use-package anzu :straight t)
+(use-package evil-anzu :straight t)
+(use-package evil-args :straight t)
+
+;; Required packages
+(use-package goto-chg :straight t)
+(use-package evil-numbers :straight t)
+
+;; Evil collection is collection of evil mappings for the entire Emacs
+(use-package evil-collection
+  :straight t
+  :config
+  (evil-collection-init))
+
+(use-package evil-matchit
+  :straight t
+  :config
+  (global-evil-matchit-mode t))
+
+(use-package evil-nerd-commenter :straight t)
+
+(use-package evil-snipe
+  :straight t
+  :config
+  (evil-snipe-mode t)
+  (evil-snipe-override-mode t)
+  ;; Avoid issues with magit-mode buffers
+  (add-hook 'magit-mode-hook 'turn-off-evil-snipe-override-mode))
+
+(use-package evil-surround
+  :straight t
+  :config
+  (global-evil-surround-mode t))
+
+(use-package evil-goggles
+  :straight t
+  :config
+  (setq evil-goggles-duration 0.100
+    evil-goggles-enable-delete nil
+    evil-goggles-enable-indent nil
+    evil-goggles-enable-yank t
+    evil-goggles-enable-join nil
+    evil-goggles-enable-fill-and-move nil
+    evil-goggles-enable-paste nil
+    evil-goggles-enable-shift nil
+    evil-goggles-enable-surround nil
+    evil-goggles-enable-commentary nil
+    evil-goggles-enable-nerd-commenter nil
+    evil-goggles-enable-replace-with-register nil
+    evil-goggles-enable-set-marker nil)
+
+  (evil-goggles-mode))
 
 ;;; evil.el ends here

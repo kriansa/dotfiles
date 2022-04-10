@@ -8,14 +8,14 @@
 (provide 'mine/ui)
 
 ;; Icons
-(use-package all-the-icons :ensure t)
+(use-package all-the-icons :straight t)
 
 ;; Set theme
-(use-package doom-themes :ensure t :config (load-theme 'doom-one-light t))
+(use-package doom-themes :straight t :config (load-theme 'doom-one-light t))
 
 ;; Available themes
-;; (use-package zenburn-theme :ensure t :config (load-theme 'zenburn t))
-;; (use-package atom-one-dark-theme :ensure t :config (load-theme 'atom-one-dark t))
+;; (use-package zenburn-theme :straight t :config (load-theme 'zenburn t))
+;; (use-package atom-one-dark-theme :straight t :config (load-theme 'atom-one-dark t))
 
 ;; General UI settings
 ;; ===================
@@ -64,7 +64,7 @@
   (setq-default ls-lisp-use-insert-directory-program nil))
 
 ;; Resizing support
-(use-package windsize :ensure t)
+(use-package windsize :straight t)
 
 ;; Left nav settings
 ;; =================
@@ -112,7 +112,7 @@
 
 ;; Modeline
 (use-package doom-modeline
-  :ensure t
+  :straight t
   :init
   ;; Show column & line numbers on the bar
   (setq column-number-mode t)
@@ -126,7 +126,7 @@
   ;; Show the path to the files when visiting symlinks
   (setq find-file-visit-truename t)
 
-  ;; Whether display the buffer encoding.
+  ;; Whether to display the buffer encoding.
   (setq doom-modeline-buffer-encoding nil)
 
   :config
