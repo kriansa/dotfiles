@@ -7,6 +7,8 @@
       # Editors
       - neovim
       - emacs
+      # Cmake is required for emacs's vterm
+      - cmake
       - dbeaver
 
       # Utilities
@@ -21,6 +23,7 @@
       - bat
       - fd
       - exa
+      - vivid
       - ripgrep
       - cowsay
       - ncdu
