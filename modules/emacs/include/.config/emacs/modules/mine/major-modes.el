@@ -117,6 +117,8 @@
   ;; When saving a file that starts with `#!', make it executable.
   (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p))
 
+(use-package fish-mode :straight t)
+
 ;; Add highlight to bash constructs
 (use-package smartparens
   :defer t
