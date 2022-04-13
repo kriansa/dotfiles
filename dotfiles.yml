@@ -29,3 +29,4 @@ modules:
   - nvim
   - javascript
   - asdf
+  - vivid

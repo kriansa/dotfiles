@@ -71,6 +71,7 @@ links:
 - .bin/update-node
 - .asdfrc
 - .tool-versions
+- .config/vivid
 local_links:
 - modules/fish/include/.config/fish/functions/fish_greeting.fish
 - modules/fish/include/.config/fish/conf.d/fortunes_init.fish
