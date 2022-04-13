@@ -33,6 +33,7 @@
       - rsync
       - nfs-utils
       - gnupg
+      - btop
       - htop
       - unzip
       - unrar
