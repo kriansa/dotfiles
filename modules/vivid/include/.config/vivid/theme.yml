@@ -21,6 +21,7 @@ core:
   reset_to_normal: {}
 
   directory:
+    font-style: bold
     foreground: blue
 
   symlink:
@@ -73,15 +74,11 @@ core:
     font-style: bold
 
 text:
-  special:
-    foreground: background_color
-    background: yellow
-
-  todo:
-    font-style: bold
-
   licenses:
     foreground: gray
+
+  docs:
+    font-style: italic
 
   configuration:
     foreground: yellow

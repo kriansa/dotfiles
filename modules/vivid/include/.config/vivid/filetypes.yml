@@ -21,21 +21,8 @@ core:
   executable_file: [$ex]
 
 text:
-  special:
-    - CONTRIBUTORS
-    - CONTRIBUTORS.md
-    - CONTRIBUTORS.txt
-    - INSTALL
-    - INSTALL.md
-    - INSTALL.txt
-    - README
-    - README.md
-    - README.txt
-
-  todo:
-    - TODO
-    - TODO.md
-    - TODO.txt
+  docs:
+    - .md
 
   licenses:
     - COPYING
@@ -79,6 +66,17 @@ text:
       - passwd
       - shadow
 
+    other:
+      - .env
+      - .env.test
+      - .dockerignore
+      - .prettierrc
+      - .yarnrc
+      - .eslintrc
+      - .eslintrc.js
+      - .config.js
+      - tsconfig.js
+
   other:
     - .txt
 
@@ -92,7 +90,6 @@ markup:
   other:
     - .csv
     - .markdown
-    - .md
     - .mdown
     - .rst
     - .xml
