@@ -55,7 +55,7 @@ and the the PROJECT-NAME is the name set by projectile."
   :config
   (setq recentf-save-file (expand-file-name ".tmp/recentf" user-emacs-directory))
   (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) ".tmp")))
-  (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) "elpa")))
+  (add-to-list 'recentf-exclude (regexp-quote (concat (file-truename (expand-file-name user-emacs-directory)) "straight")))
   (setq recentf-max-saved-items 500)
   (recentf-mode))
 
@@ -181,6 +181,28 @@ and the the PROJECT-NAME is the name set by projectile."
   :config
   (editorconfig-mode 1))
 
-;; (use-package amno1/emacs-term-toggle )
+(use-package vterm
+  :straight t
+  :config
+  (setq vterm-always-compile-module t)
+  (setq vterm-kill-buffer-on-exit t)
+  (setq vterm-max-scrollback 10000))
+
+(use-package vterm-toggle
+  :straight t
+  :config
+  (setq vterm-buffer-name "Terminal")
+  (setq vterm-toggle-scope 'project)
+  (setq vterm-toggle-fullscreen-p nil)
+  (setq vterm-toggle-reset-window-configration-after-exit t)
+
+  ;; Make sure we always open the terminal in the bottom, with height of 30%
+  (add-to-list 'display-buffer-alist
+    '((lambda (bufname _) (equal bufname vterm-buffer-name))
+       (display-buffer-reuse-window display-buffer-in-direction)
+       (direction . bottom)
+       (dedicated . t)
+       (reusable-frames . visible)
+       (window-height . 0.3))))
 
 ;;; projectify.el ends here

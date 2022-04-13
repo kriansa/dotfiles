@@ -31,6 +31,9 @@
   (setq scroll-margin 0)
   (setq scroll-conservatively 9999)
 
+  ;; Disable showing state name at the echo area
+  (setq evil-echo-state nil)
+
   ;; evil-emacs-state is annoying, the following function and hook automatically
   ;; switch back to evil-normal-state whenever the evil-emacs-state is entered.
   ;; It allows a more consistent navigation experience among all mode maps.

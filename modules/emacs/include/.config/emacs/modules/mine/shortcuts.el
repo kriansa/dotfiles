@@ -58,6 +58,7 @@
   (define-key evil-normal-state-map (kbd "SPC w") 'mine/close-and-save-buffer)
   (define-key evil-normal-state-map (kbd "SPC q") 'delete-window)
   (define-key evil-normal-state-map (kbd "SPC t") 'mine/toggle-maximize-buffer)
+  (define-key evil-normal-state-map (kbd "<M-S-return>") 'mine/toggle-maximize-buffer)
   (define-key evil-normal-state-map (kbd "SPC =") 'balance-windows)
 
   ;; Increase/decrease font size
@@ -171,10 +172,10 @@
 (use-package windsize
   :defer t
   :config
-  (global-set-key (kbd "C-S-<left>") 'windsize-left)
-  (global-set-key (kbd "C-S-<right>") 'windsize-right)
-  (global-set-key (kbd "C-S-<up>") 'windsize-up)
-  (global-set-key (kbd "C-S-<down>") 'windsize-down))
+  (global-set-key (kbd "C-S-h") 'windsize-left)
+  (global-set-key (kbd "C-S-l") 'windsize-right)
+  (global-set-key (kbd "C-S-k") 'windsize-up)
+  (global-set-key (kbd "C-S-j") 'windsize-down))
 
 (use-package markdown-mode
   :defer t
@@ -288,5 +289,12 @@
   :defer t
   :config
   (global-set-key (kbd "C-=") 'er/expand-region))
+
+(use-package vterm-toggle
+  :defer t
+  :config
+  (define-key evil-normal-state-map (kbd "C-q") 'vterm-toggle)
+  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "C-q") 'vterm-toggle)
+  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "<M-S-return>") 'mine/toggle-maximize-buffer))
 
 ;;; shortcuts.el ends here
