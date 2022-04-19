@@ -41,9 +41,13 @@
 
   ;; Window navigation
   (define-key evil-normal-state-map (kbd "C-h") 'windmove-left)
+  (define-key evil-normal-state-map (kbd "M-h") 'windmove-left)
   (define-key evil-normal-state-map (kbd "C-j") 'windmove-down)
+  (define-key evil-normal-state-map (kbd "M-j") 'windmove-down)
   (define-key evil-normal-state-map (kbd "C-k") 'windmove-up)
+  (define-key evil-normal-state-map (kbd "M-k") 'windmove-up)
   (define-key evil-normal-state-map (kbd "C-l") 'windmove-right)
+  (define-key evil-normal-state-map (kbd "M-l") 'windmove-right)
 
   ;; Use ; as an alias to :
   (define-key evil-normal-state-map (kbd ";") 'evil-ex)
@@ -293,8 +297,20 @@
 (use-package vterm-toggle
   :defer t
   :config
-  (define-key evil-normal-state-map (kbd "C-q") 'vterm-toggle)
-  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "C-q") 'vterm-toggle)
+  ;; Toggle the terminal window
+  (define-key evil-normal-state-map (kbd "C-SPC") 'vterm-toggle)
+  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "C-SPC") 'vterm-toggle)
+
+  ;; Movement with M-[hjkl] works on insert mode
+  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "M-h") 'windmove-left)
+  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "M-j") 'windmove-down)
+  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "M-k") 'windmove-up)
+  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "M-l") 'windmove-right)
+
+  ;; Ctrl-C is sent to terminal
+  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "C-c") 'vterm--self-insert)
+
+  ;; C-M-Ret is the same inside normal buffers
   (evil-collection-define-key 'insert 'vterm-mode-map (kbd "<M-S-return>") 'mine/toggle-maximize-buffer))
 
 ;;; shortcuts.el ends here

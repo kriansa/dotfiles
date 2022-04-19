@@ -198,7 +198,9 @@ and the the PROJECT-NAME is the name set by projectile."
 
   ;; Make sure we always open the terminal in the bottom, with height of 30%
   (add-to-list 'display-buffer-alist
-    '((lambda (bufname _) (equal bufname vterm-buffer-name))
+    '((lambda (bufname _) (with-current-buffer bufname
+                            (or (equal major-mode 'vterm-mode)
+                              (string-prefix-p vterm-buffer-name bufname))))
        (display-buffer-reuse-window display-buffer-in-direction)
        (direction . bottom)
        (dedicated . t)
