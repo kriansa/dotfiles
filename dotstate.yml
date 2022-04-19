@@ -8,6 +8,7 @@
 ############################################################################
 ---
 links:
+- .local/share/applications/Alacritty.desktop
 - .config/alacritty
 - .config/starship.toml
 - .config/fish
@@ -59,12 +60,13 @@ links:
 - .config/tmux
 - .config/Rapid Photo Downloader
 - .config/psi-notify
-- .local/share/applications
+- .local/share/applications/mimeinfo.cache
 - .config/gtk-4.0
 - .config/gtk-3.0
 - .config/nautilus
 - .config/gtk-2.0
 - .bin/screenshot
+- .local/share/applications/emacs.desktop
 - .config/emacs
 - .bin/e
 - .config/nvim
