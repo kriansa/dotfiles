@@ -11,7 +11,6 @@ return function(use)
       -- These options are still on the old api and yet to be migrated to the new one
       vim.g.nvim_tree_git_hl = 0
       vim.g.nvim_tree_special_files = {}
-      vim.g.nvim_tree_indent_markers = 0
       vim.g.nvim_tree_group_empty = 1
       vim.g.nvim_tree_create_in_closed_folder = 1
       vim.g.nvim_tree_show_icons = {
@@ -49,6 +48,11 @@ return function(use)
         filters = {
           custom = {
             ".git"
+          },
+        },
+        renderer = {
+          indent_markers = {
+            enable = false,
           },
         },
       })
