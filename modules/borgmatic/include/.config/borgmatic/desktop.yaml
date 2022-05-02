@@ -22,17 +22,24 @@ location:
     repositories:
         - /mnt/Backup/Arch-Home
 
-    # Stay in same file system (do not cross mount points).
-    # Defaults to false. But when a database hook is used, the
-    # setting here is ignored and one_file_system is considered
-    # true.
+    # Working directory for the "borg create" command. Tildes are
+    # expanded. Useful for backing up using relative paths. See
+    # http://borgbackup.readthedocs.io/en/stable/usage/create.html
+    # for details. Defaults to not set.
+    # working_directory: /path/to/working/directory
+
+    # Stay in same file system: do not cross mount points beyond
+    # the given source directories. Defaults to false. But when a
+    # database hook is used, the setting here is ignored and
+    # one_file_system is considered true.
     one_file_system: true
 
     # Only store/extract numeric user and group identifiers.
     # Defaults to false.
     # numeric_owner: true
 
-    # Store atime into archive. Defaults to true.
+    # Store atime into archive. Defaults to true in Borg < 1.2,
+    # false in Borg 1.2+.
     # atime: false
 
     # Store ctime into archive. Defaults to true.
@@ -66,10 +73,10 @@ location:
     # remote_path: borg1
 
     # Any paths matching these patterns are included/excluded from
-    # backups. Globs are expanded. (Tildes are not.) Note that
-    # Borg considers this option experimental. See the output of
-    # "borg help patterns" for more details. Quote any value if it
-    # contains leading punctuation, so it parses correctly.
+    # backups. Globs are expanded. (Tildes are not.) See the
+    # output of "borg help patterns" for more details. Quote any
+    # value if it contains leading punctuation, so it parses
+    # correctly.
     # patterns:
         # - R /
         # - '- /home/*/.cache'
@@ -168,6 +175,15 @@ storage:
     # to unlimited.
     # remote_rate_limit: 100
 
+    # Number of times to retry a failing backup before giving up.
+    # Defaults to 0 (i.e., does not attempt retry).
+    # retries: 3
+
+    # Wait time between retries (in seconds) to allow transient
+    # issues to pass. Increases after each retry as a form of
+    # backoff. Defaults to 0 (no wait).
+    # retry_wait: 10
+
     # Directory where temporary files are stored. Defaults to
     # $TMPDIR
     temporary_directory: /tmp
@@ -228,16 +244,19 @@ storage:
     # invocation.
     # extra_borg_options:
         # Extra command-line options to pass to "borg init".
-        # init: --make-parent-dirs
+        # init: --extra-option
 
         # Extra command-line options to pass to "borg prune".
-        # prune: --save-space
+        # prune: --extra-option
+
+        # Extra command-line options to pass to "borg compact".
+        # compact: --extra-option
 
         # Extra command-line options to pass to "borg create".
-        # create: --no-files-cache
+        # create: --extra-option
 
         # Extra command-line options to pass to "borg check".
-        # check: --save-space
+        # check: --extra-option
 
 # Retention policy for how many backups to keep in each category. See
 # https://borgbackup.readthedocs.io/en/stable/usage/prune.html for
@@ -337,6 +356,11 @@ hooks:
         # - echo "Starting pruning."
 
     # List of one or more shell commands or scripts to execute
+    # before compaction, run once per configuration file.
+    # before_compact:
+        # - echo "Starting compaction."
+
+    # List of one or more shell commands or scripts to execute
     # before consistency checks, run once per configuration file.
     # before_check:
         # - echo "Starting checks."
@@ -350,6 +374,11 @@ hooks:
     # after creating a backup, run once per configuration file.
     # after_backup:
         # - echo "Finished a backup."
+
+    # List of one or more shell commands or scripts to execute
+    # after compaction, run once per configuration file.
+    # after_compact:
+        # - echo "Finished compaction."
 
     # List of one or more shell commands or scripts to execute
     # after pruning, run once per configuration file.
@@ -367,10 +396,11 @@ hooks:
         # - echo "Finished extracting."
 
     # List of one or more shell commands or scripts to execute
-    # when an exception occurs during a "prune", "create", or
-    # "check" action or an associated before/after hook.
+    # when an exception occurs during a "prune", "compact",
+    # "create", or "check" action or an associated before/after
+    # hook.
     # on_error:
-        # - echo "Error during prune/create/check."
+        # - echo "Error during prune/compact/create/check."
 
     # List of one or more shell commands or scripts to execute
     # before running all actions (if one of them is "create").
@@ -488,11 +518,68 @@ hooks:
           # without a password.
           # password: trustsome1
 
+          # Additional mysql options to pass directly to
+          # the mysql command that lists available
+          # databases, without performing any validation on
+          # them. See mysql documentation for details.
+          # list_options: --defaults-extra-file=my.cnf
+
           # Additional mysqldump options to pass directly to
           # the dump command, without performing any
           # validation on them. See mysqldump documentation
           # for details.
           # options: --skip-comments
+
+    # List of one or more MongoDB databases to dump before
+    # creating a backup, run once per configuration file. The
+    # database dumps are added to your source directories at
+    # runtime, backed up, and removed afterwards. Requires
+    # mongodump/mongorestore commands. See
+    # https://docs.mongodb.com/database-tools/mongodump/ and
+    # https://docs.mongodb.com/database-tools/mongorestore/ for
+    # details.
+    # mongodb_databases:
+        # Database name (required if using this hook). Or
+        # "all" to dump all databases on the host. Note
+        # that using this database hook implicitly enables
+        # both read_special and one_file_system (see
+        # above) to support dump and restore streaming.
+        # - name: users
+
+          # Database hostname to connect to. Defaults to
+          # connecting to localhost.
+          # hostname: database.example.org
+
+          # Port to connect to. Defaults to 27017.
+          # port: 27018
+
+          # Username with which to connect to the database.
+          # Skip it if no authentication is needed.
+          # username: dbuser
+
+          # Password with which to connect to the database.
+          # Skip it if no authentication is needed.
+          # password: trustsome1
+
+          # Authentication database where the specified
+          # username exists. If no authentication database
+          # is specified, the database provided in "name"
+          # is used. If "name" is "all", the "admin"
+          # database is used.
+          # authentication_database: admin
+
+          # Database dump output format. One of "archive",
+          # or "directory". Defaults to "archive". See
+          # mongodump documentation for details. Note that
+          # format is ignored when the database name is
+          # "all".
+          # format: directory
+
+          # Additional mongodump options to pass
+          # directly to the dump command, without performing
+          # any validation on them. See mongodump
+          # documentation for details.
+          # options: --role=someone
 
     # Healthchecks ping URL or UUID to notify when a backup
     # begins, ends, or errors. Create an account at

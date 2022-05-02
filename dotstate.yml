@@ -26,6 +26,7 @@ links:
 - .bin/mkpass
 - .bin/update-python-packages
 - .config/borgmatic
+- .bin/borgmatic
 - .config/fontconfig
 - .config/pulse/daemon.conf
 - .bin/headers
@@ -65,7 +66,9 @@ links:
 - .config/gtk-3.0
 - .config/nautilus
 - .config/gtk-2.0
+- .themes
 - .bin/screenshot
+- .local/share/applications/emacsclient.desktop
 - .local/share/applications/emacs.desktop
 - .config/emacs
 - .bin/e

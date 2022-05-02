@@ -13,6 +13,7 @@
 
       # Utilities
       - jq
+      - yq
       - shellcheck
       - github-cli
       - python-cookiecutter

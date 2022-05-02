@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# vim: noexpandtab tabstop=2
+#
+# This is a wrapper around borgmatic so that the `list` subcommand also executes hooks, as well as
+# adds automatically the --config option if not specified and the config file is not located at the
+# default location (/etc/borgmatic/config.yaml /etc/borgmatic.d $HOME/.config/borgmatic/config.yaml
+# $HOME/.config/borgmatic.d)
+
+main() {
+	# Set HOME to whoever is invoking sudo, or in case this varibale isn't set, just set it to ~
+	eval HOME=~$SUDO_USER
+
+	# Finds out where borgmatic config file is
+	borgmatic_file_path="$(get_borgmatic_cfg_path)"
+
+	# Then gets whether the config is specified in opts
+	get_config_opt "$@"; config_is_specified=$?
+
+	if is_list_cmd "$@"; then
+		run_list "$@"
+	else
+		borgmatic --config "$config_path" "$@"
+	fi
+}
+
+get_config_opt() {
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			--config|-c) return 1 ;;
+			*) shift ;;
+		esac
+	done
+
+	return 0
+}
+
+borgmatic() {
+	if [ $config_is_specified == 1 ]; then
+		/usr/bin/borgmatic "$@"
+	else
+		/usr/bin/borgmatic --config "$borgmatic_file_path" "$@"
+	fi
+}
+
+is_list_cmd() {
+	cmd=$1
+
+	# This is limited to checking whether list is in the first position of the args list. Ensure that
+	# you only call `borgmatic list` with options after the subcommand (i.e. borgmatic list -c ...)
+	[ "$cmd" = "list" ] || [ "$cmd" = "--list" ] || [ "$cmd" == "-l" ]
+}
+
+get_borgmatic_cfg_path() {
+	local ansible_config user_name borgmatic_config
+
+	ansible_config="$HOME/.dotfiles/ansible/roles/desktop-tools/defaults/main.yml"
+	user_name=$(yq -r ".user_name" "$ansible_config")
+	borgmatic_config=$(yq -r ".borgmatic_config" "$ansible_config")
+	sed "s/{{ user_name }}/$user_name/" <<< "$borgmatic_config"
+}
+
+run_hooks() {
+	local type=$1
+
+	while read -r hook; do
+		eval "$hook" || {
+			echo "Failure while running ${type}_everything hook on '$borgmatic_file_path'"
+			exit 1
+		}
+	done < <(yq -r ".hooks.${type}_everything[]" "$borgmatic_file_path")
+}
+
+run_list() {
+	run_hooks before
+	borgmatic "$@"; status=$?
+	run_hooks after
+
+	return $status
+}
+
+main "$@"
