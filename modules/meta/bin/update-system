@@ -11,6 +11,7 @@ main() {
   run "Update Ruby and its global packages" "update-ruby"
   run "Update Node and its global packages" "update-node"
   run "Update Python global packages" "update-python-packages"
+  run "Updating fish completions" "fish_update_completions"
 }
 
 run() {
