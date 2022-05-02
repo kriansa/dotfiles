@@ -62,6 +62,7 @@ links:
 - .config/Rapid Photo Downloader
 - .config/psi-notify
 - .local/share/applications/mimeinfo.cache
+- .config/user-dirs.dirs
 - .config/gtk-4.0
 - .config/gtk-3.0
 - .config/nautilus
