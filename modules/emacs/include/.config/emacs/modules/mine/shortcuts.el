@@ -298,8 +298,8 @@
   :defer t
   :config
   ;; Toggle the terminal window
-  (define-key evil-normal-state-map (kbd "C-SPC") 'vterm-toggle)
-  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "C-SPC") 'vterm-toggle)
+  (define-key evil-normal-state-map (kbd "C-\\") 'vterm-toggle)
+  (evil-collection-define-key 'insert 'vterm-mode-map (kbd "C-\\") 'vterm-toggle)
 
   ;; Movement with M-[hjkl] works on insert mode
   (evil-collection-define-key 'insert 'vterm-mode-map (kbd "M-h") 'windmove-left)
