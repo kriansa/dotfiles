@@ -34,7 +34,6 @@ return function(use)
         hijack_directories = { enable = false },
         update_focused_file = { enable = true },
         trash = { cmd = "gio trash" },
-        auto_close = false,
         hijack_cursor = true,
         hijack_netrw = false,
         hijack_unnamed_buffer_when_opening = false,
@@ -47,7 +46,7 @@ return function(use)
         },
         filters = {
           custom = {
-            ".git"
+            "^.git$"
           },
         },
         renderer = {
