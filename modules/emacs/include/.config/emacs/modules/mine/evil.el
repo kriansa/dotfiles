@@ -49,6 +49,15 @@
   ;; Turn on evil-mode globally
   (evil-mode t))
 
+(use-package evil
+  :after projectile
+  :defer t
+  :config
+  (evil-add-command-properties #'counsel-projectile-find-file :jump t)
+  (evil-add-command-properties #'counsel-projectile-switch-project :jump t)
+  (evil-add-command-properties #'counsel-projectile-switch-to-buffer :jump t)
+  (evil-add-command-properties #'ivy-switch-buffer :jump t))
+
 ;; Packages to emulate closely Vim's cool features
 
 (use-package anzu :straight t)

@@ -2,4 +2,5 @@
 straight/
 auto-save-list/
 .tmp/
+.cache/
 session.*
