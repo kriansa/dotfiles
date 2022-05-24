@@ -58,7 +58,7 @@ publish_pkg_upgrade() {
 	makepkg --printsrcinfo > .SRCINFO
 	version=$(get_current_local_version)
 	git add .SRCINFO PKGBUILD
-	git commit --only .SRCINFO PKGBUILD --message "feat: update to ${version}"
+	git commit --only .SRCINFO PKGBUILD --message "feat: update to ${version}" --edit
 	git remote | xargs -I R git push R HEAD
 	echo "Done!"
 }
