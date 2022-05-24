@@ -19,7 +19,7 @@ stage {
 .prompt-dialog-error-label,
 .prompt-dialog-info-label,
 .prompt-dialog-null-label {
-  font-size: 2em;
+  font-size: 1em;
 }
 
 .end-session-dialog .end-session-dialog-battery-warning, .end-session-dialog .dialog-list-title {
