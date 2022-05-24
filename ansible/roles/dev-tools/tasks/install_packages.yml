@@ -18,6 +18,10 @@
       - github-cli
       - python-cookiecutter
 
+      # Pandoc
+      - pandoc
+      - texlive-core
+
       # Shell utils
       - alacritty
       - fzf
@@ -45,6 +49,7 @@
       # DevOps tools
       - aws-cli
       - ansible
+      - sshpass
       - terraform
       - python-dotenv
       - kubectl
