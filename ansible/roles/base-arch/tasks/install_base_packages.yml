@@ -1,26 +1,25 @@
 ---
 - name: create /etc/pacman.d/hooks directory
   become: true
-  file: path=/etc/pacman.d/hooks state=directory mode=0755
+  ansible.builtin.file: path=/etc/pacman.d/hooks state=directory mode=0755
 
 - name: update system
   become: true
-  pacman:
+  community.general.pacman:
     update_cache: yes
     upgrade: yes
 
 - name: install base packages
   become: true
-  notify:
-    - restart dbus
-    - enable kernel modules hook
-  pacman:
-    state: present
+  notify: restart dbus
+  community.general.pacman:
     name:
       - linux
       - linux-lts
       - base-devel
-      - iptables-nft
+      - nftables
+      - wireguard-tools
+      - usbutils
       - sudo
       - avahi
       - pulseaudio
@@ -32,6 +31,8 @@
       - fish
       - rsync
       - nfs-utils
+      - cifs-utils
+      - ntfs-3g
       - gnupg
       - btop
       - htop
@@ -43,11 +44,11 @@
       - hdparm
       - lsof
       - ldns         # for drill tool (dig with DNSSEC)
-      - xclip        # for interaction with the clipboard
-      # Pacman/update tools
-      - reflector            # to update the mirrorlist with the best mirrors
-      - rebuild-detector     # detect packages that needs rebuild
-      - pacman-contrib       # extra tools for pacman
-      - kernel-modules-hook  # no downtime on kernel updates
+
+# no downtime on kernel updates
+- name: install kernel-modules-hook
+  become: true
+  notify: enable kernel modules hook
+  community.general.pacman: name=kernel-modules-hook
 
 - meta: flush_handlers

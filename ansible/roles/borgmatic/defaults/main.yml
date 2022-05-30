@@ -1,0 +1,9 @@
+---
+# The user we're installing to
+# Should be the same set at base-arch's role
+user_name: dpereira
+home_path: /home/{{ user_name }}
+dotfiles_path: /home/{{ user_name }}/.dotfiles
+
+# Path to borgmatic config backup
+borgmatic_config: "desktop.yaml"

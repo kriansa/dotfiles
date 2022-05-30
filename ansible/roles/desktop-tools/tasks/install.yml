@@ -1,18 +1,15 @@
 ---
 - name: install common desktop packages
   become: true
-  pacman:
-    state: present
+  community.general.pacman:
     name:
       # Browsers
       - firefox
       - chromium
 
-      # VLC
+      # Video players
       - vlc
       - libx264
-
-      # mpv for some videos
       - mpv
 
       # Subtitles editor
@@ -23,9 +20,6 @@
 
       # GParted is a GUI partitioner
       - gparted
-
-      # Allow mouting NTFS partitions with read/write
-      - ntfs-3g
 
       # Torrent client
       - transmission-remote-gtk
@@ -65,16 +59,16 @@
       # Fonts
       - ttf-symbola
       - ttf-iosevka-term
-      - ttf-gelasio-ib
+      - ttf-gelasio
       - ttf-comic-neue
       - ttf-nerd-glyphs
 
 - name: install ananicy
   become: true
   notify: enable ananicy at boot time
-  pacman: state=present name=ananicy-git
+  community.general.pacman: name=ananicy-git
 
 - name: install psi-notify
   become: true
   notify: enable psi-notify at boot time
-  pacman: state=present name=psi-notify
+  community.general.pacman: name=psi-notify

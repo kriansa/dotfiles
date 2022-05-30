@@ -1,7 +1,3 @@
 ---
-- import_tasks: fix_spotify_scaling.yml
 - import_tasks: install.yml
-- import_tasks: setup_firefox.yml
-- import_tasks: allow_mounting_partitions.yml
-- import_tasks: setup_network.yml
-- import_tasks: setup_network_drive.yml
+# - import_tasks: setup_firefox.yml

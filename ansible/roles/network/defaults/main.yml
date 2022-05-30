@@ -1,0 +1,20 @@
+---
+# The user we're installing to
+# Should be the same set at base-arch's role
+user_name: dpereira
+
+# Default paths
+home_path: /home/{{ user_name }}
+
+# Whether or not to setup wi-fi
+configure_wifi: no
+wifi_device: wlp0s20f3
+eth_device: enp5s0
+
+# Subfolder on pass for items specific to this machine
+pc_config_type: Desktop
+
+# Network shares for my user
+shared_drive:
+  media_location: //nas.lan.cx/media
+  drive_location: nas.lan.cx:/mnt/pool1/Daniel/Unix

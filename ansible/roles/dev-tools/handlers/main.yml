@@ -1,14 +1,9 @@
 ---
 - name: enable libvirtd socket activation
   become: true
-  systemd: state=restarted enabled=yes name=libvirtd.socket
+  ansible.builtin.systemd: state=restarted enabled=yes name=libvirtd.socket
 
 - name: enable podman.socket so we can use docker-compose
   become: true
   become_user: "{{ user_name }}"
-  systemd: state=restarted enabled=yes scope=user name=podman.socket
-
-- name: reload systemd for user
-  become: true
-  become_user: "{{ user_name }}"
-  systemd: daemon_reload=yes scope=user
+  ansible.builtin.systemd: state=restarted enabled=yes scope=user name=podman.socket

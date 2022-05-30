@@ -10,6 +10,7 @@ I'm doing my machines bootstrapping using [Ansible](https://www.ansible.com/).
 ## Available machines
 
 * [Desktop](doc/desktop-install.md)
+* [Laptop](doc/laptop-install.md)
 
 ## Installation
 

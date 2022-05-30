@@ -1,6 +1,19 @@
 ---
+# Hostname of this machine
+hostname: Arch-Home.lan.cx
+
 # The username we want to create
 user_name: dpereira
 
 # This user comment appears on Gnome-shell
 user_comment: Daniel Pereira
+
+# Base locale settings
+arch_locale: en_US.UTF-8
+arch_keymap: us
+arch_timezone: America/Sao_Paulo
+
+# Nvidia settings
+xorg_monitor_file: xorg-monitor-desktop.conf
+# This has proven to reduce boot failures on Desktop VGAs (such as RTX 2060S)
+disable_nvidia_i2c: true

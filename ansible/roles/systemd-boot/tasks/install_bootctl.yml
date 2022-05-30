@@ -1,26 +1,32 @@
 ---
 - name: install systemd-boot
   become: true
-  command: bootctl install
+  ansible.builtin.command: bootctl install
   args:
     creates: /boot/EFI/systemd/systemd-bootx64.efi
 
 - name: copy windows entry file to EFI partition
   become: true
   when: dualboot_windows == true
-  copy: src=files/windows.conf dest=/boot/loader/entries/windows.conf mode=0644
+  ansible.builtin.copy: src=windows.conf dest=/boot/loader/entries/windows.conf mode=0644
 
 - name: copy loader defaults
   become: true
-  template: src=templates/loader.conf.j2 dest=/boot/loader/loader.conf mode=0644
+  ansible.builtin.template: src=loader.conf.j2 dest=/boot/loader/loader.conf mode=0644
 
 - name: copy linux entries
   become: true
-  template: src=templates/{{ item }}.j2 dest=/boot/loader/entries/{{ item }} mode=0644
+  ansible.builtin.template: src=arch-entry.conf.j2 dest=/boot/loader/entries/{{ item.loader_path }}
   loop:
-    - arch.conf
-    - arch-lts.conf
+    - name: "Arch Linux"
+      loader_path: "arch.conf"
+      vmlinuz_path: "vmlinuz-linux"
+      initramfs_path: "initramfs-linux.img"
+    - name: "Arch Linux (LTS)"
+      loader_path: "arch-lts.conf"
+      vmlinuz_path: "vmlinuz-linux-lts"
+      initramfs_path: "initramfs-linux-lts.img"
 
 - name: add pacman hook to update systemd-boot on upgrades
   become: true
-  copy: src=files/systemd.hook dest=/etc/pacman.d/hooks/systemd.hook mode=0644
+  ansible.builtin.copy: src=systemd.hook dest=/etc/pacman.d/hooks/systemd.hook mode=0644

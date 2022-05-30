@@ -7,10 +7,18 @@
 
 - name: set locale to /etc/locale.conf
   become: true
-  copy:
-    content: "LANG=en_US.UTF-8"
+  ansible.builtin.copy:
+    content: "LANG={{ arch_locale }}"
     dest: /etc/locale.conf
 
+- name: set vconsole keymap
+  become: true
+  notify: rebuild initramfs
+  ansible.builtin.copy:
+    content: "KEYMAP={{ arch_keymap }}"
+    dest: /etc/vconsole.conf
+
 - name: set the hostname
+  become: true
   ansible.builtin.hostname:
-    name: Arch-Home.lan.cx
+    name: "{{ hostname }}"

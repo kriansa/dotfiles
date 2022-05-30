@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # This is just a small help on top of `ansible-playbook` so I don't have to
 # remember its interface
@@ -26,9 +26,13 @@ debug=$3
 export ANSIBLE_NOCOWS=1
 
 # On localhost, we need to use a local connection
-test "${host}" = "localhost" && extra_params="--connection=local"
-test "${debug}" = "--debug" && extra_params="${extra_params} --tags=only"
+if test "${host}" = "localhost"; then
+  extra_params=("--connection=local")
+else
+  extra_params=("--ssh-extra-args" "-o ForwardAgent=yes")
+fi
+
+test "${debug}" = "--debug" && extra_params+=("--tags=only")
 
 # Run the playbook
-cd ansible && ansible-playbook --inventory="${host}," \
-  ${extra_params} "${machine_type}.yml"
+cd ansible && ansible-playbook --inventory="${host}," "${extra_params[@]}" "${machine_type}.yml"

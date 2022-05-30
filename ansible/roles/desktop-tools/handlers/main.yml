@@ -1,13 +1,9 @@
 ---
-- name: restart network
-  become: true
-  systemd: state=restarted name=NetworkManager
-
 - name: enable psi-notify at boot time
   become: true
   become_user: "{{ user_name }}"
-  systemd: name=psi-notify enabled=true state=started scope=user
+  ansible.builtin.systemd: name=psi-notify enabled=true state=started scope=user
 
 - name: enable ananicy at boot time
   become: true
-  systemd: name=ananicy enabled=true state=started
+  ansible.builtin.systemd: name=ananicy enabled=true state=started

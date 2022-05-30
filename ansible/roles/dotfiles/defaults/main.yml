@@ -1,8 +1,0 @@
----
-# The user we're installing to
-# Should be the same set at base-arch's role
-user_name: dpereira
-
-# Set common paths
-home_path: /home/{{ user_name }}
-dotfiles_path: /home/{{ user_name }}/.dotfiles

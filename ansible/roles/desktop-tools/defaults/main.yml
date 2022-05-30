@@ -1,15 +1,4 @@
 ---
-# Are we using hidpi monitor?
-use_hidpi: no
-
 # The user we're installing to
 # Should be the same set at base-arch's role
 user_name: dpereira
-
-# Path to borgmatic config backup
-borgmatic_config: /home/{{ user_name }}/.config/borgmatic/desktop.yaml
-
-# Network CIFS share for my user
-shared_drive:
-  media_location: //nas.lan.cx/media
-  drive_location: nas.lan.cx:/mnt/pool1/Daniel/Unix

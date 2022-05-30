@@ -1,10 +1,10 @@
 ---
 - name: enable ntp synchronization
   become: true
-  command: timedatectl set-ntp true
+  ansible.builtin.command: timedatectl set-ntp true
 
 - name: set timezone
   become: true
   community.general.timezone:
-    name: America/Sao_Paulo
+    name: "{{ arch_timezone }}"
     hwclock: UTC

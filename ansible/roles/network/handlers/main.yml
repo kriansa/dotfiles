@@ -1,0 +1,10 @@
+---
+- name: restart network
+  become: true
+  ansible.builtin.systemd: state=restarted name=NetworkManager
+
+- name: mount drives from fstab
+  become: true
+  ansible.builtin.command: mount -a
+  args:
+    warn: no

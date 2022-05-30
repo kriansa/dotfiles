@@ -1,14 +1,13 @@
 ---
 - name: install development packages
   become: true
-  pacman:
+  community.general.pacman:
     state: present
     name:
       # Editors
       - neovim
       - emacs
-      # Cmake is required for emacs's vterm
-      - cmake
+      - cmake # required for emacs's vterm
       - dbeaver
 
       # Utilities
@@ -32,6 +31,7 @@
       - ripgrep
       - cowsay
       - ncdu
+      - xclip
 
       # DB (docker to rule them all)
       # - mariadb
@@ -62,5 +62,4 @@
       - asdf-vm
       - devops-tools-git
       - ansible-bundler
-      - heroku-cli
-      - concourse-fly
+      - fly-cli

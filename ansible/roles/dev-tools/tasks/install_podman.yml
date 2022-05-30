@@ -1,7 +1,7 @@
 ---
 - name: install podman packages
   become: true
-  pacman:
+  community.general.pacman:
     state: present
     name:
       - podman
@@ -12,22 +12,26 @@
 
 - name: add uids to /etc/subuid
   become: true
-  lineinfile: create=yes path=/etc/subuid line="{{ user_name }}:10000:65536"
+  ansible.builtin.lineinfile: create=yes path=/etc/subuid line="{{ user_name }}:10000:65536"
 
 - name: add uids to /etc/subgid
   become: true
-  lineinfile: create=yes path=/etc/subgid line="{{ user_name }}:10000:65536"
+  ansible.builtin.lineinfile: create=yes path=/etc/subgid line="{{ user_name }}:10000:65536"
 
 - name: create /etc/containers/nodocker
   become: true
-  file: path=/etc/containers/nodocker state=touch modification_time=preserve access_time=preserve
+  ansible.builtin.file: path=/etc/containers/nodocker state=touch modification_time=preserve access_time=preserve
+
+- name: create podman.service.d systemd drop-in folder
+  become: true
+  ansible.builtin.file: path=/usr/lib/systemd/user/podman.service.d state=directory
 
 - name: set the default userns keep-id so that rootless docker-compose is identical to docker
   become: true
   notify:
     - reload systemd for user
     - enable podman.socket so we can use docker-compose
-  copy:
+  ansible.builtin.copy:
     dest: /usr/lib/systemd/user/podman.service.d/set-default-userns.conf
     mode: 0644
     content: |

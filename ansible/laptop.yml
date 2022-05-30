@@ -1,0 +1,33 @@
+---
+- hosts: all
+  vars:
+    hostname: daniel-laptop.lan.cx
+    xorg_monitor_file: xorg-monitor-laptop.conf
+    # Check if that is going to be an issue
+    disable_nvidia_i2c: false
+
+    # Encrypted partitioning options
+    encrypt_disk: true
+    encrypted_partition_uuid: 571e47d1-cb34-41d9-a271-7fb6b2a47c3f
+    lvm_vg_name: vg0
+
+    # Enable Wi-fi
+    configure_wifi: yes
+    wifi_device: wlp0s20f3
+    eth_device: enp3s0
+
+    # Specific config type
+    pc_config_type: Laptop
+
+    # Path to borgmatic config backup
+    borgmatic_config: laptop.yaml
+
+  roles:
+    - role: base-arch
+    - role: systemd-boot
+    - role: secrets
+    - role: network
+    - role: dev-tools
+    - role: borgmatic
+    - role: desktop-tools
+    - role: gnome

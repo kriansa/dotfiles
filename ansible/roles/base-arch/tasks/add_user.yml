@@ -2,7 +2,7 @@
 - name: add user
   become: true
   register: add_user
-  user:
+  ansible.builtin.user:
     name: "{{ user_name }}"
     comment: "{{ user_comment }}"
     # https://wiki.archlinux.org/index.php/users_and_groups
@@ -14,22 +14,24 @@
     password: "{{ '123' | password_hash('sha512', 'mysecretsalt') }}"
 
 - when: add_user.changed
-  debug:
+  ansible.builtin.debug:
     msg: "Please, change the password of the user {{ user_name }}! (default is '123')"
 
 - name: ensure that users on wheel group have sudo access
   become: true
-  copy: src=files/10-wheel.conf dest=/etc/sudoers.d/10-wheel mode=0440
+  ansible.builtin.copy: src=files/10-wheel.conf dest=/etc/sudoers.d/10-wheel mode=0440
 
 - name: lock root password
   become: true
-  command: passwd -l root
+  ansible.builtin.user:
+    name: root
+    password_lock: true
 
 - name: check for lingering
-  command: loginctl show-user "{{ user_name }}" --property=Linger 2>/dev/null | grep -q 'yes'
+  ansible.builtin.command: loginctl show-user "{{ user_name }}" --property=Linger 2>/dev/null | grep -q 'yes'
   register: result
   failed_when: ( result.rc not in [ 0, 1 ] )
 
 - name: enable lingering
   when: result.rc == 1
-  command: loginctl enable-linger "{{ user_name }}"
+  ansible.builtin.command: loginctl enable-linger "{{ user_name }}"

@@ -1,7 +1,9 @@
 ---
 - name: enable required system services at startup
   become: true
-  systemd: state=started enabled=yes name={{ item }}
+  ansible.builtin.systemd: state=started enabled=yes name={{ item }}
   loop:
     - avahi-daemon.service
     - systemd-resolved.service
+    - NetworkManager.service
+    - fstrim.timer

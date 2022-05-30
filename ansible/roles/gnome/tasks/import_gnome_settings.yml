@@ -1,0 +1,83 @@
+---
+- name: import gnome shortcuts
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.shell: dbus-launch dconf load / < "{{ role_path }}/files/shortcuts.dconf"
+
+- name: configure gnome applications
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.command: dbus-launch gsettings set {{ item.path }} {{ item.name }} "{{ item.value }}"
+  loop:
+    - { path: org.gnome.desktop.interface, name: clock-show-date, value: "true" }
+    - { path: org.gnome.desktop.privacy, name: remember-recent-files, value: "false" }
+    # Configure mouse
+    - { path: org.gnome.desktop.peripherals.mouse, name: speed, value: "-1.0" }
+    # Disable auto-suspend
+    - { path: org.gnome.settings-daemon.plugins.power, name: sleep-inactive-ac-type, value: "nothing" }
+    # Disable media auto-run
+    - { path: org.gnome.desktop.media-handling, name: autorun-never, value: "true" }
+    # Theme
+    - { path: org.gnome.desktop.interface, name: gtk-theme, value: "Adwaita" }
+    # Fonts
+    - { path: org.gnome.desktop.interface, name: monospace-font-name, value: "Roboto Mono 11" }
+    - { path: org.gnome.desktop.interface, name: font-name, value: "Roboto Condensed, 11" }
+    - { path: org.gnome.desktop.interface, name: document-font-name, value: "Roboto Medium 11" }
+    - { path: org.gnome.desktop.wm.preferences, name: titlebar-uses-system-font, value: "true" }
+    - { path: org.gnome.desktop.wm.preferences, name: titlebar-font, value: "Roboto Condensed, Bold 11" }
+    # Screenshot
+    - { path: org.gnome.gnome-screenshot, name: auto-save-directory, value: "'{{ home_path }}/Dropbox/Screenshots'" }
+    # Menu bar
+    - { path: org.gnome.desktop.wm.preferences, name: button-layout, value: "appmenu:minimize,maximize,close" }
+    # Nautilus
+    - { path: org.gnome.nautilus.icon-view, name: default-zoom-level, value: "small" }
+    - { path: org.gnome.nautilus.window-state, name: maximized, value: "true" }
+    - { path: org.gtk.Settings.FileChooser, name: show-hidden, value: "true" }
+    - { path: org.gnome.nautilus.preferences, name: click-policy, value: "'single'" }
+    # FileChooser sorting
+    - { path: org.gtk.Settings.FileChooser, name: sort-directories-first, value: "true" }
+    - { path: org.gtk.Settings.FileChooser, name: sort-order, value: "ascending" }
+    - { path: org.gtk.Settings.FileChooser, name: sort-column, value: "name" }
+    # Backgrounds
+    - { path: org.gnome.desktop.background, name: picture-uri, value: "file://{{ home_path }}/Drive/Media/Wallpapers/far_cry_4.jpg" }
+    - { path: org.gnome.desktop.screensaver, name: picture-uri, value: "file://{{ home_path }}/Drive/Media/Wallpapers/far_cry_4.jpg" }
+    # Set keyboard rate & delay
+    - { path: org.gnome.desktop.peripherals.keyboard, name: repeat-interval, value: "uint32 30" }
+    - { path: org.gnome.desktop.peripherals.keyboard, name: delay, value: "uint32 250" }
+    # Set the shortcuts on the sidebar (favorites)
+    - path: org.gnome.shell
+      name: favorite-apps
+      value: ['org.gnome.Nautilus.desktop', 'com.gexperts.Tilix.desktop', 'firefox.desktop', 'spotify.desktop']
+    # Enable shell extensions
+    - { path: org.gnome.shell, name: enabled-extensions, value: "['system-monitor@paradoxxx.zero.gmail.com', 'user-theme@gnome-shell-extensions.gcampax.github.com']" }
+    # Configure system-monitor shell extension
+    - { path: org.gnome.shell.extensions.system-monitor, name: icon-display, value: "false" }
+    - { path: org.gnome.shell.extensions.system-monitor, name: gpu-show-menu, value: "true" }
+    - { path: org.gnome.shell.extensions.system-monitor, name: disk-usage-style, value: "'none'" }
+    # Night light
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-temperature, value: "uint32 4700" }
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-enabled, value: "true" }
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-schedule-automatic, value: "false" }
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-schedule-from, value: "21.0" }
+    - { path: org.gnome.settings-daemon.plugins.color, name: night-light-schedule-to, value: "6.0" }
+    # Gedit preferences
+    - { path: org.gnome.gedit.preferences.editor, name: auto-save, value: "false" }
+    - { path: org.gnome.gedit.preferences.editor, name: wrap-mode, value: "'none'" }
+    - { path: org.gnome.gedit.preferences.editor, name: wrap-last-split-mode, value: "'word'" }
+    - { path: org.gnome.gedit.preferences.editor, name: use-default-font, value: "false" }
+    - { path: org.gnome.gedit.preferences.editor, name: tabs-size, value: "uint32 4" }
+    - { path: org.gnome.gedit.preferences.editor, name: search-highlighting, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: scheme, value: "'solarized-light'" }
+    - { path: org.gnome.gedit.preferences.editor, name: editor-font, value: "'Iosevka Term Light 12'" }
+    - { path: org.gnome.gedit.preferences.editor, name: bracket-matching, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: syntax-highlighting, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: auto-indent, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: highlight-current-line, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: display-line-numbers, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: insert-spaces, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: ensure-trailing-newline, value: "true" }
+    - { path: org.gnome.gedit.preferences.editor, name: right-margin-position, value: "uint32 100" }
+    - { path: org.gnome.gedit.preferences.ui, name: statusbar-visible, value: "true" }
+    - { path: org.gnome.gedit.preferences.ui, name: bottom-panel-visible, value: "false" }
+    - { path: org.gnome.gedit.preferences.ui, name: side-panel-visible, value: "true" }
+    - { path: org.gnome.gedit.preferences.ui, name: show-tabs-mode, value: "'auto'" }

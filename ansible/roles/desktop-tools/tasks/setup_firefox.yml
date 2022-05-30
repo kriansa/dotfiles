@@ -12,41 +12,6 @@
 
 - set_fact: profile_prefs="~/.mozilla/firefox/{{ profile_name.stdout }}/prefs.js"
 
-- name: change firefox settings
-  become: true
-  become_user: "{{ user_name }}"
-  lineinfile:
-    path: "{{ profile_prefs }}"
-    line: 'user_pref("{{ item.pref }}", {{ item.value }});'
-    regexp: '^user_pref\("{{ item.pref | regex_escape }}"'
-  loop:
-    # As of Firefox 60, we can shrink the size of the top bar to look like it
-    # already is on MacOS and Windows.
-    - { pref: browser.tabs.drawInTitlebar, value: "false" }
-
-    # Disable warning when closing tabs
-    - { pref: browser.tabs.warnOnClose, value: "true" }
-
-    # Disable smooth scrolling
-    - { pref: general.smoothScroll, value: "false" }
-
-    # Prevent websites from asking whether we want to receive notifications
-    - { pref: permissions.default.desktop-notification, value: "2" }
-
-    # Firefox has hardware acceleration but it's not enabled in many platforms
-    # by default.
-    # There's a bug open in 2010 to help that getting fixed but so far, it
-    # hasn't been merged into mainline. Meanwhile, we can force enable it by
-    # setting the `layers.acceleration.force-enabled` on `about:config`
-    # settings.
-    #
-    # ref: https://wiki.archlinux.org/index.php/Firefox/Tweaks#Performance
-    # ref2: https://bugzilla.mozilla.org/show_bug.cgi?id=594876
-    - { pref: layers.acceleration.force-enabled, value: "true" }
-
-    # Disable remembering passwords
-    - { pref: signon.rememberSignons, value: "false" }
-
 # Set the default application for web browsing
 # Ref: https://askubuntu.com/questions/16621/how-to-set-the-default-browser-from-the-command-line
 - name: make firefox the default application

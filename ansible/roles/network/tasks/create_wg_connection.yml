@@ -1,0 +1,40 @@
+---
+- name: configure vpns
+  become: true
+  register: wg_src
+  ansible.builtin.template:
+    src: wg-client.conf
+    dest: /etc/wireguard/{{ item.ifname }}.conf
+    mode: 0600
+
+- name: reconfigure wg on NetworkManager
+  become: true
+  when: wg_src.changed
+  block:
+    - name: delete existing connection
+      ansible.builtin.command: nmcli con del "{{ item.name }}"
+      ignore_errors: yes
+
+    - name: import wg connection
+      ansible.builtin.command: nmcli con import type wireguard file /etc/wireguard/{{ item.ifname }}.conf
+
+    - name: disable the connection
+      ansible.builtin.command: nmcli con down "{{ item.ifname }}"
+
+    - name: configure new connection
+      ansible.builtin.command: nmcli con mod "{{ item.ifname }}" connection.id "{{ item.name }}" connection.autoconnect {{ item.autoconnect }}
+
+    - name: rename connection file
+      ansible.builtin.copy:
+        remote_src: true
+        src: /etc/NetworkManager/system-connections/{{ item.ifname }}.nmconnection
+        dest: /etc/NetworkManager/system-connections/{{ item.name }}.nmconnection
+
+    - name: remove old connection file
+      ansible.builtin.file:
+        state: absent
+        path: /etc/NetworkManager/system-connections/{{ item.ifname }}.nmconnection
+
+    - name: enable the connection if needed
+      when: item.autoconnect == true
+      ansible.builtin.command: nmcli con up "{{ item.name }}"

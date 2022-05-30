@@ -1,4 +1,0 @@
----
-- name: allow mounting partitions without password
-  become: true
-  copy: src=files/55-mount-partitions.rules dest=/etc/polkit-1/rules.d/55-mount-partitions.rules mode=0644

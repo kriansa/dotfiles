@@ -1,0 +1,4 @@
+---
+- name: allow mounting partitions without password
+  become: true
+  ansible.builtin.copy: src=55-mount-partitions.rules dest=/etc/polkit-1/rules.d/55-mount-partitions.rules

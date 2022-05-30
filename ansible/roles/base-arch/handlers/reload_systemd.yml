@@ -1,0 +1,9 @@
+---
+- name: reload systemd
+  become: true
+  ansible.builtin.systemd: daemon_reload=yes
+
+- name: reload systemd for user
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.systemd: daemon_reload=yes scope=user

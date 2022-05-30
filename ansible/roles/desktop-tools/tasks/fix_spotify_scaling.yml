@@ -1,6 +1,0 @@
-# Fix found on Spotify forum
-# https://community.spotify.com/t5/Desktop-Linux/Linux-client-barely-usable-on-HiDPI-displays/td-p/1067272
-- name: fix spotify icon to use hi-dpi
-  when: use_hidpi == true
-  become: true
-  copy: src=files/spotify.hook dest=/etc/pacman.d/hooks/spotify.hook mode=0644

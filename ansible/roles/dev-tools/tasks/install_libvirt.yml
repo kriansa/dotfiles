@@ -2,7 +2,7 @@
 - name: install libvirt
   become: true
   notify: enable libvirtd socket activation
-  pacman:
+  community.general.pacman:
     state: present
     name:
       - qemu
@@ -12,4 +12,4 @@
 
 - name: add {{ user_name }} to group libvirt
   become: true
-  user: name={{ user_name }} groups=libvirt append=yes
+  ansible.builtin.user: name={{ user_name }} groups=libvirt append=yes

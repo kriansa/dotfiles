@@ -1,7 +1,7 @@
 ---
 - name: install gnome
   become: true
-  pacman:
+  community.general.pacman:
     state: present
     name:
       - xorg
@@ -43,11 +43,8 @@
       # ---------------------
       # Packages on AUR/pacom
       - gnome-shell-extension-system-monitor-git
-      - gnome-shell-extension-remove-accessibility
+      - gnome-shell-extension-impatience
 
-- name: enable gdm and networkmanager at boot time
+- name: enable gdm at boot time
   become: true
-  systemd: name={{ item }} enabled=true
-  loop:
-    - NetworkManager.service
-    - gdm.service
+  ansible.builtin.systemd: name=gdm enabled=true
