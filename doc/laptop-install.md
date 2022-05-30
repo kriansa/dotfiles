@@ -1,9 +1,9 @@
 # Install Arch on Laptop
-> Last update: May 24th, 2022.
+> Last update: May 30th, 2022.
 
 First and foremost you will need to disable secure boot on your system.
 
-Secondly, this guide assumes that you've installed Windows 11 using UEFI mode and that you left some
+Secondly, this guide assumes that you've installed Windows using UEFI mode and that you left some
 space left to install ArchLinux. If you haven't, some steps should be taken, such as creating a EFI
 partition. See more info on [EFI System Partition
 wiki](https://wiki.archlinux.org/index.php/EFI_System_Partition).
@@ -121,7 +121,7 @@ Answer `yes`. Then use `print` to list partition IDs and then rename it.
     # mkfs.xfs /dev/vg0/home
 
 ##### 7.5. If needed, format the EFI partition
-    # mkfs.fat -F32 /dev/sdZZ
+    # mkfs.fat -F32 /dev/sdXY
 
 ##### 8. Mount the new system
     # mount /dev/vg0/root /mnt
@@ -129,9 +129,9 @@ Answer `yes`. Then use `print` to list partition IDs and then rename it.
     # mkdir /mnt/home
     # mount /dev/vg0/home /mnt/home
     # mkdir /mnt/boot
-    # mount /dev/sda2 /mnt/boot 
+    # mount /dev/sdXY /mnt/boot 
 
-> EFI Bootloader is in the separate partition (by default it's on `sda2`).
+> EFI Bootloader is in the separate partition (marked by `sdXY`).
 > Replace it by the partition that you found when you ran `fdisk -l`
 
 > If your system uses cable connection and dhcp, it's already configured. 
@@ -148,16 +148,17 @@ Answer `yes`. Then use `print` to list partition IDs and then rename it.
 > **Notice:** Now, you're in the filesystem of your new installation. Any
 > change that you do here will be persisted.
 
-##### 12. Set the default keymap (use `us` for the default one)
-    # echo "KEYMAP=br-abnt" > /etc/vconsole.conf
+##### 12. Set the default keymap (use `br-abnt` for the Portuguese version)
+    # echo "KEYMAP=us" > /etc/vconsole.conf
 
 ##### 13. Configure boot
 
 First edit `/etc/mkinitcpio.conf` in the HOOKS line, and:
-1. Add `sd-encrypt lvm2` between `block` and `filesystems` on HOOKS
-2. Add `keyboard sd-vconsole` before `modconf` on HOOKS
-3. Add `xfs` in the MODULES line
-4. Set `COMPRESSION="cat"` option
+1. Replace `udev` by `systemd` on HOOKS
+2. Add `sd-encrypt lvm2` between `block` and `filesystems` on HOOKS
+3. Add `keyboard sd-vconsole` before `modconf` on HOOKS
+4. Add `xfs` in the MODULES line
+5. Set `COMPRESSION="cat"` option
 
 ##### 14. Generate initramfs
     # mkinitcpio -P
