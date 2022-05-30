@@ -18,6 +18,16 @@
   args:
     chdir: "{{ dotfiles_path }}"
 
+- name: remove fish files if they exist before running dotup
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.file:
+    path: "{{ home_path }}/.config/fish"
+    state: absent
+  loop:
+    - .config/fish
+    - .gnupg/sshcontrol
+
 - name: execute dotup
   become: true
   become_user: "{{ user_name }}"

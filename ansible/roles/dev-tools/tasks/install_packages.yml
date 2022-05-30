@@ -23,6 +23,7 @@
 
       # Shell utils
       - alacritty
+      - starship
       - fzf
       - bat
       - fd
