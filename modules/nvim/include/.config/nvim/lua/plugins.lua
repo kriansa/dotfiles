@@ -16,8 +16,9 @@ local function init()
   end
 
   -- Make sure we unload all required plugins first
-  packer.use('plenary')
-  require('plenary.reload').reload_module('plugins')
+  pcall(function()
+    require('plenary.reload').reload_module('plugins')
+  end)
 
   packer.reset()
   local use = packer.use
