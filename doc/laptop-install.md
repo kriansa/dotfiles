@@ -158,7 +158,6 @@ First edit `/etc/mkinitcpio.conf` in the HOOKS line, and:
 2. Add `sd-encrypt lvm2` between `block` and `filesystems` on HOOKS
 3. Add `keyboard sd-vconsole` before `modconf` on HOOKS
 4. Add `xfs` in the MODULES line
-5. Set `COMPRESSION="cat"` option
 
 ##### 14. Generate initramfs
     # mkinitcpio -P

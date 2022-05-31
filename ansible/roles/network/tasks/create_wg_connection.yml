@@ -29,6 +29,7 @@
         remote_src: true
         src: /etc/NetworkManager/system-connections/{{ item.ifname }}.nmconnection
         dest: /etc/NetworkManager/system-connections/{{ item.name }}.nmconnection
+        mode: 0600
 
     - name: remove old connection file
       ansible.builtin.file:
