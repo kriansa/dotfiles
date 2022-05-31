@@ -33,6 +33,7 @@
       - cowsay
       - ncdu
       - xclip
+      - tmux
 
       # DB (docker to rule them all)
       # - mariadb

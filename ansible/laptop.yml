@@ -6,6 +6,9 @@
     # Check if that is going to be an issue
     disable_nvidia_i2c: false
 
+    # Configure onboard intel gpu drivers
+    install_intel_drivers: true
+
     # Encrypted partitioning options
     encrypt_disk: true
     encrypted_partition_uuid: 571e47d1-cb34-41d9-a271-7fb6b2a47c3f

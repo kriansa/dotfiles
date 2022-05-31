@@ -17,3 +17,6 @@ arch_timezone: America/Sao_Paulo
 xorg_monitor_file: xorg-monitor-desktop.conf
 # This has proven to reduce boot failures on Desktop VGAs (such as RTX 2060S)
 disable_nvidia_i2c: true
+
+# Intel drivers
+install_intel_drivers: false

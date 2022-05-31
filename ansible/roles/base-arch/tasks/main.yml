@@ -10,3 +10,5 @@
 - import_tasks: allow_mounting_partitions.yml
 - import_tasks: configure_journal.yml
 - import_tasks: install_nvidia.yml
+- import_tasks: install_intel_gpu.yml
+  when: install_intel_drivers == true

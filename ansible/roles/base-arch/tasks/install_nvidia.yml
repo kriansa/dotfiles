@@ -7,6 +7,7 @@
       - nvidia
       - nvidia-lts
       - nvidia-settings
+      - mesa-utils
       # A translation layer between the Intel Acceleration API (VA-API) and NVIDIA (VDPAU)
       - libva-vdpau-driver
 

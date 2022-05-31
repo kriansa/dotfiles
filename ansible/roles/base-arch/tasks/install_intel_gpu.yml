@@ -1,0 +1,8 @@
+---
+- name: install intel drivers
+  become: true
+  community.general.pacman:
+    state: present
+    name:
+      - intel-gpu-tools
+      - xf86-video-intel
