@@ -17,8 +17,9 @@ if status is-interactive
   set --global fzf_fd_opts --hidden --exclude=.git
 
   # Add navigational helpers
+  # (these functions couldn't be in their dedicated files because they would have weird names)
   function ...
-  ../..
+    ../..
   end
 
   function ....

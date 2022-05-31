@@ -8,19 +8,8 @@ return function(use)
     requires = { 'kyazdani42/nvim-web-devicons' },
     cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFileToggle" },
     config = function(p, a)
-      -- These options are still on the old api and yet to be migrated to the new one
-      vim.g.nvim_tree_git_hl = 0
-      vim.g.nvim_tree_special_files = {}
-      vim.g.nvim_tree_group_empty = 1
-      vim.g.nvim_tree_create_in_closed_folder = 1
-      vim.g.nvim_tree_show_icons = {
-        git = 0,
-        folders = 1,
-        folder_arrows = 1,
-        files = 0,
-      }
-
       -- Customize colors
+
       -- highlight NvimTreeSymlink guifg=blue gui=bold,underline
       -- highlight NvimTreeFolderName guifg=blue gui=bold,underline
       -- highlight NvimTreeEmptyFolderName guifg=blue gui=bold,underline
@@ -40,6 +29,7 @@ return function(use)
         trash = { cmd = "gio trash" },
         hijack_cursor = true,
         hijack_unnamed_buffer_when_opening = false,
+        create_in_closed_folder = true,
         view = {
           hide_root_folder = true,
           mappings = {
@@ -53,9 +43,20 @@ return function(use)
           },
         },
         renderer = {
+          highlight_git = false,
+          group_empty = true,
           indent_markers = {
             enable = false,
           },
+          icons = {
+            show = {
+              git = false,
+              folder = true,
+              folder_arrow = true,
+              file = false,
+            },
+          },
+          special_files = {},
         },
       })
     end,
