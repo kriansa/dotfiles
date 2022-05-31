@@ -16,6 +16,7 @@ local function init()
   end
 
   -- Make sure we unload all required plugins first
+  packer.use('plenary')
   require('plenary.reload').reload_module('plugins')
 
   packer.reset()
