@@ -22,6 +22,7 @@ modules:
   - ruby
   - tmux
   - rapid-photo-downloader
+  - transmission-remote
   - psi-notify
   - gnome
   - emacs
@@ -30,3 +31,4 @@ modules:
   - javascript
   - asdf
   - vivid
+  - htop

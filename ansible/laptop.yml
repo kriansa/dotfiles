@@ -2,7 +2,6 @@
 - hosts: all
   vars:
     hostname: daniel-laptop.lan.cx
-    xorg_monitor_file: xorg-monitor-laptop.conf
     # Check if that is going to be an issue
     disable_nvidia_i2c: false
 
@@ -17,19 +16,19 @@
     # Enable Wi-fi
     configure_wifi: yes
     wifi_device: wlp0s20f3
-    eth_device: enp3s0
+    eth_device: enp0s13f0u1c2
 
-    # Specific config type
-    pc_config_type: Laptop
+    # For all machine-dependent config files, append this suffix to determine which one to use
+    config_file_suffix: laptop
 
-    # Path to borgmatic config backup
-    borgmatic_config: laptop.yaml
+    # Specific path when looking for secrets for this machine specifically
+    secrets_base_dir: Laptop
 
   roles:
     - role: base-arch
-    - role: systemd-boot
-    - role: secrets
-    - role: network
+    # - role: systemd-boot
+    # - role: secrets
+    # - role: network
     - role: dev-tools
     - role: borgmatic
     - role: desktop-tools

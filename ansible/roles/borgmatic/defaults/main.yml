@@ -5,5 +5,5 @@ user_name: dpereira
 home_path: /home/{{ user_name }}
 dotfiles_path: /home/{{ user_name }}/.dotfiles
 
-# Path to borgmatic config backup
-borgmatic_config: "desktop.yaml"
+# For all machine-dependent config files, append this suffix to determine which one to use
+config_file_suffix: desktop

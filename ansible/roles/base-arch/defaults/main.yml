@@ -4,6 +4,7 @@ hostname: Arch-Home.lan.cx
 
 # The username we want to create
 user_name: dpereira
+home_path: /home/{{ user_name }}
 
 # This user comment appears on Gnome-shell
 user_comment: Daniel Pereira
@@ -13,8 +14,10 @@ arch_locale: en_US.UTF-8
 arch_keymap: us
 arch_timezone: America/Sao_Paulo
 
+# For all machine-dependent config files, append this suffix to determine which one to use
+config_file_suffix: desktop
+
 # Nvidia settings
-xorg_monitor_file: xorg-monitor-desktop.conf
 # This has proven to reduce boot failures on Desktop VGAs (such as RTX 2060S)
 disable_nvidia_i2c: true
 

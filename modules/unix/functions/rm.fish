@@ -16,7 +16,7 @@ function rm
     set -af files $arg
   end
 
-  gio trash $files || exit 1
+  gio trash $files || return 1
   printf "$(set_color --bold)Moved to trash.$(set_color normal) "
   echo "Use $(set_color --italic)`command rm`$(set_color normal) if you want to remove permanently."
 end

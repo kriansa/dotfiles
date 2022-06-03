@@ -1,0 +1,8 @@
+---
+- name: swap alt/win on keychron k3
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/udev/rules.d/99-keychron-k3.rules
+    content: |
+      # Set up Keychron K3 and swap keys Alt and Win, so we can use it on "Mac" mode
+      ACTION=="add", ATTRS{idVendor}=="05ac", ATTRS{idProduct}=="024f", ENV{XKBOPTIONS}=",altwin:swap_alt_win"

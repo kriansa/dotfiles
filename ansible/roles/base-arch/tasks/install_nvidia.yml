@@ -24,7 +24,9 @@
 
 - name: add nvidia-generated xorg configuration for my monitor
   become: true
-  ansible.builtin.copy: dest=/etc/X11/xorg.conf.d/01-monitor.conf src={{ xorg_monitor_file }}
+  ansible.builtin.copy:
+    dest: /etc/X11/xorg.conf.d/01-monitor.conf
+    src: xorg-monitor-{{ config_file_suffix }}.conf
 
 - name: enable nvidia power-related services
   become: true

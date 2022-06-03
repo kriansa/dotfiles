@@ -34,6 +34,10 @@
       - noto-fonts-cjk
       - ttf-joypixels
 
+      # Printer drivers
+      - cups
+      - hplip
+
       # ---------------------
       # Packages on AUR/pacom
       - overdue # complement for pacman
@@ -51,10 +55,6 @@
 
       # Yed
       - yed
-
-      # Dropbox
-      - dropbox
-      - nautilus-dropbox
 
       # Fonts
       - ttf-symbola

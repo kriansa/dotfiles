@@ -11,8 +11,8 @@ configure_wifi: no
 wifi_device: wlp0s20f3
 eth_device: enp5s0
 
-# Subfolder on pass for items specific to this machine
-pc_config_type: Desktop
+# Specific path when looking for secrets for this machine specifically
+secrets_base_dir: Desktop
 
 # Network shares for my user
 shared_drive:

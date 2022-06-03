@@ -41,7 +41,6 @@ links:
 - .gnupg/sshcontrol
 - .bin/pinentry-gui
 - .bin/pubkey
-- .bin/gpg-backup
 - .config/Yubico
 - .config/vlc/vlcrc
 - .Xresources
@@ -59,7 +58,9 @@ links:
 - .bin/rubocop
 - .bin/bundle-audit
 - .config/tmux
+- .bin/tmux-split-window
 - .config/Rapid Photo Downloader
+- .config/transmission-remote-gtk
 - .config/psi-notify
 - .local/share/applications/mimeinfo.cache
 - .config/user-dirs.dirs
@@ -78,6 +79,7 @@ links:
 - .asdfrc
 - .tool-versions
 - .config/vivid
+- .config/htop
 local_links:
 - modules/fish/include/.config/fish/functions/fish_greeting.fish
 - modules/fish/include/.config/fish/conf.d/fortunes_init.fish
@@ -99,6 +101,7 @@ local_links:
 - modules/fish/include/.config/fish/conf.d/lastpass_init.fish
 - modules/fish/include/.config/fish/conf.d/gnupg_init.fish
 - modules/fish/include/.config/fish/conf.d/git_init.fish
+- modules/fish/include/.config/fish/conf.d/tmux_init.fish
 - modules/fish/include/.config/fish/conf.d/emacs_init.fish
 - modules/fish/include/.config/fish/conf.d/java_init.fish
 - modules/fish/include/.config/fish/functions/v.fish

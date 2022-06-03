@@ -2,18 +2,19 @@
 
 This is a list of upstream bugs I'm currently working around and tracking for my setup.
 
-## Podman
+## NVIDIA
 
-* Support for running images with docker-compose
-  Currently it is not possible to run containers with declared `VOLUME` in their Containerfile. It
-  triggers some sort of validation within podman and it doesn't let the container start. This is the
-  last of a series of compatibility fixes between Podman and Compose v2.
+* Intel CET-IBT on Kernel 5.18 breaks NVIDIA drivers
+  A newly introduced feature on Kernel allows newer Intel processors (> 11th gen) to use a new
+  instruction set to prevent branch prediction failures. This however requires that new code is
+  compiled with those instructions, and when they don't, they will likely fail with a kernel message
+  like `Missing ENDBR`. NVIDIA drivers are currently not working because of that.
 
-  Meanwhile, I disabled the task responsible for configuring Podman (available here:
-  `ansible/roles/dev-tools/tasks/install_podman.yml`) and created one for configuring Docker.
-  Whenever the ticket below gets fixed we can finally move off from docker.
+  The workaround is disabling that new instruction set by setting a boot flag `ibt=off` and that's
+  being currently handled [here](roles/systemd-boot/templates/arch-entry.conf.j2).
 
-  See: https://github.com/containers/podman/issues/11822
+  See: https://github.com/NVIDIA/open-gpu-kernel-modules/issues/256
+  See: https://bugs.archlinux.org/task/74886#comment208651
 
 ## GNOME
 

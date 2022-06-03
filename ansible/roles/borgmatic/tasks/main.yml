@@ -11,7 +11,7 @@
   become: true
   become_user: "{{ user_name }}"
   ansible.builtin.file:
-    src: "{{ dotfiles_path }}/modules/borgmatic/include/.config/borgmatic/{{ borgmatic_config }}"
+    src: "{{ dotfiles_path }}/modules/borgmatic/include/.config/borgmatic/{{ config_file_suffix }}.yaml"
     dest: "{{ dotfiles_path }}/modules/borgmatic/include/.config/borgmatic/config.yaml"
     state: link
     force: yes

@@ -31,7 +31,7 @@
   ansible.builtin.copy:
     src: gnome-user-settings
     dest: /var/lib/AccountsService/users/{{ user_name }}
-    mode: 0644
+    mode: "0644"
 
 - name: synchronize user password changes for gnome-keyring
   become: true

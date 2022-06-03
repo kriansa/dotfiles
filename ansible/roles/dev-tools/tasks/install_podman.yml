@@ -33,7 +33,7 @@
     - enable podman.socket so we can use docker-compose
   ansible.builtin.copy:
     dest: /usr/lib/systemd/user/podman.service.d/set-default-userns.conf
-    mode: 0644
+    mode: "0644"
     content: |
       # This file will be appended to the existing configuration of podman.service (systemd calls it
       # a drop-in) and it will add this setting below for podman server. It is necessary so that we

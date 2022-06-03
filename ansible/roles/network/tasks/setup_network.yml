@@ -40,16 +40,19 @@
     state: present
     conn_name: "{{ item.name }}"
     type: vlan
+    ifname: ""
     vlanid: "{{ item.vlan }}"
     vlandev: "{{ eth_device }}"
+    autoconnect: "{{ item.auto }}"
     dns4_ignore_auto: yes
     never_default4: yes
     ip_privacy6: disabled
     # TODO: Add that in the future when it's available on Ansible
     # never_default6: yes
   loop:
-    - { name: "Admin", vlan: "1010" }
-    - { name: "IoT", vlan: "1003" }
+    - { name: "Admin", vlan: "1010", auto: true }
+    - { name: "IoT", vlan: "1003", auto: false }
+    - { name: "External-Services", vlan: "1004", auto: false }
 
 - name: create /etc/wireguard
   become: true
@@ -61,8 +64,8 @@
     - name: Proxy
       ifname: proxy
       autoconnect: no
-      private_key: "{{ lookup('community.general.passwordstore', 'PC-Config/' + pc_config_type + '/Proxy/Private-Key') }}"
-      addresses: "{{ lookup('community.general.passwordstore', 'PC-Config/' + pc_config_type + '/Proxy/Local-IPs') }}"
+      private_key: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/Proxy/Private-Key') }}"
+      addresses: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/Proxy/Local-IPs') }}"
       peer_public_key: "{{ lookup('community.general.passwordstore', 'Network/Proxy-VPN/Public-Key') }}"
       peer_endpoint: "{{ lookup('community.general.passwordstore', 'Network/Proxy-VPN/Endpoint') }}"
       peer_allowed_ips: 0.0.0.0/0,::0/0
@@ -70,8 +73,8 @@
     - name: VPN
       ifname: vpn
       autoconnect: yes
-      private_key: "{{ lookup('community.general.passwordstore', 'PC-Config/' + pc_config_type + '/VPN/Private-Key') }}"
-      addresses: "{{ lookup('community.general.passwordstore', 'PC-Config/' + pc_config_type + '/VPN/Local-IPs') }}"
+      private_key: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Private-Key') }}"
+      addresses: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Local-IPs') }}"
       peer_public_key: "{{ lookup('community.general.passwordstore', 'Network/VPN/Public-Key') }}"
       peer_endpoint: "{{ lookup('community.general.passwordstore', 'Network/VPN/Endpoint') }}"
       peer_allowed_ips: "{{ lookup('community.general.passwordstore', 'Network/VPN/CIDR') }}"

@@ -96,9 +96,7 @@ location:
     # path.) Do not backslash spaces in path names. See the output
     # of "borg help patterns" for more details.
     exclude_patterns:
-      - /home/*/Dropbox
-      - /home/*/.dropbox
-      - /home/*/.dropbox-dist
+      - /home/*/.sync
       - /home/*/.local/share/Trash
 
     # Read exclude patterns from one or more separate named files,

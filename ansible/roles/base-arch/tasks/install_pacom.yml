@@ -32,7 +32,7 @@
 
 - name: check if pacom git database exists
   ansible.builtin.stat:
-    path: /home/{{ user_name }}/.local/share/pacom/git-db
+    path: "{{ home_path }}/.local/share/pacom/git-db"
   register: pacom_db
 
 - name: create pacom git database
@@ -42,15 +42,15 @@
       become: true
       ansible.builtin.file: path={{ item }} state=directory mode=0755 owner={{ user_name }} group={{ user_name }}
       loop:
-        - /home/{{ user_name }}/.local/share/pacom
-        - /home/{{ user_name }}/.local/share/pacom/pacman-repo
+        - "{{ user_name }}/.local/share/pacom"
+        - "{{ user_name }}/.local/share/pacom/pacman-repo"
 
     - name: clone my pacom git db using HTTPS
       become: true
       become_user: "{{ user_name }}"
       ansible.builtin.git:
         repo: https://github.com/kriansa/pacom-git-db
-        dest: /home/{{ user_name }}/.local/share/pacom/git-db
+        dest: "{{ user_name }}/.local/share/pacom/git-db"
         recursive: no
         depth: 1
 
@@ -59,22 +59,22 @@
       become_user: "{{ user_name }}"
       ansible.builtin.command:
         cmd: git submodule update --init --recommend-shallow --jobs 12
-        chdir: /home/{{ user_name }}/.local/share/pacom/git-db
+        chdir: "{{ user_name }}/.local/share/pacom/git-db"
 
     - name: update pacom remote to use SSH instead of HTTPS
       become: true
       become_user: "{{ user_name }}"
       ansible.builtin.command: git remote set-url origin git@github.com:kriansa/pacom-git-db.git
       args:
-        chdir: /home/{{ user_name }}/.local/share/pacom/git-db
+        chdir: "{{ home_path }}/.local/share/pacom/git-db"
 
 - name: create custom pacman repository for usage with pacom
   become: true
   become_user: "{{ user_name }}"
   notify: update pacman repo db
-  ansible.builtin.command: repo-add /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar.gz
+  ansible.builtin.command: repo-add {{ home_path }}/.local/share/pacom/pacman-repo/pacom.db.tar.gz
   args:
-    creates: /home/{{ user_name }}/.local/share/pacom/pacman-repo/pacom.db.tar.gz
+    creates: "{{ home_path }}/.local/share/pacom/pacman-repo/pacom.db.tar.gz"
 
 - name: add pacom repository to pacman config
   become: true
@@ -85,7 +85,7 @@
     block: |
       [pacom]
       SigLevel = Optional TrustAll
-      Server = file:///home/{{ user_name }}/.local/share/pacom/pacman-repo
+      Server = file:///{{ home_path }}/.local/share/pacom/pacman-repo
 
 - name: build all pacom packages in the git database
   become: true
