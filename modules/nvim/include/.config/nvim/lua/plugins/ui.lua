@@ -18,7 +18,7 @@ return function(use)
 
           " Initialize the color palette.
           " The parameter is a valid value for `g:edge_style`,
-          let l:palette = edge#get_palette('aura', {})
+          let l:palette = edge#get_palette('aura', 0, {})
           " Define a highlight group.
           " The first parameter is the name of a highlight group,
           " the second parameter is the foreground color,
