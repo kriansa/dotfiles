@@ -95,7 +95,16 @@ truncation_length = 0
 [aws]
 disabled = true
 
+[azure]
+disabled = true
+
 [battery]
+disabled = true
+
+[buf]
+disabled = true
+
+[c]
 disabled = true
 
 [cmake]
@@ -149,6 +158,9 @@ format = "[$ahead_behind$untracked$modified]($style) "
 [golang]
 disabled = true
 
+[haskell]
+disabled = true
+
 [helm]
 disabled = true
 
@@ -165,6 +177,9 @@ disabled = true
 disabled = true
 
 [lua]
+disabled = true
+
+[localip]
 disabled = true
 
 [hg_branch]
@@ -219,6 +234,12 @@ disabled = true
 disabled = true
 
 [singularity]
+disabled = true
+
+[spack]
+disabled = true
+
+[sudo]
 disabled = true
 
 [swift]
