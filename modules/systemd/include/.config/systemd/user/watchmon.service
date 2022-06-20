@@ -1,0 +1,10 @@
+[Unit]
+Description=Watchmon automatic monitor arrangement
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=%h/.bin/watchmon -wc %h/.dotfiles/modules/xorg/lib/dh-watchmon
+Restart=on-failure
+
+[Install]
+RequiredBy=xsession.target

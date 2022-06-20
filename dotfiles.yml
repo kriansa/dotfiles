@@ -32,3 +32,4 @@ modules:
   - asdf
   - vivid
   - htop
+  - systemd

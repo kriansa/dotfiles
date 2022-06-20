@@ -1,0 +1,11 @@
+[Unit]
+Description=Xorg general static configuration
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=%h/.dotfiles/modules/xorg/lib/dh-xorg-config
+Type=oneshot
+RemainAfterExit=false
+
+[Install]
+RequiredBy=xsession.target

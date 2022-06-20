@@ -83,6 +83,12 @@ links:
 - .tool-versions
 - .config/vivid
 - .config/htop
+- .config/systemd/user/xsession.target
+- .config/systemd/user/x-config.service
+- .config/systemd/user/qtile.service
+- .config/systemd/user/watchmon.service
+- .config/systemd/user/watchpower.service
+- .config/systemd/user/inputplug.service
 local_links:
 - modules/fish/include/.config/fish/functions/fish_greeting.fish
 - modules/fish/include/.config/fish/conf.d/fortunes_init.fish

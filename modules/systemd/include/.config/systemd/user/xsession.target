@@ -1,0 +1,9 @@
+[Unit]
+Description=X session managed by systemd
+BindsTo=graphical-session.target
+
+# Dependencies
+Wants=watchmon.service
+Wants=watchpower.service
+Wants=inputplug.service
+Wants=qtile.service

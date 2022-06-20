@@ -1,0 +1,10 @@
+[Unit]
+Description=Inputplug device hotplug handler
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/inputplug -0dc %h/.dotfiles/modules/xorg/lib/dh-inputplug
+Restart=on-failure
+
+[Install]
+RequiredBy=xsession.target

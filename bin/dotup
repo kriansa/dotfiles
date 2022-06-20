@@ -319,6 +319,7 @@ class Stower:
             ".gnupg",                    # GnuPG metadata
             ".config/vlc",               # VLC metadata
             ".config/pulse",             # PulseAudio
+            ".config/systemd/user",      # SystemD user units
             ".local/share/applications", # Desktop entries
         ]
 
