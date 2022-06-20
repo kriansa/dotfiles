@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+#
+# This is a small wrapper around acpi_listen that capture filtered events and dispatch them to a
+# cmdline tool.
+#
+# On start, it also capture the state of devices so the app can setup their initial state.
+#
+# Currently it only cares about power source, battery percentage and power buttons.
+
+set -o pipefail -o nounset
+trap exit INT
+
+help() {
+  echo "Usage: watchpower [OPTIONS] [<CMD> [<ARG>...]"
+  echo
+  echo "Constantly monitors for ACPI power events, such as AC adapter state and battery level. It"
+  echo "calls a user-specified command and the events are passed to them as arguments. If no"
+  echo "command is provided, it is assumed to be 'echo', so the events are printed out on stdout."
+  echo
+  echo "Arguments:"
+  echo "  <CMD>          If passed, this command will be called for every acpi event"
+  echo "                 with the event name as an argument. On the startup, it will include all"
+  echo "                 events that compose the current state, in a single execution, but in"
+  echo "                 multiple arguments. E.g.: 'yourcmd battery battery-percentage-10'"
+  echo
+  echo "Options:"
+  echo "  -h, --help     Show this help message"
+  echo
+  echo "Events:"
+  echo "  The following events are triggered anytime a given action is detected:"
+  echo "  ac-adapter             When an AC adapter is plugged in."
+  echo "  battery                When an AC adapter is plugged out."
+  echo "  power-button           When the power button is pressed."
+  echo "  battery-percentage-X   When the battery is discharging, represents % of battery left."
+}
+
+main() {
+  if [ "${1:-}" == "--help" ] || [ "${1:-}" == "-h" ]; then
+    help
+    exit
+  elif [ "$#" -eq 0 ]; then
+    action=(echo)
+  else
+    action=($@)
+  fi
+
+  invoke_action() {
+    local args
+    while read -ra args; do
+      "${action[@]}" "${args[@]}"
+    done
+  }
+
+  # Start out with the initial state
+  acpi_initial_state | xargs | invoke_action
+
+  # Ensure we cleanup properly in case any subprocess dies
+  trap 'exit_cleanup' USR1
+
+  # Polling services
+  system_has_battery && ( battery_poller | invoke_action; kill -USR1 "$$" ) &
+  ( acpi_listen | acpi_filter | invoke_action; kill -USR1 "$$" ) &
+
+  # Wait for all the process to finish. In case any of them dies, it will be handled by the trap
+  wait
+}
+
+exit_cleanup() {
+  # Clear this trap so it won't be triggered again
+  trap "" USR1
+  echo "Failure while polling for power events. Exiting..." >&2;
+
+  # Exit the main process as 1, rather than 143 if we let `kill` do the job
+  trap 'exit 1' TERM
+  kill 0
+}
+
+# Fetch current state of power and send them all as events
+acpi_initial_state() {
+  if [ ! -d /sys/class/power_supply/AC ] || [ $(cat /sys/class/power_supply/AC/online) == 1 ]; then
+    echo ac-adapter
+  else
+    echo battery
+  fi
+
+  system_has_battery && battery_current_state
+}
+
+# This filters out the output of `acpi_listen` to only events that matter to us
+acpi_filter() {
+  local args
+
+  # Read stdin line into $args
+  while read -ra args; do
+    case "${args[0]:-}" in
+      button/power)
+        case "${args[1]:-}" in
+          PBTN|PWRF) echo power-button ;;
+        esac
+        ;;
+
+      ac_adapter)
+        case "${args[3]:-}" in
+          00000000) echo battery ;;
+          00000001) echo ac-adapter ;;
+        esac
+        ;;
+    esac
+  done
+}
+
+system_has_battery() {
+  test -d /sys/class/power_supply/BAT0
+}
+
+# Polls battery state every 60 seconds, and reports it only if it has changed since the previous
+# report.
+battery_poller() {
+  last_state="$(battery_current_state)"
+  poll_frequency=60
+
+  while true; do
+    # We sleep first because initial state is already reported at this point
+    sleep $poll_frequency
+
+    current_state="$(battery_current_state)"
+
+    # No result means we're not discharging, so just ignore it
+    if [ "$current_state" = "" ]; then
+      continue
+    fi
+
+    # When battery is low, it usually drains out faster so we need to check it more frequently
+    if [ "${current_state:19}" -lt 10 ]; then
+      poll_frequency=30
+    else
+      poll_frequency=60
+    fi
+
+    if [ "$current_state" != "$last_state" ]; then
+      last_state="$current_state"
+      echo $current_state
+    fi
+  done
+}
+
+# Shows battery current state, but only if it's discharging
+battery_current_state() {
+  if [ "$(cat /sys/class/power_supply/BAT0/status)" != "Discharging" ]; then
+    return
+  fi
+
+  printf "battery-percentage-"
+  cat /sys/class/power_supply/BAT0/capacity
+}
+
+main "$@"
