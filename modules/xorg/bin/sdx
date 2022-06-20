@@ -27,7 +27,7 @@ main() {
   # This is done to indicate that the server is ready to accept connections.
   # Taking advantage of this feature allows launching the client directly from a USR1 signal trap
   # which obviates the need to poll for server readiness.
-  trap 'xorg_client & wait "$!"' USR1
+  trap xorg_client USR1
 
   # Clear the inherited USR1 with a SIG_IGN and start server on a subshell.
   # When ready, it will notify this (main) process with a USR1.
@@ -44,14 +44,14 @@ xorg_client() {
   source /etc/X11/xinit/xinitrc.d/50-systemd-user.sh
 
   # Then start the graphical session unit
-  exec systemctl --user start --wait xsession.target
+  systemctl --user start --wait xsession.target
 }
 
 # Similarly to `xorg_client`, this is the function that invokes X server and its
 # usage is very similar to .xserverrc file when using xinit.
 xorg_server() {
   exec /usr/lib/Xorg :"$tty" vt"$tty" -keeptty \
-    -terminate \
+    -noreset \
     -background none \
     -auth "$XAUTHORITY" \
     -logfile /dev/null -verbose 3

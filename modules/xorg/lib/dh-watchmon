@@ -9,7 +9,7 @@
 setup() {
   case "$1" in
     # Just the main screen
-    1_HDMI-0:*) xrandr --output HDMI-0 --preferred --primary ;;
+    1_eDP-1:7B59785F) xrandr --output eDP-1 --preferred --primary ;;
 
     # Handle exceptional cases: no monitor or no configuration
     0_) echo "No monitor detected." ;;

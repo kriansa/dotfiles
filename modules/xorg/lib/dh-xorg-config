@@ -7,5 +7,8 @@
 # Default keyboard settings
 setxkbmap -model pc104 -layout "us,us" -variant ",alt-intl" -option "grp:caps_toggle"
 
+# Disable screensaver
+xset s off off
+
 # Adjust typing delay
 xset r rate 300 30

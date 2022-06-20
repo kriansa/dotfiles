@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Desktop Handler for acpimon
+# Desktop Handler for watchpower
 # Receives a payload from acpid and automatically configure desktop settings accordingly
 
 rules() {

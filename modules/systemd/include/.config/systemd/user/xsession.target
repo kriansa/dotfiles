@@ -6,4 +6,5 @@ BindsTo=graphical-session.target
 Wants=watchmon.service
 Wants=watchpower.service
 Wants=inputplug.service
+Wants=x-config.service
 Wants=qtile.service
