@@ -21,7 +21,7 @@ class CLI:
     If you don't pass the first argument, it is assumed that you meant `load` and the
     configuration will be reloaded.
 
-    Arguments:
+    Commands:
         load                Load up whatever is configured on your dotfiles.yml
                             (default if not specified)
         unload              Unload whatever had been previously loaded based on your state db
@@ -101,9 +101,9 @@ class State:
         # This file is a representational state of your currently installed dotfiles
         # It is required in order to provide correct functionality
         #
-        # Recommendations:
-        # 1. Do not delete this file
-        # 2. Keep it under version control
+        # IMPORTANT:
+        #   - Do NOT delete this file
+        #   - Keep it under version control
         ############################################################################
     """
 

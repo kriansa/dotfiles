@@ -2,9 +2,9 @@
 # This file is a representational state of your currently installed dotfiles
 # It is required in order to provide correct functionality
 #
-# Recommendations:
-# 1. Do not delete this file
-# 2. Keep it under version control
+# IMPORTANT:
+#   - Do NOT delete this file
+#   - Keep it under version control
 ############################################################################
 ---
 links:
@@ -45,6 +45,9 @@ links:
 - .config/vlc/vlcrc
 - .Xresources
 - .XCompose
+- .bin/watchpower
+- .bin/watchmon
+- .bin/sdx
 - .gitconfig
 - .gitmessage
 - .gitattributes
