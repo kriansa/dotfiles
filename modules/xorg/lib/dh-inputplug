@@ -8,23 +8,28 @@ setup() {
   local type="$2"
   local name="$3"
 
-  case "$type,$name" in
-    XISlaveKeyboard,*)
-      setxkbmap -model pc104 -layout "us,us" -variant ",alt-intl" -option "grp:caps_toggle"
+  case "$type:$name" in
+    XISlaveKeyboard:*)
       xset r rate 300 30
       ;;& # bashism: test next pattterns
 
-    XISlaveKeyboard,"Keychron Keychron K3")
+    XISlaveKeyboard:"AT Translated Set 2 keyboard")
       setxkbmap -device "$id" -model pc104 \
         -layout "us,us" -variant ",alt-intl" \
-        -option "altwin:swap_alt_win,grp:caps_toggle"
+        -option "" -option "grp:caps_toggle"
       ;;
 
-    XISlavePointer,"Razer Razer DeathAdder V2")
+    XISlaveKeyboard:"Keychron Keychron K3")
+      setxkbmap -device "$id" -model pc104 \
+        -layout "us,us" -variant ",alt-intl" \
+        -option "" -option "altwin:swap_alt_win,grp:caps_toggle"
+      ;;
+
+    XISlavePointer:"Razer Razer DeathAdder V2")
       xinput set-prop "$id" "libinput Accel Speed" -0.800000
       ;;
 
-    XISlavePointer,"DELL0A71:00 04F3:317E Touchpad")
+    XISlavePointer:"DELL0A71:00 04F3:317E Touchpad")
       xinput set-prop "$id" "libinput Tapping Enabled" 1
       xinput set-prop "$id" "libinput Natural Scrolling Enabled" 1
       xinput set-prop "$id" "libinput Tapping Drag Lock Enabled" 1

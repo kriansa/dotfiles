@@ -10,6 +10,13 @@ setup() {
   case "$1" in
     # Just the main screen
     1_eDP-1:7B59785F) xrandr --output eDP-1 --preferred --primary ;;
+    1_DP-1:266B2343) xrandr --output DP-1 --preferred --primary ;;
+
+    # Plugging the external monitor
+    2_eDP-1:7B59785F+DP-1:266B2343)
+      xrandr --output eDP-1 --preferred --primary \
+        --output DP-1 --preferred --left-of eDP-1
+      ;;
 
     # Handle exceptional cases: no monitor or no configuration
     0_) echo "No monitor detected." ;;
@@ -17,9 +24,9 @@ setup() {
   esac
 }
 
-# Wrapper on top of `xrandr` that accounts for disconnected monitors that should be turned off if
-# they aren't connected. This means you don't need to worry about setting existing outputs off when
-# currently you only need to setup a single monitor.
+# Wrapper on top of `xrandr` that accounts for disconnected monitors that should be turned off. This
+# means you don't need to worry about setting existing outputs off when currently you only need to
+# setup a single monitor.
 xrandr() {
   args=($@)
 
