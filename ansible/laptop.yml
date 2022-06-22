@@ -8,6 +8,9 @@
     # Configure onboard intel gpu drivers
     install_intel_drivers: true
 
+    # Mobile settings
+    enable_bluetooth: yes
+
     # Encrypted partitioning options
     encrypt_disk: true
     encrypted_partition_uuid: 571e47d1-cb34-41d9-a271-7fb6b2a47c3f
@@ -24,12 +27,222 @@
     # Specific path when looking for secrets for this machine specifically
     secrets_base_dir: Laptop
 
-  roles:
-    - role: base-arch
-    # - role: systemd-boot
-    # - role: secrets
-    # - role: network
-    - role: dev-tools
-    - role: borgmatic
-    - role: desktop-tools
-    - role: gnome
+  # roles:
+  #   # - role: common-handlers
+  #   - role: base-arch
+  #   - role: systemd-boot
+  #   - role: secrets
+  #   - role: network
+  #   - role: dev-tools
+  #   - role: borgmatic
+  #   - role: desktop-tools
+  #   - role: gnome
+
+  tasks:
+    - name: install xorg
+      community.general.pacman:
+        state: present
+        name:
+          - xorg-server
+          - xorg-xauth
+          - xorg-xrandr
+          - xorg-xset
+          - xorg-xinput
+          - xorg-setxkbmap
+          - xorg-xkbcomp
+
+    - name: add intel graphics options
+      become: true
+      notify: rebuild initramfs
+      ansible.builtin.copy:
+        dest: /etc/modprobe.d/02-intel-gpu-options.conf
+        content: |
+          # Enable GuC on Intel GPU
+          options i915 enable_guc=2
+
+    - name: configure dual GPU on Xorg
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/X11/xorg.conf.d/01-dual-gpu.conf
+        content: |
+          # X11 terminology:
+          # - Monitor refers to a physical display device, such as an LCD panel.
+          # - Screen  refers to an X-Window screen (that is: a monitor attached to a
+          #   display).
+          # - Display (subsection of screen) refers to a collection of screens that are in use at
+          #   the same time showing parts of a single desktop (you can drag windows among all
+          #   screens in a single display).
+
+          Section "ServerFlags"
+            Option "DefaultServerLayout" "integrated-gpu"
+
+            # Select a different configuration by switching the ServerLayout
+            # Option "DefaultServerLayout" "dedicated-gpu"
+          EndSection
+
+          Section "ServerLayout"
+              Identifier     "dedicated-gpu"
+              Screen         "screens-on-nvidia-gpu"
+              Inactive       "intel-gpu"
+          EndSection
+
+          Section "ServerLayout"
+              Identifier     "integrated-gpu"
+              Screen         "screens-on-intel-gpu"
+              Inactive       "nvidia-gpu"
+          EndSection
+
+          # ========================================
+          # Just a dummy reference of a monitor
+          # It will be overriden by xrandr
+          # ========================================
+
+          Section "Monitor"
+            Identifier "default"
+          EndSection
+
+          # =====================
+          # GPUs
+          # =====================
+
+          Section "Device"
+              Identifier     "nvidia-gpu"
+              Driver         "nvidia"
+              VendorName     "NVIDIA Corporation"
+              BusID          "PCI:1:0:0"
+              Option         "SidebandSocketPath" "/var/run/nvidia-xdriver"
+          EndSection
+
+          Section "Device"
+              Identifier     "intel-gpu"
+              Driver         "modesetting"
+              BusID          "PCI:0:2:0"
+          EndSection
+
+          # =======================================
+          # Connecting the monitors to the GPUs
+          # =======================================
+
+          Section "Screen"
+              Identifier     "screens-on-intel-gpu"
+              Device         "intel-gpu"
+              Monitor        "default"
+
+              DefaultDepth    24
+              SubSection     "Display"
+                  Depth       24
+              EndSubSection
+          EndSection
+
+          Section "Screen"
+              Identifier     "screens-on-nvidia-gpu"
+              Device         "nvidia-gpu"
+              Monitor        "default"
+
+              DefaultDepth    24
+              SubSection     "Display"
+                  Depth       24
+              EndSubSection
+          EndSection
+
+    - name: create systemd Xorg service unit
+      become: true
+      notify: reload systemd
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/xorg.service
+        content: |
+          # Inspired by the great https://vincent.bernat.ch/en/blog/2021-startx-systemd
+          [Unit]
+          Description=X11 session for dpereira
+          After=graphical.target systemd-user-sessions.service
+
+          [Service]
+          User=dpereira
+          WorkingDirectory=~
+          ExecStart=/home/dpereira/.bin/sdx
+
+          PAMName=login
+          Environment=XDG_SESSION_TYPE=x11
+          UnsetEnvironment=TERM
+
+          # Use a fixed dedicated tty number
+          TTYPath=/dev/tty8
+          StandardInput=tty-force
+          StandardOutput=journal
+
+          # Helps applications that relies on utmp to find out logged users
+          UtmpIdentifier=tty8
+          UtmpMode=user
+
+          # Ensure the service doesn't get restarted automatically, in order
+          # to avoid X crashes to re-open it without a re-login, making it possible
+          # for malicious users to bypass the lock screen.
+          Restart=no
+
+          [Install]
+          WantedBy=graphical.target
+
+    - name: install power management tools
+      become: true
+      community.general.pacman:
+      name:
+        - acpid
+        - acpilight
+        - cpupower
+
+    - systemd: status=started enabled=yes name=acpid
+
+    - name: install desktop utilities
+      become: true
+      community.general.pacman:
+      name:
+        - inputplug
+        - xkb-switch
+
+    - name: install camera management utility
+      become: true
+      community.general.pacman:
+      name:
+        - v4l-utils
+
+    - name: disable default acpid handler
+      become: true
+      ansible.builtin.copy:
+        path: /etc/acpi/events/anything
+        content: |
+          # Pass all events to our one handler script
+          # event=.*
+          # action=/etc/acpi/handler.sh %e
+
+    - name: configure logind on how to handle some acpi events
+      become: true
+      notify: reload systemd-logind
+      ansible.builtin.copy:
+        path: /etc/systemd/logind.conf.d/01-lid-switch.conf
+        content: |
+          [Login]
+          # Only suspend if lid is closing on battery and no other monitor is plugged
+          HandleLidSwitch=suspend
+          HandleLidSwitchExternalPower=ignore
+          HandleLidSwitchDocked=ignore
+
+          # Let us handle power switch on the desktop environment
+          HandlePowerKey=ignore
+
+    - name: install X11-XIB python dependency for watchmon
+      community.general.pacman:
+      name: python-xcffib
+
+    - name: install utils
+      community.general.pacman:
+      name:
+        - picom
+        - xsecurelock
+        - xss-lock
+
+  handlers:
+    - name: reload systemd-logind
+      become: true
+      ansible.builtin.command: systemctl kill -s HUP systemd-logind
+      args:
+        warn: no

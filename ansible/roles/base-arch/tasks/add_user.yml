@@ -6,7 +6,8 @@
     name: "{{ user_name }}"
     comment: "{{ user_comment }}"
     # https://wiki.archlinux.org/index.php/users_and_groups
-    groups: wheel,log,systemd-journal,uucp
+    # i2c is defined on add_i2c_to_nonroot.yml
+    groups: wheel,log,systemd-journal,uucp,video,i2c
     shell: /usr/bin/fish
     # Set the password to "123" so we can log in using GDM
     # Then, it's advised that we should change this password.

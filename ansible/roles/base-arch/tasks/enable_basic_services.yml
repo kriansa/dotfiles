@@ -7,3 +7,8 @@
     - systemd-resolved.service
     - NetworkManager.service
     - fstrim.timer
+
+- name: enable bluetooth
+  become: true
+  when: enable_bluetooth == true
+  ansible.builtin.systemd: state=started enabled=yes name=bluetooth

@@ -4,5 +4,7 @@
   community.general.pacman:
     state: present
     name:
+      - mesa-utils
       - intel-gpu-tools
-      - xf86-video-intel
+      - intel-media-driver
+      - vulkan-intel

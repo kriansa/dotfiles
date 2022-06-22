@@ -1,0 +1,15 @@
+---
+- name: add i2c group
+  become: true
+  ansible.builtin.group:
+    name: i2c
+    state: present
+    system: yes
+
+- name: create udev rule for i2c devices
+  become: true
+  ansible.builtin.copy:
+    path: /etc/udev/rules.d/01-i2c-dev.rules
+    content: |
+      # Ensure i2c devices have correct permissions
+      KERNEL=="i2c-[0-9]*", SUBSYSTEM=="i2c-dev", ACTION="add", OWNER="root", GROUP="i2c", MODE="0660"

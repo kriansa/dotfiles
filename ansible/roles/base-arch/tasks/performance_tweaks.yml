@@ -1,0 +1,9 @@
+---
+- name: disable watchdogs
+  become: true
+  notify: rebuild initramfs
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/99-blacklist-watchdog.conf
+    content: |
+      # Disable loading watchdog modules as they aren't necessary in laptop/desktop configurations
+      blacklist iTCO_wdt
