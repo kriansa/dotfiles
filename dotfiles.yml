@@ -17,7 +17,6 @@ modules:
   # - gnupg-mac
   - yubikey
   - vlc
-  - xorg
   - git
   - ruby
   - tmux
@@ -33,3 +32,4 @@ modules:
   - vivid
   - htop
   - systemd
+  - twm

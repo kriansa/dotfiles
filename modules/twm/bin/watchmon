@@ -79,7 +79,6 @@ class X11Client:
 
         return None
 
-
     def get_connected_monitors(self, consider_lid = True):
         res = self.randr.GetScreenResources(self.main_window_id).reply()
 

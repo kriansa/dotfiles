@@ -3,7 +3,7 @@ Description=Watchpower power events handler
 PartOf=graphical-session.target
 
 [Service]
-ExecStart=%h/.bin/watchpower %h/.dotfiles/modules/xorg/lib/dh-watchpower
+ExecStart=%h/.bin/watchpower %h/.dotfiles/modules/twm/libexec/dh-watchpower
 Restart=on-failure
 
 [Install]

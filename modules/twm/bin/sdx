@@ -31,6 +31,10 @@ main() {
 
   # Clear the inherited USR1 with a SIG_IGN and start server on a subshell.
   # When ready, it will notify this (main) process with a USR1.
+  # The reason why we need to subshell and wait is that shell won't be able to handle signals when
+  # it's executing a process in the foreground. Using `wait` is a hack around that because it will
+  # then be able to receive signals.
+  # See: http://mywiki.wooledge.org/SignalTrap#When_is_the_signal_handled.3F
   (trap '' USR1 && xorg_server) & pid=$!
   wait "$pid"
 }
@@ -40,8 +44,8 @@ main() {
 xorg_client() {
   export DISPLAY=:$tty
 
-  # Include needed variables (DISPLAY and XAUTHORITY) on systemd units
-  source /etc/X11/xinit/xinitrc.d/50-systemd-user.sh
+  # Include important env variables on systemd units
+  dbus-update-activation-environment --systemd DISPLAY XAUTHORITY XDG_SESSION_ID
 
   # Then start the graphical session unit
   systemctl --user start --wait xsession.target
@@ -65,7 +69,7 @@ cleanup() {
     xorg=$?
   fi
 
-  rm "$XAUTHORITY"
+  rm "$XAUTHORITY" 2> /dev/null
 
   if [ "$1" = exit ]; then
     exit "${xorg:-0}"

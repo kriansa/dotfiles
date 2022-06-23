@@ -11,21 +11,23 @@ rules() {
 
     ac-adapter)
       sudo cpupower frequency-set -g performance
-      xset dpms 0 0 300
+      xset s 300
       xbacklight -set 70 -ctrl intel_backlight
       ;;
 
     battery)
       sudo cpupower frequency-set -g powersave
-      xset dpms 0 0 30
+      xset s 60
       xbacklight -set 30 -ctrl intel_backlight
       ;;
 
-    battery-percentage-10)
-      # Popup some alert message
+    battery-percentage-10|battery-percentage-8|battery-percentage-6)
+      notify-send "Battery very low. System will hibernate automatically at 5%"
       ;;
+
     battery-percentage-5)
-      # Alert the user that we're hibernating in 5 seconds
+      notify-send "Hibernating in 5 seconds..."
+      sleep 5 & wait
       sudo systemctl hibernate
       ;;
   esac

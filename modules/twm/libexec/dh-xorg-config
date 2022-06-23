@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#
+# Desktop Handler for xorg general settings
+# This is called at the start of a X session to setup common or static configs, such as double-click
+# delays, cursor shapes, etc.
+
+# Disable automatic DPMS triggering -- use X11 ScreenSaver (XSS) instead
+xset dpms 0 0 0
+
+# Setup Screensaver XSS
+#
+# These two flags are simply to avoid X11 unecessaryly attempting to render/blanking screen when
+# triggering the screen saver, as it should be handled by an external application.
+xset s noexpose
+xset s noblank
+
+# This sets timeout to 0 (turning screen saver off at this point) and cycle to 5. The meaning of
+# these values are that timeout is how much time after idling it will trigger the ScreenSaver ON,
+# while the cycle is, after being on, how often it will trigger its cycle event, originally meant
+# for changing background patterns to avoid burn-in, but in this case it's used to flag `xss-lock`
+# that the locker can be called - otherwise, it would only call the notify program.
+# See more on xss-lock(1) and on screen-locker.
+#
+# Recommendation: Keep the second parameter the amount of time that the dimmer needs to fade out
+# completely before showing the locker - usually 5 seconds.
+xset s 0 5
+
+# Disable bell
+xset b off

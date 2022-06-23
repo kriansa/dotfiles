@@ -7,4 +7,6 @@ Wants=watchmon.service
 Wants=watchpower.service
 Wants=inputplug.service
 Wants=x-config.service
+Wants=picom.service
+Wants=screensaver.service
 Wants=qtile.service

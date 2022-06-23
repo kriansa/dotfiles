@@ -1,0 +1,9 @@
+[Unit]
+Description=Automatic screensaver
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/xss-lock --verbose --transfer-sleep-lock --session=${XDG_SESSION_ID} \
+  --notifier="%h/.dotfiles/modules/twm/libexec/screen-locker dim" \
+  -- %h/.dotfiles/modules/twm/libexec/screen-locker lock
+Restart=on-failure

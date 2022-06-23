@@ -1,0 +1,7 @@
+[Unit]
+Description=Compositor for X11
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/picom --config %h/.config/picom/picom.conf --experimental-backends
+Restart=on-failure

@@ -3,7 +3,7 @@ Description=Watchmon automatic monitor arrangement
 PartOf=graphical-session.target
 
 [Service]
-ExecStart=%h/.bin/watchmon -wc %h/.dotfiles/modules/xorg/lib/dh-watchmon
+ExecStart=%h/.bin/watchmon -wc %h/.dotfiles/modules/twm/libexec/dh-watchmon
 Restart=on-failure
 
 [Install]
