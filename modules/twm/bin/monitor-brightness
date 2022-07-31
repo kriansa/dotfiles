@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+#
+# Dynamically adjust monitor brightness
+
+set -o pipefail -o nounset
+trap exit INT
+
+help() {
+  echo "Usage: monitor-brightness [OPTIONS] <up|down>"
+  echo
+  echo "Dynamically adjust brightness for the connected monitors."
+  echo
+  echo "Arguments:"
+  echo "  <DIRECTION>       Direction to move brightness to (up or down)"
+  echo
+  echo "Options:"
+  echo "  -h, --help     Show this help message"
+}
+
+main() {
+  declare DIRECTION
+  parse_cli "$@"
+
+  steps_percent=10
+  [ "$DIRECTION" = "up" ] && cmd="-inc" || cmd="-dec"
+  for monitor in /sys/class/backlight/*_backlight; do
+    current_brightness="$(cat "$monitor/brightness")"
+    max_brightness="$(cat "$monitor/max_brightness")"
+
+    # Don't let brightness get down to 0
+    if [ "$DIRECTION" = "down" ] && [ "$current_brightness" -le "$(( max_brightness / steps_percent))" ]; then
+      xbacklight -set 1 -ctrl "$(basename "$monitor")"
+    else
+      xbacklight "$cmd" "$steps_percent" -ctrl "$(basename "$monitor")"
+    fi
+  done
+}
+
+parse_cli() {
+  DIRECTION=
+
+  while [ $# -gt 0 ]; do
+    case $1 in
+      --help|-h) help && exit ;;
+      -*) echo "Unknown option: $1" >&2 && exit 1 ;;
+      *) DIRECTION+="$1"; shift ;;
+    esac
+  done
+
+  if test -z "${DIRECTION:-}"; then
+    echo "The parameter 'DIRECTION' is mandatory!" >&2
+    exit 1
+  fi
+
+  case "$DIRECTION" in
+    up|down) ;;
+    *) echo "The parameter 'DIRECTION' is not valid!" >&2 && exit 1 ;;
+  esac
+}
+
+main "$@"

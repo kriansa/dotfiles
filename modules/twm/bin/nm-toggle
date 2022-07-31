@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+#
+# Adds a missing convenient functionality to nmcli: toggling states
+
+set -o pipefail -o nounset
+trap exit INT
+
+help() {
+  echo "Usage: nm-toggle <TYPE> [<ARGS> ...]"
+  echo
+  echo "Toggles state of the network activity, so you don't need to manually check at which state it"
+  echo "is currently at before invoking nmcli up/down or on/off"
+  echo
+  echo "Arguments:"
+  echo "  <TYPE>          The type of network state you want to switch. It can be one of these:"
+  echo "                  'wifi', 'networking' or 'connection'. For the type 'connection' you also"
+  echo "                  need to provide the network name as a parameter."
+  echo
+  echo "Options:"
+  echo "  -h, --help     Show this help message"
+}
+
+main() {
+  declare TYPE ARGS
+  parse_cli "$@"
+
+  case "$TYPE" in
+    wifi)
+      if [ "$(nmcli radio wifi)" = "enabled" ]; then
+        nmcli radio wifi off
+        notify --icon="network-wireless-disabled-symbolic" "Wireless radio disabled"
+      else
+        nmcli radio wifi on
+        notify --icon="network-wireless-symbolic" "Wireless radio enabled"
+      fi
+      ;;
+
+    networking)
+      if [ "$(nmcli networking)" = "enabled" ]; then
+        nmcli networking off
+        notify --icon="network-offline-symbolic" "Networking disabled"
+      else
+        nmcli networking on
+        notify --icon="network-transmit-receive-symbolic" "Networking enabled"
+      fi
+      ;;
+
+    connection)
+      local connection
+      if [ ${#ARGS[@]} -ge 1 ]; then
+        connection="${ARGS[0]}"
+      else
+        echo "You need to provide a specific network as argument." >&2
+        exit 1
+      fi
+
+      if [ -z "$(nmcli --fields GENERAL.STATE connection show "$connection")" ]; then
+        nmcli connection up "$connection"
+        notify --icon="network-wired-symbolic" "Connection $connection enabled"
+      else
+        nmcli connection down "$connection"
+        notify --icon="network-wired-disconnected-symbolic" "Connection $connection disabled"
+      fi
+      ;;
+
+    *)
+      echo "Invalid parameter '$TYPE' for TYPE." >&2
+      exit 1
+  esac
+}
+
+parse_cli() {
+  TYPE=""
+  ARGS=()
+
+  if [ $# -lt 1 ]; then
+    echo "Parameter <TYPE> is mandatory." >&2
+    exit 1
+  fi
+
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    help
+    exit
+  fi
+
+  if [[ "$1" == "-"* ]]; then
+    echo "Unknown option: $1"
+    exit 1
+  fi
+
+  TYPE=$1
+  shift
+
+  ARGS=("$@")
+}
+
+notify() {
+  /usr/bin/notify-send --app-name=system:network-status-change --urgency=low --expire-time=2000 \
+  --hint=string:x-dunst-stack-tag:network-status-change \
+  "$@"
+}
+
+main "$@"
