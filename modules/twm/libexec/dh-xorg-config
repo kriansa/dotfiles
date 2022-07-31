@@ -5,14 +5,14 @@
 # delays, cursor shapes, etc.
 
 # Disable automatic DPMS triggering -- use X11 ScreenSaver (XSS) instead
-xset dpms 0 0 0
+xset dpms 0 0 0 &
 
 # Setup Screensaver XSS
 #
 # These two flags are simply to avoid X11 unecessaryly attempting to render/blanking screen when
 # triggering the screen saver, as it should be handled by an external application.
-xset s noexpose
-xset s noblank
+xset s noexpose &
+xset s noblank &
 
 # This sets timeout to 0 (turning screen saver off at this point) and cycle to 5. The meaning of
 # these values are that timeout is how much time after idling it will trigger the ScreenSaver ON,
@@ -23,7 +23,33 @@ xset s noblank
 #
 # Recommendation: Keep the second parameter the amount of time that the dimmer needs to fade out
 # completely before showing the locker - usually 5 seconds.
-xset s 0 5
+xset s 0 5 &
 
 # Disable bell
-xset b off
+xset b off &
+
+# Configure cursor
+xsetroot -cursor_name left_ptr &
+
+# Configure monitor DPI globally
+~/.bin/monitor-dpi 96 &
+
+# Set some important environment variables
+#
+# GTK3 apps try to contact org.a11y.Bus. Disable that.
+export NO_AT_BRIDGE=1
+
+# Make QT automatically scale according to screen DPI
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+
+# Use GTK widgets on QT where applicable (such as on file picker)
+export QT_QPA_PLATFORMTHEME=gtk3
+
+# Add ~/.bin to PATH
+export PATH="$HOME/.bin:/usr/local/bin:/usr/bin"
+
+# And import them
+systemctl --user import-environment \
+  NO_AT_BRIDGE QT_AUTO_SCREEN_SCALE_FACTOR QT_QPA_PLATFORMTHEME PATH &
+
+wait

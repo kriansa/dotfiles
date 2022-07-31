@@ -4,9 +4,15 @@ BindsTo=graphical-session.target
 
 # Dependencies
 Wants=watchmon.service
-Wants=watchpower.service
 Wants=inputplug.service
+Wants=wmcompanion.service
 Wants=x-config.service
+Wants=xsettingsd.service
+Wants=xssproxy.service
+Wants=kbdd.service
+Wants=playerctld.service
 Wants=picom.service
 Wants=screensaver.service
-Wants=qtile.service
+Wants=dunst.service
+Wants=polybar.service
+Wants=herbstluftwm.service

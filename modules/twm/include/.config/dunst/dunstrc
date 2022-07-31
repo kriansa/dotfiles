@@ -17,29 +17,29 @@
     #
     # If this option is set to mouse or keyboard, the monitor option
     # will be ignored.
-    follow = none
+    follow = keyboard
 
     ### Geometry ###
 
     # dynamic width from 0 to 300
     # width = (0, 300)
     # constant width of 300
-    width = 300
+    width = (400, 500)
 
     # The maximum height of a single notification, excluding the frame.
     height = 300
 
     # Position the notification in the top right corner
-    origin = top-right
+    origin = top-center
 
     # Offset from the origin
-    offset = 10x50
+    offset = 0x60
 
     # Scale factor. It is auto-detected if value is 0.
     scale = 0
 
     # Maximum number of notification (0 means no limit)
-    notification_limit = 0
+    notification_limit = 3
 
     ### Progress bar ###
 
@@ -49,7 +49,7 @@
 
     # Set the progress bar height. This includes the frame, so make sure
     # it's at least twice as big as the frame width.
-    progress_bar_height = 10
+    progress_bar_height = 5
 
     # Set the frame width of the progress bar
     progress_bar_frame_width = 1
@@ -73,23 +73,30 @@
     # Draw a line of "separator_height" pixel height between two
     # notifications.
     # Set to 0 to disable.
-    separator_height = 2
+    # If gap_size is greater than 0, this setting will be ignored.
+    separator_height = 1
 
     # Padding between text and separator.
-    padding = 8
+    padding = 10
 
     # Horizontal padding.
-    horizontal_padding = 8
+    horizontal_padding = 20
 
     # Padding between text and icon.
     text_icon_padding = 0
 
     # Defines width in pixels of frame around the notification window.
     # Set to 0 to disable.
-    frame_width = 3
+    frame_width = 2
 
     # Defines color of the frame around the notification window.
     frame_color = "#aaaaaa"
+
+    # Size of gap to display between notifications - requires a compositor.
+    # If value is greater than 0, separator_height will be ignored and a border
+    # of size frame_width will be drawn around each notification instead.
+    # Click events on gaps do not currently propagate to applications below.
+    gap_size = 0
 
     # Define a color for the separator.
     # possible values are:
@@ -107,11 +114,11 @@
     # Set to 0 to disable.
     # A client can set the 'transient' hint to bypass this. See the rules
     # section for how to disable this if necessary
-    # idle_threshold = 120
+    idle_threshold = 0
 
     ### Text ###
 
-    font = Monospace 8
+    font = "RobotoCondensed 14"
 
     # The spacing between lines.  If the height is smaller than the
     # font height, it will get raised to the font height.
@@ -184,19 +191,27 @@
 
     ### Icons ###
 
+    # Recursive icon lookup. You can set a single theme, instead of having to
+    # define all lookup paths.
+    enable_recursive_icon_lookup = true
+
+    # Set icon theme (only used for recursive icon lookup)
+    # You can also set multiple icon themes, with the leftmost one being used first.
+    icon_theme = "Papirus, Adwaita, hicolor"
+
     # Align icons left/right/top/off
     icon_position = left
 
     # Scale small icons up to this size, set to 0 to disable. Helpful
     # for e.g. small files or high-dpi screens. In case of conflict,
     # max_icon_size takes precedence over this.
-    min_icon_size = 0
+    min_icon_size = 64
 
     # Scale larger icons down to this size, set to 0 to disable
-    max_icon_size = 32
+    max_icon_size = 192
 
-    # Paths to default icons.
-    icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+    # Paths to default icons (only neccesary when not using recursive icon lookup)
+    # icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
 
     ### History ###
 
@@ -210,7 +225,7 @@
     ### Misc/Advanced ###
 
     # dmenu path.
-    dmenu = /usr/bin/dmenu -p dunst:
+    dmenu = /usr/bin/rofi -dmenu
 
     # Browser for opening urls in context menu.
     browser = /usr/bin/xdg-open
@@ -274,8 +289,8 @@
     # * context_all: Open context menu for all notifications.
     # These values can be strung together for each mouse event, and
     # will be executed in sequence.
-    mouse_left_click = close_current
-    mouse_middle_click = do_action, close_current
+    mouse_left_click = do_action, close_current
+    mouse_middle_click = close_current
     mouse_right_click = close_all
 
 # Experimental features that may or may not work correctly. Do not expect them
@@ -292,26 +307,39 @@
 [urgency_low]
     # IMPORTANT: colors have to be defined in quotation marks.
     # Otherwise the "#" and following would be interpreted as a comment.
-    background = "#222222"
-    foreground = "#888888"
+    background = "#0A2342e0"
+    foreground = "#F2F5EA"
+    frame_color = "#F2F5EA"
     timeout = 10
-    # Icon for notifications with low urgency, uncomment to enable
-    #default_icon = /path/to/icon
+    default_icon = dialog-information
 
 [urgency_normal]
-    background = "#285577"
-    foreground = "#ffffff"
+    background = "#0A2342e0"
+    foreground = "#F2F5EA"
+    frame_color = "#F2F5EA"
     timeout = 10
-    # Icon for notifications with normal urgency, uncomment to enable
-    #default_icon = /path/to/icon
+    default_icon = dialog-information
 
 [urgency_critical]
-    background = "#900000"
-    foreground = "#ffffff"
-    frame_color = "#ff0000"
+    background = "#ca1243e0"
+    foreground = "#F2F5EA"
+    frame_color = "#F2F5EA"
     timeout = 0
-    # Icon for notifications with critical urgency, uncomment to enable
-    #default_icon = /path/to/icon
+    default_icon = dialog-error
+
+[volume_notifications]
+    appname = "system:volume-change"
+    icon_position = top
+    background = "#0A2342e0"
+    foreground = "#F2F5EA"
+    highlight = "#F2F5EA"
+    frame_color = "#F2F5EA"
+    ellipsize = start
+    alignment = center
+    history_ignore = true
+    timeout = 1500
+    urgency = low
+    hide_text = true
 
 # Every section that isn't one of the above is interpreted as a rules to
 # override settings for certain messages.
@@ -382,11 +410,11 @@
 #        If the notification is already drawn, it won't get undrawn.
 # pushback: same as delay, but when switching into fullscreen, the notification will get
 #           withdrawn from screen again and will get delayed like a new notification
-#[fullscreen_delay_everything]
-#    fullscreen = delay
-#[fullscreen_show_critical]
-#    msg_urgency = critical
-#    fullscreen = show
+[fullscreen_delay_everything]
+   fullscreen = delay
+[fullscreen_show_critical]
+   msg_urgency = critical
+   fullscreen = show
 
 #[espeak]
 #    summary = "*"

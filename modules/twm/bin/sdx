@@ -18,7 +18,7 @@ main() {
 
   # On UNIX systems the INT signal needs to be resent such that the calling program knows the
   # process was interrupted.
-  # See https://www.cons.org/cracauer/sigint.html
+  # See: https://www.cons.org/cracauer/sigint.html
   trap 'cleanup; trap - INT; kill -INT "$$"' INT
   trap 'cleanup exit' EXIT HUP TERM QUIT
 
@@ -27,13 +27,14 @@ main() {
   # This is done to indicate that the server is ready to accept connections.
   # Taking advantage of this feature allows launching the client directly from a USR1 signal trap
   # which obviates the need to poll for server readiness.
-  trap xorg_client USR1
+  # Using `& wait` is a hack around that because it will then be able to receive signals.
+  # See: http://mywiki.wooledge.org/SignalTrap#When_is_the_signal_handled.3F
+  trap 'xorg_client & wait $!' USR1
 
   # Clear the inherited USR1 with a SIG_IGN and start server on a subshell.
   # When ready, it will notify this (main) process with a USR1.
   # The reason why we need to subshell and wait is that shell won't be able to handle signals when
-  # it's executing a process in the foreground. Using `wait` is a hack around that because it will
-  # then be able to receive signals.
+  # it's executing a process in the foreground.
   # See: http://mywiki.wooledge.org/SignalTrap#When_is_the_signal_handled.3F
   (trap '' USR1 && xorg_server) & pid=$!
   wait "$pid"
@@ -45,26 +46,29 @@ xorg_client() {
   export DISPLAY=:$tty
 
   # Include important env variables on systemd units
-  dbus-update-activation-environment --systemd DISPLAY XAUTHORITY XDG_SESSION_ID
+  dbus-update-activation-environment --systemd DISPLAY XAUTHORITY XDG_SESSION_ID XDG_SESSION_TYPE
 
   # Then start the graphical session unit
-  systemctl --user start --wait xsession.target
+  exec systemctl --user start --wait xsession.target
 }
 
 # Similarly to `xorg_client`, this is the function that invokes X server and its
 # usage is very similar to .xserverrc file when using xinit.
 xorg_server() {
-  exec /usr/lib/Xorg :"$tty" vt"$tty" -keeptty \
+  # Using this unwrapped binary of Xorg is only possible when all GPUs have KMS enabled
+  exec /usr/lib/Xorg :"$tty" vt"$tty" \
+    -keeptty \
     -noreset \
+    -novtswitch \
     -background none \
     -auth "$XAUTHORITY" \
-    -logfile /dev/null -verbose 3
+    -logfile /dev/null -verbose 7 2>&1
 }
 
 cleanup() {
   if [ "$pid" ] && kill -0 "$pid" 2> /dev/null; then
     # We use linux-utils kill instead of the shell builtin because it supports --timeout
-    /usr/bin/kill --signal TERM --timeout 1000 KILL -- "$pid"
+    /usr/bin/kill --signal TERM --timeout 5000 KILL -- "$pid"
     wait "$pid"
     xorg=$?
   fi

@@ -28,6 +28,11 @@ dim() {
   # enough time that when xsecurelock kicks in, the screen is already blank hence no flashing.
   cycle_time=$(xset q | grep -o "cycle: *[0-9]*" | grep -o "[0-9]*")
 
+  if [ $cycle_time -le 0 ]; then
+    echo "The screen saver cycle time must be greater than 0!" >&2
+    exit 1
+  fi
+
   # These timings must be changed in coordination
   dim_time=$(( cycle_time * 1000 - 500 )) # Total cycle time - 500ms
   wait_time=600                           # Wait during the other 500ms + 100ms
@@ -36,11 +41,11 @@ dim() {
   # Kill dimmer immediatelly after receiving SIGTERM
   trap cancel TERM INT
 
-  ( XSECURELOCK_DIM_ALPHA=1 \
+  XSECURELOCK_DIM_ALPHA=1 \
     XSECURELOCK_DIM_TIME_MS=$dim_time \
     XSECURELOCK_WAIT_TIME_MS=$wait_time \
     XSECURELOCK_DIM_OVERRIDE_COMPOSITOR_DETECTION=1 \
-    /usr/lib/xsecurelock/dimmer ) & dimmer_pid=$!
+    /usr/lib/xsecurelock/dimmer & dimmer_pid=$!
 
   # Waits for the dim effect up until opacity is at least 100%, then quits, while leaving the dimmer
   # still active for the rest of its wait_time
@@ -56,9 +61,20 @@ cancel() {
   exit 0
 }
 
+pause_interactive_activities() {
+  playerctl --all-players pause
+  dunstctl set-paused true
+}
+
+unpause_interactive_activities() {
+  dunstctl set-paused false
+}
+
 lock() {
+  pause_interactive_activities
+
   XSECURELOCK_FONT="Iosevka Term Medium:size=20" \
-  XSECURELOCK_AUTH_TIMEOUT=6 \
+  XSECURELOCK_AUTH_TIMEOUT=10 \
   XSECURELOCK_SHOW_HOSTNAME=0 \
   XSECURELOCK_SHOW_USERNAME=0 \
   XSECURELOCK_SHOW_DATETIME=1 \
@@ -66,7 +82,9 @@ lock() {
   XSECURELOCK_BLANK_TIMEOUT=1 \
   XSECURELOCK_BLANK_DPMS_STATE=off \
   XSECURELOCK_COMPOSITE_OBSCURER=0 \
-  exec -- xsecurelock
+  xsecurelock
+
+  unpause_interactive_activities
 }
 
 main "$@"

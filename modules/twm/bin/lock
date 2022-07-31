@@ -14,5 +14,4 @@ help() {
 
 [ "$#" -ne 0 ] && help
 
-# Simply force X11 ScreenSaver and xss-lock will do the rest
-xset s activate
+loginctl lock-session

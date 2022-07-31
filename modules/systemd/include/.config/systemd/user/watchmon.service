@@ -1,9 +1,10 @@
 [Unit]
 Description=Watchmon automatic monitor arrangement
 PartOf=graphical-session.target
+After=x-config.service
 
 [Service]
-ExecStart=%h/.bin/watchmon -wc %h/.dotfiles/modules/twm/libexec/dh-watchmon
+ExecStart=%h/.bin/watchmon -c %h/.dotfiles/modules/twm/libexec/dh-watchmon
 Restart=on-failure
 
 [Install]
