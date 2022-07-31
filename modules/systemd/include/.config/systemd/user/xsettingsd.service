@@ -1,0 +1,13 @@
+[Unit]
+Description=XSETTINGS daemon
+PartOf=graphical-session.target
+After=x-config.service
+
+[Service]
+Restart=on-failure
+
+ExecStartPre=/bin/sh -c "cat %h/.config/xsettingsd/* > %t/xsettingsd"
+ExecStart=/usr/bin/xsettingsd -c %t/xsettingsd
+
+ExecReload=/bin/sh -c "cat %h/.config/xsettingsd/* > %t/xsettingsd"
+ExecReload=/usr/bin/kill -HUP $MAINPID

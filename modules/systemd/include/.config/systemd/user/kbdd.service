@@ -1,0 +1,10 @@
+[Unit]
+Description=KBDD to allow per-window XKB layouts
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/kbdd -n
+Restart=on-failure
+
+[Install]
+RequiredBy=xsession.target

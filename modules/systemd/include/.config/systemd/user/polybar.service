@@ -1,0 +1,8 @@
+[Unit]
+Description=Desktop status bar
+PartOf=graphical-session.target
+
+[Service]
+ExecStartPre=/bin/sh -c "rm -rf $XDG_RUNTIME_DIR/polybar/*.sock"
+ExecStart=/usr/bin/polybar primary
+Restart=on-failure
