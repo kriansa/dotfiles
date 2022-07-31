@@ -1,1 +1,3 @@
-../../../../../fortunes/functions/fish_greeting.fish
+function fish_greeting
+    _pure_check_for_new_release
+end
