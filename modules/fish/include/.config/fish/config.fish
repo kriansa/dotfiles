@@ -2,9 +2,6 @@
 fish_add_path --path --global $HOME/.bin
 
 if status is-interactive
-  # Load theme
-  source (/usr/bin/starship init fish --print-full-init | psub)
-
   # Set good defaults for FZF
   # adds ctrl-[hjkl], ctrl-[dufb] for vim-like navigation
   # cycle allows jumping between the first and last results, making scrolling faster
