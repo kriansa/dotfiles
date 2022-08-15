@@ -2,7 +2,6 @@
 Description=X session managed by systemd
 BindsTo=graphical-session.target
 
-# Dependencies
 Wants=watchmon.service
 Wants=inputplug.service
 Wants=wmcompanion.service
