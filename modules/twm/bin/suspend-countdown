@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#
+# Automatic suspend after 5 seconds if no user-input is given
+#
+# Useful for automatic suspension actions that may want to give the user some grace time if they are
+# still there
+
+echo -e "<b>Abort</b> the suspension!\0icon\x1fvcs-conflicting" |\
+rofi -dmenu -markup -markup-rows -no-click-to-exit -kb-cancel "" -theme power-menu \
+  -mesg "Suspending in <b>5</b> seconds..." \
+  > /dev/null & pid=$!
+
+sleep 5 & sleep_pid=$!
+
+# Waits for any process to finish
+wait -n
+
+if kill -0 $pid 2> /dev/null; then
+  # If UI is still up, then the user hasn't cancelled, which means we can proceed with killing the
+  # subprocesses and suspending
+  kill -9 $pid 2> /dev/null
+  kill -9 $sleep_pid 2> /dev/null
+  systemctl suspend
+else
+  # If UI isn't up, the user has cancelled, so we just kill the sleep process and quit
+  kill -9 $sleep_pid 2> /dev/null
+fi

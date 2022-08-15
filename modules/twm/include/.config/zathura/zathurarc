@@ -1,0 +1,14 @@
+# Style settings
+set font "RobotoCondensed 14"
+set default-bg "#EDF2F4"
+set statusbar-bg "#0A2342"
+set statusbar-fg "#F2F5EA"
+set statusbar-basename true
+
+# Show scrollbars
+set guioptions shv
+
+# Functional
+set selection-clipboard clipboard
+set database sqlite
+unmap q

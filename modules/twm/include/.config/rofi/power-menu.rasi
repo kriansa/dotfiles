@@ -1,0 +1,24 @@
+/**
+ * vim: ft=css
+ */
+
+@import "drun"
+
+configuration {
+  kb-row-left:              [ "Control+h", "h" ];
+  kb-row-right:             [ "Control+l", "l" ];
+  kb-row-down:              [ "Control+j", "j", "Down" ];
+  kb-row-up:                [ "Control+k", "k", "Up" ];
+}
+
+mainbox {
+  children:                       [ message, listview ];
+}
+
+listview {
+  fixed-columns:                  false;
+  columns:                        5;
+  lines:                          1;
+  cycle:                          true;
+  margin:                         0;
+}

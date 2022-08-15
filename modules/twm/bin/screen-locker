@@ -7,8 +7,7 @@ set -o pipefail -o nounset
 main() {
   local action="${1:-}"
   case "$action" in
-    dim) dim ;;
-    lock) lock ;;
+    dim|lock|unlock) "$action" ;;
 
     # basic error handling
     "") echo "You need to provide a command." >&2; exit 1 ;;
@@ -17,7 +16,7 @@ main() {
 }
 
 dim() {
-  # Dimming must be tightly coordinated with the cycle time (second parameter of xset s 0 0).
+  # Dimming must be tightly coordinated with the cycle time (second parameter of xset s).
   # xss-lock will start the dimmer at screensaver timeout, but will only trigger the actual locker
   # after cycle time is reached.
   # This means that cycle time must be lower than the time that dimmer will spend on the animation.
@@ -75,6 +74,7 @@ lock() {
 
   XSECURELOCK_FONT="Iosevka Term Medium:size=20" \
   XSECURELOCK_AUTH_TIMEOUT=10 \
+  XSECURELOCK_AUTHPROTO_KILL_ON_TIMEOUT=1 \
   XSECURELOCK_SHOW_HOSTNAME=0 \
   XSECURELOCK_SHOW_USERNAME=0 \
   XSECURELOCK_SHOW_DATETIME=1 \
@@ -82,9 +82,14 @@ lock() {
   XSECURELOCK_BLANK_TIMEOUT=1 \
   XSECURELOCK_BLANK_DPMS_STATE=off \
   XSECURELOCK_COMPOSITE_OBSCURER=0 \
+  XSECURELOCK_AUTH=/home/dpereira/.sync/Projects/xsecurelock/auth_x11 \
   xsecurelock
 
   unpause_interactive_activities
+}
+
+unlock() {
+  pkill -x -USR2 xsecurelock || true
 }
 
 main "$@"

@@ -39,17 +39,22 @@ xsetroot -cursor_name left_ptr &
 # GTK3 apps try to contact org.a11y.Bus. Disable that.
 export NO_AT_BRIDGE=1
 
+# Makes scrolling bars always visible on GTK apps
+export GTK_OVERLAY_SCROLLING=0
+
 # Make QT automatically scale according to screen DPI
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
 
 # Use GTK widgets on QT where applicable (such as on file picker)
 export QT_QPA_PLATFORMTHEME=gtk3
+export QT_STYLE_OVERRIDE=adwaita
 
 # Add ~/.bin to PATH
 export PATH="$HOME/.bin:/usr/local/bin:/usr/bin"
 
 # And import them
 systemctl --user import-environment \
-  NO_AT_BRIDGE QT_AUTO_SCREEN_SCALE_FACTOR QT_QPA_PLATFORMTHEME PATH &
+  NO_AT_BRIDGE NO_AT_BRIDGE GTK_OVERLAY_SCROLLING QT_AUTO_SCREEN_SCALE_FACTOR QT_QPA_PLATFORMTHEME \
+  QT_STYLE_OVERRIDE PATH &
 
 wait

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# Runs the application in the terminal. It either opens a new tmux window of the existing session
+# and focus that window, or open a new one.
+#
+# Usage: tmux-window <cmd> [args]
+
+main() {
+  run_term_emulator
+
+  # Ignore first arg if it's a `-e` for compatiblity with other terminal emulators
+  [[ $1 == "-e" ]] && shift
+
+  run_on_tmux "$@"
+}
+
+run_term_emulator() {
+  term_instance=Alacritty
+  term_cmdline=alacritty
+
+  while read -r client; do
+    if [[ $(herbstclient get_attr $client.instance) == "$term_instance" ]]; then
+      terminal_winid=${client#*.}
+      break
+    fi
+  done < <(herbstclient foreach --unique CLIENT_ID clients echo CLIENT_ID)
+
+  if [[ -n "$terminal_winid" ]]; then
+    herbstclient jumpto $terminal_winid
+  else
+    # Spawn the terminal and waits for tmux to start
+    herbstclient spawn "$term_cmdline"
+    while ! tmux list-sessions; do sleep 0.5; done
+  fi
+}
+
+run_on_tmux() {
+  tmux new-window -n "${1:-$(basename $SHELL)}" "$@"
+}
+
+main "$@"

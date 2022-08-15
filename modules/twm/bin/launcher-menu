@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#
+# Invoke the application launcher menu
+
+rofi -modes drun -show drun -theme drun

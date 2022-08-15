@@ -1,0 +1,7 @@
+[Unit]
+Description=Unlock user screen after sleeping
+After=suspend.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.bin/screen-locker unlock

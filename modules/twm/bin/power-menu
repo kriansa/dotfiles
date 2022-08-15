@@ -1,90 +1,75 @@
 #!/usr/bin/env bash
+#
+# Rofi power menu handler that also confirms more serious actions
+#
+# See: https://github.com/davatorium/rofi/blob/next/doc/rofi-script.5.markdown
 
-dir="$HOME/.config/rofi"
+main() {
+  # Running this script directly outside rofi's script will simply invoke it first
+  if [[ -z "$ROFI_OUTSIDE" ]]; then
+    exec rofi -modes "power-menu:$0" \
+      -show power-menu -theme power-menu \
+      -selected-row 2
+  fi
 
-uptime=$(uptime -p | sed -e 's/up //g')
-
-rofi_command="rofi -theme tokyonight"
-
-# Options
-shutdown="1"
-reboot=""
-lock=""
-suspend=""
-logout=""
-
-# Confirmation
-confirm_exit() {
-	rofi -dmenu\
-		-i\
-		-no-fixed-num-lines\
-		-p "Are You Sure? : "\
-		-theme $dir/confirm.rasi
+  declare current_step=${ROFI_DATA:-start}
+  "step_$current_step" "$@"
 }
 
-# Message
-msg() {
-	rofi -theme "$dir/message.rasi" -e "Available Options  -  yes / y / no / n"
+# Step 1. Shows the menu
+step_start() {
+  menu_opt "Hibernate" "system-hibernate"
+  menu_opt "Suspend" "system-suspend"
+  menu_opt "Lock" "system-lock-screen"
+  menu_opt "Reboot" "system-reboot"
+  menu_opt "Shutdown" "system-shutdown"
+  set_next_step "confirm"
 }
 
-# Variable passed to rofi
-options="$shutdown\n$reboot\n$lock\n$suspend\n$logout"
+# Step 2. Either execute or ask for confirmation for a more impactful action
+step_confirm() {
+  local selected_icon=$ROFI_INFO
+  local selected_text=$1
 
-chosen="$(echo -e "$options" | $rofi_command -p "Uptime: $uptime" -dmenu -selected-row 2)"
-case $chosen in
-    $shutdown)
-		ans=$(confirm_exit &)
-		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
-			systemctl poweroff
-		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
-			exit 0
-        else
-			msg
-        fi
-        ;;
-    $reboot)
-		ans=$(confirm_exit &)
-		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
-			systemctl reboot
-		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
-			exit 0
-        else
-			msg
-        fi
-        ;;
-    $lock)
-		if [[ -f /usr/bin/i3lock ]]; then
-			i3lock
-		elif [[ -f /usr/bin/betterlockscreen ]]; then
-			betterlockscreen -l
-		fi
-        ;;
-    $suspend)
-		ans=$(confirm_exit &)
-		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
-			mpc -q pause
-			amixer set Master mute
-			systemctl suspend
-		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
-			exit 0
-        else
-			msg
-        fi
-        ;;
-    $logout)
-		ans=$(confirm_exit &)
-		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
-			if [[ "$DESKTOP_SESSION" == "Openbox" ]]; then
-				openbox --exit
-			elif [[ "$DESKTOP_SESSION" == "bspwm" ]]; then
-				bspc quit
-			elif [[ "$DESKTOP_SESSION" == "i3" ]]; then
-				i3-msg exit
-			fi
-		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
-			exit 0
-        else
-			msg
-        fi
-        ;;
-esac
+  case "$selected_text" in
+    Lock|Suspend|Hibernate) ROFI_INFO="$selected_text" step_execute && return ;;
+  esac
+
+  confirmation_str="<span weight='bold'>Confirm:</span>"
+  menu_opt "$confirmation_str $selected_text" "$selected_icon" "$selected_text"
+
+  # Enable pango markup
+  echo -e "\0markup-rows\x1ftrue"
+
+  set_next_step "execute"
+}
+
+# Step 3. Execute the confirmed action
+step_execute() {
+  local action=$ROFI_INFO
+
+  case "$action" in
+    Hibernate) systemctl hibernate ;;
+    Suspend) systemctl suspend ;;
+    Lock) loginctl lock-session ;;
+    Reboot) systemctl reboot ;;
+    Shutdown) systemctl poweroff ;;
+  esac
+}
+
+# Rofi API: set global metadata and it will be set to $ROFI_DATA on next execution
+set_next_step() {
+  echo -e "\0data\x1f$1"
+}
+
+# Rofi API: shows a menu entry. We pass the name and the icon for each entry
+# Optionally, pass a metadata parameter so that it can be picked up by the variable $ROFI_INFO on
+# the next execution. If not passed, it will be set to the icon string.
+menu_opt() {
+  local name=$1
+  local icon=$2
+  local metadata=${3:-$icon}
+  echo -e "$name\0icon\x1f$icon\x1finfo\x1f$metadata"
+}
+
+main "$@"

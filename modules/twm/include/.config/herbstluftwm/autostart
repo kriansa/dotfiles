@@ -20,7 +20,9 @@ Alt=Mod1
 hc keybind $Mod-Control-q quit
 hc keybind $Mod-Control-r reload
 hc keybind $Mod-w close_or_remove
-hc keybind $Mod-Return spawn rofi -modi drun -show drun
+hc keybind $Mod-Return spawn launcher-menu
+hc keybind $Alt-Control-Delete spawn power-menu
+hc keybind $Alt-Control-l spawn screen-locker lock
 
 # basic movement in tiling and floating mode
 # focusing clients
@@ -61,7 +63,9 @@ done
 # I.e. if there are two windows within a frame, the grid layout is skipped.
 hc keybind $Mod-space                                                           \
             or , and . compare tags.focus.curframe_wcount = 2                   \
-                     . cycle_layout +1 vertical horizontal max vertical grid    \
+                     . cycle_layout +1 vertical horizontal max \
+               , and . compare tags.focus.curframe_wcount = 1                   \
+                     . cycle_layout +1 grid max \
                , cycle_layout +1
 
 # layouting
@@ -104,6 +108,9 @@ hc keybind $Mod-comma  use_index -1 --skip-visible
 hc keybind XF86AudioMute spawn volume mute
 hc keybind XF86AudioLowerVolume spawn volume decrease
 hc keybind XF86AudioRaiseVolume spawn volume increase
+hc keybind Shift-XF86AudioMute spawn volume --input mute
+hc keybind Shift-XF86AudioLowerVolume spawn volume --input decrease
+hc keybind Shift-XF86AudioRaiseVolume spawn volume --input increase
 hc keybind XF86AudioPlay spawn playerctl play-pause
 hc keybind XF86AudioNext spawn playerctl next
 hc keybind XF86AudioPrev spawn playerctl previous
@@ -152,7 +159,7 @@ hc set frame_padding 0            # use the window gap instead
 hc set window_gap 10              # gap between windows on tiling mode
 
 # hide frame gaps and borders when there's only one visible in the monitor
-hc set smart_frame_surroundings on
+hc set smart_frame_surroundings hide_all
 
 # enable theme.minimal when only one window is visible in the frame
 hc set smart_window_surroundings off
@@ -232,7 +239,7 @@ hc attr theme.floating.title_when always
 hc set hide_covered_windows on
 
 # show all frames, including empty ones
-hc set always_show_frame on
+hc set show_frame_decorations if_multiple
 
 # configure mouse behavior
 hc set focus_follows_mouse on
@@ -259,6 +266,13 @@ hc rule fixedsize floating=on
 hc rule class=Arandr floating=on
 hc rule class=Qalculate-gtk floating=on
 hc rule class=Pavucontrol floating=on
+hc rule class=firefox windowtype='_NET_WM_WINDOW_TYPE_UTILITY' manage=off
+hc rule class=Pcmanfm title="Execute File" pseudotile=on
+
+# move to specific tags
+hc rule class=Spotify tag=2
+hc rule class=discord tag=3
+hc rule class=Slack tag=3
 
 # unlock, allowing monitors to repaint
 hc unlock

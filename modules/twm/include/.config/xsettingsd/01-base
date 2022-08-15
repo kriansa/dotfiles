@@ -4,9 +4,8 @@ Gtk/CanChangeAccels 0
 Gtk/ColorPalette "black:white:gray50:red:purple:blue:light blue:green:yellow:orange:lavender:brown:goldenrod4:dodger blue:pink:light green:gray10:gray30:gray75:gray90"
 Gtk/ColorScheme ""
 Gtk/CursorBlinkTimeout 10
-Gtk/CursorThemeName "Simp1e"
-Gtk/CursorThemeSize 24
-# Gtk/DecorationLayout "menu:minimize,maximize,close"
+# Gtk/CursorThemeName "Simp1e"
+# Gtk/CursorThemeSize 24
 Gtk/DecorationLayout "menu:"
 Gtk/DialogsUseHeader 1
 Gtk/EnableAnimations 0
@@ -41,8 +40,8 @@ Net/DndDragThreshold 8
 Net/DoubleClickTime 400
 Net/EnableEventSounds 1
 Net/EnableInputFeedbackSounds 1
-Net/FallbackIconTheme "gnome"
-Net/IconThemeName "Adwaita"
+Net/FallbackIconTheme "Adwaita"
+Net/IconThemeName "Papirus"
 Net/SoundThemeName "freedesktop"
 Net/ThemeName "Adwaita"
 

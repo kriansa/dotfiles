@@ -1,29 +1,4 @@
-import os, subprocess, re
 from types import SimpleNamespace
-
-def get_theme_colors() -> object:
-    """
-    Parse the hlwm colors theme and return all colors in a dict
-    """
-    colors_file = os.path.expanduser("~/.dotfiles/modules/twm/include/.config/herbstluftwm/theme.sh")
-    bash_script = f"""
-        __START=1 # delimiter for variables set after it
-        source "{colors_file}"
-        set -o posix
-        set
-    """
-
-    result = subprocess.run(["env", "-i", "--", "bash", "-c", bash_script], capture_output=True)
-
-    colors = {}
-    for line in result.stdout.decode("utf-8").partition("\n__START=1\n")[2].strip().splitlines():
-        m = re.search("color_(?P<name>[A-Za-z0-9_]+)='(?P<value>[#A-Za-z0-9]+)'", line)
-        colors[m.group('name').upper()] = m.group('value').upper()
-
-    return SimpleNamespace(**colors)
-
-colors = get_theme_colors()
-
 from asyncio import sleep
 from wmcompanion import use, on
 from wmcompanion.utils.subprocess import cmd, shell
@@ -35,6 +10,8 @@ from wmcompanion.events.keyboard import KbddChangeLayout
 from wmcompanion.events.audio import MainVolumeLevel
 from wmcompanion.events.network import WifiStatus, NetworkConnectionStatus
 from wmcompanion.events.power import PowerActions
+
+colors = SimpleNamespace(BAR_FG="#F2F5EA", BAR_DISABLED="#2E5460")
 
 @on(BluetoothRadioStatus)
 @use(Polybar)
@@ -108,39 +85,40 @@ async def volume_level(volume: dict, polybar: Polybar):
 @on(PowerActions)
 @use(Notify)
 async def power_menu(status: dict, notify: Notify):
-    if status["action"] != PowerActions.Actions.POWER_BUTTON_PRESS: return
-    await notify("You want to power off?")
+    if status["event"] != PowerActions.Events.POWER_BUTTON_PRESS: return
+    await cmd("power-menu")
 
 @on(PowerActions)
 @use(Notify)
 async def battery_warning(status: dict, notify: Notify):
     ignore_battery_statuses = [PowerActions.BatteryStatus.CHARGING, PowerActions.BatteryStatus.FULL]
-    if status["action"] != PowerActions.Actions.BATTERY_LEVEL_CHANGE or \
+    if status["event"] != PowerActions.Events.BATTERY_LEVEL_CHANGE or \
         status["battery-status"] in ignore_battery_statuses: return
 
     level = status["battery-level"]
-    if level <= 97:
-        if level > 5:
-            await notify(
-                f"Battery is low ({level}%)", "System will hibernate automatically at 5%",
-                urgency=Urgency.NORMAL,
-                dunst_stack_tag="low-battery-warn",
-                icon="battery-level-10-symbolic",
-            )
-        else:
-            await notify(
-                "Hibernating in 5 seconds...",
-                urgency=Urgency.CRITICAL,
-                dunst_stack_tag="low-battery-warn",
-                icon="battery-level-0-symbolic",
-            )
-            await sleep(5)
-            await cmd("systemctl", "hibernate")
+    if level > 10: return
+
+    if level > 5:
+        await notify(
+            f"Battery is low ({level}%)", "System will hibernate automatically at 5%",
+            urgency=Urgency.NORMAL,
+            dunst_stack_tag="low-battery-warn",
+            icon="battery-level-10-symbolic",
+        )
+    else:
+        await notify(
+            "Hibernating in 5 seconds...",
+            urgency=Urgency.CRITICAL,
+            dunst_stack_tag="low-battery-warn",
+            icon="battery-level-0-symbolic",
+        )
+        await sleep(5)
+        await cmd("systemctl", "hibernate")
 
 @on(PowerActions)
 async def set_power_profile(status: dict):
-    states = [PowerActions.Actions.INITIAL_STATE, PowerActions.Actions.POWER_SOURCE_SWITCH]
-    if status["action"] not in states: return
+    states = [PowerActions.Events.INITIAL_STATE, PowerActions.Events.POWER_SOURCE_SWITCH]
+    if status["event"] not in states: return
 
     if status["power-source"] == PowerActions.PowerSource.AC:
         cpu_governor = "performance"
@@ -154,3 +132,16 @@ async def set_power_profile(status: dict):
     await cmd("sudo", "cpupower", "frequency-set", "-g", cpu_governor)
     await cmd("xset", "s", screen_saver)
     await cmd("xbacklight", "-ctrl", "intel_backlight", "-set", backlight)
+
+@on(PowerActions)
+async def autosuspend_on_battery(status: dict):
+    if status["event"] not in [
+        PowerActions.Events.INITIAL_STATE,
+        PowerActions.Events.POWER_SOURCE_SWITCH,
+        PowerActions.Events.LID_CLOSE,
+    ]: return
+
+    on_battery = status["power-source"] == PowerActions.PowerSource.BATTERY
+    lid_is_closed = status["lid-state"] == PowerActions.LidState.CLOSED
+    if on_battery and lid_is_closed:
+        await cmd("suspend-countdown")

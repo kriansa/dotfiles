@@ -1,0 +1,7 @@
+# This file is intentionally a blank desktop entry definition so it overrides the one created by the
+# package, which I don't use and would like to be hidden.
+[Desktop Entry]
+Type=Application
+Name=_
+Hidden=true
+Exec=true
