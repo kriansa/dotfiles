@@ -2,10 +2,9 @@
 Description=X session managed by systemd
 BindsTo=graphical-session.target
 
+Wants=x-config.service
 Wants=watchmon.service
 Wants=inputplug.service
-Wants=wmcompanion.service
-Wants=x-config.service
 Wants=xsettingsd.service
 Wants=xssproxy.service
 Wants=kbdd.service
@@ -15,3 +14,4 @@ Wants=screensaver.service
 Wants=dunst.service
 Wants=polybar.service
 Wants=herbstluftwm.service
+Wants=wmcompanion.service

@@ -22,4 +22,9 @@ if status is-interactive
   function ....
     ../../..
   end
+
+  # Configure theme (Pure)
+  set --global pure_show_jobs true
+  set --global pure_threshold_command_duration 1
+  set --global pure_show_subsecond_command_duration true
 end

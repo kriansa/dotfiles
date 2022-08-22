@@ -11,3 +11,6 @@ ExecStart=/usr/bin/xsettingsd -c %t/xsettingsd
 
 ExecReload=/bin/sh -c "cat %h/.config/xsettingsd/* > %t/xsettingsd"
 ExecReload=/usr/bin/kill -HUP $MAINPID
+
+[Install]
+RequiredBy=xsession.target

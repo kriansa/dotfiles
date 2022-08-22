@@ -1,13 +1,14 @@
 #!/bin/sh --
-# sdx - Start an Xserver on systemd
+#
+# sdx - Start an Xserver using systemd
 # Requires: Xorg, systemd, xauth
 #
 # Ripped off from sx - Commit 2ef0b3b on Jul 4, 2021
 # See: https://github.com/Earnestly/sx
 
 main() {
-  # This variable is set by the pam_systemd PAM module on machines which are using systemd. It will be
-  # set both in graphical (by lightdm, gdm, etc) and in text-mode sessions (by /bin/login).
+  # This variable is set by the pam_systemd PAM module on systems using systemd. It will be set both
+  # in graphical (by lightdm, gdm, etc) and in text-mode sessions (by /bin/login).
   tty=$XDG_VTNR
 
   # Creates the Xauthority file which is used by X client applications to connect and authenticate
@@ -37,7 +38,7 @@ main() {
   # it's executing a process in the foreground.
   # See: http://mywiki.wooledge.org/SignalTrap#When_is_the_signal_handled.3F
   (trap '' USR1 && xorg_server) & pid=$!
-  wait "$pid"
+  wait "$pid" 2> /dev/null
 }
 
 # This function supplies the need for any sort of .xinitrc or sxrc, as we will only
@@ -49,7 +50,7 @@ xorg_client() {
   dbus-update-activation-environment --systemd DISPLAY XAUTHORITY XDG_SESSION_ID XDG_SESSION_TYPE
 
   # Then start the graphical session unit
-  exec systemctl --user start --wait xsession.target
+  exec systemctl --user --wait start xsession.target
 }
 
 # Similarly to `xorg_client`, this is the function that invokes X server and its
@@ -57,23 +58,21 @@ xorg_client() {
 xorg_server() {
   # Using this unwrapped binary of Xorg is only possible when all GPUs have KMS enabled
   exec /usr/lib/Xorg :"$tty" vt"$tty" \
-    -keeptty \
-    -noreset \
-    -novtswitch \
-    -background none \
+    -terminate -once \
+    -novtswitch -background none \
     -auth "$XAUTHORITY" \
-    -logfile /dev/null -verbose 7 2>&1
+    -keeptty -logfile /dev/null -verbose 7 2>&1
 }
 
 cleanup() {
   if [ "$pid" ] && kill -0 "$pid" 2> /dev/null; then
     # We use linux-utils kill instead of the shell builtin because it supports --timeout
-    /usr/bin/kill --signal TERM --timeout 5000 KILL -- "$pid"
-    wait "$pid"
+    /usr/bin/kill --signal TERM --timeout 2500 KILL -- "$pid" > /dev/null 2>&1
+    wait "$pid" 2> /dev/null
     xorg=$?
   fi
 
-  rm "$XAUTHORITY" 2> /dev/null
+  xauth remove :"$tty"
 
   if [ "$1" = exit ]; then
     exit "${xorg:-0}"

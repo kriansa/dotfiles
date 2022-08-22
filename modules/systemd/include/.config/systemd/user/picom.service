@@ -5,3 +5,6 @@ PartOf=graphical-session.target
 [Service]
 ExecStart=/usr/bin/picom --config %h/.config/picom/picom.conf --experimental-backends
 Restart=on-failure
+
+[Install]
+RequiredBy=xsession.target

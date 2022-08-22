@@ -9,7 +9,6 @@ modules:
   - python
   - borgmatic
   - fontconfig
-  - pulseaudio
   - devops
   - lastpass
   - gnupg
@@ -23,7 +22,6 @@ modules:
   - rapid-photo-downloader
   - transmission-remote
   - psi-notify
-  - gnome
   - emacs
   - java
   - nvim
@@ -33,3 +31,4 @@ modules:
   - htop
   - systemd
   - twm
+  - gtk

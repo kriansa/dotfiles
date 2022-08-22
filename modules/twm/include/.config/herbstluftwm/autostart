@@ -23,6 +23,7 @@ hc keybind $Mod-w close_or_remove
 hc keybind $Mod-Return spawn launcher-menu
 hc keybind $Alt-Control-Delete spawn power-menu
 hc keybind $Alt-Control-l spawn screen-locker lock
+hc keybind $Alt-Control-c spawn qalculate-gtk
 
 # basic movement in tiling and floating mode
 # focusing clients

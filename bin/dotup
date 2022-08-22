@@ -126,14 +126,14 @@ class Term:
         """Formats and outputs a standardized status message in the terminal"""
         message = " ".join(str(msg) for msg in messages)
         pad_str = "  " * (indent - 1)
-        print(f"\033[1m{pad_str} ➡️\033[0m {message}")
+        print(f"\033[1m{pad_str} →\033[0m {message}")
 
     @staticmethod
     def success(*messages, indent = 1):
         """Formats and outputs a standardized success messages in the terminal"""
         message = " ".join(str(msg) for msg in messages)
         pad_str = "  " * (indent - 1)
-        print(f"\033[1;32m{pad_str} ✔️\033[0m \033[1m{message}\033[0m")
+        print(f"\033[1;32m{pad_str} ✔\033[0m \033[1m{message}\033[0m")
 
     @staticmethod
     def error(exception):
@@ -274,7 +274,7 @@ class Stower:
             rel_root = root.removeprefix(f"{include_path}").lstrip("/")
 
             # Just skips this entire folder if their parent is already marked for symlinking
-            path_already_linked = [True for path in linkable_paths if rel_root.startswith(path)]
+            path_already_linked = [True for path in linkable_paths if rel_root.startswith(f"{path}/")]
             if path_already_linked:
                 continue
 

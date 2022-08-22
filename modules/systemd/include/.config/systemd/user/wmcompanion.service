@@ -2,7 +2,6 @@
 Description=wmcompanion is a utility for connecting system events to user actions
 PartOf=graphical-session.target
 After=x-config.service
-After=polybar.service
 
 [Service]
 ExecStart=/usr/bin/wmcompanion
