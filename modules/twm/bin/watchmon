@@ -115,8 +115,12 @@ class X11Client:
         # stop it quickly if needed, we'll run it within a separate thread, leaving the main one
         # free for user interactivity.
         def wait_for_x11_event(stop, event):
-            event["value"] = self.conn.wait_for_event()
-            stop.set()
+            try:
+                event["value"] = self.conn.wait_for_event()
+            except Exception as err:
+                event["value"] = err
+            finally:
+                stop.set()
 
         while True:
             event = {}
@@ -131,6 +135,9 @@ class X11Client:
 
             # Wait for the blocking operation
             stop.wait()
+
+            if type(event["value"]) == Exception:
+                raise event["value"]
 
             # Ignore unrelated events
             if type(event["value"]) != ScreenChangeNotifyEvent:

@@ -30,7 +30,7 @@ setup() {
     # ========================================================
     eDP-1:LAPTOP+DP-1:PRIMARY) # Primary desk configuration
       xrandrw --outputs-off --output DP-1 --auto --pos 0x0 --primary \
-        --output eDP-1 --auto --pos 3440x1200
+        --output eDP-1 --preferred --pos 3440x1200
       ;;
 
     # ========================================================
@@ -39,7 +39,7 @@ setup() {
     "")
       xrandrw --outputs-off
       echo "No monitor plugged in."
-      return 1 # Doesn't execute post_setup
+      exit # Doesn't execute post_setup
       ;;
 
     *)
@@ -57,13 +57,6 @@ setup() {
   esac
 }
 
-# Do any operation prior to the monitor rearrangement such as killing apps that don't handle display
-# readjustments very well or might have unexpected behavior while doing so
-pre_setup() {
-  # Stop polybar so it doesn't need to overthink about which monitor to use
-  systemctl --user stop polybar
-}
-
 post_setup() {
   # Set background
   feh --bg-fill --no-fehbg ~/.local/share/backgrounds/2021-10-02-18-55-51-bridge.png
@@ -71,8 +64,8 @@ post_setup() {
   # Set random background
   # feh --bg-fill --no-fehbg --randomize ~/.local/share/backgrounds
 
-  # Ensure polybar is started as it might shutdown when no monitors are found
-  systemctl --user start polybar
+  # Reload polybar to switch the monitor/size if needed
+  polybar-msg cmd restart
 
   # Reconfigure monitors
   herbstclient detect_monitors
@@ -94,4 +87,4 @@ if [ ${#EDID_ALIASES} -ne 0 ]; then
 fi
 
 echo "dh-watchmon called with: [$@]"
-pre_setup && setup && post_setup
+setup && post_setup

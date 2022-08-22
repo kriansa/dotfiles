@@ -63,7 +63,7 @@ done
 # I.e. if there are two windows within a frame, the grid layout is skipped.
 hc keybind $Mod-space                                                           \
             or , and . compare tags.focus.curframe_wcount = 2                   \
-                     . cycle_layout +1 vertical horizontal max \
+                     . cycle_layout +1 horizontal vertical max \
                , and . compare tags.focus.curframe_wcount = 1                   \
                      . cycle_layout +1 grid max \
                , cycle_layout +1

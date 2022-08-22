@@ -8,5 +8,6 @@ set --global --export ANSIBLE_NOCOWS 1
 # to autoload it, so that it won't matter if any other packages also provide it -- it will always
 # execute this function right here.
 function fish_greeting
+  test -n "$no_greeting" && return
   cat $HOME/Documents/Fortunes/*.txt | sort --random-sort | head -1 | cowsay
 end
