@@ -7,6 +7,7 @@ After=x-config.service herbstluftwm.service
 ExecStartPre=/bin/sh -c "rm -rf $XDG_RUNTIME_DIR/polybar/*.sock"
 ExecStart=/usr/bin/polybar primary
 ExecReload=/usr/bin/polybar-msg cmd restart
+ExecStop=/usr/bin/polybar-msg cmd quit
 Restart=on-failure
 
 [Install]

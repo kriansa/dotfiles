@@ -225,7 +225,7 @@
     ### Misc/Advanced ###
 
     # dmenu path.
-    dmenu = /usr/bin/rofi -dmenu
+    dmenu = dunst-dmenu
 
     # Browser for opening urls in context menu.
     browser = /usr/bin/xdg-open

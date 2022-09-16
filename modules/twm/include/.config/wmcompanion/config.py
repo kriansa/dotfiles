@@ -1,7 +1,10 @@
 from types import SimpleNamespace
+from logging import getLogger
 from asyncio import sleep
+from pathlib import Path
+
 from wmcompanion import use, on
-from wmcompanion.utils.subprocess import cmd, shell
+from wmcompanion.utils.process import cmd, shell
 from wmcompanion.modules.polybar import Polybar
 from wmcompanion.modules.notifications import Notify, Urgency
 from wmcompanion.events.bluetooth import BluetoothRadioStatus
@@ -10,8 +13,10 @@ from wmcompanion.events.keyboard import KbddChangeLayout
 from wmcompanion.events.audio import MainVolumeLevel
 from wmcompanion.events.network import WifiStatus, NetworkConnectionStatus
 from wmcompanion.events.power import PowerActions
+from wmcompanion.events.x11 import DeviceState
 
 colors = SimpleNamespace(BAR_FG="#F2F5EA", BAR_DISABLED="#2E5460")
+logger = getLogger(__name__)
 
 @on(BluetoothRadioStatus)
 @use(Polybar)
@@ -83,10 +88,9 @@ async def volume_level(volume: dict, polybar: Polybar):
     await render("speaker", "", "", volume["output"])
 
 @on(PowerActions)
-@use(Notify)
-async def power_menu(status: dict, notify: Notify):
-    if status["event"] != PowerActions.Events.POWER_BUTTON_PRESS: return
-    await cmd("power-menu")
+async def power_menu(status: dict):
+    if status["event"] == PowerActions.Events.POWER_BUTTON_PRESS:
+        await cmd("power-menu")
 
 @on(PowerActions)
 @use(Notify)
@@ -117,8 +121,10 @@ async def battery_warning(status: dict, notify: Notify):
 
 @on(PowerActions)
 async def set_power_profile(status: dict):
-    states = [PowerActions.Events.INITIAL_STATE, PowerActions.Events.POWER_SOURCE_SWITCH]
-    if status["event"] not in states: return
+    if status["event"] not in [
+        PowerActions.Events.INITIAL_STATE,
+        PowerActions.Events.POWER_SOURCE_SWITCH
+    ]: return
 
     if status["power-source"] == PowerActions.PowerSource.AC:
         cpu_governor = "performance"
@@ -133,15 +139,122 @@ async def set_power_profile(status: dict):
     await cmd("xset", "s", screen_saver)
     await cmd("xbacklight", "-ctrl", "intel_backlight", "-set", backlight)
 
+class State:
+    ON_BATTERY = False
+    NO_SCREENS = False
+
+    @staticmethod
+    async def hibernate_when_undocked():
+        if State.ON_BATTERY and State.NO_SCREENS:
+            await cmd("hibernate-countdown")
+
 @on(PowerActions)
-async def autosuspend_on_battery(status: dict):
+async def hibernate_on_battery(status: dict):
     if status["event"] not in [
         PowerActions.Events.INITIAL_STATE,
         PowerActions.Events.POWER_SOURCE_SWITCH,
-        PowerActions.Events.LID_CLOSE,
     ]: return
 
-    on_battery = status["power-source"] == PowerActions.PowerSource.BATTERY
-    lid_is_closed = status["lid-state"] == PowerActions.LidState.CLOSED
-    if on_battery and lid_is_closed:
-        await cmd("suspend-countdown")
+    State.ON_BATTERY = status["power-source"] == PowerActions.PowerSource.BATTERY
+    await State.hibernate_when_undocked()
+
+@on(DeviceState)
+async def hibernate_when_undocked(status: dict):
+    if status["event"] != DeviceState.ChangeEvent.SCREEN_CHANGE:
+        return
+
+    State.NO_SCREENS = len(status["screens"]) == 0
+    await State.hibernate_when_undocked()
+
+@on(DeviceState)
+@use(Notify)
+async def configure_screens(status: dict, notify: Notify):
+    if status["event"] != DeviceState.ChangeEvent.SCREEN_CHANGE:
+        return
+
+    edid_aliases = {
+        "7B59785F": "LAPTOP",
+        # This is the same monitor that shows different EDIDs at different occasions.
+        "047F801B": "PRIMARY",
+        "93F8B109": "PRIMARY",
+        "266B2343": "PRIMARY",
+    }
+
+    screens = []
+    for screen in status["screens"]:
+        if edid_aliases[screen["edid_hash"]]:
+            id = edid_aliases[screen["edid_hash"]]
+        else:
+            id = screen["edid_hash"]
+
+        screens.append([screen["output"], id])
+
+    match screens:
+        # Single monitor
+        case [[output, _]]:
+            await cmd("xrandrw", "--outputs-off", "--output", output, "--auto", "--primary")
+
+        # Configured layouts
+        case [["eDP-1", "LAPTOP"], [primary_output, "PRIMARY"]]:
+            await cmd(
+                "xrandrw", "--outputs-off",
+                "--output", primary_output, "--auto", "--pos", "0x0", "--primary",
+                "--output", "eDP-1", "--preferred", "--pos", "3440x1200",
+            )
+
+        # No monitors
+        case []:
+            await cmd("xrandrw", "--outputs-off")
+            logger.warn("No monitor plugged in")
+            return
+
+        # Layout not configured
+        case _:
+            cmdline = []
+            for screen in screens:
+                cmdline += ["--output", screen[0], "--auto"]
+
+            await cmd("xrandrw", "--outputs-off", *cmdline)
+
+            await notify(
+                "Monitor combination not configured",
+                "Run 'Arandr' to configure it manually.",
+            )
+
+    # Apply background
+    await cmd(
+        "feh", "--bg-fill", "--no-fehbg",
+        Path.home().joinpath(".local/share/backgrounds/2021-10-02-18-55-51-bridge.png"),
+    )
+    # Reload polybar to switch the monitor/size if needed
+    await cmd("polybar-msg", "cmd", "restart")
+    # Reconfigure monitors
+    await cmd("herbstclient", "detect_monitors")
+
+@on(DeviceState)
+async def configure_inputs(status: dict):
+    if status["event"] != DeviceState.ChangeEvent.INPUT_CHANGE:
+        return
+
+    # I only care about added events
+    if "added" not in status["inputs"]:
+        return
+
+    for input in status["inputs"]["added"]:
+        if input["type"] == "slave-keyboard":
+            await cmd(
+                "setxkbmap",
+                "-model", "pc104",
+                "-layout", "us,us",
+                "-variant", ",alt-intl",
+                "-option", "", "-option", "grp:caps_toggle"
+            )
+            await cmd("xset", "r", "rate", "300", "30")
+
+        elif input["type"] == "slave-pointer":
+            if input["name"] == "Razer Razer DeathAdder V2":
+                await cmd("xinput", "set-prop", str(input["id"]), "libinput Accel Speed", "-0.800000")
+            elif input["name"] == "DELL0A71:00 04F3:317E Touchpad":
+                await cmd("xinput", "set-prop", str(input["id"]), "libinput Tapping Enabled", "1")
+                await cmd("xinput", "set-prop", str(input["id"]), "libinput Natural Scrolling Enabled", "1")
+                await cmd("xinput", "set-prop", str(input["id"]), "libinput Tapping Drag Lock Enabled", "1")

@@ -36,7 +36,7 @@ location:
 
     # Only store/extract numeric user and group identifiers.
     # Defaults to false.
-    # numeric_owner: true
+    # numeric_ids: true
 
     # Store atime into archive. Defaults to true in Borg < 1.2,
     # false in Borg 1.2+.
@@ -57,9 +57,9 @@ location:
     # considered true.
     # read_special: false
 
-    # Record bsdflags (e.g. NODUMP, IMMUTABLE) in archive.
+    # Record filesystem flags (e.g. NODUMP, IMMUTABLE) in archive.
     # Defaults to true.
-    # bsd_flags: true
+    # flags: true
 
     # Mode in which to operate the files cache. See
     # http://borgbackup.readthedocs.io/en/stable/usage/create.html
@@ -76,7 +76,8 @@ location:
     # backups. Globs are expanded. (Tildes are not.) See the
     # output of "borg help patterns" for more details. Quote any
     # value if it contains leading punctuation, so it parses
-    # correctly.
+    # correctly. Note that only one of "patterns" and
+    # "source_directories" may be used.
     # patterns:
         # - R /
         # - '- /home/*/.cache'
@@ -91,13 +92,14 @@ location:
         # - /etc/borgmatic/patterns
 
     # Any paths matching these patterns are excluded from backups.
-    # Globs and tildes are expanded. (Note however that a glob
-    # pattern must either start with a glob or be an absolute
-    # path.) Do not backslash spaces in path names. See the output
-    # of "borg help patterns" for more details.
+    # Globs and tildes are expanded. Note that a glob pattern must
+    # either start with a glob or be an absolute path. Do not
+    # backslash spaces in path names. See the output of "borg help
+    # patterns" for more details.
     exclude_patterns:
       - /home/*/.sync
       - /home/*/.local/share/Trash
+      - /home/*/.cache
 
     # Read exclude patterns from one or more separate named files,
     # one pattern per line. See the output of "borg help patterns"
@@ -171,7 +173,7 @@ storage:
 
     # Remote network upload rate limit in kiBytes/second. Defaults
     # to unlimited.
-    # remote_rate_limit: 100
+    # upload_rate_limit: 100
 
     # Number of times to retry a failing backup before giving up.
     # Defaults to 0 (i.e., does not attempt retry).
@@ -184,7 +186,7 @@ storage:
 
     # Directory where temporary files are stored. Defaults to
     # $TMPDIR
-    temporary_directory: /tmp
+    # temporary_directory: /path/to/tmpdir
 
     # Command to use instead of "ssh". This can be used to specify
     # ssh options.  Defaults to not set.
@@ -220,10 +222,10 @@ storage:
     # Name of the archive. Borg placeholders can be used. See the
     # output of "borg help placeholders" for details. Defaults to
     # "{hostname}-{now:%Y-%m-%dT%H:%M:%S.%f}". If you specify this
-    # option, you must also specify a prefix in the retention
-    # section to avoid accidental pruning of archives with a
-    # different archive name format. And you should also specify a
-    # prefix in the consistency section as well.
+    # option, consider also specifying a prefix in the retention
+    # and consistency sections to avoid accidental
+    # pruning/checking of archives with different archive name
+    # formats.
     # archive_name_format: '{hostname}-documents-{now}'
 
     # Bypass Borg error about a repository that has been moved.
@@ -232,7 +234,7 @@ storage:
 
     # Bypass Borg error about a previously unknown unencrypted
     # repository. Defaults to false.
-    # unknown_unencrypted_repo_access_is_ok: true
+    unknown_unencrypted_repo_access_is_ok: true
 
     # Additional options to pass directly to particular Borg
     # commands, handy for Borg options that borgmatic does not yet
@@ -297,17 +299,30 @@ retention:
 # https://borgbackup.readthedocs.io/en/stable/usage/extract.html for
 # details.
 consistency:
-    # List of one or more consistency checks to run: "repository",
-    # "archives", "data", and/or "extract". Defaults to
-    # "repository" and "archives". Set to "disabled" to disable
-    # all consistency checks. "repository" checks the consistency
-    # of the repository, "archives" checks all of the archives,
-    # "data" verifies the integrity of the data within the
-    # archives, and "extract" does an extraction dry-run of the
-    # most recent archive. Note that "data" implies "archives".
+    # List of one or more consistency checks to run on a periodic
+    # basis (if "frequency" is set) or every time borgmatic runs
+    # checks (if "frequency" is omitted).
     # checks:
-        # - repository
-        # - archives
+        # Name of consistency check to run: "repository",
+        # "archives", "data", and/or "extract". Set to
+        # "disabled" to disable all consistency checks.
+        # "repository" checks the consistency of the
+        # repository, "archives" checks all of the
+        # archives, "data" verifies the integrity of the
+        # data within the archives, and "extract" does an
+        # extraction dry-run of the most recent archive.
+        # Note that "data" implies "archives".
+        # - name: repository
+
+          # How frequently to run this type of consistency
+          # check (as a best effort). The value is a number
+          # followed by a unit of time. E.g., "2 weeks" to
+          # run this consistency check no more than every
+          # two weeks for a given repository or "1 month" to
+          # run it no more than monthly. Defaults to
+          # "always": running this check every time checks
+          # are run.
+          # frequency: 2 weeks
 
     # Paths to a subset of the repositories in the location
     # section on which to run consistency checks. Handy in case
@@ -344,54 +359,65 @@ consistency:
 # prevent potential shell injection or privilege escalation.
 hooks:
     # List of one or more shell commands or scripts to execute
-    # before creating a backup, run once per configuration file.
+    # before all the actions for each repository.
+    before_actions:
+      - test -d /mnt/Backup || mkdir /mnt/Backup
+      - mountpoint /mnt/Backup > /dev/null || mount nas.lan.cx:/mnt/pool1/Daniel/Backups /mnt/Backup
+
+    # List of one or more shell commands or scripts to execute
+    # before creating a backup, run once per repository.
     # before_backup:
         # - echo "Starting a backup."
 
     # List of one or more shell commands or scripts to execute
-    # before pruning, run once per configuration file.
+    # before pruning, run once per repository.
     # before_prune:
         # - echo "Starting pruning."
 
     # List of one or more shell commands or scripts to execute
-    # before compaction, run once per configuration file.
+    # before compaction, run once per repository.
     # before_compact:
         # - echo "Starting compaction."
 
     # List of one or more shell commands or scripts to execute
-    # before consistency checks, run once per configuration file.
+    # before consistency checks, run once per repository.
     # before_check:
         # - echo "Starting checks."
 
     # List of one or more shell commands or scripts to execute
-    # before extracting a backup, run once per configuration file.
+    # before extracting a backup, run once per repository.
     # before_extract:
         # - echo "Starting extracting."
 
     # List of one or more shell commands or scripts to execute
-    # after creating a backup, run once per configuration file.
+    # after creating a backup, run once per repository.
     # after_backup:
         # - echo "Finished a backup."
 
     # List of one or more shell commands or scripts to execute
-    # after compaction, run once per configuration file.
+    # after compaction, run once per repository.
     # after_compact:
         # - echo "Finished compaction."
 
     # List of one or more shell commands or scripts to execute
-    # after pruning, run once per configuration file.
+    # after pruning, run once per repository.
     # after_prune:
         # - echo "Finished pruning."
 
     # List of one or more shell commands or scripts to execute
-    # after consistency checks, run once per configuration file.
+    # after consistency checks, run once per repository.
     # after_check:
         # - echo "Finished checks."
 
     # List of one or more shell commands or scripts to execute
-    # after extracting a backup, run once per configuration file.
+    # after extracting a backup, run once per repository.
     # after_extract:
         # - echo "Finished extracting."
+
+    # List of one or more shell commands or scripts to execute
+    # after all actions for each repository.
+    after_actions:
+      - umount /mnt/Backup && rmdir /mnt/Backup
 
     # List of one or more shell commands or scripts to execute
     # when an exception occurs during a "prune", "compact",
@@ -404,17 +430,15 @@ hooks:
     # before running all actions (if one of them is "create").
     # These are collected from all configuration files and then
     # run once before all of them (prior to all actions).
-    before_everything:
-      - test -d /mnt/Backup || mkdir /mnt/Backup
-      - mountpoint /mnt/Backup > /dev/null || mount nas.lan.cx:/mnt/pool1/Daniel/Backups /mnt/Backup
+    # before_everything:
+        # - echo "Starting actions."
 
     # List of one or more shell commands or scripts to execute
     # after running all actions (if one of them is "create").
     # These are collected from all configuration files and then
     # run once after all of them (after any action).
-    after_everything:
-      - umount /mnt/Backup
-      - rmdir /mnt/Backup
+    # after_everything:
+        # - echo "Completed actions."
 
     # List of one or more PostgreSQL databases to dump before
     # creating a backup, run once per configuration file. The
@@ -579,29 +603,116 @@ hooks:
           # documentation for details.
           # options: --role=someone
 
-    # Healthchecks ping URL or UUID to notify when a backup
-    # begins, ends, or errors. Create an account at
-    # https://healthchecks.io if you'd like to use this service.
-    # See borgmatic monitoring documentation for details.
-    # healthchecks: https://hc-ping.com/your-uuid-here
+    # ntfy:
+        # The topic to publish to.
+        # (https://ntfy.sh/docs/publish/)
+        # topic: topic
 
-    # Cronitor ping URL to notify when a backup begins, ends, or
-    # errors. Create an account at https://cronitor.io if you'd
-    # like to use this service. See borgmatic monitoring
-    # documentation for details.
-    # cronitor: https://cronitor.link/d3x0c1
+        # The address of your self-hosted ntfy.sh instance.
+        # server: https://ntfy.your-domain.com
 
-    # PagerDuty integration key used to notify PagerDuty when a
-    # backup errors. Create an account at
-    # https://www.pagerduty.com/ if you'd like to use this
+        # start:
+            # The title of the message
+            # title: Ping!
+
+            # The message body to publish.
+            # message: Your backups have failed.
+
+            # The priority to set.
+            # priority: urgent
+
+            # Tags to attach to the message.
+            # tags: incoming_envelope
+
+        # finish:
+            # The title of the message.
+            # title: Ping!
+
+            # The message body to publish.
+            # message: Your backups have failed.
+
+            # The priority to set.
+            # priority: urgent
+
+            # Tags to attach to the message.
+            # tags: incoming_envelope
+
+        # fail:
+            # The title of the message.
+            # title: Ping!
+
+            # The message body to publish.
+            # message: Your backups have failed.
+
+            # The priority to set.
+            # priority: urgent
+
+            # Tags to attach to the message.
+            # tags: incoming_envelope
+
+        # List of one or more monitoring states to ping for:
+        # "start", "finish", and/or "fail". Defaults to
+        # pinging for failure only.
+        # states:
+            # - start
+            # - finish
+
+    # Configuration for a monitoring integration with
+    # Healthchecks. Create an account at https://healthchecks.io
+    # (or self-host Healthchecks) if you'd like to use this
     # service. See borgmatic monitoring documentation for details.
-    # pagerduty: a177cad45bd374409f78906a810a3074
+    # healthchecks:
+        # Healthchecks ping URL or UUID to notify when a
+        # backup begins, ends, or errors.
+        # ping_url: https://hc-ping.com/your-uuid-here
 
-    # Cronhub ping URL to notify when a backup begins, ends, or
-    # errors. Create an account at https://cronhub.io if you'd
+        # Verify the TLS certificate of the ping URL host.
+        # Defaults to true.
+        # verify_tls: false
+
+        # Send borgmatic logs to Healthchecks as part the
+        # "finish" state. Defaults to true.
+        # send_logs: false
+
+        # Number of bytes of borgmatic logs to send to
+        # Healthchecks, ideally the same as PING_BODY_LIMIT
+        # configured on the Healthchecks server. Set to 0 to
+        # send all logs and disable this truncation. Defaults
+        # to 100000.
+        # ping_body_limit: 200000
+
+        # List of one or more monitoring states to ping for:
+        # "start", "finish", and/or "fail". Defaults to
+        # pinging for all states.
+        # states:
+            # - finish
+
+    # Configuration for a monitoring integration with Cronitor.
+    # Create an account at https://cronitor.io if you'd
     # like to use this service. See borgmatic monitoring
     # documentation for details.
-    # cronhub: https://cronhub.io/start/1f5e3410-254c-11e8-b61d-55875966d01
+    # cronitor:
+        # Cronitor ping URL to notify when a backup begins,
+        # ends, or errors.
+        # ping_url: https://cronitor.link/d3x0c1
+
+    # Configuration for a monitoring integration with PagerDuty.
+    # Create an account at https://www.pagerduty.com/ if you'd
+    # like to use this service. See borgmatic monitoring
+    # documentation for details.
+    # pagerduty:
+        # PagerDuty integration key used to notify PagerDuty
+        # when a backup errors.
+        # integration_key: a177cad45bd374409f78906a810a3074
+
+    # Configuration for a monitoring integration with Crunhub.
+    # Create an account at https://cronhub.io if you'd like to
+    # use this service. See borgmatic monitoring documentation
+    # for details.
+    # cronhub:
+        # Cronhub ping URL to notify when a backup begins,
+        # ends, or errors.
+        # ping_url: https://cronhub.io/ping/1f5e3410-254c-5587
 
     # Umask used when executing hooks. Defaults to the umask that
     # borgmatic is run with.

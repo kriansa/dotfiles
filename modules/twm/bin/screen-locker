@@ -73,8 +73,7 @@ lock() {
   pause_interactive_activities
 
   XSECURELOCK_FONT="Iosevka Term Medium:size=20" \
-  XSECURELOCK_AUTH_TIMEOUT=10 \
-  XSECURELOCK_AUTHPROTO_KILL_ON_TIMEOUT=1 \
+  XSECURELOCK_AUTH_TIMEOUT=15 \
   XSECURELOCK_SHOW_HOSTNAME=0 \
   XSECURELOCK_SHOW_USERNAME=0 \
   XSECURELOCK_SHOW_DATETIME=1 \
@@ -82,7 +81,8 @@ lock() {
   XSECURELOCK_BLANK_TIMEOUT=1 \
   XSECURELOCK_BLANK_DPMS_STATE=off \
   XSECURELOCK_COMPOSITE_OBSCURER=0 \
-  XSECURELOCK_AUTH=/home/dpereira/.sync/Projects/xsecurelock/auth_x11 \
+  XSECURELOCK_AUTH=/usr/lib/xsecurelock/auth_u2f_x11 \
+  XSECURELOCK_AUTHPROTO_KILL_ON_TIMEOUT=1 \
   xsecurelock
 
   unpause_interactive_activities

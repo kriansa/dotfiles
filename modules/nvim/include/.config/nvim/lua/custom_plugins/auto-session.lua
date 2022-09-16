@@ -48,7 +48,7 @@ function M.save_session()
   local meta_dir = vim.fn.getcwd() .. "/" .. metadir
 
   if vim.fn.isdirectory(meta_dir) == 1 then
-    vim.cmd("Obssession " .. metafile)
+    vim.cmd("Obsession " .. metafile)
   else
     print("This directory doesn't have a metadir (" .. meta_dir .. ") !")
   end
