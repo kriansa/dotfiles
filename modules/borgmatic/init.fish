@@ -1,0 +1,1 @@
+set --global --export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK yes
