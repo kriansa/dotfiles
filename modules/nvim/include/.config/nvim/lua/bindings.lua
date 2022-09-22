@@ -90,7 +90,7 @@ nmap("<leader>yl", "<cmd>YankFilenameLine<CR>", { silent = true })
 -- Quickfix
 nnoremap(']q', '<cmd>QNext<CR>', { silent = true })
 nnoremap('[q', '<cmd>QPrev<CR>', { silent = true })
-nnoremap('<C-q>', '<cmd>QFToggle<CR>', { silent = true })
+nnoremap('<C-q>', '<cmd>QToggle<CR>', { silent = true })
 
 -- Packer
 nmap("<leader>pc", "<cmd>PackerCompile<CR>", { silent = true })
@@ -104,12 +104,6 @@ g.winresizer_start_key = '<Leader>e'
 
 -- Neogit
 nmap("<leader>gs", "<cmd>Neogit<CR>", { silent = true })
-
--- Fugitive
--- nmap("<leader>gs", ":Git<CR>", { silent = true })
--- nmap("<leader>gp", ":Git push<CR>", { silent = true })
--- nmap("<leader>gP", ":Git push<CR>", { silent = true })
--- nmap("<leader>gb", ":Git blame<CR>", { silent = true })
 
 -- Dirvish
 nmap('-', "<Plug>(dirvish_up)")
@@ -167,7 +161,7 @@ mappings.nvim_tree = {
 
 -- Gitsigns
 mappings.gitsigns = function(bufnr)
-  -- Replace this mapping Neovim 0.7 gets released
+  -- TODO: Replace this mapping Neovim 0.7 gets released
   -- See: https://github.com/lewis6991/gitsigns.nvim
   local map = function(mode, lhs, rhs, opts)
     opts = vim.tbl_extend('force', {noremap = true, silent = true}, opts or {})
@@ -200,7 +194,7 @@ mappings.gitsigns = function(bufnr)
 end
 
 -- Telescope
-function mappings.telescope_defaults()
+mappings.telescope_defaults = function()
   local actions = require("telescope.actions")
   local transform_mod = require('telescope.actions.mt').transform_mod
   local custom_actions = transform_mod({ open_qflist = function()
@@ -248,16 +242,27 @@ nmap('<C-P>', '<cmd>Telescope find_files<CR>')
 nmap('<Leader>a', '<cmd>Telescope live_grep<CR>')
 nmap('<Leader>s', '<cmd>Telescope grep_string<CR>')
 
--- ALE
--- nnoremap <silent> gd :ALEGoToDefinition<CR>
--- nmap <silent> [l <Plug>(ale_previous_wrap)
--- nmap <silent> ]l <Plug>(ale_next_wrap)
--- nmap <Leader>ff <Plug>(ale_fix)
---
--- CoC
--- nmap <silent> gd <Plug>(CoC-definition)
--- nmap <silent> gy <Plug>(coc-type-definition)
--- nmap <silent> gi <Plug>(coc-implementation)
--- nmap <silent> gr <Plug>(coc-references)
--- nmap <leader>fc <Plug>(coc-fix-current)
--- nmap <leader>ac <Plug>(coc-codeaction)
+mappings.lsp = function(bufnr)
+  local opts = { noremap=true, silent=true }
+  vim.keymap.set('n', '[l', vim.diagnostic.goto_prev, opts)
+  vim.keymap.set('n', ']l', vim.diagnostic.goto_next, opts)
+  vim.keymap.set('n', '<leader>lq', vim.diagnostic.setloclist, opts)
+
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  local bufopts = { noremap=true, silent=true, buffer=bufnr }
+  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+  vim.keymap.set('n', 'gy', vim.lsp.buf.type_definition, bufopts)
+  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+  vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+  -- vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+  vim.keymap.set('n', '<leader>ls', vim.lsp.buf.signature_help, bufopts)
+  vim.keymap.set('n', '<leader>lwa', vim.lsp.buf.add_workspace_folder, bufopts)
+  vim.keymap.set('n', '<leader>lwr', vim.lsp.buf.remove_workspace_folder, bufopts)
+  vim.keymap.set('n', '<leader>lwl', function()
+    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  end, bufopts)
+  vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, bufopts)
+  vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts)
+  vim.keymap.set('n', '<leader>lf', vim.lsp.buf.formatting, bufopts)
+end

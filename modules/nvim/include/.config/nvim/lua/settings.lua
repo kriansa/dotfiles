@@ -87,6 +87,7 @@ o.listchars = "tab:▸ ,eol:¬,space:." -- chars to be displayed
 o.showbreak = "↪"                    -- char to be displayed on wraped lines
 o.termguicolors = true               -- Use truebit on terminal
 o.clipboard:append("unnamedplus")    -- yanks to clipboard
+o.updatetime = 250                   -- Time to trigger CursorHold
 
 -- Spend extra time to generate the smallest possible diff
 o.diffopt:append("algorithm:patience")

@@ -65,6 +65,14 @@ local set_list = function(qftype, items)
   end
 end
 
+local list_name = function(qftype)
+  if qftype == "l" then
+    return "Location list"
+  else
+    return "Quickfix"
+  end
+end
+
 M.open = function(qftype, enter)
   enter = enter or false
 
@@ -80,7 +88,7 @@ M.open = function(qftype, enter)
 
   -- Don't open a blank list
   if #list == 0 then
-    vim.api.nvim_echo({ { "Quickfix is empty!", nil } }, false, {})
+    vim.api.nvim_echo({ { list_name(qftype) .. " is empty!", nil } }, false, {})
     return
   end
 
@@ -115,6 +123,18 @@ M.toggle = function(qftype, enter)
     M.close(qftype)
   else
     M.open(qftype, enter)
+  end
+end
+
+M.toggle_all = function(enter)
+  if is_open("l") then
+    M.close("l")
+  elseif is_open("c") then
+    M.close("c")
+  elseif #get_list('l') > 0 then
+    M.open("l", enter)
+  else
+    M.open("c", enter)
   end
 end
 
@@ -216,6 +236,7 @@ M.setup = function(opts)
     " Open/close lists
     command! -bang QFOpen call luaeval("require('custom_plugins.better-qf').open('c', _A == '')", expand('<bang>'))
     command! -bang LLOpen call luaeval("require('custom_plugins.better-qf').open('l', _A == '')", expand('<bang>'))
+    command! -bang QToggle call luaeval("require('custom_plugins.better-qf').toggle_all(_A == '')", expand('<bang>'))
     command! -bang QFToggle call luaeval("require('custom_plugins.better-qf').toggle('c', _A == '')", expand('<bang>'))
     command! -bang LLToggle call luaeval("require('custom_plugins.better-qf').toggle('l', _A == '')", expand('<bang>'))
 

@@ -5,9 +5,12 @@ return function(use)
   -- Speed up loading Lua modules in Neovim to improve startup time.
   use 'lewis6991/impatient.nvim'
 
-  -- Fix CursorHold event
+  -- Fix CursorHold event (TODO: Remove on 0.8) - https://github.com/neovim/neovim/pull/20198
   -- See: https://github.com/neovim/neovim/issues/12587
   use 'antoinemadec/FixCursorHold.nvim'
+
+  -- Automatically set shiftwidt and expandtab
+  use 'tpope/vim-sleuth'
 
   -- Add file manipulation commands
   use {
