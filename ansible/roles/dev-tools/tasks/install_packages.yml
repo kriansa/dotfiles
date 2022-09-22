@@ -23,7 +23,6 @@
 
       # Shell utils
       - alacritty
-      - starship
       - fzf
       - bat
       - fd
@@ -56,6 +55,9 @@
       - python-dotenv
       - kubectl
       - kubectx
+
+      # Golang dev
+      - go
 
       # ---------------------
       # Packages on AUR/pacom

@@ -1,9 +1,0 @@
----
-- name: enable psi-notify at boot time
-  become: true
-  become_user: "{{ user_name }}"
-  ansible.builtin.systemd: name=psi-notify enabled=true state=started scope=user
-
-- name: enable ananicy at boot time
-  become: true
-  ansible.builtin.systemd: name=ananicy enabled=true state=started

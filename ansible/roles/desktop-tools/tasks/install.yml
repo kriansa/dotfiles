@@ -65,10 +65,17 @@
 
 - name: install ananicy
   become: true
-  notify: enable ananicy at boot time
   community.general.pacman: name=ananicy-git
+
+- name: start and enable ananicy at boot time
+  become: true
+  ansible.builtin.systemd: name=ananicy enabled=true state=started
 
 - name: install psi-notify
   become: true
-  notify: enable psi-notify at boot time
   community.general.pacman: name=psi-notify
+
+- name: start and enable psi-notify at boot time
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.systemd: name=psi-notify enabled=true state=started scope=user

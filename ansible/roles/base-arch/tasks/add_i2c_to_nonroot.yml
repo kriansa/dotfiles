@@ -6,6 +6,10 @@
     state: present
     system: yes
 
+- name: add my user to the i2c group
+  become: true
+  ansible.builtin.user: name={{ user_name }} groups=i2c append=yes
+
 - name: create udev rule for i2c devices
   become: true
   ansible.builtin.copy:
