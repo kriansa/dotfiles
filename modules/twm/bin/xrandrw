@@ -6,7 +6,7 @@
 # automatically turns off all outputs non specified in the command line.
 # This is both convenient for the user but also very important for automatic xrandr calls, because
 # the system SHOULD always register the modeset state when a monitor is plugged off, therefore
-# avoiding issues such as monitor stop being detected or GPUs becoming unresponsive altogether.
+# avoiding issues such as monitor stop being detected.
 #
 # See: https://gitlab.freedesktop.org/drm/intel/-/issues/6224
 #
@@ -44,7 +44,7 @@ if [ $OUTPUTS_OFF == "YES" ]; then
     # If an available output is not present in the plugged outputs, it means it's disconnected,
     # hence added for being turned off in case it was previously configured
     test $has_match = 0 && args+=("--output" "$available_output" "--off")
-  done < <(xrandr -q | grep -Eo "^[[:alpha:]]+-[-[:digit:]]+")
+  done < <(xrandr -q | grep -Eo "^[[:alpha:]]+[-[:digit:]]+")
 fi
 
-xrandr "${args[@]}"
+exec xrandr "${args[@]}"

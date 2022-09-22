@@ -123,7 +123,8 @@ async def battery_warning(status: dict, notify: Notify):
 async def set_power_profile(status: dict):
     if status["event"] not in [
         PowerActions.Events.INITIAL_STATE,
-        PowerActions.Events.POWER_SOURCE_SWITCH
+        PowerActions.Events.POWER_SOURCE_SWITCH,
+        PowerActions.Events.RETURN_FROM_SLEEP,
     ]: return
 
     if status["power-source"] == PowerActions.PowerSource.AC:
@@ -153,6 +154,7 @@ async def hibernate_on_battery(status: dict):
     if status["event"] not in [
         PowerActions.Events.INITIAL_STATE,
         PowerActions.Events.POWER_SOURCE_SWITCH,
+        PowerActions.Events.RETURN_FROM_SLEEP,
     ]: return
 
     State.ON_BATTERY = status["power-source"] == PowerActions.PowerSource.BATTERY
@@ -205,7 +207,6 @@ async def configure_screens(status: dict, notify: Notify):
         # No monitors
         case []:
             await cmd("xrandrw", "--outputs-off")
-            logger.warn("No monitor plugged in")
             return
 
         # Layout not configured
@@ -224,10 +225,10 @@ async def configure_screens(status: dict, notify: Notify):
     # Apply background
     await cmd(
         "feh", "--bg-fill", "--no-fehbg",
-        Path.home().joinpath(".local/share/backgrounds/2021-10-02-18-55-51-bridge.png"),
+        Path.home().joinpath(".local/share/backgrounds/kerevel.png"),
     )
     # Reload polybar to switch the monitor/size if needed
-    await cmd("polybar-msg", "cmd", "restart")
+    await cmd("systemctl", "reload", "--user", "polybar")
     # Reconfigure monitors
     await cmd("herbstclient", "detect_monitors")
 
