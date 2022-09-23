@@ -77,7 +77,9 @@ return function(use)
       -- Setup each available language server
       local lspconfig = require('lspconfig')
       local lsp_flags = { debounce_text_changes = 150 }
-      local servers = { 'solargraph', 'tsserver', 'eslint', 'vls', 'pylsp', 'ansiblels', 'bashls' }
+      local servers = {
+        'solargraph', 'tsserver', 'eslint', 'vls', 'cssls', 'html', 'pylsp', 'ansiblels', 'bashls',
+      }
       local server_settings = {
         pylsp = {
           pylsp = {
