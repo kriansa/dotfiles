@@ -4,5 +4,5 @@
 #
 # Usage: file-manager [<PATH>, <PATH>, ...]
 
-[[ $# -eq 0 ]] && set -- $HOME/Downloads
+[[ $# -eq 0 ]] && set -- "$HOME/Downloads"
 exec pcmanfm "$@"
