@@ -137,7 +137,17 @@ async def set_power_profile(status: dict):
         backlight = "30"
 
     await cmd("sudo", "cpupower", "frequency-set", "-g", cpu_governor)
-    await cmd("xset", "s", screen_saver)
+
+    # xset s <timeout> <cycle>
+    # The meaning of these values are that timeout is how much time after idling it will trigger the
+    # ScreenSaver ON, while the cycle is, after being on, how often it will trigger its cycle event,
+    # originally meant for changing background patterns to avoid burn-in, but in this case it's used
+    # to flag `xss-lock` that the locker can be called - otherwise, it would only call the notify
+    # program. See more on xss-lock(1) and on screen-locker.
+    #
+    # Recommendation: Keep the second parameter the amount of time that the dimmer needs to fade out
+    # completely before showing the locker - usually 5 seconds (see: screen-locker)
+    await cmd("xset", "s", screen_saver, "5")
     await cmd("xbacklight", "-ctrl", "intel_backlight", "-set", backlight)
 
 class State:
@@ -147,7 +157,10 @@ class State:
     @staticmethod
     async def hibernate_when_undocked():
         if State.ON_BATTERY and State.NO_SCREENS:
-            await cmd("hibernate-countdown")
+            # Waits 5 seconds before actually suspending, in case we quickly undock it
+            await sleep(5)
+            if State.ON_BATTERY and State.NO_SCREENS:
+                await cmd("systemctl", "hibernate")
 
 @on(PowerActions)
 async def hibernate_on_battery(status: dict):

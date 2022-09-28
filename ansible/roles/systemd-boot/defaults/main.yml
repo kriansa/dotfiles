@@ -20,4 +20,4 @@ use_intel_ucode: yes
 dualboot_windows: yes
 
 # What's the default OS we want to boot to
-default_loader: arch.conf
+default_loader: "@saved"
