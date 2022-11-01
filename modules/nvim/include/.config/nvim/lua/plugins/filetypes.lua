@@ -8,6 +8,9 @@ return function(use)
             complex = {
               ["^Dockerfile-.*"] = "dockerfile",
             },
+            extensions = {
+              jbuilder = "ruby",
+            },
             literal = {
               Dangerfile = "ruby",
               [".env"] = "sh",

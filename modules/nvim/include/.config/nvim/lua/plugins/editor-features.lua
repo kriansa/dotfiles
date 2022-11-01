@@ -29,7 +29,12 @@ return function(use)
   use "gpanders/editorconfig.nvim"
 
   -- See contents of registers
-  use 'tversteeg/registers.nvim'
+  use {
+    'tversteeg/registers.nvim',
+    config = function()
+		  require("registers").setup()
+	  end
+  }
 
   -- Window management
   use 'mhinz/vim-sayonara'
