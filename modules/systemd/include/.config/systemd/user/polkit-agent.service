@@ -1,0 +1,10 @@
+[Unit]
+Description=Polkit agent
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+Restart=on-failure
+
+[Install]
+RequiredBy=xsession.target

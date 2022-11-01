@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# Wrapper on top of file-roller so when called with --extract-to on the same directory as the
+# compressed file, it always create a subfolder instead, to avoid polluting the current directory.
+
+main() {
+  declare ARGS=()
+  parse_cli "$@"
+  /usr/bin/file-roller "${ARGS[@]}"
+}
+
+parse_cli() {
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --extract-to)
+        adjust_extract_to "$2" "$3"
+        shift 3
+      ;;
+
+      # Pass everything through
+      *) ARGS+=("$1"); shift ;;
+    esac
+  done
+}
+
+adjust_extract_to() {
+  local destination=$1
+  local compressed_file=$2
+
+  # Normalize directories to compare them
+  local dest_dir="${destination/file:\/\//}"
+  local file_dir="${compressed_file/file:\/\//}"
+  file_dir=$(dirname "$file_dir")
+
+  if [[ "$dest_dir" == "$file_dir" ]]; then
+    local ext=${compressed_file##*.}
+    local basename; basename=$(basename "$compressed_file" ."$ext")
+    destination="$dest_dir/$basename"
+  fi
+
+  ARGS+=(--force --extract-to "$destination" "$compressed_file")
+}
+
+main "$@"
