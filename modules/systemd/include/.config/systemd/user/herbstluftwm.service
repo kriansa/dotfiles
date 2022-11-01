@@ -1,11 +1,10 @@
 [Unit]
 Description=herbstluftwm Window Manager
 PartOf=graphical-session.target
-After=x-config.service watchmon.service
+After=x-config.service
 
 [Service]
 ExecStart=/usr/bin/herbstluftwm --locked
-ExecStopPost=%h/.dotfiles/modules/twm/libexec/dh-watchmon
 ExecStopPost=/bin/systemctl --user stop graphical-session.target
 Restart=no
 

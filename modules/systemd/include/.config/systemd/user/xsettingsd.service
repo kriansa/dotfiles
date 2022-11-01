@@ -1,6 +1,9 @@
 [Unit]
 Description=XSETTINGS daemon
 PartOf=graphical-session.target
+
+# x-config configures monitor-dpi, which then is responsible for generating a file under
+# .config/xsettingsd
 After=x-config.service
 
 [Service]

@@ -153,10 +153,10 @@ hc set frame_border_inner_color $(argb text_primary_bg 30)
 hc set frame_border_active_color $(argb primary 30)
 hc set frame_border_normal_color $(argb secondary 5)
 hc set frame_border_inner_width 1 # this is included in border_width
-hc set frame_border_width 5       # total width, includes the inner width
-hc set frame_gap 10               # gap (margin) between frames
+hc set frame_border_width 3       # total width, includes the inner width
+hc set frame_gap 5               # gap (margin) between frames
 hc set frame_padding 0            # use the window gap instead
-hc set window_gap 10              # gap between windows on tiling mode
+hc set window_gap 5              # gap between windows on tiling mode
 
 # hide frame gaps and borders when there's only one visible in the monitor
 hc set smart_frame_surroundings hide_all
@@ -215,7 +215,7 @@ hc attr theme.padding_top 0
 # borders
 hc attr theme.inner_width 1
 hc attr theme.outer_width 0
-hc attr theme.border_width 6 # this has to accomodate both inner and outer borders
+hc attr theme.border_width 4 # this has to accomodate both inner and outer borders
 hc attr theme.inner_color $color_text_primary_bg
 
 # overrides for non focused windows (inactive)
@@ -279,3 +279,6 @@ hc unlock
 
 # and run it once we start/reload
 hc detect_monitors
+
+# set the default layout to horizontal
+test "$(hc list_clients | wc -l)" -eq 0 && hc set_layout horizontal

@@ -53,3 +53,4 @@ x-scheme-handler/http=firefox.desktop
 x-scheme-handler/https=firefox.desktop
 x-scheme-handler/terminal=tmux-window.desktop;
 text/x-csrc=nvim.desktop
+x-scheme-handler/postman=Postman.desktop

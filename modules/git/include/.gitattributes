@@ -32,3 +32,4 @@
 *.lisp  diff=lisp
 *.el    diff=lisp
 *.db    diff=sqlite
+*.sqlite*  diff=sqlite

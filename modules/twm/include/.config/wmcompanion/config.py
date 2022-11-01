@@ -1,10 +1,13 @@
+# pylint: disable=missing-function-docstring, missing-module-docstring
 from types import SimpleNamespace
 from logging import getLogger
-from asyncio import sleep
+from asyncio import sleep, get_running_loop, CancelledError
 from pathlib import Path
+from contextlib import suppress
+from time import time
 
 from wmcompanion import use, on
-from wmcompanion.utils.process import cmd, shell
+from wmcompanion.utils.process import cmd
 from wmcompanion.modules.polybar import Polybar
 from wmcompanion.modules.notifications import Notify, Urgency
 from wmcompanion.events.bluetooth import BluetoothRadioStatus
@@ -12,7 +15,7 @@ from wmcompanion.events.notifications import DunstPausedStatus
 from wmcompanion.events.keyboard import KbddChangeLayout
 from wmcompanion.events.audio import MainVolumeLevel
 from wmcompanion.events.network import WifiStatus, NetworkConnectionStatus
-from wmcompanion.events.power import PowerActions
+from wmcompanion.events.power import PowerActions, LogindIdleStatus
 from wmcompanion.events.x11 import DeviceState
 
 colors = SimpleNamespace(BAR_FG="#F2F5EA", BAR_DISABLED="#2E5460")
@@ -74,7 +77,8 @@ async def volume_level(volume: dict, polybar: Polybar):
     async def render(polybar_module, icon_on, icon_muted, volume):
         if not volume["available"]:
             return await polybar(polybar_module, "")
-        elif not volume["muted"]:
+
+        if not volume["muted"]:
             icon = icon_on
             color = colors.BAR_FG
         else:
@@ -95,12 +99,14 @@ async def power_menu(status: dict):
 @on(PowerActions)
 @use(Notify)
 async def battery_warning(status: dict, notify: Notify):
+    print(status)
     ignore_battery_statuses = [PowerActions.BatteryStatus.CHARGING, PowerActions.BatteryStatus.FULL]
     if status["event"] != PowerActions.Events.BATTERY_LEVEL_CHANGE or \
         status["battery-status"] in ignore_battery_statuses: return
 
     level = status["battery-level"]
-    if level > 10: return
+    if level > 10:
+        return
 
     if level > 5:
         await notify(
@@ -150,17 +156,39 @@ async def set_power_profile(status: dict):
     await cmd("xset", "s", screen_saver, "5")
     await cmd("xbacklight", "-ctrl", "intel_backlight", "-set", backlight)
 
-class State:
+class PowerState:  # pylint: disable=too-few-public-methods
+    """
+    Automatically hibernates the laptop when undocked or when idling for too long on battery.
+    """
+
+    IS_IDLE = False
     ON_BATTERY = False
     NO_SCREENS = False
 
     @staticmethod
-    async def hibernate_when_undocked():
-        if State.ON_BATTERY and State.NO_SCREENS:
-            # Waits 5 seconds before actually suspending, in case we quickly undock it
+    async def auto_suspend():
+        if hasattr(PowerState, "idle_timer") and PowerState.idle_timer:
+            # On every power state change, let's cancel the idle timer so we can ensure that its
+            # timer is only ever activated when on battery
+            PowerState.idle_timer.cancel()
+            PowerState.idle_timer = None
+
+        if PowerState.ON_BATTERY and PowerState.NO_SCREENS:
+            # Waits 5 seconds before actually suspending, in case we undock the computer but quickly
+            # plug it back again
             await sleep(5)
-            if State.ON_BATTERY and State.NO_SCREENS:
+            if PowerState.ON_BATTERY and PowerState.NO_SCREENS:
                 await cmd("systemctl", "hibernate")
+
+        if PowerState.IS_IDLE and PowerState.ON_BATTERY:
+            # When idling on battery, we start a timer to automatic hibernation
+            PowerState.idle_timer = get_running_loop().create_task(PowerState._start_idle_timer())
+
+    @staticmethod
+    async def _start_idle_timer():
+        with suppress(CancelledError):
+            await sleep(2 * 60)
+            await cmd("systemctl", "hibernate")
 
 @on(PowerActions)
 async def hibernate_on_battery(status: dict):
@@ -170,16 +198,21 @@ async def hibernate_on_battery(status: dict):
         PowerActions.Events.RETURN_FROM_SLEEP,
     ]: return
 
-    State.ON_BATTERY = status["power-source"] == PowerActions.PowerSource.BATTERY
-    await State.hibernate_when_undocked()
+    PowerState.ON_BATTERY = status["power-source"] == PowerActions.PowerSource.BATTERY
+    await PowerState.auto_suspend()
 
 @on(DeviceState)
 async def hibernate_when_undocked(status: dict):
     if status["event"] != DeviceState.ChangeEvent.SCREEN_CHANGE:
         return
 
-    State.NO_SCREENS = len(status["screens"]) == 0
-    await State.hibernate_when_undocked()
+    PowerState.NO_SCREENS = len(status["screens"]) == 0
+    await PowerState.auto_suspend()
+
+@on(LogindIdleStatus)
+async def hibernate_when_idle(status: dict):
+    PowerState.IS_IDLE = status["idle"]
+    await PowerState.auto_suspend()
 
 @on(DeviceState)
 @use(Notify)
@@ -189,33 +222,39 @@ async def configure_screens(status: dict, notify: Notify):
 
     edid_aliases = {
         "7B59785F": "LAPTOP",
-        # This is the same monitor that shows different EDIDs at different occasions.
         "047F801B": "PRIMARY",
         "93F8B109": "PRIMARY",
         "266B2343": "PRIMARY",
+        "E65018AA": "PRIMARY",
+        "95BB6889": "PRIMARY",
+        "40D8582C": "PRIMARY",
     }
 
     screens = []
     for screen in status["screens"]:
-        if edid_aliases[screen["edid_hash"]]:
-            id = edid_aliases[screen["edid_hash"]]
+        if screen["edid_hash"] in edid_aliases:
+            screen_id = edid_aliases[screen["edid_hash"]]
         else:
-            id = screen["edid_hash"]
+            screen_id = screen["edid_hash"]
 
-        screens.append([screen["output"], id])
+        screens.append([screen["output"], screen_id])
 
+    start_time = time()
+    xrandr_time = None
     match screens:
         # Single monitor
         case [[output, _]]:
             await cmd("xrandrw", "--outputs-off", "--output", output, "--auto", "--primary")
+            xrandr_time = time() - start_time
 
         # Configured layouts
         case [["eDP-1", "LAPTOP"], [primary_output, "PRIMARY"]]:
             await cmd(
                 "xrandrw", "--outputs-off",
-                "--output", primary_output, "--auto", "--pos", "0x0", "--primary",
-                "--output", "eDP-1", "--preferred", "--pos", "3440x1200",
+                "--output", primary_output, "--preferred", "--pos", "0x0", "--primary",
+                "--output", "eDP-1", "--preferred", "--pos", "3440x740",
             )
+            xrandr_time = time() - start_time
 
         # No monitors
         case []:
@@ -229,21 +268,23 @@ async def configure_screens(status: dict, notify: Notify):
                 cmdline += ["--output", screen[0], "--auto"]
 
             await cmd("xrandrw", "--outputs-off", *cmdline)
+            xrandr_time = time() - start_time
 
             await notify(
                 "Monitor combination not configured",
                 "Run 'Arandr' to configure it manually.",
             )
 
+    # I don't want to restart polybar if there was no change on xrandr
+    # We consider no change on xrandr when it runs "too quickly" -- subjectively
+    if xrandr_time > 0.1:
+        await cmd("systemctl", "reload-or-restart", "--user", "polybar")
+
     # Apply background
     await cmd(
         "feh", "--bg-fill", "--no-fehbg",
         Path.home().joinpath(".local/share/backgrounds/kerevel.png"),
     )
-    # Reload polybar to switch the monitor/size if needed
-    await cmd("systemctl", "reload", "--user", "polybar")
-    # Reconfigure monitors
-    await cmd("herbstclient", "detect_monitors")
 
 @on(DeviceState)
 async def configure_inputs(status: dict):
@@ -254,8 +295,10 @@ async def configure_inputs(status: dict):
     if "added" not in status["inputs"]:
         return
 
-    for input in status["inputs"]["added"]:
-        if input["type"] == "slave-keyboard":
+    for device in status["inputs"]["added"]:
+        dev_id = str(device["id"])
+
+        if device["type"] == "slave-keyboard":
             await cmd(
                 "setxkbmap",
                 "-model", "pc104",
@@ -265,10 +308,10 @@ async def configure_inputs(status: dict):
             )
             await cmd("xset", "r", "rate", "300", "30")
 
-        elif input["type"] == "slave-pointer":
-            if input["name"] == "Razer Razer DeathAdder V2":
-                await cmd("xinput", "set-prop", str(input["id"]), "libinput Accel Speed", "-0.800000")
-            elif input["name"] == "DELL0A71:00 04F3:317E Touchpad":
-                await cmd("xinput", "set-prop", str(input["id"]), "libinput Tapping Enabled", "1")
-                await cmd("xinput", "set-prop", str(input["id"]), "libinput Natural Scrolling Enabled", "1")
-                await cmd("xinput", "set-prop", str(input["id"]), "libinput Tapping Drag Lock Enabled", "1")
+        elif device["type"] == "slave-pointer":
+            if device["name"] == "Razer Razer DeathAdder V2":
+                await cmd("xinput", "set-prop", dev_id, "libinput Accel Speed", "-0.800000")
+            elif device["name"] == "DELL0A71:00 04F3:317E Touchpad":
+                await cmd("xinput", "set-prop", dev_id, "libinput Tapping Enabled", "1")
+                await cmd("xinput", "set-prop", dev_id, "libinput Natural Scrolling Enabled", "1")
+                await cmd("xinput", "set-prop", dev_id, "libinput Tapping Drag Lock Enabled", "1")

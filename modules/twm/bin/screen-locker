@@ -61,12 +61,13 @@ cancel() {
 }
 
 pause_interactive_activities() {
+  dunst_previous_state="$(dunstctl is-paused)"
   playerctl --all-players pause
   dunstctl set-paused true
 }
 
 unpause_interactive_activities() {
-  dunstctl set-paused false
+  dunstctl set-paused "${dunst_previous_state}"
 }
 
 lock() {
@@ -81,6 +82,7 @@ lock() {
   XSECURELOCK_DATETIME_FORMAT="%a, %d %b %Y %T" \
   XSECURELOCK_BLANK_TIMEOUT=1 \
   XSECURELOCK_BLANK_DPMS_STATE=off \
+  XSECURELOCK_SAVER_STOP_ON_DPMS=1 \
   XSECURELOCK_COMPOSITE_OBSCURER=0 \
   XSECURELOCK_AUTH=/usr/lib/xsecurelock/auth_u2f_x11 \
   XSECURELOCK_AUTHPROTO_KILL_ON_TIMEOUT=1 \

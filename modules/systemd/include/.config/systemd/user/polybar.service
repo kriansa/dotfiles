@@ -1,7 +1,6 @@
 [Unit]
 Description=Desktop status bar
 PartOf=graphical-session.target
-After=x-config.service herbstluftwm.service
 
 [Service]
 ExecStartPre=/bin/sh -c "rm -rf $XDG_RUNTIME_DIR/polybar/*.sock"

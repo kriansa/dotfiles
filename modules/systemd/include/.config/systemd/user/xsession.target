@@ -11,5 +11,9 @@ Wants=playerctld.service
 Wants=picom.service
 Wants=screensaver.service
 Wants=dunst.service
-Wants=polybar.service
+Wants=polkit-agent.service
 Wants=herbstluftwm.service
+
+# This is being started by wmcompanion so we avoid a initialization flicker that happens when the
+# monitor is still being configured.
+# Wants=polybar.service
