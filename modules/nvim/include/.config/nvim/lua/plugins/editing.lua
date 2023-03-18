@@ -1,5 +1,11 @@
 return function(use)
-  use 'tpope/vim-surround'
+  -- surrounds
+  use({
+    "kylechui/nvim-surround",
+    config = function()
+      require("nvim-surround").setup()
+    end
+  })
   use 'tpope/vim-repeat'
   use 'AndrewRadev/splitjoin.vim'
   use 'ggandor/lightspeed.nvim'

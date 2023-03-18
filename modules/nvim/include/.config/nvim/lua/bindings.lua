@@ -110,87 +110,98 @@ nmap('-', "<Plug>(dirvish_up)")
 
 -- Nvim-tree
 nmap("\\", "<cmd>NvimTreeFindFileToggle<CR>")
-mappings.nvim_tree = {
+mappings.nvim_tree = function(bufnr)
+  local api = require('nvim-tree.api')
+
+  local function opts(desc)
+    return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+  end
+
   -- Opening files
-  { key = {"<CR>", "o", "<2-LeftMouse>"}, action = "edit" },
-  { key = "<Tab>",                        action = "preview" },
-  { key = "O",                            action = "edit_no_picker" },
-  { key = "C",                            action = "cd" },
-  { key = "S",                            action = "system_open" },
+  vim.keymap.set('n', '<CR>', api.node.open.edit, opts('Open'))
+  vim.keymap.set('n', 'o', api.node.open.edit, opts('Open'))
+  vim.keymap.set('n', '<2-LeftMouse>', api.node.open.edit, opts('Open'))
+  vim.keymap.set('n', '<Tab>', api.node.open.preview, opts('Open Preview'))
+  vim.keymap.set('n', 'O', api.node.open.no_window_picker, opts('Open: No Window Picker'))
+  vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
+  vim.keymap.set('n', 'S', api.node.run.system, opts('Run System'))
 
   -- Navigation
-  { key = "X",                            action = "collapse_all" },
-  { key = "x",                            action = "close_node" },
+  vim.keymap.set('n', 'X', api.tree.collapse_all, opts('Collapse'))
+  vim.keymap.set('n', 'x', api.node.navigate.parent_close, opts('Close Directory'))
 
   -- Copy/paste operations
-  { key = "m",                            action = "cut" },
-  { key = "c",                            action = "copy" },
-  { key = "p",                            action = "paste" },
+  vim.keymap.set('n', 'm', api.fs.cut, opts('Cut'))
+  vim.keymap.set('n', 'c', api.fs.copy.node, opts('Copy'))
+  vim.keymap.set('n', 'p', api.fs.paste, opts('Paste'))
 
   -- Basic
-  { key = "q",                            action = "close" },
-  { key = "g?",                           action = "toggle_help" },
-  { key = "R",                            action = "refresh" },
-  {
-    key = "A",
-    action = "toggle_size",
-    action_cb = function()
-      local default = 30
-      local max = vim.o.columns
-      local current = require('nvim-tree.view').View.width
+  vim.keymap.set('n', 'q', api.tree.close, opts('Close'))
+  vim.keymap.set('n', 'g?', api.tree.toggle_help, opts('Help'))
+  vim.keymap.set('n', 'R', api.tree.reload, opts('Refresh'))
+  vim.keymap.set('n', 'A', function()
+    local default = 30
+    local max = vim.o.columns
+    local current = require('nvim-tree.view').View.width
 
-      require('nvim-tree').resize(current == default and max or default)
-    end
-  },
+    require('nvim-tree').resize(current == default and max or default)
+  end, opts('Toggle tree view size'))
 
   -- Manipulation
-  { key = "a",                            action = "create" },
-  { key = "d",                            action = "trash" },
-  { key = "r",                            action = "rename" },
-  { key = ".",                            action = "run_file_command" },
+  vim.keymap.set('n', 'a', api.fs.create, opts('Create'))
+  vim.keymap.set('n', 'd', api.fs.trash, opts('Trash'))
+  vim.keymap.set('n', 'r', api.fs.rename, opts('Rename'))
+  vim.keymap.set('n', '.', api.node.run.cmd, opts('Run Command'))
 
   -- Other
-  { key = "<C-v>",                        action = "vsplit" },
-  { key = "<C-s>",                        action = "split" },
-  { key = "K",                            action = "parent_node" },
-  { key = "I",                            action = "toggle_ignored" },
-  { key = "y",                            action = "copy_name" },
-  { key = "Y",                            action = "copy_path" },
-  { key = "gy",                           action = "copy_absolute_path" },
-}
+  vim.keymap.set('n', '<C-v>', api.node.open.vertical, opts('Open: Vertical Split'))
+  vim.keymap.set('n', '<C-s>', api.node.open.horizontal, opts('Open: Horizontal Split'))
+  vim.keymap.set('n', 'K', api.node.navigate.parent, opts('Parent Directory'))
+  vim.keymap.set('n', 'I', api.tree.toggle_gitignore_filter, opts('Toggle Git Ignore'))
+  vim.keymap.set('n', 'y', api.fs.copy.filename, opts('Copy Name'))
+  vim.keymap.set('n', 'Y', api.fs.copy.relative_path, opts('Copy Relative Path'))
+  vim.keymap.set('n', 'gy', api.fs.copy.absolute_path, opts('Copy Absolute Path'))
+end
 
 -- Gitsigns
 mappings.gitsigns = function(bufnr)
-  -- TODO: Replace this mapping Neovim 0.7 gets released
-  -- See: https://github.com/lewis6991/gitsigns.nvim
-  local map = function(mode, lhs, rhs, opts)
-    opts = vim.tbl_extend('force', {noremap = true, silent = true}, opts or {})
-    vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts)
+  local gs = package.loaded.gitsigns
+
+  local function map(mode, l, r, opts)
+    opts = opts or {}
+    opts.buffer = bufnr
+    vim.keymap.set(mode, l, r, opts)
   end
 
   -- Navigation
-  map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", {expr=true})
-  map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", {expr=true})
+  map('n', ']c', function()
+    if vim.wo.diff then return ']c' end
+    vim.schedule(function() gs.next_hunk() end)
+    return '<Ignore>'
+  end, {expr=true})
+
+  map('n', '[c', function()
+    if vim.wo.diff then return '[c' end
+    vim.schedule(function() gs.prev_hunk() end)
+    return '<Ignore>'
+  end, {expr=true})
 
   -- Actions
-  map('n', '<leader>hs', ':Gitsigns stage_hunk<CR>')
-  map('v', '<leader>hs', ':Gitsigns stage_hunk<CR>')
-  map('n', '<leader>hu', ':Gitsigns reset_hunk<CR>')
-  map('v', '<leader>hu', ':Gitsigns reset_hunk<CR>')
-  map('n', '<leader>gb', '<cmd>lua require("gitsigns").blame_line{full=true}<CR>')
+  map({'n', 'v'}, '<leader>hs', ':Gitsigns stage_hunk<CR>')
+  map({'n', 'v'}, '<leader>hr', ':Gitsigns reset_hunk<CR>')
+  map('n', '<leader>gb', function() gs.blame_line{full=true} end)
 
   -- This has very similar behavior as `gb` above
-  map('n', '<leader>hp', '<cmd>Gitsigns preview_hunk<CR>')
+  map('n', '<leader>hp', gs.preview_hunk)
 
-  map('n', '<leader>gd', '<cmd>Gitsigns diffthis<CR>')
-  map('n', '<leader>gD', '<cmd>lua require("gitsigns").diffthis("~")<CR>')
+  map('n', '<leader>gd', gs.diffthis)
+  map('n', '<leader>gD', function() gs.diffthis('~') end)
 
   -- Not very useful for my liking
-  -- map('n', '<leader>gb', '<cmd>Gitsigns toggle_current_line_blame<CR>')
+  -- map('n', '<leader>gb', gs.toggle_current_line_blame)
 
   -- Text object
-  map('o', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
-  map('x', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+  map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
 end
 
 -- Telescope
@@ -240,7 +251,7 @@ mappings.telescope_buffers = {
 nmap('<Leader><Space>', '<cmd>Telescope buffers<CR>')
 nmap('<C-P>', '<cmd>Telescope find_files<CR>')
 nmap('<Leader>a', '<cmd>Telescope live_grep<CR>')
-nmap('<Leader>s', '<cmd>Telescope grep_string<CR>')
+nmap('<Leader>s', '<cmd>lua require("telescope.builtin").live_grep({default_text=vim.fn.expand("<cword>")})<CR>')
 
 mappings.lsp = function(bufnr)
   local opts = { noremap=true, silent=true }
