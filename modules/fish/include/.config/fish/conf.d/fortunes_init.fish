@@ -1,1 +1,0 @@
-../../../../../fortunes/init.fish
