@@ -1,1 +1,1 @@
-../../../../../unix/functions/cc.fish
+../../../../../shell/functions/cc.fish

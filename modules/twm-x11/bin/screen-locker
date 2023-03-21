@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+#
+# Screenlock with dimmer wrapper around xsecurelock
+
+set -o pipefail -o nounset
+
+main() {
+  local action="${1:-}"
+  case "$action" in
+    dim|lock|unlock) "$action" ;;
+
+    # basic error handling
+    "") echo "You need to provide a command." >&2; exit 1 ;;
+    *) echo "Invalid argument: $action" >&2; exit 1 ;;
+  esac
+}
+
+dim() {
+  # Dimming must be tightly coordinated with the cycle time (second parameter of xset s).
+  # xss-lock will start the dimmer at screensaver timeout, but will only trigger the actual locker
+  # after cycle time is reached.
+  # This means that cycle time must be lower than the time that dimmer will spend on the animation.
+  # To avoid that loose kind of coordination, we'll dynamically adjust dimmer time based on the
+  # existing cycle time so we won't have to worry about that in the future.
+  # Additionally, xsecurelock currently has a limitation that when called, it will flash the screen
+  # if it's not already blank. In order to workaround it, we'll simply leave the dimmer waiting
+  # enough time that when xsecurelock kicks in, the screen is already blank hence no flashing.
+  cycle_time=$(xset q | grep -o "cycle: *[0-9]*" | grep -o "[0-9]*")
+
+  if [ $cycle_time -le 0 ]; then
+    echo "The screen saver cycle time must be greater than 0!" >&2
+    exit 1
+  fi
+
+  # These timings must be changed in coordination
+  dim_time=$(( cycle_time * 1000 - 500 )) # Total cycle time - 500ms
+  wait_time=600                           # Wait during the other 500ms + 100ms
+  sleep_time="$(( cycle_time - 1 )).5"    # This is the same as dim_time, but in seconds instead ms
+
+  # Kill dimmer immediatelly after receiving SIGTERM
+  trap cancel TERM INT
+
+  XSECURELOCK_DIM_ALPHA=1 \
+    XSECURELOCK_DIM_TIME_MS=$dim_time \
+    XSECURELOCK_WAIT_TIME_MS=$wait_time \
+    XSECURELOCK_DIM_OVERRIDE_COMPOSITOR_DETECTION=1 \
+    /usr/lib/xsecurelock/dimmer & dimmer_pid=$!
+
+  # Waits for the dim effect up until opacity is at least 100%, then quits, while leaving the dimmer
+  # still active for the rest of its wait_time
+  sleep $sleep_time & wait $!
+  disown $dimmer_pid
+}
+
+cancel() {
+  # Attempt to kill dimmer if it's still up
+  kill $dimmer_pid 2>&-
+
+  # And always exit cleanly
+  exit 0
+}
+
+pause_interactive_activities() {
+  dunst_previous_state="$(dunstctl is-paused)"
+  playerctl --all-players pause
+  dunstctl set-paused true
+}
+
+unpause_interactive_activities() {
+  dunstctl set-paused "${dunst_previous_state}"
+}
+
+lock() {
+  pause_interactive_activities
+
+  XSECURELOCK_FONT="Iosevka Term Medium:size=20" \
+  XSECURELOCK_AUTH_TIMEOUT=30 \
+  XSECURELOCK_SHOW_HOSTNAME=0 \
+  XSECURELOCK_SHOW_USERNAME=0 \
+  XSECURELOCK_SHOW_KEYBOARD_LAYOUT=0 \
+  XSECURELOCK_SHOW_DATETIME=1 \
+  XSECURELOCK_DATETIME_FORMAT="%a, %d %b %Y %T" \
+  XSECURELOCK_BLANK_TIMEOUT=1 \
+  XSECURELOCK_BLANK_DPMS_STATE=off \
+  XSECURELOCK_SAVER_STOP_ON_DPMS=1 \
+  XSECURELOCK_COMPOSITE_OBSCURER=0 \
+  XSECURELOCK_AUTH=/usr/lib/xsecurelock/auth_u2f_x11 \
+  XSECURELOCK_AUTHPROTO_KILL_ON_TIMEOUT=1 \
+  xsecurelock
+
+  unpause_interactive_activities
+}
+
+unlock() {
+  pkill -x -USR2 xsecurelock || true
+}
+
+main "$@"

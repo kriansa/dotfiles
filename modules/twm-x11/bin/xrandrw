@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#
+# xrandrw - Xrandr Wrapper
+#
+# This is a simple xrandr wrapper which takes an additional parameter `--outputs-off` and
+# automatically turns off all outputs non specified in the command line.
+# This is both convenient for the user but also very important for automatic xrandr calls, because
+# the system SHOULD always register the modeset state when a monitor is plugged off, therefore
+# avoiding issues such as monitor stop being detected.
+#
+# See: https://gitlab.freedesktop.org/drm/intel/-/issues/6224
+#
+# Usage: xrandrw --outputs-off [OPTIONS]
+
+OUTPUTS_OFF=NO
+args=()
+configured_outputs=()
+
+while [ $# -gt 0 ]; do
+  # Detect the flag and enable the automatic output detection, also removes it from original xrandr
+  if [ "$1" == "--outputs-off" ]; then
+    OUTPUTS_OFF=YES
+    shift && continue
+  fi
+
+  if [ "$1" == "--output" ]; then
+    configured_outputs+=("$2")
+    args+=("$1") && shift
+  fi
+
+  # Regular argument, simply adds it to final xrandr call
+  args+=("$1") && shift
+done
+
+if [ $OUTPUTS_OFF == "YES" ]; then
+  # ENHANCE: This algo is up to O(N^2). In this case is just fine because it only handles small sets
+  # of data, but if there are a simple solution that can make it more efficient, I'm all for it.
+  while IFS= read -r available_output; do
+    has_match=0
+    for output_set in "${configured_outputs[@]}"; do
+      test "$available_output" = "$output_set" && has_match=1
+    done
+
+    # If an available output is not present in the plugged outputs, it means it's disconnected,
+    # hence added for being turned off in case it was previously configured
+    test $has_match = 0 && args+=("--output" "$available_output" "--off")
+  done < <(xrandr -q | grep -Eo "^[[:alpha:]]+[-[:digit:]]+")
+fi
+
+exec xrandr "${args[@]}"

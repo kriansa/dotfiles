@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# This script requires:
+#
+#  - A running herbstluftwm instance
+#  - herbstclient
+#  - wmctrl
+
+help() {
+  echo "Usage: jumpto [OPTIONS] <WM_CLASS>"
+  echo
+  echo "This tries to a window whose WM_CLASS matches VALUE."
+  echo "If such a window is found, it is focused using » herbstclient jumpto «."
+  echo "If not, it returns the statuscode 1."
+  echo
+  echo "Options:"
+  echo "  -l, --list-windows      List all existing windows"
+  echo "  -h, --help              Show this help message"
+}
+
+main() {
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    help
+    exit
+  fi
+
+  if [ "$1" == "-l" ] || [ "$1" == "--list-windows" ]; then
+    wmctrl -lx | awk '{ print $3 }'
+    exit
+  fi
+
+  if [ $# -lt 1 ]; then
+    echo "You need to provide the WM_CLASS argument." >&2
+    exit 1
+  fi
+
+  wmclass="$1"
+
+  while read -r winid _desktop class _rest; do
+    if [ "$class" == "$wmclass" ]; then
+      herbstclient silent jumpto "$winid" && exit
+    fi
+  done < <(wmctrl -lx)
+
+  exit 1
+}
+
+main "$@"

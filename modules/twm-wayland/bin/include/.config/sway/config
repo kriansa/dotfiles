@@ -1,0 +1,270 @@
+# Default config for sway
+#
+# Copy this to ~/.config/sway/config and edit it to your liking.
+#
+# Read `man 5 sway` for a complete reference.
+
+### Variables
+#
+# Logo key. Use Mod1 for Alt.
+set $mod Mod4
+set $alt Mod1
+
+### Output configuration
+#
+# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
+output * background /home/dpereira/.local/share/backgrounds/kerevel.png fill
+output DP-1 position 0,0
+output eDP-1 position 3440,740
+
+# Default monitor
+focus output DP-1
+
+# Use lid to shutdown the laptop monitor
+bindswitch --locked --reload lid:on output eDP-1 disable
+bindswitch --locked --reload lid:off output eDP-1 enable
+
+# Assign workspaces to outputs
+workspace 1 output DP-1
+workspace 2 output eDP-1
+
+#
+# Example configuration:
+#
+#   output HDMI-A-1 resolution 1920x1080 position 1920,0
+#
+# You can get the names of your outputs by running: swaymsg -t get_outputs
+
+### Idle configuration
+#
+# Example configuration:
+#
+# exec swayidle -w \
+#          timeout 300 'swaylock -f -c 000000' \
+#          timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
+#          before-sleep 'swaylock -f -c 000000'
+#
+# This will lock your screen after 300 seconds of inactivity, then turn off
+# your displays after another 300 seconds, and turn your screens back on when
+# resumed. It will also lock your screen before your computer goes to sleep.
+
+### Input configuration
+#
+# Example configuration:
+#
+#   input "2:14:SynPS/2_Synaptics_TouchPad" {
+#       dwt enabled
+#       tap enabled
+#       natural_scroll enabled
+#       middle_emulation enabled
+#   }
+#
+# You can get the names of your inputs by running: swaymsg -t get_inputs
+# Read `man 5 sway-input` for more information about this section.
+
+input "5426:132:Razer_Razer_DeathAdder_V2" {
+  pointer_accel -0.8
+}
+
+input type:touchpad {
+  tap enabled
+  natural_scroll enabled
+  drag enabled
+  drag_lock enabled
+}
+
+input type:keyboard {
+  repeat_delay 300
+  repeat_rate 30
+  xkb_layout us,us
+  xkb_variant ,alt-intl
+  xkb_options grp:caps_toggle
+}
+
+# Styling
+default_border pixel 2
+default_floating_border normal
+focus_wrapping no
+font RobotoCondensed 18px
+titlebar_padding 10 5
+gaps outer 10
+seat seat0 xcursor_theme Simp1e 24
+
+### Key bindings
+#
+# Basics:
+#
+    # Run things
+    bindsym $mod+Return exec launcher-menu
+    bindsym $alt+Control+Delete exec power-menu
+
+    # Kill focused window
+    bindsym $mod+w kill
+
+    # Drag floating windows by holding down $mod and left mouse button.
+    # Resize them with right mouse button + $mod.
+    # Despite the name, also works for non-floating windows.
+    # Change normal to inverse to use left mouse button for resizing and right
+    # mouse button for dragging.
+    floating_modifier $mod
+
+    # Reload the configuration file
+    bindsym $mod+Shift+r reload
+
+    # Exit sway (logs you out of your Wayland session)
+    bindsym $mod+Shift+q exit
+
+    #
+    # Moving around:
+    #
+    # Move your focus around
+    bindsym $mod+h focus left
+    bindsym $mod+j focus down
+    bindsym $mod+k focus up
+    bindsym $mod+l focus right
+
+    # Move the focused window with the same, but add Control
+    bindsym $mod+Control+h move left
+    bindsym $mod+Control+j move down
+    bindsym $mod+Control+k move up
+    bindsym $mod+Control+l move right
+
+    #
+    # Resizing
+    #
+    set $resizestep 2ppt
+    bindsym $mod+equal resize grow width $resizestep
+    bindsym $mod+Shift+equal resize grow height $resizestep
+    bindsym $mod+minus resize shrink width $resizestep
+    bindsym $mod+Shift+minus resize shrink height $resizestep
+
+    #
+    # Workspaces:
+    #
+    # Switch to workspace
+    bindsym $mod+1 workspace number 1
+    bindsym $mod+2 workspace number 2
+    bindsym $mod+3 workspace number 3
+    bindsym $mod+4 workspace number 4
+    # Move focused container to workspace
+    bindsym $mod+Control+1 move container to workspace number 1
+    bindsym $mod+Control+2 move container to workspace number 2
+    bindsym $mod+Control+3 move container to workspace number 3
+    bindsym $mod+Control+4 move container to workspace number 4
+
+    #
+    # Layout stuff:
+    #
+    # You can "split" the current object of your focus with
+    # $mod+b or $mod+v, for horizontal and vertical splits
+    # respectively.
+    bindsym $mod+d splith
+    bindsym $mod+Shift+d splitv
+
+    # Switch the current container between different layout styles
+    bindsym $mod+space layout toggle split tabbed
+
+    # Remove the current split container
+    bindsym $mod+r split none
+
+    # Make the current focus fullscreen
+    bindsym $mod+Shift+f fullscreen
+
+    # Toggle the current focus between tiling and floating mode
+    bindsym $mod+Shift+t floating toggle
+
+    # Toggle the current focus between available border styles
+    bindsym $mod+Shift+b border toggle
+
+    # Swap focus between the tiling area and the floating area
+    bindsym $mod+tab focus mode_toggle
+
+    # Move focus to the parent container
+    bindsym $mod+a focus parent
+
+    #
+    # Scratchpad:
+    #
+    # Sway has a "scratchpad", which is a bag of holding for windows.
+    # You can send windows there and get them back later.
+
+    # Move the currently focused window to the scratchpad
+    # bindsym $mod+Shift+minus move scratchpad
+
+    # Show the next scratchpad window or hide the focused scratchpad window.
+    # If there are multiple scratchpad windows, this command cycles through them.
+    # bindsym $mod+backslash scratchpad show
+
+# Common keyboard multimedia keys
+bindsym XF86AudioMute exec volume mute
+bindsym XF86AudioLowerVolume exec volume decrease
+bindsym XF86AudioRaiseVolume exec volume increase
+bindsym Shift+XF86AudioMute exec volume --input mute
+bindsym Shift+XF86AudioLowerVolume exec volume --input decrease
+bindsym Shift+XF86AudioRaiseVolume exec volume --input increase
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+
+# Screenshot
+bindsym Print exec flameshot gui
+# automatically saves the screen shot (3 = full screen, 4 = selection)
+bindsym $alt+Shift+4 exec flameshot gui
+bindsym $alt+Shift+3 exec flameshot gui
+# variants that copies file to clipboard (3 = full screen, 4 = selection)
+bindsym $alt+Shift+Control+4 exec flameshot gui
+bindsym $alt+Shift+Control+3 exec flameshot gui
+
+# Laptop multimedia keys
+bindsym $mod+p exec arandr
+bindsym XF86KbdLightOnOff exec keyboard-light toggle
+bindsym XF86MonBrightnessUp exec monitor-brightness up
+bindsym XF86MonBrightnessDown exec monitor-brightness down
+bindsym XF86Launch1 exec spotify
+bindsym XF86Calculator exec qalculate-gtk
+
+# K3 multimedia keys
+bindsym XF86LaunchB exec $HOME/.dotfiles/modules/twm/libexec/hlwm-toggle-monitor-layout grid
+
+#
+# Status Bar:
+#
+# Read `man 5 sway-bar` for more information about this section.
+# bar {
+#     position top
+#     height 36
+#
+#     # When the status_command prints a new line to stdout, swaybar updates.
+#     # The default just shows the current date and time.
+#     status_command while date +'%Y-%m-%d %I:%M:%S %p'; do sleep 1; done
+#
+#     status_edge_padding 300
+#     status_padding 200
+#     tray_padding 4
+#     # separator_symbol |
+#     # workspace_min_width 30
+#     # workspace_buttons no
+#     # tray_output none
+#     font Bebas Neue 22px
+#
+#     colors {
+#         statusline #ffffff
+#         background #323232
+#         inactive_workspace #32323200 #32323200 #5c5c5c
+#     }
+# }
+
+# Include important env variables on systemd units
+exec dbus-update-activation-environment --systemd \
+  XDG_SESSION_TYPE \
+  XDG_SESSION_DESKTOP \
+  XDG_CURRENT_DESKTOP \
+  DISPLAY \
+  WAYLAND_DISPLAY \
+  SWAYSOCK \
+  I3SOCK \
+  XCURSOR_SIZE \
+  XCURSOR_THEME
+
+# Notify systemd
+exec systemd-notify --ready

@@ -1,1 +1,0 @@
-../../../../../unix/functions/kmsg.fish
