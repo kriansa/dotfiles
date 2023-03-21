@@ -1,0 +1,13 @@
+[Unit]
+Description=Wayland session managed by systemd
+BindsTo=graphical-session.target
+
+Wants=playerctld.service
+Wants=dunst.service
+Wants=polkit-agent.service
+Wants=sway.service
+
+# configure for sway - Wants=screensaver.service
+# check if needed - Wants=xsettingsd.service
+# install kbdd - Wants=swaykbdd.service
+# adapt my config.py - Wants=wmcompanion.service

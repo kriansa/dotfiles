@@ -2,33 +2,33 @@
 modules:
   - alacritty
   - fish
-  - fortunes
+  - shell
   - meta
-  - unix
   - projects
   - python
   - borgmatic
-  - fontconfig
   - devops
-  - lastpass
   - gnupg
-  # Enable on Mac
-  # - gnupg-mac
   - yubikey
   - vlc
   - git
   - ruby
   - tmux
-  - rapid-photo-downloader
-  - transmission-remote
-  - psi-notify
   - emacs
   - java
   - nvim
   - javascript
   - asdf
-  - vivid
   - htop
-  - systemd
-  - twm
+
+  # Only for Linux
+  - linux
+  - transmission-remote
+  - rapid-photo-downloader
+  - psi-notify
+  - fontconfig
+  - twm-x11
   - gtk
+
+  # Only for Mac
+  # - gnupg-mac
