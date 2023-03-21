@@ -2,11 +2,10 @@
 - hosts: all
   vars:
     hostname: daniel-laptop.lan.cx
-    # Check if that is going to be an issue
-    disable_nvidia_i2c: false
 
     # Configure onboard intel gpu drivers
     install_intel_drivers: true
+    install_nvidia_drivers: true
 
     # Mobile settings
     enable_bluetooth: yes
@@ -27,8 +26,8 @@
     # Specific path when looking for secrets for this machine specifically
     secrets_base_dir: Laptop
 
-  # roles:
-  #   # - role: common-handlers
+  roles:
+    - role: 1-common-handlers
   #   - role: base-arch
   #   - role: systemd-boot
   #   - role: secrets
@@ -36,7 +35,6 @@
   #   - role: dev-tools
   #   - role: borgmatic
   #   - role: desktop-tools
-  #   - role: gnome
 
   tasks:
     - name: install xorg
@@ -47,18 +45,23 @@
           - xorg-xauth
           - xorg-xrandr
           - xorg-xset
+          - xorg-xrdb
           - xorg-xinput
           - xorg-setxkbmap
-          - xorg-xkbcomp
+          - xorg-xprop
+          - xcb-util-cursor
 
-    - name: add intel graphics options
+    - name: helps Xorg identify the correct video adapter
       become: true
-      notify: rebuild initramfs
       ansible.builtin.copy:
-        dest: /etc/modprobe.d/02-intel-gpu-options.conf
+        dest: /etc/X11/xorg.conf.d/01-intel-gpu.conf
         content: |
-          # Enable GuC on Intel GPU
-          options i915 enable_guc=2
+          # Hints Xorg to use the correct driver for this GPU
+          Section "Device"
+            Identifier     "intel-gpu"
+            Driver         "modesetting"
+            BusID          "PCI:0:2:0"
+          EndSection
 
     - name: configure dual GPU on Xorg
       become: true
@@ -74,10 +77,9 @@
           #   screens in a single display).
 
           Section "ServerFlags"
-            Option "DefaultServerLayout" "integrated-gpu"
-
             # Select a different configuration by switching the ServerLayout
-            # Option "DefaultServerLayout" "dedicated-gpu"
+            # Option "DefaultServerLayout" "integrated-gpu"
+            Option "DefaultServerLayout" "dedicated-gpu"
           EndSection
 
           Section "ServerLayout"
@@ -94,7 +96,7 @@
 
           # ========================================
           # Just a dummy reference of a monitor
-          # It will be overriden by xrandr
+          # It will be overridden by xrandr
           # ========================================
 
           Section "Monitor"
@@ -145,100 +147,286 @@
               EndSubSection
           EndSection
 
-    - name: create systemd Xorg service unit
+    - name: make dev-dri-card0 appear as a systemd device
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/udev/rules.d/dev-dri-card0.rules
+        content: |
+          # Make this device appear as a .device unit on systemd so we can use it as a
+          # dependency on other services
+          ENV{DEVNAME}=="/dev/dri/card0", TAG+="systemd"
+
+    - name: create systemd xorg service unit
       become: true
       notify: reload systemd
       ansible.builtin.copy:
-        dest: /etc/systemd/system/xorg.service
+        dest: /etc/systemd/system/xorg@.service
         content: |
           # Inspired by the great https://vincent.bernat.ch/en/blog/2021-startx-systemd
           [Unit]
-          Description=X11 session for dpereira
-          After=graphical.target systemd-user-sessions.service
+          Description=X11 session for %i
+          Wants=dev-dri-card0.device
+          After=dev-dri-card0.device graphical.target systemd-user-sessions.service acpid.service
 
           [Service]
-          User=dpereira
+          User=%i
           WorkingDirectory=~
-          ExecStart=/home/dpereira/.bin/sdx
+          ExecStart=/home/%i/.bin/sdx
 
+          # Register the process as a PAM session for the login service, which includes
+          # pam_systemd. This module registers the session to the systemd login manager.
           PAMName=login
+
+          # Inform pam_systemd we want an X11 session, otherwise, logind considers the
+          # session idle unless it receives input on the TTY. Xorg could change the type
+          # of the session itself after taking control of it, but it does not.
+          # See: https://gitlab.freedesktop.org/xorg/xserver/-/issues/1194
           Environment=XDG_SESSION_TYPE=x11
+
+          # Unset TERM because it would be set to linux by systemd as a result of
+          # attaching the standard input to the TTY
           UnsetEnvironment=TERM
 
           # Use a fixed dedicated tty number
+          # When the TTY is active, the user is granted additional access to local
+          # devices—notably display, sound, keyboard, mouse. These additional rights are
+          # needed to get Xorg working rootless.
+          ExecStartPre=/usr/bin/chvt 8
           TTYPath=/dev/tty8
           StandardInput=tty-force
           StandardOutput=journal
 
-          # Helps applications that relies on utmp to find out logged users
+          # Helps applications relying on utmp to find out logged users
           UtmpIdentifier=tty8
           UtmpMode=user
 
-          # Ensure the service doesn't get restarted automatically, in order
-          # to avoid X crashes to re-open it without a re-login, making it possible
-          # for malicious users to bypass the lock screen.
+          # Ensure the service doesn't get restarted automatically, in order to avoid X
+          # crashes to re-open it without a re-login, making it possible for malicious
+          # users to bypass the lock screen.
           Restart=no
 
           [Install]
           WantedBy=graphical.target
 
+    - name: enable xorg auto-login
+      become: true
+      ansible.builtin.systemd: enabled=yes name=xorg@{{ user_name }}
+
     - name: install power management tools
       become: true
       community.general.pacman:
-      name:
-        - acpid
-        - acpilight
-        - cpupower
+        name:
+          - acpid
+          - acpilight
+          - cpupower
 
-    - systemd: status=started enabled=yes name=acpid
-
-    - name: install desktop utilities
+    - name: enable acpid
       become: true
-      community.general.pacman:
-      name:
-        - inputplug
-        - xkb-switch
+      ansible.builtin.systemd: state=started enabled=yes name=acpid
 
     - name: install camera management utility
       become: true
       community.general.pacman:
-      name:
-        - v4l-utils
+        name:
+          - v4l-utils
 
     - name: disable default acpid handler
       become: true
       ansible.builtin.copy:
-        path: /etc/acpi/events/anything
+        dest: /etc/acpi/events/anything
         content: |
           # Pass all events to our one handler script
           # event=.*
           # action=/etc/acpi/handler.sh %e
 
+    - name: configure dell keyboard
+      become: true
+      notify: reload hwdb
+      ansible.builtin.copy:
+        dest: /etc/udev/hwdb.d/01-dell-g15-5511-keyboard.hwdb
+        content: |
+          # Dell G15 551*
+          evdev:atkbd:dmi:bvn*:bvr*:bd*:svnDellInc.:pnDellG15551*:*
+           KEYBOARD_KEY_68=prog1              # G button → XF86Launch1
+           KEYBOARD_KEY_69=kbdillumtoggle     # Toggle keyboard illumination
+
+    - name: configure keychron k3 keyboard
+      become: true
+      notify: reload hwdb
+      ansible.builtin.copy:
+        dest: /etc/udev/hwdb.d/01-keychron-k3-keyboard.hwdb
+        content: |
+          # Keychron K3 MacOS layout
+          #
+          # Traditionally, K3 with the switch set to the MacOS version will swap alt and meta keys
+          # so the layout matches an Apple keyboard. I want to use the switch on the Mac position so
+          # I get all keycodes from the multimedia shortcuts, but I don't want those two keys
+          # swapped out. Here I'm overriding that behavior on hwdb so I don't need to touch xkbmap
+          # or Xorg at all.
+          evdev:input:b0003v05ACp024F*
+           KEYBOARD_LED_NUMLOCK=0
+           KEYBOARD_KEY_700e2=leftmeta
+           KEYBOARD_KEY_700e3=leftalt
+
+    - name: configure apple keyboards to use function mode first
+      become: true
+      notify: rebuild initramfs
+      ansible.builtin.copy:
+        dest: /etc/modprobe.d/hid_apple.conf
+        content: |
+          # Ensure that Apple keyboards (including Keychron) have my preferred Fn keys behavior
+          options hid_apple fnmode=1
+
+    - name: create logind config path
+      become: true
+      ansible.builtin.file: dest=/etc/systemd/logind.conf.d state=directory
+
     - name: configure logind on how to handle some acpi events
       become: true
       notify: reload systemd-logind
       ansible.builtin.copy:
-        path: /etc/systemd/logind.conf.d/01-lid-switch.conf
+        dest: /etc/systemd/logind.conf.d/01-handle-power-events.conf
         content: |
           [Login]
-          # Only suspend if lid is closing on battery and no other monitor is plugged
-          HandleLidSwitch=suspend
+          # Let us handle lid switch and power key events at userspace
+          HandleLidSwitch=ignore
           HandleLidSwitchExternalPower=ignore
           HandleLidSwitchDocked=ignore
-
-          # Let us handle power switch on the desktop environment
           HandlePowerKey=ignore
 
-    - name: install X11-XIB python dependency for watchmon
-      community.general.pacman:
-      name: python-xcffib
+    - name: creates systemd suspend hook service proxy for user daemon
+      become: true
+      notify: reload systemd
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/suspend@.service
+        content: |
+          [Unit]
+          Description=Call user's suspend target after system suspend
+          After=suspend.target
 
-    - name: install utils
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/systemctl --user --machine=%i@ start --wait suspend.target
+
+          [Install]
+          WantedBy=suspend.target
+
+    - name: creates systemd hibernation hook service proxy for user daemon
+      become: true
+      notify: reload systemd
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/hibernate@.service
+        content: |
+          [Unit]
+          Description=Call user's hibernate target after system suspend
+          After=hibernate.target
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/systemctl --user --machine=%i@ start --wait hibernate.target
+
+          [Install]
+          WantedBy=hibernate.target
+
+    - name: enable user systemd suspend propagation
+      become: true
+      ansible.builtin.systemd: enabled=yes name=suspend@{{ user_name }}
+
+    - name: install dependencies for wmcompanion
+      become: true
       community.general.pacman:
-      name:
-        - picom
-        - xsecurelock
-        - xss-lock
+        name:
+          - python-xcffib    # X11-XIB dependency for wmcompanion
+
+    - name: install desktop environment
+      become: true
+      community.general.pacman:
+        name:
+          - herbstluftwm
+          - polybar
+          - arandr
+          - feh
+          - rofi
+          - picom
+          - xsettingsd
+          - xsecurelock-git # aur
+          - xsecurelock-auth-u2f # aur
+          - xss-lock-session # aur
+          - xssproxy # aur
+          - kbdd-git # aur
+          - wmcompanion # aur
+          - dunst
+          - playerctl
+          - ttf-line-awesome # aur
+          - papirus-icon-theme
+          - xcursor-simp1e # aur
+
+          # WAYLAND STUFF
+          - xorg-wayland
+          - sway
+          - swaylock
+          - xdg-desktop-portal
+          - xdg-desktop-portal-wlr
+          - slurp
+          - qt5-wayland
+          - qt6-wayland
+          - obs-studio
+          - v4l2loopback-dkms
+          - linux-headers
+          - wl-clipboard
+
+    - name: install audio stuff
+      become: true
+      community.general.pacman:
+        name:
+          # This will enable pipewire and pipewire-puse systemd user services automatically
+          - pipewire
+          - pipewire-pulse
+          - realtime-privileges
+          - wireplumber
+          # Mixer/volume control apps
+          - pavucontrol
+          - pamixer
+          - helvum
+          # Volume notification
+          - libcanberra
+          - sound-theme-freedesktop
+
+    - name: add my user to the realtime group
+      become: true
+      ansible.builtin.user: name={{ user_name }} groups=realtime append=yes
+
+    - name: install desktop software
+      become: true
+      community.general.pacman:
+        name:
+          - gnome-keyring
+          - seahorse
+          - adwaita-qt5
+          - adwaita-qt6
+          - gcr # pinentry-gtk3 backend
+          - qalkculate-gtk
+          - flameshot
+          - font-manager
+          - pcmanfm-gtk3
+          - file-roller
+          - gvfs
+          - gvfs-smb
+          - gvfs-nfs
+          - gnome-disk-utility
+          - zathura
+          - zathura-pdf-mupdf
+          - nomacs
+          # Cool desktop app (gtk frontend for tesseract)
+          - frog-ocr
+
+    - name: install network software
+      become: true
+      community.general.pacman:
+        name:
+          - nm-connection-editor
+          - bluez-utils
+          - blueman
 
   handlers:
     - name: reload systemd-logind
@@ -246,3 +434,7 @@
       ansible.builtin.command: systemctl kill -s HUP systemd-logind
       args:
         warn: no
+
+    - name: reload hwdb
+      become: true
+      ansible.builtin.shell: systemd-hwdb update && udevadm trigger

@@ -3,7 +3,7 @@
   become: true
   notify: rebuild initramfs
   ansible.builtin.copy:
-    dest: /etc/modprobe.d/99-blacklist-watchdog.conf
+    dest: /etc/modprobe.d/blacklist_watchdog.conf
     content: |
       # Disable loading watchdog modules as they aren't necessary in laptop/desktop configurations
       blacklist iTCO_wdt
@@ -30,3 +30,26 @@
       # Kyber is recommended for faster storage such as NVME and SATA SSDs.
       ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="nvme?n?", ATTR{queue/scheduler}="kyber"
       ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="sd?", ATTR{queue/scheduler}="kyber"
+
+# See: https://www.apalrd.net/posts/2023/network_realtek8156
+- name: use correct realtek driver for RTL8156 chip
+  become: true
+  ansible.builtin.copy:
+    src: 50-usb-realtek-net.rules
+    dest: /etc/udev/rules.d/50-usb-realtek-net.rules
+
+- name: install dbus-broker
+  become: true
+  community.general.pacman:
+    name: dbus-broker
+
+- name: enable dbus-broker
+  become: true
+  notify: reboot
+  ansible.builtin.systemd: enabled=yes name=dbus-broker
+
+- name: enable user dbus-broker
+  become: true
+  become_user: "{{ user_name }}"
+  notify: reboot
+  ansible.builtin.systemd: scope=user enabled=yes name=dbus-broker

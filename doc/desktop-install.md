@@ -145,7 +145,6 @@ Answer `yes`. Then use `print` to list partition IDs and then rename it.
 If you aren't using LUKS, then configure `/etc/mkinitcpio.conf` this way:
 1. Replace `udev` by `systemd` on HOOKS
 2. Add `lvm2` between `block` and `filesystems` on HOOKS
-3. Add `xfs` in the MODULES line
 
 ##### 14. Generate initramfs
     # mkinitcpio -P

@@ -8,3 +8,19 @@
       - intel-gpu-tools
       - intel-media-driver
       - vulkan-intel
+
+- name: add intel graphics options
+  become: true
+  notify: rebuild initramfs
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/intel_gpu.conf
+    content: |
+      # Enable GuC on Intel GPU
+      options i915 enable_guc=2
+
+- name: set performance settings for i915
+  become: true
+  ansible.posix.sysctl:
+    sysctl_file: /etc/sysctl.d/01-i915-performance.conf
+    name: dev.i915.perf_stream_paranoid
+    value: "0"

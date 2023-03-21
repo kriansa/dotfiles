@@ -9,6 +9,7 @@
       - docker-compose
       - netavark
       - aardvark-dns
+      - fuse-overlayfs
 
 - name: add uids to /etc/subuid
   become: true

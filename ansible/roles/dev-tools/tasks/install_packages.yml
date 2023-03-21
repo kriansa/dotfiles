@@ -25,18 +25,16 @@
       - alacritty
       - fzf
       - bat
+      - git-delta
       - fd
       - exa
       - vivid
       - ripgrep
       - cowsay
       - ncdu
+      - duf
       - xclip
       - tmux
-
-      # DB (docker to rule them all)
-      # - mariadb
-      # - postgresql
 
       # Python dev
       - python
@@ -55,6 +53,7 @@
       - python-dotenv
       - kubectl
       - kubectx
+      - helm
 
       # Golang dev
       - go
@@ -64,6 +63,5 @@
 
       # Common development SDKs
       - asdf-vm
-      - devops-tools-git
       - ansible-bundler
-      - fly-cli
+      - concourse-fly-cli

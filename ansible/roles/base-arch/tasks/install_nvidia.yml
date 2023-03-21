@@ -20,7 +20,7 @@
   become: true
   notify: rebuild initramfs
   when: disable_nvidia_i2c == true
-  ansible.builtin.copy: dest=/etc/modprobe.d/nvidia-blacklist-i2c.conf src=nvidia-blacklist-i2c.conf
+  ansible.builtin.copy: dest=/etc/modprobe.d/nvidia-blacklist-i2c.conf src=nvidia_blacklist_i2c.conf
 
 - name: create path for nvidia-xdriver on boot
   become: true
