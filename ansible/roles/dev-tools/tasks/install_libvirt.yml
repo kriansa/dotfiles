@@ -8,6 +8,7 @@
       - qemu
       - virt-manager
       - dnsmasq
+      - swtpm     # This is necessary to enable TPM module to VMs
       - dmidecode # This is an optional dependency for libvirtd
 
 - name: add {{ user_name }} to group libvirt

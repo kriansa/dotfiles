@@ -1,0 +1,10 @@
+[Unit]
+Description=Playerctl daemon
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/playerctld
+Restart=on-failure
+
+[Install]
+RequiredBy=xsession.target

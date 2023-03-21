@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+#
+# Turns the keyboard light on or off
+
+set -o pipefail -o nounset
+trap exit INT
+
+help() {
+  echo "Usage: keyboard-light [OPTIONS] <on|off|toggle>"
+  echo
+  echo "Dynamically adjust DPI for the monitors."
+  echo
+  echo "Arguments:"
+  echo "  <STATE>          Sets the illumination state."
+  echo
+  echo "Options:"
+  echo "  -h, --help     Show this help message"
+}
+
+main() {
+  declare STATE
+  parse_cli "$@"
+
+  for led in /sys/class/leds/*_backlight; do
+    set_brightness "$led" "$STATE"
+  done
+}
+
+set_brightness() {
+  local device=$1
+  local state=$2
+
+  local brightness
+  case "$STATE" in
+    on) brightness=1 ;;
+    off) brightness=0 ;;
+    toggle)
+      brightness="$(cat "$device/brightness")"
+      (( brightness ^= 1 ))
+      ;;
+  esac
+
+  echo $brightness > "$device/brightness"
+}
+
+parse_cli() {
+  STATE=
+
+  while [ $# -gt 0 ]; do
+    case $1 in
+      --help|-h) help && exit ;;
+      -*) echo "Unknown option: $1" >&2 && exit 1 ;;
+      *) STATE+="$1"; shift ;;
+    esac
+  done
+
+  if test -z "${STATE:-}"; then
+    echo "The parameter 'STATE' is mandatory!" >&2
+    exit 1
+  fi
+
+  case "$STATE" in
+    on|off|toggle) ;;
+    *) echo "The parameter 'state' is not valid!" >&2 && exit 1 ;;
+  esac
+}
+
+main "$@"

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=tmux
+GenericName=Terminal
+Comment=A new tmux window on the existing terminal emulator
+TryExec=tmux-window
+Exec=tmux-window
+Icon=xterm
+Categories=System;TerminalEmulator;

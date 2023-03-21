@@ -1,0 +1,13 @@
+/**
+ * vim: ft=css
+ */
+
+@import "list-menu"
+
+inputbar {
+  children:                       [ entry, num-filtered-rows, textbox-row-split, num-rows ];
+}
+
+element {
+  children: [ element-text ];
+}

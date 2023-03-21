@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Manually invoke screenlock from cmdline
+
+help() {
+  echo "Usage: lock [OPTIONS]"
+  echo
+  echo "Manually force screensaver and screen lock."
+  echo
+  echo "Options:"
+  echo "  -h, --help              Show this help message"
+  exit
+}
+
+[ "$#" -ne 0 ] && help
+
+loginctl lock-session

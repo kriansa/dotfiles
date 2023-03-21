@@ -1,0 +1,58 @@
+Gtk/AutoMnemonics 1
+Gtk/ButtonImages 0
+Gtk/CanChangeAccels 0
+Gtk/ColorPalette "black:white:gray50:red:purple:blue:light blue:green:yellow:orange:lavender:brown:goldenrod4:dodger blue:pink:light green:gray10:gray30:gray75:gray90"
+Gtk/ColorScheme ""
+Gtk/CursorBlinkTimeout 10
+# Gtk/CursorThemeName "Simp1e"
+# Gtk/CursorThemeSize 24
+Gtk/DecorationLayout "menu:"
+Gtk/DialogsUseHeader 1
+Gtk/EnableAnimations 0
+Gtk/EnablePrimaryPaste 1
+Gtk/FontName "Roboto Condensed, 12"
+Gtk/IMModule "gtk-im-context-simple"
+Gtk/IMPreeditStyle "callback"
+Gtk/IMStatusStyle "callback"
+Gtk/KeyThemeName "Default"
+Gtk/KeynavUseCaret 0
+Gtk/MenuBarAccel "F10"
+Gtk/MenuImages 0
+Gtk/Modules "canberra-gtk-module"
+Gtk/OverlayScrolling 1
+Gtk/RecentFilesEnabled 0
+Gtk/RecentFilesMaxAge -1
+Gtk/ShellShowsAppMenu 0
+Gtk/ShellShowsDesktop 0
+Gtk/ShowInputMethodMenu 0
+Gtk/ShowUnicodeMenu 0
+Gtk/TimeoutInitial 200
+Gtk/TimeoutRepeat 20
+Gtk/TitlebarDoubleClick "toggle-maximize"
+Gtk/TitlebarMiddleClick "none"
+Gtk/TitlebarRightClick "menu"
+Gtk/ToolbarIconSize "large"
+Gtk/ToolbarStyle "both-horiz"
+
+Net/CursorBlink 1
+Net/CursorBlinkTime 1200
+Net/DndDragThreshold 8
+Net/DoubleClickTime 400
+Net/EnableEventSounds 1
+Net/EnableInputFeedbackSounds 1
+Net/FallbackIconTheme "Adwaita"
+Net/IconThemeName "Papirus"
+Net/SoundThemeName "freedesktop"
+Net/ThemeName "Adwaita"
+
+# Font rendering settings
+Xft/Antialias 1
+Xft/HintStyle "hintslight"
+Xft/Hinting 1
+Xft/RGBA "none"
+
+# DPI settings (do not set here, they should be set by monitor-set-dpi)
+#
+# Gdk/UnscaledDPI 98304
+# Gdk/WindowScalingFactor 1
+# Xft/DPI 98304

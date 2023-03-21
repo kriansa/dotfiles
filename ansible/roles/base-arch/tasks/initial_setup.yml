@@ -22,3 +22,13 @@
   become: true
   ansible.builtin.hostname:
     name: "{{ hostname }}"
+
+- name: enable ntp synchronization
+  become: true
+  ansible.builtin.command: timedatectl set-ntp true
+
+- name: set timezone
+  become: true
+  community.general.timezone:
+    name: "{{ arch_timezone }}"
+    hwclock: UTC

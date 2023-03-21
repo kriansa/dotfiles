@@ -5,9 +5,8 @@ return function(use)
   -- Speed up loading Lua modules in Neovim to improve startup time.
   use 'lewis6991/impatient.nvim'
 
-  -- Fix CursorHold event
-  -- See: https://github.com/neovim/neovim/issues/12587
-  use 'antoinemadec/FixCursorHold.nvim'
+  -- Automatically set shiftwidt and expandtab
+  use 'tpope/vim-sleuth'
 
   -- Add file manipulation commands
   use {
@@ -26,7 +25,12 @@ return function(use)
   use "gpanders/editorconfig.nvim"
 
   -- See contents of registers
-  use 'tversteeg/registers.nvim'
+  use {
+    'tversteeg/registers.nvim',
+    config = function()
+		  require("registers").setup()
+	  end
+  }
 
   -- Window management
   use 'mhinz/vim-sayonara'

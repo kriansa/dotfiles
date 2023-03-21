@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+#
+# Dynamically adjust monitor DPI
+#
+# See: https://github.com/vincentbernat/i3wm-configuration/blob/master/bin/xsettingsd-setup
+# See: https://wiki.archlinux.org/title/HiDPI
+
+set -o pipefail -o nounset
+trap exit INT
+
+help() {
+  echo "Usage: monitor-dpi [OPTIONS] <DPI>"
+  echo
+  echo "Dynamically adjust DPI for the monitors."
+  echo
+  echo "Arguments:"
+  echo "  <DPI>          Integer value to adjust the DPI to. Minimum: 96"
+  echo
+  echo "Options:"
+  echo "  -f, --force    Force reloading xsettingsd daemon so that"
+  echo "                 the DPI settings get applied immediately."
+  echo "  -h, --help     Show this help message"
+}
+
+main() {
+  declare ARGS FORCE
+  parse_cli "$@"; set -- "${ARGS[@]}"
+  validate_args "$@"
+
+  set_dpi $1
+}
+
+validate_args() {
+  if test -z "${1:-}"; then
+    echo "The parameter 'DPI' is mandatory!" >&2
+    exit 1
+  fi
+
+  if ! [[ $1 =~ ^-?[0-9]+$ ]]; then
+    echo "Invalid DPI." >&2
+    exit 1
+  fi
+
+  if [ $1 -lt 96 ]; then
+    echo "No less than 96!" >&2
+    exit 1
+  fi
+}
+
+parse_cli() {
+  FORCE=NO
+  ARGS=()
+
+  while [ $# -gt 0 ]; do
+    case $1 in
+      --force|-f)
+        FORCE=YES
+        shift
+        ;;
+
+      --help|-h)
+        help
+        exit
+        ;;
+
+      -*)
+        echo "Unknown option: $1"
+        exit 1
+        ;;
+      *)
+        ARGS+=("$1")
+        shift
+        ;;
+    esac
+  done
+}
+
+set_dpi() {
+  dpi=$1
+
+  # Xrdb update - for old apps such as libreoffice that doesn't use XSETTINGS
+  {
+    echo "Xft.dpi: $dpi"
+  } | xrdb -merge
+
+  # Rebuild xsettingsd
+  {
+    local kdpi=$(( dpi * 1024 ))
+    local scale_factor=$(( dpi / 96 ))
+
+    echo "# Generated dynamically by monitor-dpi"
+
+    # This changes font rendering sizes
+    echo "Xft/DPI $kdpi"
+
+    # These changes window and UI rendering size
+    echo "Gdk/WindowScalingFactor $scale_factor"
+    echo "Gdk/UnscaledDPI $(( kdpi / scale_factor ))"
+  } > "$HOME/.config/xsettingsd/02-monitor-dpi"
+
+  # Reload xsettingsd if requested
+  if [ "$FORCE" = "YES" ]; then
+    systemctl --user reload xsettingsd
+    systemctl --user restart dunst
+    notify-send "DPI settings changed" "Some apps might need a restart"
+  fi
+}
+
+main "$@"

@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+#
+# Quickly open a web page so I can start writing a blogpost
+
+help() {
+  echo "Usage: blog-post [--publish]"
+  echo
+  echo "Open up a new Jekyll admin interface so you can create a new blogpost."
+  echo "If you use '--publish' then it will instead try to publish the changes."
+}
+
+main() {
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    help && exit
+  fi
+
+  if [ "$1" == "--publish" ]; then
+    cd ~/Projects/kriansa.github.io && git add . && git commit && git push
+    exit
+  fi
+
+  open-jekyll
+}
+
+open-jekyll() {
+  # Enable job control so we can use fg
+  set -m
+
+  # Then we start jekyll
+  cd ~/Projects/kriansa.github.io || exit 1
+  jekyll serve &
+
+  # Then open the firefox page
+  sleep 1
+  xdg-open http://localhost:4000/admin/collections/posts/new
+  jumpto Navigator.firefox
+
+  # Then we jump back to jekyll
+  fg > /dev/null
+
+  # Now tell me the correct command to publish the blogpost
+  echo
+  echo "Publish all changes using 'blog-post --publish'"
+}
+
+main "$@"

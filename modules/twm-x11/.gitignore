@@ -1,0 +1,2 @@
+# Ignore local config for monitor dpi
+include/.config/xsettingsd/02-monitor-dpi

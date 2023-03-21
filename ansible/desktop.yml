@@ -2,11 +2,12 @@
 - hosts: all
 
   roles:
-  - role: base-arch
-  - role: systemd-boot
-  - role: gnome
-  - role: desktop-tools
-  - role: borgmatic
-  - role: yubikey
-  - role: dev-tools
-  - role: dotfiles
+    - role: 1-common-handlers
+    - role: base-arch
+    - role: systemd-boot
+    - role: gnome
+    - role: desktop-tools
+    - role: borgmatic
+    - role: yubikey
+    - role: dev-tools
+    - role: dotfiles

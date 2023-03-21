@@ -2,5 +2,7 @@ alex
 prettier
 typescript
 typescript-language-server
+vscode-langservers-extracted
+@ansible/ansible-language-server
 bash-language-server
 vls

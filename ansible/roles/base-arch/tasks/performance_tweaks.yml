@@ -1,0 +1,55 @@
+---
+- name: disable watchdogs
+  become: true
+  notify: rebuild initramfs
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/blacklist_watchdog.conf
+    content: |
+      # Disable loading watchdog modules as they aren't necessary in laptop/desktop configurations
+      blacklist iTCO_wdt
+
+- name: load kyber to use as the default scheduler for nvme/ssds
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/modules.load.d/01-nvme-scheduler.conf
+    content: |
+      # Load kyber scheduler for using it with NVME/SSD
+      kyber-iosched
+
+# See: https://github.com/pop-os/default-settings/pull/149
+# See: https://www.phoronix.com/forums/forum/software/general-linux-open-source/1334042-linux-5-19-looking-real-good-on-the-hp-dev-one-xanmod-liquorix-also-tested
+- name: use kyber as the default scheduler for nvme/ssds
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/udev/rules.d/60-nvme-scheduler.rules
+    content: |
+      # BFQ is recommended for slow storage such as rotational block devices and SD cards.
+      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
+      ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="mmcblk?", ATTR{queue/scheduler}="bfq"
+
+      # Kyber is recommended for faster storage such as NVME and SATA SSDs.
+      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="nvme?n?", ATTR{queue/scheduler}="kyber"
+      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="sd?", ATTR{queue/scheduler}="kyber"
+
+# See: https://www.apalrd.net/posts/2023/network_realtek8156
+- name: use correct realtek driver for RTL8156 chip
+  become: true
+  ansible.builtin.copy:
+    src: 50-usb-realtek-net.rules
+    dest: /etc/udev/rules.d/50-usb-realtek-net.rules
+
+- name: install dbus-broker
+  become: true
+  community.general.pacman:
+    name: dbus-broker
+
+- name: enable dbus-broker
+  become: true
+  notify: reboot
+  ansible.builtin.systemd: enabled=yes name=dbus-broker
+
+- name: enable user dbus-broker
+  become: true
+  become_user: "{{ user_name }}"
+  notify: reboot
+  ansible.builtin.systemd: scope=user enabled=yes name=dbus-broker

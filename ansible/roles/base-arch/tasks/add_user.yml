@@ -5,8 +5,8 @@
   ansible.builtin.user:
     name: "{{ user_name }}"
     comment: "{{ user_comment }}"
-    # https://wiki.archlinux.org/index.php/users_and_groups
-    groups: wheel,log,systemd-journal,uucp
+    # See: https://wiki.archlinux.org/index.php/users_and_groups
+    groups: wheel,log,systemd-journal,uucp,video
     shell: /usr/bin/fish
     # Set the password to "123" so we can log in using GDM
     # Then, it's advised that we should change this password.
@@ -35,3 +35,16 @@
 - name: enable lingering
   when: result.rc == 1
   ansible.builtin.command: loginctl enable-linger "{{ user_name }}"
+
+- name: create user base paths
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.file:
+    state: directory
+    mode: "{{ item.mode }}"
+    dest: "{{ home_path }}/{{ item.path }}"
+  loop:
+    - { path: .config, mode: "0755" }
+    - { path: .local, mode: "0700" }
+    - { path: .local/share, mode: "0700" }
+    - { path: .gnupg, mode: "0700" }

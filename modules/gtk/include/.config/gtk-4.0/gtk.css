@@ -1,0 +1,6 @@
+/**
+ * Remove weird clipping on the edge of the frame
+ */
+window.background {
+  padding: 0;
+}

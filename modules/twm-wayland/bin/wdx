@@ -1,0 +1,82 @@
+#!/bin/sh --
+#
+# sdx - Start an Xserver using systemd
+# Requires: Xorg, systemd, xauth
+#
+# Ripped off from sx - Commit 2ef0b3b on Jul 4, 2021
+# See: https://github.com/Earnestly/sx
+
+main() {
+  # This variable is set by the pam_systemd PAM module on systems using systemd. It will be set both
+  # in graphical (by lightdm, gdm, etc) and in text-mode sessions (by /bin/login).
+  tty=$XDG_VTNR
+
+  # Creates the Xauthority file which is used by X client applications to connect and authenticate
+  # to the X server.
+  export XAUTHORITY="${XDG_RUNTIME_DIR:-/var/run/user/$(id -u)}/Xauthority"
+  touch "$XAUTHORITY"
+  xauth add :"$tty" MIT-MAGIC-COOKIE-1 "$(od -An -N16 -tx /dev/urandom | tr -d ' ')"
+
+  # On UNIX systems the INT signal needs to be resent such that the calling program knows the
+  # process was interrupted.
+  # See: https://www.cons.org/cracauer/sigint.html
+  trap 'cleanup; trap - INT; kill -INT "$$"' INT
+  trap 'cleanup exit' EXIT HUP TERM QUIT
+
+  # Xorg will check whether it inherited a USR1 with a disposition of SIG_IGN and use this state to
+  # reply back to the parent process with its own USR1.
+  # This is done to indicate that the server is ready to accept connections.
+  # Taking advantage of this feature allows launching the client directly from a USR1 signal trap
+  # which obviates the need to poll for server readiness.
+  # Using `& wait` is a hack around that because it will then be able to receive signals.
+  # See: http://mywiki.wooledge.org/SignalTrap#When_is_the_signal_handled.3F
+  trap 'xorg_client & wait $!' USR1
+
+  # Clear the inherited USR1 with a SIG_IGN and start server on a subshell.
+  # When ready, it will notify this (main) process with a USR1.
+  # The reason why we need to subshell and wait is that shell won't be able to handle signals when
+  # it's executing a process in the foreground.
+  # See: http://mywiki.wooledge.org/SignalTrap#When_is_the_signal_handled.3F
+  (trap '' USR1 && xorg_server) & pid=$!
+  wait "$pid" 2> /dev/null
+}
+
+# This function supplies the need for any sort of .xinitrc or sxrc, as we will only
+# rely on systemd user units for all graphical initiated applications.
+xorg_client() {
+  export DISPLAY=":$tty"
+
+  # Include important env variables on systemd units
+  dbus-update-activation-environment --systemd DISPLAY XAUTHORITY XDG_SESSION_ID XDG_SESSION_TYPE
+
+  # Then start the graphical session unit
+  exec systemctl --user --wait start xsession.target
+}
+
+# Similarly to `xorg_client`, this is the function that invokes X server and its
+# usage is very similar to .xserverrc file when using xinit.
+xorg_server() {
+  exec /usr/bin/Xwayland :"$tty" \
+    -background none \
+    -terminate -once \
+    -rootless \
+    -auth "$XAUTHORITY" \
+    -verbose 7 2>&1
+}
+
+cleanup() {
+  if [ "$pid" ] && kill -0 "$pid" 2> /dev/null; then
+    # We use linux-utils kill instead of the shell builtin because it supports --timeout
+    /usr/bin/kill --signal TERM --timeout 2500 KILL -- "$pid" > /dev/null 2>&1
+    wait "$pid" 2> /dev/null
+    xorg=$?
+  fi
+
+  xauth remove :"$tty"
+
+  if [ "$1" = exit ]; then
+    exit "${xorg:-0}"
+  fi
+}
+
+main

@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+#
+# Rofi power menu handler that also confirms more serious actions
+#
+# See: https://github.com/davatorium/rofi/blob/next/doc/rofi-script.5.markdown
+
+main() {
+  # Running this script directly outside rofi's script will simply invoke it first
+  if [[ -z "$ROFI_OUTSIDE" ]]; then
+    exec rofi -modes "power-menu:$0" \
+      -show power-menu -theme power-menu \
+      -selected-row 2
+  fi
+
+  declare current_step=${ROFI_DATA:-start}
+  "step_$current_step" "$@"
+}
+
+# Step 1. Shows the menu
+step_start() {
+  menu_opt "Hibernate" "system-hibernate"
+  menu_opt "Suspend" "system-suspend"
+  menu_opt "Lock" "system-lock-screen"
+  menu_opt "Reboot" "system-reboot"
+  menu_opt "Shutdown" "system-shutdown"
+  set_next_step "confirm"
+}
+
+# Step 2. Either execute or ask for confirmation for a more impactful action
+step_confirm() {
+  local selected_icon=$ROFI_INFO
+  local selected_text=$1
+
+  case "$selected_text" in
+    Lock|Suspend|Hibernate) ROFI_INFO="$selected_text" step_execute && return ;;
+  esac
+
+  confirmation_str="<span weight='bold'>Confirm:</span>"
+  menu_opt "$confirmation_str $selected_text" "$selected_icon" "$selected_text"
+
+  # Enable pango markup
+  echo -e "\0markup-rows\x1ftrue"
+
+  set_next_step "execute"
+}
+
+# Step 3. Execute the confirmed action
+step_execute() {
+  local action=$ROFI_INFO
+
+  case "$action" in
+    Hibernate) systemctl hibernate ;;
+    Suspend) systemctl suspend ;;
+    Lock) loginctl lock-session ;;
+    Reboot) systemctl reboot ;;
+    Shutdown) systemctl poweroff ;;
+  esac
+}
+
+# Rofi API: set global metadata and it will be set to $ROFI_DATA on next execution
+set_next_step() {
+  echo -e "\0data\x1f$1"
+}
+
+# Rofi API: shows a menu entry. We pass the name and the icon for each entry
+# Optionally, pass a metadata parameter so that it can be picked up by the variable $ROFI_INFO on
+# the next execution. If not passed, it will be set to the icon string.
+menu_opt() {
+  local name=$1
+  local icon=$2
+  local metadata=${3:-$icon}
+  echo -e "$name\0icon\x1f$icon\x1finfo\x1f$metadata"
+}
+
+main "$@"

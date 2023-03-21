@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-#
-# Desktop Handler for xorg general settings
-# This is called at the start of a X session to setup common or static configs, such as double-click
-# delays, cursor shapes, etc.
-
-# Disable screensaver
-xset s off off

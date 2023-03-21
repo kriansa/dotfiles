@@ -1,19 +1,5 @@
 return function(use)
   use {
-    'tpope/vim-fugitive', cmd = {
-      'G', 'Git', 'Git!', 'Ggrep', 'Ggrep!', 'Glgrep', 'Glgrep!', 'Gclog', 'Gclog!', 'Gcd',
-      'Glcd', 'Gedit', 'Gsplit', 'Gvsplit', 'Gtabedit', 'Gpedit', 'Gread', 'Gread!', 'Gwrite',
-      'Gwq', 'Gwq!', 'Gdiffsplit', 'Gdiffsplit!', 'Gvdiffsplit', 'Ghdiffsplit', 'GMove',
-      'GRename', 'GDelete', 'GRemove', 'GBrowse', 'GBrowse!',
-    },
-    config = function()
-      -- Disable deprecated commands on fugitive
-      vim.g.fugitive_legacy_commands = 0
-    end,
-    disable = true,
-  }
-
-  use {
     'lewis6991/gitsigns.nvim',
     requires = { 'nvim-lua/plenary.nvim' },
     config = function()

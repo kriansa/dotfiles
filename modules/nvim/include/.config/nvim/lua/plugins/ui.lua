@@ -118,9 +118,9 @@ return function(use)
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
           lualine_b = { 'branch', { 'diff', source = gitsigns_src } },
           lualine_c = {'filename'},
-          lualine_x = {'encoding'},
-          lualine_y = {'bo:filetype'},
-          lualine_z = {'diagnostics'},
+          lualine_x = {},
+          lualine_y = {'bo:filetype', 'diagnostics'},
+          lualine_z = {},
         },
         inactive_sections = {
           lualine_a = {},

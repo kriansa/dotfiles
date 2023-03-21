@@ -7,6 +7,10 @@ scrolling:
   # Specifying '0' will disable scrolling.
   history: 0
 
+mouse:
+  # Hides the cursor temporarily when typing.
+  hide_when_typing: true
+
 key_bindings:
   # Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map
   # CMD-D to tmux, then use it as the following:
@@ -72,8 +76,8 @@ key_bindings:
   - { key: Right, mods: Option, chars: "\x1B[1;5C" }
 
   # Cross-platform bindings (not using Alt or Command)
-  - { key: Tab, mods: Control, chars: "\x1c\x09" }
-  - { key: Tab, mods: Control|Shift, chars: "\x1c\x1B[Z" }
+  - { key: Tab, mods: Alt, chars: "\x1c\x09" }
+  - { key: Tab, mods: Alt|Shift, chars: "\x1c\x1B[Z" }
 
   # Disable original Alacritty bindings for Search/ViMode
   - { key: F, mods: Command|Control, action: ReceiveChar }

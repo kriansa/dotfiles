@@ -1,0 +1,23 @@
+/**
+ * Disable border shadow and extra decorations
+ * See: https://github.com/akiraux/Akira/issues/395
+ */
+window decoration, dialog decoration, messagedialog decoration {
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+}
+
+/**
+ * Remove the weird spacing on titlebars
+ */
+box.titlebar {
+  margin: 0;
+}
+
+/**
+ * And add some button margin on confirmation dialogs
+ */
+buttonbox.dialog-action-area {
+  margin: 10px;
+}

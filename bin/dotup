@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # vim: shiftwidth=4
 #
-# confup - Update your existing configurations based on the dotfiles settings.
+# dotup - Update your existing configurations based on the dotfiles settings.
 #
 # External dependencies:
 # - PyYAML (Arch: python-yaml)
@@ -9,7 +9,7 @@
 from pathlib import Path
 from typing import Any
 from textwrap import dedent
-import os, sys, yaml
+import os, sys, yaml, sqlite3
 
 class CLI:
     """
@@ -52,25 +52,32 @@ class CLI:
 
 class State:
     """Manage the state database"""
-    file: str = ""
-    state: dict[str, Any] = {
-        "links": [],
-        "local_links": [],
-    }
 
     def __init__(self, file):
         self.file = file
-        self._load()
+        self.db = sqlite3.connect(file)
+
+    def load(self):
+        self.db.execute("CREATE TABLE IF NOT EXISTS links(path TEXT, PRIMARY KEY (path ASC)) STRICT")
+        self.db.execute("CREATE TABLE IF NOT EXISTS local_links(path TEXT, PRIMARY KEY (path ASC)) STRICT")
+        self.db.commit()
+        self.db.row_factory = lambda cursor, row: row[0]
+        self.state = {
+            "links": self.db.execute("SELECT path FROM links").fetchall(),
+            "local_links": self.db.execute("SELECT path FROM local_links").fetchall(),
+        }
 
     def add_symlink(self, symlink):
         """Adds a reference of an added symlink to the state DB"""
+        self.db.execute("INSERT INTO links(path) VALUES (?)", (symlink,))
+        self.db.commit()
         self.state["links"].append(symlink)
-        self._dump()
 
     def add_local_symlink(self, symlink):
         """Adds a reference of a locally added symlink to the state DB"""
+        self.db.execute("INSERT INTO local_links(path) VALUES (?)", (symlink,))
+        self.db.commit()
         self.state["local_links"].append(symlink)
-        self._dump()
 
     def symlinks(self):
         """Retrieves a list of stored symlinks in the state DB"""
@@ -84,37 +91,10 @@ class State:
         """Erase the entire list of symlinks and local symlinks in the state DB"""
         self.state["links"] = []
         self.state["local_links"] = []
-        self._dump()
-
-    def _load(self):
-        if not os.path.exists(self.file):
-            return
-
-        try:
-            with open(self.file, "r", encoding = "UTF-8") as file:
-                self.state = self.state | yaml.load(file, Loader=yaml.loader.SafeLoader)
-        except Exception as err:
-            raise RuntimeError(f"Unable to read state file at '{self.file}'") from err
-
-    BANNER = """
-        ############################################################################
-        # This file is a representational state of your currently installed dotfiles
-        # It is required in order to provide correct functionality
-        #
-        # IMPORTANT:
-        #   - Do NOT delete this file
-        #   - Keep it under version control
-        ############################################################################
-    """
-
-    def _dump(self):
-        try:
-            with open(self.file, "w", encoding = "UTF-8") as file:
-                file.write(dedent(self.BANNER).strip() + "\n")
-                file.write("---\n")
-                file.write(yaml.dump(self.state))
-        except Exception as err:
-            raise RuntimeError(f"Unable to save state file at '{self.file}'") from err
+        self.db.execute("DELETE FROM links")
+        self.db.execute("DELETE FROM local_links")
+        self.db.commit()
+        self.db.execute("VACUUM")
 
 
 class Term:
@@ -126,26 +106,31 @@ class Term:
         """Formats and outputs a standardized status message in the terminal"""
         message = " ".join(str(msg) for msg in messages)
         pad_str = "  " * (indent - 1)
-        print(f"\033[1m{pad_str} ➡️\033[0m {message}")
+        print(f"\033[1m{pad_str} →\033[0m {message}")
 
     @staticmethod
     def success(*messages, indent = 1):
         """Formats and outputs a standardized success messages in the terminal"""
         message = " ".join(str(msg) for msg in messages)
         pad_str = "  " * (indent - 1)
-        print(f"\033[1;32m{pad_str} ✔️\033[0m \033[1m{message}\033[0m")
+        print(f"\033[1;32m{pad_str} ✔\033[0m \033[1m{message}\033[0m")
 
     @staticmethod
     def error(exception):
         """Formats and outputs a standardized exception message in the terminal"""
-        ex = exception
         err_title = "Error"
         indent = 0
 
         while True:
-            print(f"{' ' * indent}\033[1m{err_title}:\033[0m {ex}")
-            if ex.__cause__:
-                ex = ex.__cause__
+            if hasattr(exception, "__module__"):
+                exc_name = ".".join([exception.__module__, type(exception).__name__])
+            else:
+                exc_name = exception.__class__.__name__
+
+            indent_str = ' ' * indent
+            print(f"{indent_str}\033[1m{err_title}:\033[0m \033[3;31m{exc_name}\033[0m: {exception}")
+            if exception.__cause__:
+                exception = exception.__cause__
                 indent += 2
                 err_title = "Caused by"
             else:
@@ -159,7 +144,7 @@ class Stower:
     dotfiles_path: str = ""
     destination_path: str = ""
     settings_path: str = ""
-    state: State | None = None
+    state: State|None = None
     settings: dict[str, Any] = {}
 
     def __init__(self, dotfiles_path = "~/.dotfiles", destination_path = "~"):
@@ -186,7 +171,8 @@ class Stower:
 
     def _load_state(self):
         """Load the existing state database"""
-        self.state = State(f"{self.dotfiles_path}/dotstate.yml")
+        self.state = State(f"{self.dotfiles_path}/dotstate.db")
+        self.state.load()
 
     def _load_settings(self):
         """Load all dotfiles settings recursively"""
@@ -274,7 +260,7 @@ class Stower:
             rel_root = root.removeprefix(f"{include_path}").lstrip("/")
 
             # Just skips this entire folder if their parent is already marked for symlinking
-            path_already_linked = [True for path in linkable_paths if rel_root.startswith(path)]
+            path_already_linked = [True for path in linkable_paths if rel_root.startswith(f"{path}/")]
             if path_already_linked:
                 continue
 
@@ -333,11 +319,16 @@ class Stower:
 
             if not os.path.exists(sym_from):
                 raise RuntimeError(f"File {sym_from} was not found!")
-
             if os.path.exists(sym_to):
-                raise RuntimeError(f"File {sym_to} already exists!")
+                # If the file is a symlink and it is already pointing to where we want to, just
+                # include it into our state, otherwise let the user fix it.
+                if os.path.islink(sym_to) and os.readlink(sym_to) == sym_from:
+                    self.state.add_symlink(destination)
+                    return
+                else:
+                    raise RuntimeError(f"Path {sym_to} already exists!")
 
-            os.makedirs(os.path.dirname(sym_to), exist_ok = True)
+            os.makedirs(os.path.dirname(sym_to), exist_ok=True)
             os.symlink(sym_from, sym_to)
             self.state.add_symlink(destination)
         except Exception as err:
@@ -356,12 +347,18 @@ class Stower:
                 raise RuntimeError(f"File {sym_from} was not found!")
 
             if os.path.exists(sym_to):
-                raise RuntimeError(f"File {sym_to} already exists!")
+                # If the file is a symlink and it is already pointing to where we want to, just
+                # include it into our state, otherwise let the user fix it.
+                if os.path.islink(sym_to) and os.readlink(sym_to) == sym_from:
+                    self.state.add_local_symlink(destination)
+                    return
+                else:
+                    raise RuntimeError(f"Path {sym_to} already exists!")
 
             # Internally we want to create relative links only
             relpath_from = os.path.relpath(sym_from, os.path.dirname(sym_to))
 
-            os.makedirs(os.path.dirname(sym_to), exist_ok = True)
+            os.makedirs(os.path.dirname(sym_to), exist_ok=True)
             os.symlink(relpath_from, sym_to)
             self.state.add_local_symlink(destination)
         except Exception as err:

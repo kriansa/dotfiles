@@ -1,0 +1,121 @@
+/**
+ * vim: ft=css
+ */
+
+@import "menu-keybindings"
+
+configuration {
+  font:                           "RobotoCondensed 12";
+  show-icons:                     true;
+  icon-theme:                     "Papirus";
+  disable-history:                false;
+  sidebar-mode:                   false;
+  display-drun:                   "";
+  drun-display-format:            "{name}";
+  terminal:                       "tmux-window";
+}
+
+* {
+  transparent:                    #00000000;
+  background:                     #EDF2F4c0; /* gray */
+  text:                           #383a42;   /* black */
+  accent:                         #0184bcFF; /* blue */
+  bg-hover:                       #0184bc22; /* blue */
+  search-placeholder:             #A29C90;   /* light_coffee */
+}
+
+window {
+  transparency:                   "real";
+  background-color:               var(background);
+  text-color:                     var(text);
+  width:                          800px;
+  location:                       center;
+  anchor:                         north;
+  y-offset:                       -20%;
+}
+
+inputbar {
+  children:                       [ prompt, entry ];
+  background-color:               var(background);
+  text-color:                     var(text);
+  border-color:                   var(accent);
+  border:                         1px;
+  border-radius:                  4px;
+  padding:                        15px;
+}
+
+prompt {
+  background-color:               var(transparent);
+  text-color:                     var(text);
+  margin:                         0 0 -20px 0;
+  font:                           "la\-solid\-900 18";
+}
+
+entry {
+  placeholder:                    "Search...";
+  margin:                         0 0 0 10px;
+  background-color:               var(transparent);
+  text-color:                     var(text);
+  placeholder-color:              var(search-placeholder);
+  cursor:                         text;
+}
+
+listview {
+  background-color:               var(transparent);
+  columns:                        6;
+  lines:                          3;
+  spacing:                        0;
+  margin:                         15px 0 0 0;
+  cycle:                          false;
+  flow:                           horizontal;
+  layout:                         vertical;
+  dynamic:                        true;
+  fixed-columns:                  true;
+  fixed-height:                   false;
+}
+
+mainbox {
+  background-color:               var(transparent);
+  children:                       [ message, inputbar, listview ];
+  padding:                        15px;
+}
+
+message {
+  background-color:               inherit;
+  margin:                         0 0 15px 0;
+}
+
+textbox {
+  font:                           "RobotoCondensed 20";
+  background-color:               inherit;
+}
+
+element {
+  background-color:               inherit;
+  orientation:                    vertical;
+  text-color:                     var(text);
+  padding:                        25px 0;
+  cursor:                         pointer;
+}
+
+element-icon {
+  background-color:               var(transparent);
+  size:                           64px;
+  cursor:                         inherit;
+}
+
+element-text {
+  background-color:               var(transparent);
+  text-color:                     inherit;
+  cursor:                         inherit;
+  horizontal-align:               0.5;
+  margin:                         10px 10px -10px 10px;
+}
+
+element.selected {
+  background-color:               var(bg-hover);
+  text-color:                     var(text);
+  border:                         1px;
+  border-radius:                  4px;
+  border-color:                   var(accent);
+}

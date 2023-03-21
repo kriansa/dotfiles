@@ -1,0 +1,21 @@
+[Unit]
+Description=Sway Window Manager
+PartOf=graphical-session.target
+
+[Service]
+Type=notify
+NotifyAccess=all
+EnvironmentFile=%h/.config/sway/env
+ExecStart=/usr/bin/sway
+ExecStopPost=/bin/systemctl --user stop graphical-session.target
+ExecStopPost=/bin/systemctl --user unset-environment \
+  XDG_SESSION_TYPE \
+  XDG_SESSION_DESKTOP \
+  XDG_CURRENT_DESKTOP \
+  DISPLAY \
+  WAYLAND_DISPLAY \
+  SWAYSOCK \
+  I3SOCK \
+  XCURSOR_SIZE \
+  XCURSOR_THEME
+Restart=no

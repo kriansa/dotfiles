@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+main() {
+  systemctl --user start wayland-session.target
+
+  # Include important env variables on systemd units
+  dbus-update-activation-environment --systemd \
+    XDG_SESSION_TYPE \
+    XDG_SESSION_DESKTOP \
+    XDG_CURRENT_DESKTOP \
+    DISPLAY \
+    WAYLAND_DISPLAY \
+    SWAYSOCK \
+    I3SOCK \
+    XCURSOR_SIZE \
+    XCURSOR_THEME
+}
+
+finish() {
+  systemctl --user unset-environment SWAYSOCK DISPLAY I3SOCK WAYLAND_DISPLAY
+}
+
+main

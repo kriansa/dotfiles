@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#
+# Opens the file-manager for a given path(s) or the default path when not specified.
+#
+# Usage: file-manager [<PATH>, <PATH>, ...]
+
+[[ $# -eq 0 ]] && set -- "$HOME/Downloads"
+exec pcmanfm "$@"

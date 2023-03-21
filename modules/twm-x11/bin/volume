@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+#
+# Sets the system volume up/down or mute
+
+set -o pipefail -o nounset
+trap exit INT
+
+help() {
+  echo "Usage: volume [OPTIONS] <COMMAND>"
+  echo
+  echo "Control audio with desktop notifications."
+  echo
+  echo "Commands:"
+  echo "  increase      Increase volume. Unmute if muted."
+  echo "  decrease      Lower volume. Unmute if muted."
+  echo "  mute          Toggle between mute and unmute"
+  echo
+  echo "Options:"
+  echo "  -i, --input            Change the volume from the input instead of the output."
+  echo "  -n, --no-feedback      Don't play the visual and audio cue."
+  echo "  -h, --help             Show this help message."
+}
+
+main() {
+  ACTION=""
+  OUTPUT=YES
+  PLAY_FEEDBACK=YES
+
+  while [ $# -gt 0 ]; do
+    case $1 in
+      --no-feedback|-n) PLAY_FEEDBACK=NO && shift ;;
+      --input|-i) OUTPUT=NO && shift ;;
+      --help|-h) help && exit ;;
+      -*) echo "Unknown option: $1" >&2 && exit 1 ;;
+      *) ACTION+="$1" && shift ;;
+    esac
+  done
+
+  [ "$ACTION" = "" ] && echo "You need to provide a commmand." >&2 && exit 1
+
+  # Set the node id to change the volume on wireplumber
+  declare node_id
+  test "$OUTPUT" = "YES" && node_id="@DEFAULT_SINK@" || node_id="@DEFAULT_SOURCE@"
+
+  # Get current volume
+  declare volume muted
+  get-volume
+
+  case "$ACTION" in
+    increase)
+      test $muted -eq 1 && wpctl set-mute "$node_id" 0 && muted=0
+      if [ $(( volume + 5 )) -gt 100 ]; then
+        local param="$(( 100 - volume ))%+"
+        volume=100
+      else
+        local param="5%+"
+        volume=$(( volume + 5 ))
+      fi
+      wpctl set-volume "$node_id" "$param"
+      ;;
+
+    decrease)
+      test $muted -eq 1 && wpctl set-mute "$node_id" 0 && muted=0
+      wpctl set-volume "$node_id" "5%-"
+      volume=$(( volume - 5 ))
+      test $volume -lt 0 && volume=0
+      ;;
+
+    mute)
+      wpctl set-mute "$node_id" toggle
+      test $muted -eq 0 && muted=1 || muted=0
+      ;;
+  esac
+
+  [ "$PLAY_FEEDBACK" = "YES" ] && play-feedback
+}
+
+get-volume() {
+  local _vol; _vol=($(wpctl get-volume "$node_id" | awk '{ print $2*100; print $3 == "[MUTED]" }'))
+  volume="${_vol[0]}"
+  muted="${_vol[1]}"
+}
+
+play-feedback() {
+  local icon_base_name
+  test "$OUTPUT" = "YES" && icon_base_name="notification-audio-volume" || icon_base_name="microphone-sensitivity"
+
+  if [ $muted -eq 1 ]; then
+    notify --icon=${icon_base_name}-muted "Muted"
+    return
+  fi
+
+  local icon
+
+  if [ $volume -ge 70 ]; then
+    icon="${icon_base_name}-high"
+  elif [ $volume -ge 30 ]; then
+    icon="${icon_base_name}-medium"
+  elif [ $volume -ge 1 ]; then
+    icon="${icon_base_name}-low"
+  else
+    icon="${icon_base_name}-muted"
+  fi
+
+  # Play feedback for output only
+  if [ "$OUTPUT" = "YES" ]; then
+    canberra-gtk-play --id=audio-volume-change --description="volume change feedback" & disown
+  fi
+
+  notify --icon="$icon" --hint="int:value:$volume" "Volume: ${volume}%"
+}
+
+notify() {
+  /usr/bin/notify-send --app-name=system:volume-change --urgency=low --expire-time=1500 \
+  --hint=string:x-dunst-stack-tag:system-volume-change \
+  "$@"
+}
+
+main "$@"

@@ -1,3 +1,8 @@
 pylint
 mypy
 black
+ansible-lint
+python-lsp-server
+python-lsp-server[pylint]
+python-lsp-black
+pydocstyle

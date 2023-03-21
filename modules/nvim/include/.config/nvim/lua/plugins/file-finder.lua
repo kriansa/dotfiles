@@ -5,7 +5,6 @@ return function(use)
     requires = 'nvim-lua/plenary.nvim',
     after = {
       'telescope-fzf-native.nvim',
-      "telescope-frecency.nvim",
     },
     config = function()
       -- Customize the output of the Telescope buffers
@@ -34,6 +33,62 @@ return function(use)
             end,
             -- This param is passed to the `display` callback above
             filename = bufname,
+          }
+        end
+      end
+
+      local live_grep_formatter = function()
+        local Path = require("plenary.path")
+        local utils = require("telescope.utils")
+
+        function display_line_entry(entry)
+          local display_filename = utils.transform_path({ cwd = vim.loop.cwd() }, entry.filename)
+          local display = string.format("%s:%s:%s", display_filename, entry.lnum, entry.text)
+
+          -- Set highlight delimiters for string text
+          local text_start = string.len(display_filename) + string.len(entry.lnum) + 2
+          local text_end = text_start + string.len(entry.text)
+
+          local lnum_start = string.len(display_filename) + 1
+          local lnum_end = lnum_start + string.len(entry.lnum)
+
+          return display, {
+            { { text_start, text_end }, "TelescopeResultsField" },
+            { { lnum_start, lnum_end }, "TelescopeResultsNumber" }
+          }
+        end
+
+        return function(line)
+          local _, _, filename, lnum, col, text = string.find(line, [[(..-):(%d+):(%d+):(.*)]])
+          local cwd = vim.loop.cwd()
+
+          local ok
+          ok, lnum = pcall(tonumber, lnum)
+          if not ok then
+            lnum = nil
+          end
+
+          ok, col = pcall(tonumber, col)
+          if not ok then
+            col = nil
+          end
+
+          if Path:new(filename):is_absolute() then
+            path = filename
+          else
+            path = Path:new({ cwd, filename }):absolute()
+          end
+
+          return {
+            value = line,
+            ordinal = line,
+            cwd = cwd,
+            path = path,
+            filename = filename,
+            lnum = lnum,
+            col = col,
+            text = text,
+            display = display_line_entry,
           }
         end
       end
@@ -87,35 +142,35 @@ return function(use)
 
           live_grep = {
             borderchars = { '─', '│', '─', '│', '┌', '┐', '┘', '└' },
-            prompt_prefix = "Regexp ❯ ",
-            results_title = "",
-            preview_title = "",
-            prompt_title = "",
-            disable_coordinates = true,
-            disable_devicons = true,
-            vimgrep_arguments = {
-              "rg", "--color=never", "--no-heading", "--hidden", "--column", "--smart-case",
-              "--with-filename", "--line-number"
-            },
-          },
-
-          grep_string = {
-            borderchars = { '─', '│', '─', '│', '┌', '┐', '┘', '└' },
             prompt_prefix = "Filter ❯ ",
             results_title = "",
             preview_title = "",
+            prompt_title = "",
+            layout_strategy = "vertical",
+            layout_config = {
+              mirror = true,
+              height = { padding = 1 },
+            },
             disable_coordinates = true,
             disable_devicons = true,
+            entry_maker = live_grep_formatter(),
             vimgrep_arguments = {
               "rg", "--color=never", "--no-heading", "--hidden", "--column", "--smart-case",
-              "--with-filename", "--line-number"
+              "--with-filename", "--line-number", "--trim", "--fixed-strings"
             },
-          }
+          },
         },
+        extensions = {
+          fzf = {
+            fuzzy = true,                    -- false will only do exact matching
+            override_generic_sorter = true,  -- override the generic sorter
+            override_file_sorter = true,     -- override the file sorter
+            case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+          }
+        }
       })
 
       require('telescope').load_extension('fzf')
-      require("telescope").load_extension("frecency")
     end
   }
 
@@ -123,11 +178,5 @@ return function(use)
   use {
     'nvim-telescope/telescope-fzf-native.nvim',
     run = 'make',
-  }
-
-  -- Use a sqlite database to provide frecency (frequency + recency)
-  use {
-    "nvim-telescope/telescope-frecency.nvim",
-    requires = { 'tami5/sqlite.lua' },
   }
 end

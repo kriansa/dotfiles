@@ -25,4 +25,4 @@
     marker: "# Enable network attached Drive ({mark})"
     block: |
       # {{ home_path }}/Drive
-      {{ shared_drive.drive_location }}	{{ home_path }}/Drive	nfs	_netdev,x-gvfs-hide,noauto,x-systemd.automount,x-systemd.mount-timeout=5,x-systemd.requires=nss-lookup.target,rw	0	0
+      {{ shared_drive.drive_location }}	{{ home_path }}/Drive	nfs4	_netdev,x-gvfs-hide,noauto,retry=0,x-systemd.automount,x-systemd.mount-timeout=5,x-systemd.requires=nss-lookup.target,rw	0	0

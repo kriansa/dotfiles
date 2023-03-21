@@ -1,0 +1,10 @@
+<labwc_config>
+    <core>
+		    <decoration>client</decoration>
+		    <keyboard>
+		      <keybind key="A-F4">
+		        <action name="Exit"></action>
+		      </keybind>
+		    </keyboard>
+    </core>
+</labwc_config>

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+#
+# This is a small wrapper around rofi so that it shows Dunst options as they are expected to be
+# displayed to the user instead of Dunst's "dmenu-formatted" which is ugly ("#%s (%s) [%d,%s]")
+
+opts_file=/tmp/dunst-rofi-opts
+selection_file=/tmp/dunst-rofi-selection
+
+main-dunst() {
+  # Save stdin options to a file
+  cat - > "$opts_file"
+
+  # Then invoke rofi
+  rofi -modes "dunst-menu:$0" -show dunst-menu -theme list-menu-no-icons
+
+  # Read back from selection
+  cat "$selection_file"
+  rm "$opts_file" "$selection_file"
+}
+
+main-rofi() {
+  if [ "$ROFI_RETV" == "1" ]; then
+    # An option has been selected: save it to a file
+    echo "$ROFI_INFO" > "$selection_file"
+  else
+    # Read options from file, doing necessary replacements to only show the wanted display string
+    #
+    # The extra `-n` condition is needed so that we are able to read the last line of the file
+    # because it's not terminated by a newline.
+    # See: https://stackoverflow.com/questions/12916352/shell-script-read-missing-last-line
+    while read line || [ -n "$line" ]; do
+      display=$(echo "$line" | grep -Po "(?<=#).*(?= \(.*\) \[.*\])")
+      echo -e "$display\0info\x1f$line"
+    done < "$opts_file"
+  fi
+}
+
+test -z "$ROFI_OUTSIDE" && main-dunst || main-rofi

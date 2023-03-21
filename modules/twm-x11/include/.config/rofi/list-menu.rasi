@@ -1,0 +1,63 @@
+/**
+ * vim: ft=css
+ */
+
+@import "drun"
+
+listview {
+  scrollbar:                      true;
+  columns:                        1;
+  lines:                          7;
+  cycle:                          true;
+}
+
+scrollbar {
+  background-color:               var(transparent);
+  handle-color:                   var(accent);
+  handle-width:                   2px;
+  border-color:                   var(bg-hover);
+  margin:                         0 0 0 10px;
+  cursor:                         default;
+}
+
+scrollbar handle {
+  border-radius:                  5px;
+}
+
+inputbar {
+  children:                       [ prompt, entry, num-filtered-rows, textbox-row-split, num-rows ];
+  spacing:                        3px;
+}
+
+num-filtered-rows {
+  background-color:               var(transparent);
+}
+
+textbox-row-split {
+  expand:                         false;
+  background-color:               var(transparent);
+  content:                        "/";
+  text-color:                     var(search-placeholder);
+}
+
+num-rows {
+  background-color:               var(transparent);
+  text-color:                     var(search-placeholder);
+}
+
+element {
+  orientation:                    horizontal;
+  padding:                        10px;
+  spacing:                        10px;
+}
+
+element-icon {
+  size:                           32px;
+}
+
+element-text {
+  background-color:               var(transparent);
+  vertical-align:                 0.5;
+  horizontal-align:               0;
+  margin:                         0;
+}

@@ -1,5 +1,11 @@
 return function(use)
-  use 'tpope/vim-surround'
+  -- surrounds
+  use({
+    "kylechui/nvim-surround",
+    config = function()
+      require("nvim-surround").setup()
+    end
+  })
   use 'tpope/vim-repeat'
   use 'AndrewRadev/splitjoin.vim'
   use 'ggandor/lightspeed.nvim'
@@ -17,9 +23,10 @@ return function(use)
       })
 
       vim.g.matchup_surround_enabled = 1
+      vim.g.matchup_override_vimtex = 1
+      vim.g.matchup_transmute_enabled = 1
       vim.g.matchup_matchparen_deferred = 1
       vim.g.matchup_matchparen_deferred_show_delay = 100
-      vim.g.matchup_override_vimtex = 1
       vim.g.matchup_matchparen_offscreen = { method = "status_manual" }
     end
   }

@@ -4,4 +4,4 @@ linux    /{{ item.vmlinuz_path }}
 initrd   /intel-ucode.img
 {% endif %}
 initrd   /{{ item.initramfs_path }}
-options  ibt=off root={{ root_partition }} resume={{ swap_partition }} rw rootflags=x-systemd.device-timeout=30 intel_iommu=on iommu=pt {%- if encrypt_disk == True %} rd.luks.options=discard rd.luks.name={{ encrypted_partition_uuid }}={{ lvm_vg_name }}{% endif %}
+options  nowatchdog ibt=off intel_iommu=on iommu=pt root={{ root_partition }} resume={{ swap_partition }} rw rootflags=x-systemd.device-timeout=30 {%- if encrypt_disk == True %} rd.luks.options=discard rd.luks.name={{ encrypted_partition_uuid }}={{ lvm_vg_name }}{% endif %}

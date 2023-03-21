@@ -23,3 +23,9 @@ disable_nvidia_i2c: true
 
 # Intel drivers
 install_intel_drivers: false
+
+# Install nvidia
+install_nvidia_drivers: true
+
+# Enable bluetooth?
+enable_bluetooth: false

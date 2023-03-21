@@ -1,0 +1,16 @@
+[Unit]
+Description=wmcompanion is a utility for connecting system events to user actions
+PartOf=graphical-session.target
+After=x-config.service
+
+[Service]
+ExecStart=/usr/bin/wmcompanion
+
+# When using the project directly
+# ExecStart=/usr/bin/poetry run wmcompanion
+# WorkingDirectory=/home/dpereira/Projects/wmcompanion
+
+Restart=on-failure
+
+[Install]
+RequiredBy=xsession.target

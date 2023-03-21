@@ -1,1 +1,1 @@
-../../../../../unix/functions/rm.fish
+../../../../../shell/functions/rm.fish

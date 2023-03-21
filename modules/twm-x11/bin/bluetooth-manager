@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#
+# Opens the Bluetooth manager GUI and properly finishes all lingering apps
+
+/usr/bin/blueman-manager "$@"; status=$?
+
+ps -ef | grep -E '(blueman-tray|blueman-applet)' | \
+  grep -v grep | awk '{print $2}' | xargs -r kill -9
+
+exit $status

@@ -1,0 +1,16 @@
+[Unit]
+Description=X session managed by systemd
+BindsTo=graphical-session.target
+
+Wants=x-config.service
+Wants=wmcompanion.service
+Wants=xsettingsd.service
+Wants=xssproxy.service
+Wants=kbdd.service
+Wants=playerctld.service
+Wants=picom.service
+Wants=screensaver.service
+Wants=dunst.service
+Wants=polkit-agent.service
+Wants=herbstluftwm.service
+Wants=polybar.service

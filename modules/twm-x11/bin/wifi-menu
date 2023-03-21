@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+#
+# Manages connections to wifi
+
+NC='\e[0m' # No Color
+BOLD='\e[1m'
+ITALIC='\e[3m'
+
+help() {
+  echo "Usage: wifi-menu [OPTIONS]"
+  echo
+  echo "Guides you through configuring wi-fi using nmcli."
+  echo
+  echo "Options:"
+  echo "  --list                  List the wireless network connections at startup"
+  echo "  -h, --help              Show this help message"
+  exit
+}
+
+main() {
+  declare LIST=NO
+
+  case $1 in
+    --help|-h) help ;;
+    --list) LIST=YES ;;
+    -*) echo "Unknown option: $1" >&2 && exit 1 ;;
+  esac
+
+  radio_status=$(nmcli radio wifi)
+
+  echo -e "Manage wireless connections with ${BOLD}NetworkManager${NC}'s nmcli:"
+  echo
+  echo -e "  ${BOLD}- Connect to a Wireless connection:${NC}"
+  echo -e "    $ ${ITALIC}nmcli dev wifi connect <[B]SSID> [password <password>] [hidden yes]${NC}"
+  echo
+  echo -e "  ${BOLD}- Toggle Wi-Fi radio (currently $radio_status):${NC}"
+  echo -e "    $ ${ITALIC}nmcli radio wifi <on|off>${NC}"
+  echo
+  echo -e "  ${BOLD}- Show currently connected network:${NC}"
+  echo -e "    $ ${ITALIC}nmcli dev wifi show${NC}"
+  echo
+  echo -e "  ${BOLD}- Show configured connections:${NC}"
+  echo -e "    $ ${ITALIC}nmcli con show${NC}"
+  echo
+  echo -e "  ${BOLD}- List available Wi-Fi radio connections:${NC}"
+  echo -e "    $ ${ITALIC}nmcli dev wifi list --rescan no${NC}"
+
+  if [[ $LIST == "YES" ]]; then
+    if [[ "$radio_status" == "disabled" ]]; then
+      echo -e "\n${BOLD}Wi-Fi disabled.${NC} Enable it to list available connections.\n"
+    else
+      echo -e "\n${BOLD}Listing${NC} Wireless connections:\n"
+      nmcli --colors yes dev wifi list --rescan auto | cat
+    fi
+  fi
+}
+
+main "$@"

@@ -1,0 +1,17 @@
+---
+- name: reload systemd
+  become: true
+  ansible.builtin.systemd: daemon_reload=yes
+
+- name: reload systemd for user
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.systemd: daemon_reload=yes scope=user
+
+- name: rebuild initramfs
+  become: true
+  ansible.builtin.command: mkinitcpio -P
+
+- name: reboot
+  become: true
+  ansible.builtin.reboot:

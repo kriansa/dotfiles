@@ -1,0 +1,28 @@
+# Set some important environment variables
+#
+# GTK3 apps try to contact org.a11y.Bus. Disable that.
+NO_AT_BRIDGE=1
+# Makes scrolling bars always visible on GTK apps
+GTK_OVERLAY_SCROLLING=0
+
+# Make QT automatically scale according to screen DPI
+QT_AUTO_SCREEN_SCALE_FACTOR=1
+QT_SCALE_FACTOR_ROUNDING_POLICY=PassThrough
+
+# Use GTK widgets on QT where applicable (such as on file picker)
+QT_QPA_PLATFORMTHEME=gtk3
+QT_STYLE_OVERRIDE=adwaita
+
+# Prefer wayland on GDK apps
+GDK_BACKEND=wayland
+
+# Use Wayland on Firefox
+MOZ_ENABLE_WAYLAND=1
+
+# Set XDG vars
+XDG_CURRENT_DESKTOP=sway
+XDG_SESSION_DESKTOP=sway
+XDG_SESSION_TYPE=wayland
+
+# Add home to $PATH
+PATH=/home/dpereira/.bin:/usr/bin

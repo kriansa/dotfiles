@@ -4,8 +4,8 @@ return function(use)
 
   -- Main tree-view
   use {
-    'kyazdani42/nvim-tree.lua',
-    requires = { 'kyazdani42/nvim-web-devicons' },
+    'nvim-tree/nvim-tree.lua',
+    requires = { 'nvim-tree/nvim-web-devicons' },
     cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFileToggle" },
     config = function(p, a)
       -- Customize colors
@@ -29,14 +29,11 @@ return function(use)
         trash = { cmd = "gio trash" },
         hijack_cursor = true,
         hijack_unnamed_buffer_when_opening = false,
-        create_in_closed_folder = true,
         view = {
           hide_root_folder = true,
-          mappings = {
-            custom_only = true,
-            list = mappings.nvim_tree,
-          },
         },
+        remove_keymaps = true,
+        on_attach = mappings.nvim_tree,
         filters = {
           custom = {
             "^.git$"
