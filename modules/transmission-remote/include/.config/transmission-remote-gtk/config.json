@@ -33,14 +33,14 @@
       "sort-col" : -2,
       "sort-type" : 0,
       "widths" : [
-        325,
-        608,
-        336,
-        387,
-        393,
-        395,
-        372,
-        588
+        163,
+        231,
+        174,
+        225,
+        231,
+        233,
+        210,
+        211
       ],
       "columns" : [
         "tier",
@@ -57,11 +57,11 @@
       "sort-col" : -2,
       "sort-type" : 0,
       "widths" : [
-        905,
-        628,
-        625,
-        631,
-        615
+        327,
+        317,
+        346,
+        352,
+        336
       ],
       "columns" : [
         "name",
@@ -75,14 +75,14 @@
       "sort-col" : -2,
       "sort-type" : 0,
       "widths" : [
-        395,
-        409,
-        429,
-        459,
-        441,
-        436,
-        414,
-        421
+        179,
+        193,
+        213,
+        243,
+        225,
+        220,
+        198,
+        207
       ],
       "columns" : [
         "ip",
@@ -174,9 +174,9 @@
   "system-tray-minimise" : false,
   "add-notify" : true,
   "complete-notify" : true,
-  "window-height" : 1334,
-  "window-width" : 3408,
-  "notebook-paned-pos" : 1044,
+  "window-height" : 1341,
+  "window-width" : 1682,
+  "notebook-paned-pos" : 1051,
   "states-paned-pos" : 147,
   "style" : 0,
   "dialog-width" : 700,
