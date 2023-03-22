@@ -3,8 +3,8 @@
 # This small wrapper ensures that we always get the pinentry GUI version regardless of the platform
 # on which we are being run
 
-if test -f /usr/local/bin/pinentry-mac; then
-  /usr/local/bin/pinentry-mac "$@" 3<&0
+if test -f /opt/homebrew/bin/pinentry-mac; then
+  /opt/homebrew/bin/pinentry-mac "$@" 3<&0
 elif test -f /usr/bin/pinentry-gnome3; then
   /usr/bin/pinentry-gnome3 "$@" 3<&0
 else

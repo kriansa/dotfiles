@@ -144,7 +144,7 @@ class Stower:
     dotfiles_path: str = ""
     destination_path: str = ""
     settings_path: str = ""
-    state: State|None = None
+    state: State = None
     settings: dict[str, Any] = {}
 
     def __init__(self, dotfiles_path = "~/.dotfiles", destination_path = "~"):

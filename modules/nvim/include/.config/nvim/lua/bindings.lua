@@ -188,7 +188,7 @@ mappings.gitsigns = function(bufnr)
 
   -- Actions
   map({'n', 'v'}, '<leader>hs', ':Gitsigns stage_hunk<CR>')
-  map({'n', 'v'}, '<leader>hr', ':Gitsigns reset_hunk<CR>')
+  map({'n', 'v'}, '<leader>hu', ':Gitsigns reset_hunk<CR>')
   map('n', '<leader>gb', function() gs.blame_line{full=true} end)
 
   -- This has very similar behavior as `gb` above

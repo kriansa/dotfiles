@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 #
 # This is a helper on top of tmux so we can split windows on the same directory, while keeping a
 # reference if this directory is currently a symlink. This is currently not supported natively by

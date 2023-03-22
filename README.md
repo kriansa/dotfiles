@@ -11,6 +11,7 @@ I'm doing my machines bootstrapping using [Ansible](https://www.ansible.com/).
 
 * [Desktop](doc/desktop-install.md)
 * [Laptop](doc/laptop-install.md)
+* [MacOS](doc/macos-install.md)
 
 ## Installation
 
@@ -21,6 +22,7 @@ $ git clone git@github.com:kriansa/dotfiles.git ~/.dotfiles
 ```
 
 2. Run `bin/setup`
+3. Run `sudo ln -s $(which pinentry-gui) /usr/local/bin`
 
 ## Docs
 

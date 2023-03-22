@@ -13,5 +13,18 @@ set --global --export ANSIBLE_NOCOWS 1
 # execute this function right here.
 function fish_greeting
   test -n "$no_greeting" && return
+  test -r "$HOME/Documents/Fortunes" || return
   cat $HOME/Documents/Fortunes/*.txt | sort --random-sort | head -1 | cowsay
+end
+
+if status is-interactive
+  # Add navigational helpers
+  # (these functions couldn't be in their dedicated files because they would have weird names)
+  function ...
+  ../..
+  end
+
+  function ....
+  ../../..
+  end
 end

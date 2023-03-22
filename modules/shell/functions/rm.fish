@@ -15,7 +15,7 @@ function rm --description "Safe removal to trash avoiding accidents or mistyping
     set -af files $arg
   end
 
-  gio trash $files || return 1
+  trash $files || return 1
   printf "$(set_color --bold)Moved to trash.$(set_color normal) "
   echo "Use $(set_color --italic)`command rm`$(set_color normal) if you want to remove permanently."
 end

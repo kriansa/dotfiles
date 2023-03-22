@@ -1,5 +1,13 @@
-# Add ~/.bin to path
-fish_add_path --path --global $HOME/.bin
+# This file (config.fish) is loaded after all conf.d ones
+
+# First we execute all functions that modify the path
+emit modify_path
+
+# Add ~/.bin to path as the first in the list so it overrides existing system executables
+fish_add_path --prepend --path --global $HOME/.bin
+
+# Then we run all finalizer functions, that run after all PATH modifications
+emit path_modified
 
 if status is-interactive
   # Set good defaults for FZF
@@ -12,16 +20,6 @@ if status is-interactive
 
   #  Configure fzf.fish
   set --global fzf_fd_opts --hidden --exclude=.git
-
-  # Add navigational helpers
-  # (these functions couldn't be in their dedicated files because they would have weird names)
-  function ...
-    ../..
-  end
-
-  function ....
-    ../../..
-  end
 
   # Configure theme (Pure)
   set --global pure_show_jobs true
