@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Usage: trash <file> [...]
+
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  gio trash "$@"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  for file in "$@"; do
+    fullpath="$PWD/$file"
+    if [ ! -r "$fullpath" ]; then
+      echo "Path '$fullpath' not found!" >&2
+      exit 1
+    fi
+
+    osascript -e "tell application \"Finder\" to delete POSIX file \"$fullpath\"" > /dev/null
+  done
+fi
