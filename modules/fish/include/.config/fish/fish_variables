@@ -1,4 +1,3 @@
-# This file contains fish universal variable definitions.
 # VERSION: 3.0
 SETUVAR --export __ABBR_TIPS_KEYS:d\x1edc\x1eg\x1ek\x1ekcx\x1ekns\x1ea__fish_key_reader\x1ea__la\x1ea__ll\x1ea__\x2d\x2dhelp
 SETUVAR __fish_initialized:3400

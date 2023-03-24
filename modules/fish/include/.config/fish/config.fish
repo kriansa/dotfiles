@@ -4,7 +4,7 @@
 emit modify_path
 
 # Add ~/.bin to path as the first in the list so it overrides existing system executables
-fish_add_path --prepend --path --global $HOME/.bin
+fish_add_path --path --move --global $HOME/.bin
 
 # Then we run all finalizer functions, that run after all PATH modifications
 emit path_modified

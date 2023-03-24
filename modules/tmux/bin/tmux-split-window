@@ -18,6 +18,6 @@ direction=$1
 pane_id=$2
 
 cwd=$(tmux show -v "@cwd_${pane_id}")
-flags+=("${direction}" "cd '${cwd}'; exec ${SHELL}")
+flags=("$direction" "sh" "-c" "cd '$cwd'; exec $SHELL")
 
 exec tmux split-window "${flags[@]}"
