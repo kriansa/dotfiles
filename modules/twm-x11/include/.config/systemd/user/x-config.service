@@ -3,7 +3,7 @@ Description=Xorg general static configuration
 PartOf=graphical-session.target
 
 [Service]
-ExecStart=%h/.dotfiles/modules/twm/libexec/xorg-config
+ExecStart=%h/.dotfiles/modules/twm-x11/libexec/xorg-config
 Type=oneshot
 RemainAfterExit=false
 
