@@ -6,7 +6,12 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   gio trash "$@"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   for file in "$@"; do
-    fullpath="$PWD/$file"
+    if [[ "$file" =~ ^/ ]]; then
+      fullpath=$file
+    else
+      fullpath="$PWD/$file"
+    fi
+
     if [ ! -r "$fullpath" ]; then
       echo "Path '$fullpath' not found!" >&2
       exit 1

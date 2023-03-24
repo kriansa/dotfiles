@@ -1,51 +1,51 @@
 [user]
-	name = Daniel Pereira
-	email = daniel@garajau.com.br
-	signingkey = BC277BE09E8A6F1059C3911B3E7884756312F945
+  name = Daniel Pereira
+  email = daniel@garajau.com.br
+  signingkey = BC277BE09E8A6F1059C3911B3E7884756312F945
 [alias]
-	co = checkout
-	cm = commit
-	rs = reset
-	st = status
-	wip = "!git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit -m '--wip--'"
-	unwip = "!git log -n 1 | grep -q -c -- --wip-- && git reset HEAD~1"
-	graph = log --graph --pretty=format:'%C(auto)%h%Creset%C(auto)%d%Creset %s %C(magenta bold)(%cr)%Creset %C(cyan)<%aN>%Creset'
-	uncommit = reset --soft HEAD^
-	recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
+  co = checkout
+  cm = commit
+  rs = reset
+  st = status
+  wip = "!git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit -m '--wip--'"
+  unwip = "!git log -n 1 | grep -q -c -- --wip-- && git reset HEAD~1"
+  graph = log --graph --pretty=format:'%C(auto)%h%Creset%C(auto)%d%Creset %s %C(magenta bold)(%cr)%Creset %C(cyan)<%aN>%Creset'
+  uncommit = reset --soft HEAD^
+  recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
 [init]
-	defaultBranch = main
+  defaultBranch = main
 [color]
-	diff = auto
-	status = auto
-	branch = auto
-	ui = true
+  diff = auto
+  status = auto
+  branch = auto
+  ui = true
 [core]
-	attributesfile = ~/.gitattributes
-	autocrlf = input
-[gpg]
-	program = gpg
+  attributesfile = ~/.gitattributes
+  autocrlf = input
 [commit]
-	template = ~/.gitmessage
-[filter "lfs"]
-	clean = git-lfs clean %f
-	smudge = git-lfs smudge %f
-	required = true
+  template = ~/.gitmessage
 [push]
-	default = current
-	followTags = true
+  default = current
+  followTags = true
 [rebase]
-	autoStash = true
+  autoStash = true
 [branch "master"]
-	remote = origin
-	merge = refs/heads/master
-	rebase = true
+  remote = origin
+  merge = refs/heads/master
+  rebase = true
 [branch "main"]
-	remote = origin
-	merge = refs/heads/main
-	rebase = true
+  remote = origin
+  merge = refs/heads/main
+  rebase = true
 [diff "rspec"]
-	xfuncname = "^[ \t]*((RSpec|describe|context|it|before|after|around|feature|scenario|background)[ \t].*)$"
+  xfuncname = "^[ \t]*((RSpec|describe|context|it|before|after|around|feature|scenario|background)[ \t].*)$"
 [diff "swift"]
-	xfuncname = ^[ \t]*((class|func)[ \t].*)$
+  xfuncname = ^[ \t]*((class|func)[ \t].*)$
 [diff "sqlite"]
-  textconv = echo .dump  | sqlite3
+  textconv = echo .dump | sqlite3
+
+;; Override settings for anything under Projects folder (work-related)
+;; This must be added as last entry so it can take precedence and override attributes
+;; The trailing slash is required
+[includeIf "gitdir:~/Projects/"]
+  path = ~/.gitconfig-work
