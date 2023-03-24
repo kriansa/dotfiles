@@ -98,6 +98,7 @@ nmap("<leader>ps", "<cmd>PackerSync<CR>", { silent = true })
 
 -- Toggles zoom between the current buffer
 nnoremap("<Leader>tt", "<cmd>ZoomWinTabToggle<CR>", { silent = true })
+nnoremap("<Leader>z", "<cmd>ZenMode<CR>", { silent = true })
 
 -- Winresizer starts with <Leader>+e
 g.winresizer_start_key = '<Leader>e'
