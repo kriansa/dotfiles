@@ -1,1 +1,0 @@
-../../../../../shell/functions/df.fish

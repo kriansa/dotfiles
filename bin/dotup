@@ -4,50 +4,63 @@
 # dotup - Update your existing configurations based on the dotfiles settings.
 #
 # External dependencies:
-# - PyYAML (Arch: python-yaml)
+# - PyYAML (Arch: python-yaml, MacOS: pip3 install PyYAML)
 
 from pathlib import Path
 from typing import Any
-from textwrap import dedent
-import os, sys, yaml, sqlite3
+from argparse import ArgumentParser
+import os
+import sys
+import sqlite3
+try:
+    import yaml
+except ImportError:
+    print("PyYAML is not installed!")
+    sys.exit(1)
+
 
 class CLI:
     """
-    Usage: dotup [load|unload]
-
     Update your $HOME configuration files based upon the dotfiles arrangement.
     It reads the existing $HOME/.dotfiles/dotfiles.yml to decide which modules to load.
 
     If you don't pass the first argument, it is assumed that you meant `load` and the
     configuration will be reloaded.
 
-    Commands:
-        load                Load up whatever is configured on your dotfiles.yml
-                            (default if not specified)
-        unload              Unload whatever had been previously loaded based on your state db
-    Options:
-        --help              Show this help message
+    Scopes works like tags where you can tell the specifics about the environment you
+    want to load the dotfiles at. If a specific entry of your `dotfiles.yml` contain a
+    specific scope and it's not mentioned in this flag, then it will not be loaded.
+
+    You can pass multiple scopes, and they will be required incrementally.
+
+    Scopes can also be automatically loaded from a file `.dotup-scopes` so you don't
+    have to specify them upon every run.
     """
 
     @staticmethod
     def start():
         """Entry point for this CLI application"""
+
+        parser = ArgumentParser(prog="dotup", description=CLI.__doc__)
+        parser.add_argument(
+            "-s", "--scope", action="append", dest="scopes",
+            help="list of defined scopes. it can be passed multiple times"
+        )
+        parser.add_argument(
+            'command',
+            choices=['load', 'unload'], default='load', nargs='?',
+            help='action to run. (default: %(default)s)',
+        )
+
         try:
-            if len(sys.argv) == 1 or sys.argv[1].casefold() == "load":
-                return Stower().load()
+            args = parser.parse_args()
 
-            if sys.argv[1].casefold() == "unload":
-                return Stower().unload()
-
-            return CLI.help()
-
+            if args.command == 'load':
+                Stower().load(scopes=args.scopes)
+            elif args.command == 'unload':
+                Stower().unload()
         except Exception as err:
             return Term.error(err)
-
-    @staticmethod
-    def help():
-        """Shows up the help message"""
-        print(dedent(CLI.__doc__).strip())
 
 
 class State:
@@ -151,6 +164,7 @@ class Stower:
         self.dotfiles_path = os.path.expanduser(dotfiles_path)
         self.destination_path = os.path.expanduser(destination_path)
         self.settings_path = f"{self.dotfiles_path}/dotfiles.yml"
+        self.scopes_path = f"{self.dotfiles_path}/.dotup-scopes"
 
     def unload(self):
         """Unload all previously loaded dotfiles based on the state"""
@@ -158,14 +172,14 @@ class Stower:
         self._clear_symlinks()
         Term.status("Configuration unloaded")
 
-    def load(self):
+    def load(self, scopes: list[str] = None):
         """With all settings loaded, this will setup all enabled modules"""
+        Term.status("Loading settings")
+        self._load_settings(scopes)
         self.unload()
 
-        Term.status("Loading settings")
-        self._load_settings()
         for module in self.settings["modules"]:
-            self._load_module(module, self.settings["module_config"].get(module, {}))
+            self._load_module(module)
 
         Term.success("Dotfiles loaded successfully!")
 
@@ -174,7 +188,7 @@ class Stower:
         self.state = State(f"{self.dotfiles_path}/dotstate.db")
         self.state.load()
 
-    def _load_settings(self):
+    def _load_settings(self, scopes: list[str] = None):
         """Load all dotfiles settings recursively"""
         try:
             self.settings = yaml.load(
@@ -182,25 +196,36 @@ class Stower:
                 Loader=yaml.loader.SafeLoader,
             )
 
-            if "module_config" not in self.settings:
-                self.settings["module_config"] = {}
+            if not scopes:
+                scopes_path = Path(self.scopes_path)
+                if scopes_path.exists():
+                    scopes = [scope.strip() for scope in scopes_path.read_text("UTF-8").strip().split("\n")]
+                else:
+                    scopes = []
 
-            for module in self.settings["modules"]:
-                module_config_file = f"${self.dotfiles_path}/modules/{module}/config.yml"
-                if os.path.exists(module_config_file):
-                    self.settings["module_config"][module] = yaml.load(
-                        Path(module_config_file).read_text("UTF-8"),
-                        Loader=yaml.loader.SafeLoader,
-                    )
+            # Filter out modules that don't have the specified scopes
+            for idx, module in enumerate(self.settings["modules"]):
+                if isinstance(module, dict):
+                    if "name" not in module:
+                        raise RuntimeError(f"You must define a 'name' when defining a module using an object!")
 
-                return self
+                    if "scopes" in module:
+                        if type(module["scopes"]) is str:
+                            module["scopes"] = [module["scopes"]]
+
+                        if not set(scopes).issubset(module["scopes"]):
+                            del self.settings["modules"][idx]
+                            continue
+
+                    self.settings["modules"][idx] = module["name"]
+
         except Exception as err:
             raise RuntimeError(f"Failure to load settings from {self.settings_path}") from err
 
     def _module_path(self, module):
         return f"{self.dotfiles_path}/modules/{module}"
 
-    def _load_module(self, module, settings):
+    def _load_module(self, module):
         Term.status(f"Loading module '{module}'")
         if not os.path.isdir(self._module_path(module)):
             raise RuntimeError(f"Module folder '{module}' not found")
@@ -224,9 +249,9 @@ class Stower:
     def _load_module_shell_plugins(self, module):
         for link in self._list_module_shell_links(module):
             if link == "init.fish":
-                dest = f"modules/fish/include/.config/fish/conf.d/{module}_init.fish"
+                dest = f"modules/fish/include/.config/fish/conf.d/module_{module}_init.fish"
             else:
-                dest = f"modules/fish/include/.config/fish/{link}"
+                dest = f"modules/fish/include/.config/fish/modules/{link}"
 
             self._symlink_internal(f"modules/{module}/{link}", dest)
 

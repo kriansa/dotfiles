@@ -1,0 +1,7 @@
+# Ignore everything under modules as this is written with simple
+# links when loading the dotfiles. These links are machine-dependent
+# so there would make no sense to version them
+modules/
+!modules/completions/.keep
+!modules/functions/.keep
+conf.d/module_*_init.fish

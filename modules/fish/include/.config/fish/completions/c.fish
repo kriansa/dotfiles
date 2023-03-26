@@ -1,1 +1,0 @@
-../../../../../projects/completions/c.fish

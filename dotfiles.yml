@@ -22,13 +22,13 @@ modules:
   - htop
 
   # Only for Linux
-  - linux
-  - transmission-remote
-  - rapid-photo-downloader
-  - psi-notify
-  - fontconfig
-  - twm-x11
-  - gtk
+  - { name: linux, scopes: linux }
+  - { name: transmission-remote, scopes: linux }
+  - { name: rapid-photo-downloader, scopes: linux }
+  - { name: psi-notify, scopes: linux }
+  - { name: fontconfig, scopes: linux }
+  - { name: twm-x11, scopes: linux }
+  - { name: gtk, scopes: linux }
 
   # Only for Mac
-  # - gnupg-mac
+  - { name: macos, scopes: macos }

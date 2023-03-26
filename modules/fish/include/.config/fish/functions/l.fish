@@ -1,1 +1,0 @@
-../../../../../shell/functions/l.fish

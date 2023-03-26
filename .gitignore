@@ -1,3 +1,7 @@
 # Ignore python compiled metadata
 __pycache__
 .mypy_cache
+
+# Ignore the scopes and state for the dotfiles, as those should be machine-dependent
+.dotup-scopes
+dotstate.db
