@@ -204,20 +204,29 @@ class Stower:
                     scopes = []
 
             # Filter out modules that don't have the specified scopes
-            for idx, module in enumerate(self.settings["modules"]):
-                if isinstance(module, dict):
-                    if "name" not in module:
-                        raise RuntimeError(f"You must define a 'name' when defining a module using an object!")
+            def normalize_module(module):
+                if isinstance(module, str):
+                    return module
 
-                    if "scopes" in module:
-                        if type(module["scopes"]) is str:
-                            module["scopes"] = [module["scopes"]]
+                if not isinstance(module, dict):
+                    raise RuntimeError("The allowed types for modules are string or dict!")
 
-                        if not set(scopes).issubset(module["scopes"]):
-                            del self.settings["modules"][idx]
-                            continue
+                if "name" not in module:
+                    raise RuntimeError("You must define a 'name' when defining a module using a dict!")
 
-                    self.settings["modules"][idx] = module["name"]
+                if "scopes" in module:
+                    if type(module["scopes"]) is str:
+                        module["scopes"] = [module["scopes"]]
+
+                    if not set(scopes).issubset(module["scopes"]):
+                        return None
+
+                return module["name"]
+
+            self.settings["modules"] = filter(
+                lambda m: m is not None,
+                map(normalize_module, self.settings["modules"])
+            )
 
         except Exception as err:
             raise RuntimeError(f"Failure to load settings from {self.settings_path}") from err
