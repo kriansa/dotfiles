@@ -9,10 +9,6 @@ fish_add_path --path --move --global $HOME/.bin
 # Then we run all finalizer functions, that run after all PATH modifications
 emit path_modified
 
-# Add the linked shell modules to the function and completions path
-set --prepend fish_function_path $HOME/.config/fish/modules/functions
-set --prepend fish_complete_path $HOME/.config/fish/modules/completions
-
 if status is-interactive
   # Set good defaults for FZF
   # adds ctrl-[hjkl], ctrl-[dufb] for vim-like navigation
