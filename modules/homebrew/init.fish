@@ -1,4 +1,4 @@
-function _macos_add_path --on-event modify_path
+function _homebrew_add_path --on-event modify_path
   # Clean homebrew path values previously set by homebrew
   # See: https://github.com/Homebrew/brew/blob/master/Library/Homebrew/cmd/shellenv.sh
   for path_var in PATH MANPATH INFOPATH

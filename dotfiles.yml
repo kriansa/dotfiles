@@ -31,4 +31,4 @@ modules:
   - { name: gtk, scopes: linux }
 
   # Only for Mac
-  - { name: macos, scopes: macos }
+  - { name: homebrew, scopes: macos }
