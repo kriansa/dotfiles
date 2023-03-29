@@ -4,10 +4,15 @@
 # them interactively without having to remember each one since this is such a repetitive process
 
 main() {
-  echo -e "\e[1;33mStarting system upgrade\e[0m"
+  echo -e "\033[1;33mStarting system upgrade\033[0m"
 
-  run "Update system packages" "sudo pacman -Syu"
-  run "Update AUR packages" "pacom upgrade -a"
+  if [ "$(uname)" == "Darwin" ]; then
+    run "Update homebrew packages" "brew upgrade"
+  else
+    run "Update system packages" "sudo pacman -Syu"
+    run "Update AUR packages" "pacom upgrade -a"
+  fi
+
   run "Update Ruby and its global packages" "update-ruby"
   run "Update Node and its global packages" "update-node"
   run "Update Python global packages" "update-python-packages"
@@ -22,8 +27,8 @@ run() {
   echo
   printf -- "-%.0s" $(seq 1 $len)
   echo
-  echo -e "\e[0;32m•\e[0m \e[1m$desc\e[0m"
-  echo -e "\e[0;33m+\e[0m \e[2m$command\e[0m"
+  echo -e "\033[0;32m•\033[0m \033[1m$desc\033[0m"
+  echo -e "\033[0;33m+\033[0m \033[2m$command\033[0m"
   printf -- "-%.0s" $(seq 1 $len)
   echo
 
@@ -31,15 +36,19 @@ run() {
   SECONDS=0
 
   if ! eval "$command"; then
-    echo -e "\e[0;31mCommand \`\e[2m$command\e[0;31m\` failed in \e[1m$(show-time)\e[0m"
+    echo -e "\033[0;31mCommand \`\033[2m$command\033[0;31m\` failed in \033[1m$(show-time)\033[0m"
     exit 1
   else
-    echo -e "Command \`\e[2m$command\e[0m\` finished in \e[1m$(show-time)\e[0m"
+    echo -e "Command \`\033[2m$command\033[0m\` finished in \033[1m$(show-time)\033[0m"
   fi
 }
 
 show-time() {
-  date -d@$SECONDS -u +%H:%M:%S
+  if [ "$(uname)" == "Darwin" ]; then
+    TZ=UTC date -jf "%s" "$SECONDS" "+%H:%M:%S"
+  else
+    TZ=UTC date -d@$SECONDS -u +%H:%M:%S
+  fi
 }
 
 main
