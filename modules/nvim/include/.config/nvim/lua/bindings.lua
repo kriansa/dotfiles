@@ -276,5 +276,7 @@ mappings.lsp = function(bufnr)
   end, bufopts)
   vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, bufopts)
   vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts)
-  vim.keymap.set('n', '<leader>lf', vim.lsp.buf.formatting, bufopts)
+  vim.keymap.set({'n', 'v'}, '<leader>lf', function()
+    vim.lsp.buf.format({ async = false })
+  end, bufopts)
 end

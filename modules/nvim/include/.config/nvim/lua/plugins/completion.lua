@@ -82,6 +82,7 @@ return function(use)
       local lsp_flags = { debounce_text_changes = 150 }
       local servers = {
         'solargraph', 'tsserver', 'eslint', 'vls', 'cssls', 'html', 'pylsp', 'ansiblels', 'bashls',
+        'gopls',
       }
       local server_settings = {
         pylsp = {

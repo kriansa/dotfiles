@@ -83,7 +83,7 @@ o.foldenable = false            -- Disable folding
 o.lazyredraw = true             -- Do not redraw screen in the middle of a macro.
 o.signcolumn = "yes"            -- Always show the sign column
 o.list = true                        -- Show hidden chars
-o.listchars = "tab:▸ ,eol:¬,space:." -- chars to be displayed
+o.listchars = "tab:▸ ,eol:¬,space:·,trail:+" -- chars to be displayed
 o.showbreak = "↪"                    -- char to be displayed on wraped lines
 o.termguicolors = true               -- Use truebit on terminal
 o.clipboard:append("unnamedplus")    -- yanks to clipboard
@@ -99,6 +99,7 @@ o.copyindent = true         -- copy indentation on new lines
 o.smartindent = true        -- indent on new blocks
 o.preserveindent = true     -- When reindenting a line, tries to preserve the indent-style
 o.shiftwidth = 2            -- Number of spaces to use for autoindenting
+o.tabstop = 2               -- Size of the tabs by default
 o.smarttab = true           -- Insert tabs on the start of a line according to shiftwidth, not tabstop
 o.shiftround = true         -- Use multiple of shiftwidth when indenting with '<' and '>'
 
