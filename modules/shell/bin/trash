@@ -5,18 +5,5 @@
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
   gio trash "$@"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-  for file in "$@"; do
-    if [[ "$file" =~ ^/ ]]; then
-      fullpath=$file
-    else
-      fullpath="$PWD/$file"
-    fi
-
-    if [ ! -r "$fullpath" ]; then
-      echo "Path '$fullpath' not found!" >&2
-      exit 1
-    fi
-
-    osascript -e "tell application \"Finder\" to delete POSIX file \"$fullpath\"" > /dev/null
-  done
+  /opt/homebrew/bin/trash "$@"
 fi
