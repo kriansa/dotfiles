@@ -37,7 +37,7 @@ upgrade_ruby_version() {
 
   echo "Installing latest version (v$version)"
   asdf plugin update ruby
-  asdf install ruby "$version"
+  ASDF_RUBY_BUILD_VERSION=master asdf install ruby "$version"
   asdf global ruby "$version"
 
   # Return if this is the first install
