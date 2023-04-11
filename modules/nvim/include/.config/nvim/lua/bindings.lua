@@ -199,10 +199,10 @@ mappings.gitsigns = function(bufnr)
   -- Actions
   map({'n', 'v'}, '<leader>hs', ':Gitsigns stage_hunk<CR>')
   map({'n', 'v'}, '<leader>hu', ':Gitsigns reset_hunk<CR>')
-  map('n', '<leader>gb', function() gs.blame_line{full=true} end)
-
-  -- This has very similar behavior as `gb` above
   map('n', '<leader>hp', gs.preview_hunk)
+
+  -- This has very similar behavior as `hp` above
+  map('n', '<leader>gb', function() gs.blame_line{full=true} end)
 
   map('n', '<leader>gd', gs.diffthis)
   map('n', '<leader>gD', function() gs.diffthis('~') end)
@@ -258,7 +258,7 @@ mappings.telescope_buffers = {
 }
 
 -- Telescope
-nmap('<Leader><Space>', '<cmd>Telescope buffers<CR>')
+nmap('<Leader><Leader>', '<cmd>Telescope buffers<CR>')
 nmap('<C-P>', '<cmd>Telescope find_files<CR>')
 nmap('<Leader>a', '<cmd>Telescope live_grep<CR>')
 nmap('<Leader>s', '<cmd>lua require("telescope.builtin").live_grep({default_text=vim.fn.expand("<cword>")})<CR>')
@@ -276,7 +276,7 @@ mappings.lsp = function(bufnr)
   vim.keymap.set('n', 'gy', vim.lsp.buf.type_definition, bufopts)
   vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-  -- vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+  vim.keymap.set('n', '?', vim.lsp.buf.hover, bufopts)
   vim.keymap.set('n', '<leader>ls', vim.lsp.buf.signature_help, bufopts)
   vim.keymap.set('n', '<leader>lwa', vim.lsp.buf.add_workspace_folder, bufopts)
   vim.keymap.set('n', '<leader>lwr', vim.lsp.buf.remove_workspace_folder, bufopts)
