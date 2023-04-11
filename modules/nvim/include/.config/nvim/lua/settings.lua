@@ -31,10 +31,6 @@ g.loaded_vimball = 1
 g.loaded_vimballPlugin = 1
 g.zipPlugin = 1
 
--- Disable builtin filetypes.vim & filetypes.lua
-g.did_load_filetypes = 1
-g.do_filetype_lua = 1
-
 -- Autocmds
 cmd([[
   " Terminal settings
@@ -91,6 +87,7 @@ o.updatetime = 250                   -- Time to trigger CursorHold
 
 -- Spend extra time to generate the smallest possible diff
 o.diffopt:append("algorithm:patience")
+o.diffopt:append("linematch:60")
 
 -- Indentation settings
 o.expandtab = true          -- Convert tabs into spaces

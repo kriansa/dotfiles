@@ -21,9 +21,6 @@ return function(use)
   -- Make loading sessions seamless
   use "tpope/vim-obsession"
 
-  -- Add support to .editorconfig files from projects
-  use "gpanders/editorconfig.nvim"
-
   -- See contents of registers
   use {
     'tversteeg/registers.nvim',

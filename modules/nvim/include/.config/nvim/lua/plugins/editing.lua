@@ -9,7 +9,6 @@ return function(use)
   use 'tpope/vim-repeat'
   use 'AndrewRadev/splitjoin.vim'
   use 'ggandor/lightspeed.nvim'
-  use 'mattn/emmet-vim'
 
   use {
     'andymass/vim-matchup',

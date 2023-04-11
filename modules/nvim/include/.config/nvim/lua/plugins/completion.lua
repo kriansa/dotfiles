@@ -1,21 +1,30 @@
 return function(use)
   use {
     'hrsh7th/nvim-cmp',
-    requires = { 'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'hrsh7th/cmp-path', 'hrsh7th/cmp-cmdline' },
+    requires = {
+      'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'hrsh7th/cmp-path', 'hrsh7th/cmp-cmdline',
+      'dcampos/nvim-snippy', 'dcampos/cmp-snippy', 'honza/vim-snippets'
+    },
     config = function()
       local cmp = require('cmp')
 
       cmp.setup({
-        mapping = cmp.mapping.preset.insert(),
+        mapping = mappings.cmp_insert,
+        snippet = {
+          expand = function(args)
+            require('snippy').expand_snippet(args.body)
+          end
+        },
         sources = cmp.config.sources({
           { name = 'nvim_lsp' },
+          { name = 'snippy' },
           { name = 'buffer' },
           { name = 'path' },
         })
       })
 
       cmp.setup.cmdline(':', {
-        mapping = cmp.mapping.preset.cmdline(),
+        mapping = mappings.cmp_cmdline,
         sources = cmp.config.sources({
           { name = 'path' },
           { name = 'cmdline' },

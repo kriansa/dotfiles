@@ -36,11 +36,11 @@ function M.load_session()
 end
 
 function M.auto_load_session()
-  if vim.fn.isdirectory(vim.v.argv[2]) == 0 then
+  if vim.fn.isdirectory(vim.v.argv[3]) == 0 then
     return
   end
 
-  vim.cmd("cd " .. vim.v.argv[2])
+  vim.cmd("cd " .. vim.v.argv[3])
   M.load_session()
 end
 

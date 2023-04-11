@@ -164,6 +164,15 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', 'gy', api.fs.copy.absolute_path, opts('Copy Absolute Path'))
 end
 
+-- Cmp (autocompletion)
+local cmp = require('cmp')
+mappings.cmp_insert = cmp.mapping.preset.insert({
+  ['<CR>'] = cmp.mapping.confirm({ select = true }),
+})
+mappings.cmp_cmdline = cmp.mapping.preset.cmdline({
+  ['<CR>'] = cmp.mapping.confirm({ select = true }),
+})
+
 -- Gitsigns
 mappings.gitsigns = function(bufnr)
   local gs = package.loaded.gitsigns
