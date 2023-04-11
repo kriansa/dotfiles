@@ -2,20 +2,6 @@
 
 This is a list of upstream bugs I'm currently working around and tracking for my setup.
 
-## NVIDIA
-
-* Intel CET-IBT on Kernel 5.18 breaks NVIDIA drivers
-  A newly introduced feature on Kernel allows newer Intel processors (> 11th gen) to use a new
-  instruction set to prevent branch prediction failures. This however requires that new code is
-  compiled with those instructions, and when they don't, they will likely fail with a kernel message
-  like `Missing ENDBR`. NVIDIA drivers are currently not working because of that.
-
-  The workaround is disabling that new instruction set by setting a boot flag `ibt=off` and that's
-  being currently handled [here](roles/systemd-boot/templates/arch-entry.conf.j2).
-
-  See: https://github.com/NVIDIA/open-gpu-kernel-modules/issues/256
-  See: https://bugs.archlinux.org/task/74886#comment208651
-
 ## GNOME
 
 * Wayland support
