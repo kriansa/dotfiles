@@ -29,9 +29,6 @@ return function(use)
         trash = { cmd = "trash" },
         hijack_cursor = true,
         hijack_unnamed_buffer_when_opening = false,
-        view = {
-          hide_root_folder = true,
-        },
         remove_keymaps = true,
         on_attach = mappings.nvim_tree,
         filters = {
@@ -40,6 +37,7 @@ return function(use)
           },
         },
         renderer = {
+          root_folder_label = false,
           highlight_git = false,
           group_empty = true,
           indent_markers = {
