@@ -6,4 +6,3 @@ rubocop
 rubocop-rspec
 rubocop-rails
 solargraph
-mailcatcher
