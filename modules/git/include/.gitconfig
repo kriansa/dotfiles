@@ -7,8 +7,8 @@
   cm = commit
   rs = reset
   st = status
-  wip = "!git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit -m '--wip--'"
-  unwip = "!git log -n 1 | grep -q -c -- --wip-- && git reset HEAD~1"
+  wip = stash --include-untracked
+  unwip = stash pop
   graph = log --graph --pretty=format:'%C(auto)%h%Creset%C(auto)%d%Creset %s %C(magenta bold)(%cr)%Creset %C(cyan)<%aN>%Creset'
   uncommit = reset --soft HEAD^
   recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
