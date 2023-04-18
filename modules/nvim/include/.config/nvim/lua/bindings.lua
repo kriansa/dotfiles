@@ -145,7 +145,7 @@ mappings.nvim_tree = function(bufnr)
     local max = vim.o.columns
     local current = require('nvim-tree.view').View.width
 
-    require('nvim-tree').resize(current == default and max or default)
+    require('nvim-tree.view').resize(current == default and max or default)
   end, opts('Toggle tree view size'))
 
   -- Manipulation
@@ -287,5 +287,6 @@ mappings.lsp = function(bufnr)
   vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts)
   vim.keymap.set({'n', 'v'}, '<leader>lf', function()
     vim.lsp.buf.format({ async = false })
+    vim.notify("Code formatted")
   end, bufopts)
 end
