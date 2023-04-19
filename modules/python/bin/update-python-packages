@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Use pip3 to install pip if the latter is not available
+if ! command -v pip > /dev/null; then
+  pip3 install --upgrade pip
+fi
+
 # Upgrade pip itself
 pip install --upgrade pip
 
