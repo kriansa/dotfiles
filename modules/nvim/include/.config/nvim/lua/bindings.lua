@@ -167,10 +167,10 @@ end
 -- Cmp (autocompletion)
 local cmp = require('cmp')
 mappings.cmp_insert = cmp.mapping.preset.insert({
-  ['<CR>'] = cmp.mapping.confirm({ select = true }),
+  ['<CR>'] = cmp.mapping.confirm({ select = false }),
 })
 mappings.cmp_cmdline = cmp.mapping.preset.cmdline({
-  ['<CR>'] = cmp.mapping.confirm({ select = true }),
+  ['<CR>'] = cmp.mapping.confirm({ select = false }),
 })
 
 -- Gitsigns
