@@ -6,6 +6,21 @@ end)
 -- No window animations
 hs.window.animationDuration = 0
 
+-- Cache the window sizes for using with maximized toggler
+local frameCache = {}
+
+-- Toggle a window between its normal size, and being maximized
+hs.hotkey.bind({"shift", "alt"}, "Return", function()
+   local win = hs.window.focusedWindow()
+   if frameCache[win:id()] then
+      win:setFrame(frameCache[win:id()])
+      frameCache[win:id()] = nil
+   else
+      frameCache[win:id()] = win:frame()
+      win:maximize()
+   end
+end)
+
 -- Alt+shift+H - Move window to the left
 hs.hotkey.bind({"shift", "alt"}, "H", function()
   local win = hs.window.focusedWindow()
