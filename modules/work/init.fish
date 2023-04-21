@@ -1,5 +1,5 @@
-# Set this variable so that every go dependency under the company's repository is flagged as
-# private, thus skipping proxy and checksum database -- and consecutively avoiding their public
-# exposure.
+# Import things that can't be shared
+source $DOTFILES_PATH/modules/work/private.fish
 
-set --global --export GOPRIVATE github.com/mercadolibre
+# Useful aliases
+alias pubkey="cat ~/.ssh/id_rsa.pub | pbcopy && echo Key copied!"

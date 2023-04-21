@@ -3,6 +3,17 @@ hs.hotkey.bind({"alt", "ctrl"}, "R", function()
   hs.reload()
 end)
 
+-- Global shortcut for DeepL
+hs.hotkey.bind({"cmd"}, "Escape", function()
+  local app_name = hs.window.focusedWindow():application():title()
+
+  if app_name == "DeepL" then
+    hs.eventtap.keyStroke({"cmd"}, "q")
+  else
+    hs.application.open("DeepL")
+  end
+end)
+
 -- No window animations
 hs.window.animationDuration = 0
 
@@ -48,9 +59,6 @@ hs.hotkey.bind({"shift", "alt"}, "L", function()
   f.h = max.h
   win:setFrame(f)
 end)
-
--- Stop hiding windows
-hs.hotkey.bind({"cmd"}, "H", function() end)
 
 -- Alt+[hjkl] - Move focus
 hs.hotkey.bind({"alt"}, "L", function()
