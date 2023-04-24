@@ -28,7 +28,7 @@ open-jekyll() {
 
   # Then we start jekyll
   cd ~/Projects/kriansa.github.io || exit 1
-  jekyll serve &
+  bundle exec jekyll serve &
 
   # Then open the firefox page
   sleep 1
