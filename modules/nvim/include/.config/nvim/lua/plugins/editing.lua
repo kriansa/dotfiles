@@ -1,14 +1,30 @@
 return function(use)
   -- surrounds
-  use({
+  use {
     "kylechui/nvim-surround",
     config = function()
       require("nvim-surround").setup()
     end
-  })
+  }
   use 'tpope/vim-repeat'
+
+  -- Use gS and gJ to break and join multiline statements
   use 'AndrewRadev/splitjoin.vim'
-  use 'ggandor/lightspeed.nvim'
+
+  -- Move to two-character search patterns
+  use {
+    'ggandor/leap.nvim',
+    config = function()
+      require('leap').add_default_mappings()
+    end
+  }
+  use {
+    'ggandor/flit.nvim',
+    requires = { "ggandor/leap.nvim" },
+    config = function()
+      require('flit').setup()
+    end,
+  }
 
   use {
     'andymass/vim-matchup',

@@ -1,6 +1,6 @@
 return function(use)
   -- Packer can manage itself
-  use { 'wbthomason/packer.nvim' }
+  use 'wbthomason/packer.nvim'
 
   -- Speed up loading Lua modules in Neovim to improve startup time.
   use 'lewis6991/impatient.nvim'
@@ -44,26 +44,15 @@ return function(use)
           },
         },
         plugins = {
-          options = {
-            enabled = true,
-            ruler = false,
-            showcmd = false,
-          },
-          gitsigns = {
-            enabled = true,
-          },
+          gitsigns = { enabled = true },
+          tmux = { enabled = true },
         },
-        -- Delay the execution of blankline toggling because it's buggy and somehow they don't apply
-        -- instantaneously
+        -- Disable indent-blankline.nvim
         on_open = function()
-          vim.defer_fn(function()
-            require("indent_blankline.commands").disable()
-          end, 100)
+          require("indent_blankline.commands").disable()
         end,
         on_close = function()
-          vim.defer_fn(function()
-            require("indent_blankline.commands").enable()
-          end, 100)
+          require("indent_blankline.commands").enable()
         end,
       })
     end

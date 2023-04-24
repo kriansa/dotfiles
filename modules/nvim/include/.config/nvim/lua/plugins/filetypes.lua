@@ -1,25 +1,18 @@
 return function(use)
-  -- Speed up loading filetype.vim native
-  use {
-    "nathom/filetype.nvim",
-    config = function()
-      require("filetype").setup({
-          overrides = {
-            complex = {
-              ["^Dockerfile-.*"] = "dockerfile",
-            },
-            extensions = {
-              jbuilder = "ruby",
-            },
-            literal = {
-              Dangerfile = "ruby",
-              [".env"] = "sh",
-              [".nycrc"] = "javascript",
-            },
-          }
-      })
-    end
-  }
+  -- Add existing filetypes
+  vim.filetype.add({
+    extension = {
+      jbuilder = "ruby",
+    },
+    filename = {
+      Dangerfile = "ruby",
+      [".env"] = "sh",
+      [".nycrc"] = "javascript",
+    },
+    pattern = {
+      ["^Dockerfile-.*"] = "dockerfile",
+    },
+  })
 
   -- Markdown
   use {
