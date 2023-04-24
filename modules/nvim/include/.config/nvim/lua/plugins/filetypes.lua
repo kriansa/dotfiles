@@ -10,7 +10,7 @@ return function(use)
       [".nycrc"] = "javascript",
     },
     pattern = {
-      ["^Dockerfile-.*"] = "dockerfile",
+      ["^Dockerfile[-.].*"] = "dockerfile",
     },
   })
 
