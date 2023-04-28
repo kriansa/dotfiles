@@ -12,12 +12,7 @@ return function(use)
   use 'AndrewRadev/splitjoin.vim'
 
   -- Move to two-character search patterns
-  use {
-    'ggandor/leap.nvim',
-    config = function()
-      require('leap').add_default_mappings()
-    end
-  }
+  use 'ggandor/leap.nvim'
   use {
     'ggandor/flit.nvim',
     requires = { "ggandor/leap.nvim" },

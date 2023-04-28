@@ -6,7 +6,6 @@ return function(use)
   use {
     'nvim-tree/nvim-tree.lua',
     requires = { 'nvim-tree/nvim-web-devicons' },
-    cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFileToggle" },
     config = function(p, a)
       -- Customize colors
 
@@ -33,6 +32,7 @@ return function(use)
         on_attach = mappings.nvim_tree,
         filters = {
           custom = {
+            -- Sync this value with the one on .rgignore
             "^.git$"
           },
         },

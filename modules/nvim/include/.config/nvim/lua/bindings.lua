@@ -109,6 +109,14 @@ nmap("<leader>gs", "<cmd>Neogit<CR>", { silent = true })
 -- Dirvish
 nmap('-', "<Plug>(dirvish_up)")
 
+-- Leap
+vim.keymap.set({"n", "x", "o"}, "s", "<Plug>(leap-forward-to)", { silent = true, desc = "Leap forward to" })
+vim.keymap.set({"n", "x", "o"}, "S", "<Plug>(leap-backward-to)", { silent = true, desc = "Leap backward to" })
+vim.keymap.set({"x", "o"}, "z", "<Plug>(leap-forward-till)", { silent = true, desc = "Leap forward till" })
+vim.keymap.set({"x", "o"}, "Z", "<Plug>(leap-backward-till)", { silent = true, desc = "Leap backward till" })
+vim.keymap.set({"n", "x", "o"}, "gs", "<Plug>(leap-from-window)", { silent = true, desc = "Leap from window" })
+vim.keymap.set({"n", "x", "o"}, "gs", "<Plug>(leap-cross-window)", { silent = true, desc = "Leap from window" })
+
 -- Nvim-tree
 nmap("\\", "<cmd>NvimTreeFindFileToggle<CR>")
 mappings.nvim_tree = function(bufnr)
@@ -124,6 +132,7 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', '<2-LeftMouse>', api.node.open.edit, opts('Open'))
   vim.keymap.set('n', '<Tab>', api.node.open.preview, opts('Open Preview'))
   vim.keymap.set('n', 'O', api.node.open.no_window_picker, opts('Open: No Window Picker'))
+  vim.keymap.set('n', 'U', api.tree.change_root_to_parent, opts('CD to parent'))
   vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
   vim.keymap.set('n', 'S', api.node.run.system, opts('Run System'))
 
@@ -139,6 +148,7 @@ mappings.nvim_tree = function(bufnr)
   -- Basic
   vim.keymap.set('n', 'q', api.tree.close, opts('Close'))
   vim.keymap.set('n', 'g?', api.tree.toggle_help, opts('Help'))
+  vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
   vim.keymap.set('n', 'R', api.tree.reload, opts('Refresh'))
   vim.keymap.set('n', 'A', function()
     local default = 30
@@ -162,6 +172,7 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', 'y', api.fs.copy.filename, opts('Copy Name'))
   vim.keymap.set('n', 'Y', api.fs.copy.relative_path, opts('Copy Relative Path'))
   vim.keymap.set('n', 'gy', api.fs.copy.absolute_path, opts('Copy Absolute Path'))
+  vim.keymap.set('n', 'm', api.marks.toggle, opts('Toggle mark'))
 end
 
 -- Cmp (autocompletion)
@@ -258,10 +269,11 @@ mappings.telescope_buffers = {
 }
 
 -- Telescope
-nmap('<Leader><Leader>', '<cmd>Telescope buffers<CR>')
-nmap('<C-P>', '<cmd>Telescope find_files<CR>')
-nmap('<Leader>a', '<cmd>Telescope live_grep<CR>')
-nmap('<Leader>s', '<cmd>lua require("telescope.builtin").live_grep({default_text=vim.fn.expand("<cword>")})<CR>')
+nmap('<Leader><Leader>', '<cmd>lua require("custom_plugins.better-file-finder").find_buffers()<CR>')
+nmap('<C-P>', '<cmd>lua require("custom_plugins.better-file-finder").find_files()<CR>')
+nmap('<Leader>a', '<cmd>lua require("custom_plugins.better-file-finder").live_grep()<CR>')
+nmap('<Leader>s', '<cmd>lua require("custom_plugins.better-file-finder").live_grep_current_word()<CR>')
+vmap('<Leader>s', '<cmd>lua require("custom_plugins.better-file-finder").live_grep_current_selection()<CR>')
 
 mappings.lsp = function(bufnr)
   local opts = { noremap=true, silent=true }
