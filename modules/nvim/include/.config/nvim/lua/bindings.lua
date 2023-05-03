@@ -172,7 +172,7 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', 'y', api.fs.copy.filename, opts('Copy Name'))
   vim.keymap.set('n', 'Y', api.fs.copy.relative_path, opts('Copy Relative Path'))
   vim.keymap.set('n', 'gy', api.fs.copy.absolute_path, opts('Copy Absolute Path'))
-  vim.keymap.set('n', 'm', api.marks.toggle, opts('Toggle mark'))
+  vim.keymap.set('n', 'M', api.marks.toggle, opts('Toggle mark'))
 end
 
 -- Cmp (autocompletion)
