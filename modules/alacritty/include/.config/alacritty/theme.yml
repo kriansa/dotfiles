@@ -3,16 +3,10 @@ import:
  - ~/.config/alacritty/themes/one-light.yml
 
 window:
-  decorations: none
   startup_mode: Maximized
   title: Terminal
   padding:
     x: 4
-
-font:
-  normal:
-    family: Iosevka Term
-  size: 17
 
 cursor:
   # Cursor style

@@ -22,6 +22,7 @@ modules:
 
   # Only for my Home desktop
   - { name: linux, scopes: desktop }
+  - { name: alacritty-linux, scopes: desktop }
   - { name: gnupg, scopes: desktop }
   - { name: transmission-remote, scopes: desktop }
   - { name: rapid-photo-downloader, scopes: desktop }
@@ -33,3 +34,4 @@ modules:
   # Only for Work
   - { name: homebrew, scopes: work }
   - { name: work, scopes: work }
+  - { name: alacritty-mac, scopes: work }

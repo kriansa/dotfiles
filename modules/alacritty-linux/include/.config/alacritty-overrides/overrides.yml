@@ -1,0 +1,42 @@
+---
+window:
+  decorations: none
+
+font:
+  normal:
+    family: Iosevka Term
+  size: 17
+
+key_bindings:
+  # Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map
+  # CMD-D to tmux, then use it as the following:
+  # `- { key: D, mods: Command, chars: "\x1cd" }`
+  # And then "capture it" on tmux keybindings as if they are using a C-\ prefix (by using a custom
+  # key table):
+  # `bind -T alacritty d split-window -h`
+
+  # Common bindings (on Mac, Alt is Option)
+  - { key: T, mods: Alt, chars: "\x1ct" }
+  - { key: D, mods: Alt, chars: "\x1cd" }
+  - { key: D, mods: Alt|Shift, chars: "\x1cD" }
+  - { key: Return, mods: Alt|Shift, chars: "\x1c\x0d" }
+  - { key: H, mods: Alt, chars: "\x1ch" }
+  - { key: J, mods: Alt, chars: "\x1cj" }
+  - { key: K, mods: Alt, chars: "\x1ck" }
+  - { key: L, mods: Alt, chars: "\x1cl" }
+  - { key: H, mods: Alt|Shift, chars: "\x1cH" }
+  - { key: J, mods: Alt|Shift, chars: "\x1cJ" }
+  - { key: K, mods: Alt|Shift, chars: "\x1cK" }
+  - { key: L, mods: Alt|Shift, chars: "\x1cL" }
+  - { key: Key0, mods: Alt, chars: "\x1c0" }
+  - { key: Key1, mods: Alt, chars: "\x1c1" }
+  - { key: Key2, mods: Alt, chars: "\x1c2" }
+  - { key: Key3, mods: Alt, chars: "\x1c3" }
+  - { key: Key4, mods: Alt, chars: "\x1c4" }
+  - { key: Key5, mods: Alt, chars: "\x1c5" }
+  - { key: Key6, mods: Alt, chars: "\x1c6" }
+  - { key: Key7, mods: Alt, chars: "\x1c7" }
+  - { key: Key8, mods: Alt, chars: "\x1c8" }
+  - { key: Key9, mods: Alt, chars: "\x1c9" }
+  - { key: RBracket, mods: Alt, chars: "\x1c]" }
+  - { key: LBracket, mods: Alt, chars: "\x1c[" }

@@ -19,59 +19,7 @@ key_bindings:
   # key table):
   # `bind -T alacritty d split-window -h`
 
-  # Linux bindings (need to use replace Alt by Command)
-  - { key: T, mods: Alt, chars: "\x1ct" }
-  - { key: D, mods: Alt, chars: "\x1cd" }
-  - { key: D, mods: Alt|Shift, chars: "\x1cD" }
-  - { key: Return, mods: Alt|Shift, chars: "\x1c\x0d" }
-  - { key: H, mods: Alt, chars: "\x1ch" }
-  - { key: J, mods: Alt, chars: "\x1cj" }
-  - { key: K, mods: Alt, chars: "\x1ck" }
-  - { key: L, mods: Alt, chars: "\x1cl" }
-  - { key: H, mods: Alt|Shift, chars: "\x1cH" }
-  - { key: J, mods: Alt|Shift, chars: "\x1cJ" }
-  - { key: K, mods: Alt|Shift, chars: "\x1cK" }
-  - { key: L, mods: Alt|Shift, chars: "\x1cL" }
-  - { key: Key0, mods: Alt, chars: "\x1c0" }
-  - { key: Key1, mods: Alt, chars: "\x1c1" }
-  - { key: Key2, mods: Alt, chars: "\x1c2" }
-  - { key: Key3, mods: Alt, chars: "\x1c3" }
-  - { key: Key4, mods: Alt, chars: "\x1c4" }
-  - { key: Key5, mods: Alt, chars: "\x1c5" }
-  - { key: Key6, mods: Alt, chars: "\x1c6" }
-  - { key: Key7, mods: Alt, chars: "\x1c7" }
-  - { key: Key8, mods: Alt, chars: "\x1c8" }
-  - { key: Key9, mods: Alt, chars: "\x1c9" }
-  - { key: RBracket, mods: Alt, chars: "\x1c]" }
-  - { key: LBracket, mods: Alt, chars: "\x1c[" }
-
-  # MacOS bindings (need to use replace Alt by Command)
-  - { key: T, mods: Command, chars: "\x1ct" }
-  - { key: D, mods: Command, chars: "\x1cd" }
-  - { key: D, mods: Command|Shift, chars: "\x1cD" }
-  - { key: Return, mods: Command|Shift, chars: "\x1c\x0d" }
-  - { key: H, mods: Command, chars: "\x1ch" }
-  - { key: J, mods: Command, chars: "\x1cj" }
-  - { key: K, mods: Command, chars: "\x1ck" }
-  - { key: L, mods: Command, chars: "\x1cl" }
-  - { key: H, mods: Command|Shift, chars: "\x1cH" }
-  - { key: J, mods: Command|Shift, chars: "\x1cJ" }
-  - { key: K, mods: Command|Shift, chars: "\x1cK" }
-  - { key: L, mods: Command|Shift, chars: "\x1cL" }
-  - { key: Key0, mods: Command, chars: "\x1c0" }
-  - { key: Key1, mods: Command, chars: "\x1c1" }
-  - { key: Key2, mods: Command, chars: "\x1c2" }
-  - { key: Key3, mods: Command, chars: "\x1c3" }
-  - { key: Key4, mods: Command, chars: "\x1c4" }
-  - { key: Key5, mods: Command, chars: "\x1c5" }
-  - { key: Key6, mods: Command, chars: "\x1c6" }
-  - { key: Key7, mods: Command, chars: "\x1c7" }
-  - { key: Key8, mods: Command, chars: "\x1c8" }
-  - { key: Key9, mods: Command, chars: "\x1c9" }
-  - { key: RBracket, mods: Command, chars: "\x1c]" }
-  - { key: LBracket, mods: Command, chars: "\x1c[" }
-
-  # Apparently, C-6 doesn't work by default on Alacritty/Mac
+  # Apparently, C-6 and C-/ don't work by default on Alacritty/Mac
   - { key: Key6, mods: Control, chars: "\x1e" }
   - { key: Slash, mods: Control, chars: "\x1f" }
 
@@ -96,3 +44,4 @@ shell:
 env:
   # Enable true-color support
   TERM: xterm-256color
+  LANG: en_US.UTF-8
