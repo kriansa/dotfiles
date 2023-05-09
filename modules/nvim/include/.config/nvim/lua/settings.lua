@@ -56,6 +56,21 @@ cmd([[
   autocmd TextYankPost * silent! lua vim.highlight.on_yank({ timeout = 80 })
 ]])
 
+-- Add existing filetypes
+vim.filetype.add({
+  extension = {
+    jbuilder = "ruby",
+  },
+  filename = {
+    Dangerfile = "ruby",
+    [".env"] = "sh",
+    [".nycrc"] = "javascript",
+  },
+  pattern = {
+    ["^Dockerfile[-.].*"] = "dockerfile",
+  },
+})
+
 -- Settings
 cmd("lang en_US.UTF-8")         -- Fix encoding issues on MacOS
 o.encoding = "utf-8"            -- Enables utf8 encoding
