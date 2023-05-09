@@ -42,6 +42,8 @@ key_bindings:
   - { key: Key7, mods: Alt, chars: "\x1c7" }
   - { key: Key8, mods: Alt, chars: "\x1c8" }
   - { key: Key9, mods: Alt, chars: "\x1c9" }
+  - { key: RBracket, mods: Alt, chars: "\x1c]" }
+  - { key: LBracket, mods: Alt, chars: "\x1c[" }
 
   # MacOS bindings (need to use replace Alt by Command)
   - { key: T, mods: Command, chars: "\x1ct" }
@@ -66,18 +68,17 @@ key_bindings:
   - { key: Key7, mods: Command, chars: "\x1c7" }
   - { key: Key8, mods: Command, chars: "\x1c8" }
   - { key: Key9, mods: Command, chars: "\x1c9" }
+  - { key: RBracket, mods: Command, chars: "\x1c]" }
+  - { key: LBracket, mods: Command, chars: "\x1c[" }
 
   # Apparently, C-6 doesn't work by default on Alacritty/Mac
   - { key: Key6, mods: Control, chars: "\x1e" }
+  - { key: Slash, mods: Control, chars: "\x1f" }
 
   # MacOS bindings for matching Linux environment (\x1B = ESC)
   - { key: Back, mods: Command, chars: "\x1Bq" }
   - { key: Left, mods: Option, chars: "\x1B[1;5D" }
   - { key: Right, mods: Option, chars: "\x1B[1;5C" }
-
-  # Cross-platform bindings (not using Alt or Command)
-  - { key: Tab, mods: Alt, chars: "\x1c\x09" }
-  - { key: Tab, mods: Alt|Shift, chars: "\x1c\x1B[Z" }
 
   # Disable original Alacritty bindings for Search/ViMode
   - { key: F, mods: Command|Control, action: ReceiveChar }
@@ -86,11 +87,11 @@ key_bindings:
   - { key: F, mods: Control|Shift, mode: ~Search, action: ReceiveChar }
 
 shell:
-  program: /bin/fish
+  program: /usr/bin/env
   args:
-    - -l
-    - -c
-    - "tmux attach || tmux"
+    - sh
+    - -lc
+    - tmux attach || tmux
 
 env:
   # Enable true-color support

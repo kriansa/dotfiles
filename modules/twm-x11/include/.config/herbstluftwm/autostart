@@ -20,7 +20,7 @@ Alt=Mod1
 hc keybind $Mod-Control-q quit
 hc keybind $Mod-Control-r reload
 hc keybind $Mod-q close_or_remove
-hc keybind $Mod-Return spawn launcher-menu
+hc keybind $Mod-space spawn launcher-menu
 hc keybind $Alt-Control-Delete spawn power-menu
 hc keybind $Alt-Control-c spawn qalculate-gtk
 
@@ -61,7 +61,7 @@ done
 # The following cycles through the available layouts within a frame, but skips
 # layouts, if the layout change wouldn't affect the actual window positions.
 # I.e. if there are two windows within a frame, the grid layout is skipped.
-hc keybind $Mod-space                                                           \
+hc keybind $Mod-Return                                                          \
             or , and . compare tags.focus.curframe_wcount = 2                   \
                      . cycle_layout +1 horizontal vertical max \
                , and . compare tags.focus.curframe_wcount = 1                   \
@@ -85,7 +85,7 @@ hc keybind $Mod-Shift-Return spawn "$HOME/.dotfiles/modules/twm-x11/libexec/hlwm
 hc keybind $Mod-Shift-d       chain , split bottom 0.5 , focus down
 hc keybind $Mod-d             chain , split right  0.5 , focus right
 # let the current frame explode into subframes
-hc keybind $Mod-Control-space split explode
+hc keybind $Mod-Control-Return split explode
 
 # mouse
 hc mouseunbind --all
