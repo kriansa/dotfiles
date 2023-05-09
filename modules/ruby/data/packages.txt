@@ -1,8 +1,8 @@
 bundler-audit
 reek
 brakeman
-standardrb
-rubocop
+standard
 rubocop-rspec
 rubocop-rails
 solargraph
+solargraph-reek
