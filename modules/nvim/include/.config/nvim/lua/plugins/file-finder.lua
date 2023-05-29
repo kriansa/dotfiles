@@ -133,7 +133,9 @@ return function(use)
             prompt_title = "",
             layout_strategy = "vertical",
             layout_config = {
+              preview_height = 0,
               height = { padding = 1 },
+              width = { padding = 0.05 },
             },
             disable_devicons = true,
             sorting_strategy = "descending",
@@ -142,14 +144,16 @@ return function(use)
 
           live_grep = {
             borderchars = { '─', '│', '─', '│', '┌', '┐', '┘', '└' },
-            prompt_prefix = "Filter ❯ ",
+            prompt_prefix = "Search ❯ ",
             results_title = "",
             preview_title = "",
             prompt_title = "",
             layout_strategy = "vertical",
             layout_config = {
-              mirror = true,
+              preview_height = 10,
+              prompt_position = "bottom",
               height = { padding = 1 },
+              width = { padding = 0.05 },
             },
             disable_coordinates = true,
             disable_devicons = true,
