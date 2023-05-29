@@ -18,7 +18,6 @@ modules:
   - nvim
   - javascript
   - asdf
-  - htop
 
   # Only for my Home desktop
   - { name: linux, scopes: desktop }
