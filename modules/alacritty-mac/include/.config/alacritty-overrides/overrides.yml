@@ -2,6 +2,9 @@
 window:
   decorations: buttonless
 
+mouse:
+  hide_when_typing: false
+
 font:
   normal:
     family: Iosevka Nerd Font
