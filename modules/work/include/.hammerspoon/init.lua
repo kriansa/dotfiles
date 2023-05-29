@@ -41,7 +41,7 @@ hs.hotkey.bind({"shift", "alt"}, "H", function()
 
   f.x = max.x
   f.y = max.y
-  f.w = max.w / 2
+  f.w = (max.w / 2) - 1
   f.h = max.h
   win:setFrame(f)
 end)
@@ -55,7 +55,7 @@ hs.hotkey.bind({"shift", "alt"}, "L", function()
 
   f.x = max.x + (max.w / 2)
   f.y = max.y
-  f.w = max.w / 2
+  f.w = (max.w / 2) - 1
   f.h = max.h
   win:setFrame(f)
 end)
