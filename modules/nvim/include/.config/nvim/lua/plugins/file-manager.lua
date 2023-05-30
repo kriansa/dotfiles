@@ -1,7 +1,4 @@
 return function(use)
-  -- Think about lir.nvim: https://github.com/tamago324/lir.nvim
-  use { 'justinmk/vim-dirvish' }
-
   -- Main tree-view
   use {
     'nvim-tree/nvim-tree.lua',
@@ -17,17 +14,13 @@ return function(use)
       -- highlight NvimTreeExecFile guifg=blue gui=bold,underline
 
       require('nvim-tree').setup({
-        -- Ensure compatibility with Dirvish
-        hijack_netrw = false,
-        hijack_directories = { enable = false },
-
         git = { enable = false },
         diagnostics = { enable = false },
         update_focused_file = { enable = true },
-        update_cwd = true,
+        sync_root_with_cwd = true,
         trash = { cmd = "trash" },
         hijack_cursor = true,
-        hijack_unnamed_buffer_when_opening = false,
+        hijack_unnamed_buffer_when_opening = true,
         remove_keymaps = true,
         on_attach = mappings.nvim_tree,
         filters = {
@@ -49,6 +42,9 @@ return function(use)
               folder = true,
               folder_arrow = true,
               file = false,
+            },
+            glyphs = {
+              symlink = "",
             },
           },
           special_files = {},

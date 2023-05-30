@@ -19,6 +19,7 @@ g.loaded_getscript = 1
 g.loaded_getscriptPlugin = 1
 g.loaded_gzip = 1
 g.loaded_logipat = 1
+g.loaded_netrw = 1
 g.loaded_netrwFileHandlers = 1
 g.loaded_netrwPlugin = 1
 g.loaded_netrwSettngs = 1

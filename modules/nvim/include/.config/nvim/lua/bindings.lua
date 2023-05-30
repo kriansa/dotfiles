@@ -106,19 +106,27 @@ g.winresizer_start_key = '<Leader>e'
 -- Neogit
 nmap("<leader>gs", "<cmd>Neogit<CR>", { silent = true })
 
--- Dirvish
-nmap('-', "<Plug>(dirvish_up)")
+-- Github Copilot
+mappings.gh_copilot = {
+  suggestion = {
+    accept = "<Tab>",
+    accept_word = false,
+    accept_line = false,
+    next = "<C-Space>",
+    prev = false,
+    dismiss = "<C-]>",
+  },
+}
 
 -- Leap
 vim.keymap.set({"n", "x", "o"}, "s", "<Plug>(leap-forward-to)", { silent = true, desc = "Leap forward to" })
 vim.keymap.set({"n", "x", "o"}, "S", "<Plug>(leap-backward-to)", { silent = true, desc = "Leap backward to" })
 vim.keymap.set({"x", "o"}, "z", "<Plug>(leap-forward-till)", { silent = true, desc = "Leap forward till" })
 vim.keymap.set({"x", "o"}, "Z", "<Plug>(leap-backward-till)", { silent = true, desc = "Leap backward till" })
-vim.keymap.set({"n", "x", "o"}, "gs", "<Plug>(leap-from-window)", { silent = true, desc = "Leap from window" })
-vim.keymap.set({"n", "x", "o"}, "gs", "<Plug>(leap-cross-window)", { silent = true, desc = "Leap from window" })
 
 -- Nvim-tree
 nmap("\\", "<cmd>NvimTreeFindFileToggle<CR>")
+nmap('-', "<cmd>NvimTreeFindFileToggle<CR>")
 mappings.nvim_tree = function(bufnr)
   local api = require('nvim-tree.api')
 
@@ -173,6 +181,9 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', 'Y', api.fs.copy.relative_path, opts('Copy Relative Path'))
   vim.keymap.set('n', 'gy', api.fs.copy.absolute_path, opts('Copy Absolute Path'))
   vim.keymap.set('n', 'M', api.marks.toggle, opts('Toggle mark'))
+
+  -- Emulate Dirvish
+  vim.keymap.set('n', '-', api.node.navigate.parent_close, opts('Close Directory'))
 end
 
 -- Cmp (autocompletion)
