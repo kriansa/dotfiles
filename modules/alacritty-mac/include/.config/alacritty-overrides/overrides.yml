@@ -10,11 +10,11 @@ font:
     family: Iosevka Nerd Font
     style: Light
   bold:
-    style: Medium
+    style: Regular
   italic:
     style: Light Oblique
   bold_italic:
-    style: Medium Oblique
+    style: Oblique
   size: 22
 
 key_bindings:
