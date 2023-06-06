@@ -124,9 +124,23 @@ vim.keymap.set({"n", "x", "o"}, "S", "<Plug>(leap-backward-to)", { silent = true
 vim.keymap.set({"x", "o"}, "z", "<Plug>(leap-forward-till)", { silent = true, desc = "Leap forward till" })
 vim.keymap.set({"x", "o"}, "Z", "<Plug>(leap-backward-till)", { silent = true, desc = "Leap backward till" })
 
+-- lir
+nmap("-", "<cmd>lua require('lir.float').toggle()<CR>")
+local lir_actions = require('lir.actions')
+mappings.lir = {
+  ['o']     = lir_actions.edit,
+  ['<CR>']  = lir_actions.edit,
+  ['l']     = lir_actions.edit,
+  ['h']     = lir_actions.up,
+  ['q']     = lir_actions.quit,
+
+  ['r']     = lir_actions.rename,
+  ['d']     = lir_actions.delete,
+  ['gy']    = lir_actions.yank_path,
+}
+
 -- Nvim-tree
 nmap("\\", "<cmd>NvimTreeFindFileToggle<CR>")
-nmap('-', "<cmd>NvimTreeFindFileToggle<CR>")
 mappings.nvim_tree = function(bufnr)
   local api = require('nvim-tree.api')
 
@@ -181,9 +195,6 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', 'Y', api.fs.copy.relative_path, opts('Copy Relative Path'))
   vim.keymap.set('n', 'gy', api.fs.copy.absolute_path, opts('Copy Absolute Path'))
   vim.keymap.set('n', 'M', api.marks.toggle, opts('Toggle mark'))
-
-  -- Emulate Dirvish
-  vim.keymap.set('n', '-', api.node.navigate.parent_close, opts('Close Directory'))
 end
 
 -- Cmp (autocompletion)
