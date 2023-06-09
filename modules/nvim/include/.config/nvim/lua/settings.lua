@@ -136,7 +136,10 @@ o.iskeyword:append("-")
 
 -- Set autoformatting options
 -- See help in :h fo-table
-o.formatoptions:remove("tc")
+-- o.formatoptions:remove("tcq")
+
+-- Ctrl-a and Ctrl-x will ignore the sign of the number under the cursor
+o.nrformats:append("unsigned")
 
 -- Use rg over grep
 o.grepprg = "rg --no-heading -M 120 --color=never --hidden --ignore-file=$DOTFILES_PATH/.rgignore"
