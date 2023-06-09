@@ -22,14 +22,22 @@ local frameCache = {}
 
 -- Toggle a window between its normal size, and being maximized
 hs.hotkey.bind({"shift", "alt"}, "Return", function()
-   local win = hs.window.focusedWindow()
-   if frameCache[win:id()] then
-      win:setFrame(frameCache[win:id()])
-      frameCache[win:id()] = nil
-   else
-      frameCache[win:id()] = win:frame()
-      win:maximize()
-   end
+  local win = hs.window.focusedWindow()
+  local isMaximized = win:frame() == win:screen():frame()
+
+  -- If the window is not maximized but had been previously maximized, it means it has been resized
+  -- since its last maximization. In that case, we erase the cache.
+  if not isMaximized and frameCache[win:id()] then
+    frameCache[win:id()] = nil
+  end
+
+  if frameCache[win:id()] then
+    win:setFrame(frameCache[win:id()])
+    frameCache[win:id()] = nil
+  else
+    frameCache[win:id()] = win:frame()
+    win:maximize()
+  end
 end)
 
 -- Alt+shift+H - Move window to the left
