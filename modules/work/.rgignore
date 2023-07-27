@@ -1,0 +1,3 @@
+# Because this is listed under .gitignore, by default rg would ignore it, but instead I want it to
+# be findable through rg, so I explicitelly allow it here.
+!private.fish
