@@ -18,6 +18,7 @@ modules:
   - nvim
   - javascript
   - asdf
+  - golang
 
   # Only for my Home desktop
   - { name: linux, scopes: desktop }
