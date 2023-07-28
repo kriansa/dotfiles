@@ -150,10 +150,10 @@ mappings.nvim_tree = function(bufnr)
 
   -- Opening files
   vim.keymap.set('n', '<CR>', api.node.open.edit, opts('Open'))
-  vim.keymap.set('n', 'o', api.node.open.edit, opts('Open'))
+  vim.keymap.set('n', 'O', api.node.open.edit, opts('Open'))
   vim.keymap.set('n', '<2-LeftMouse>', api.node.open.edit, opts('Open'))
   vim.keymap.set('n', '<Tab>', api.node.open.preview, opts('Open Preview'))
-  vim.keymap.set('n', 'O', api.node.open.no_window_picker, opts('Open: No Window Picker'))
+  vim.keymap.set('n', 'o', api.node.open.no_window_picker, opts('Open: No Window Picker'))
   vim.keymap.set('n', 'U', api.tree.change_root_to_parent, opts('CD to parent'))
   vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
   vim.keymap.set('n', 'S', api.node.run.system, opts('Run System'))

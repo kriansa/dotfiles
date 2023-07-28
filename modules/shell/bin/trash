@@ -2,8 +2,7 @@
 #
 # Usage: trash <file> [...]
 
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
-  gio trash "$@"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  /opt/homebrew/bin/trash "$@"
-fi
+case "$(uname)" in
+  Linux) gio trash "$@" ;;
+  Darwin) /opt/homebrew/bin/trash "$@" ;;
+esac

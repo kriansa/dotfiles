@@ -27,7 +27,7 @@ dim() {
   # enough time that when xsecurelock kicks in, the screen is already blank hence no flashing.
   cycle_time=$(xset q | grep -o "cycle: *[0-9]*" | grep -o "[0-9]*")
 
-  if [ $cycle_time -le 0 ]; then
+  if [ "$cycle_time" -le 0 ]; then
     echo "The screen saver cycle time must be greater than 0!" >&2
     exit 1
   fi
@@ -54,7 +54,7 @@ dim() {
 
 cancel() {
   # Attempt to kill dimmer if it's still up
-  kill $dimmer_pid 2>&-
+  kill "$dimmer_pid" 2>&-
 
   # And always exit cleanly
   exit 0
@@ -82,7 +82,7 @@ lock() {
   XSECURELOCK_DATETIME_FORMAT="%a, %d %b %Y %T" \
   XSECURELOCK_BLANK_TIMEOUT=1 \
   XSECURELOCK_BLANK_DPMS_STATE=off \
-  XSECURELOCK_SAVER_STOP_ON_DPMS=1 \
+  XSECURELOCK_SAVER_STOP_ON_BLANK=1 \
   XSECURELOCK_COMPOSITE_OBSCURER=0 \
   XSECURELOCK_AUTH=/usr/lib/xsecurelock/auth_u2f_x11 \
   XSECURELOCK_AUTHPROTO_KILL_ON_TIMEOUT=1 \

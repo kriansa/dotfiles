@@ -27,7 +27,7 @@ main() {
   parse_cli "$@"; set -- "${ARGS[@]}"
   validate_args "$@"
 
-  set_dpi $1
+  set_dpi "$1"
 }
 
 validate_args() {
@@ -41,7 +41,7 @@ validate_args() {
     exit 1
   fi
 
-  if [ $1 -lt 96 ]; then
+  if [ "$1" -lt 96 ]; then
     echo "No less than 96!" >&2
     exit 1
   fi
