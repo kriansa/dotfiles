@@ -37,6 +37,10 @@ mappings = {}
 -- Save a shift press for commands
 nnoremap(';', ':')
 
+-- Save a shift press for commands
+nmap('j', 'gj')
+nmap('k', 'gk')
+
 -- Leader + o creates a blank line above
 nmap('<Leader>o', 'o<Esc>')
 nmap('<Leader>O', 'O<Esc>')
@@ -98,7 +102,7 @@ nmap("<leader>ps", "<cmd>PackerSync<CR>", { silent = true })
 
 -- Toggles zoom between the current buffer
 nnoremap("<Leader>tt", "<cmd>ZoomWinTabToggle<CR>", { silent = true })
-nnoremap("<Leader>z", "<cmd>ZenMode<CR>", { silent = true })
+nnoremap("<Leader>tz", "<cmd>ZenMode<CR>", { silent = true })
 
 -- Winresizer starts with <Leader>+e
 g.winresizer_start_key = '<Leader>e'

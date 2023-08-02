@@ -45,7 +45,7 @@ return function(use)
         },
         plugins = {
           gitsigns = { enabled = true },
-          tmux = { enabled = true },
+          tmux = { enabled = false },
         },
         -- Disable indent-blankline.nvim
         on_open = function()

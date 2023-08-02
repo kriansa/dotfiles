@@ -22,8 +22,12 @@ return function(use)
   }
 
   use {
-    'TimUntersberger/neogit',
+    'NeogitOrg/neogit',
     requires = 'nvim-lua/plenary.nvim',
-    cmd = 'Neogit'
+    cmd = 'Neogit',
+    config = function()
+      local neogit = require('neogit')
+      neogit.setup({})
+    end,
   }
 end
