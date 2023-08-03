@@ -69,6 +69,8 @@ SETUVAR pure_enable_git:true
 SETUVAR pure_enable_single_line_prompt:false
 SETUVAR pure_reverse_prompt_symbol_in_vimode:true
 SETUVAR pure_separate_prompt_on_error:false
+SETUVAR pure_shorten_prompt_current_directory_length:0
+SETUVAR pure_shorten_window_title_current_directory_length:0
 SETUVAR pure_show_jobs:false
 SETUVAR pure_show_prefix_root_prompt:false
 SETUVAR pure_show_subsecond_command_duration:false
