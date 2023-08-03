@@ -1,1 +1,2 @@
 golang.org/x/tools/gopls@latest
+github.com/go-delve/delve/cmd/dlv@latest
