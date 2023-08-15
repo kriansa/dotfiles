@@ -8,6 +8,7 @@ main() {
 
   if [ "$(uname)" == "Darwin" ]; then
     run "Update homebrew packages" "brew upgrade"
+    run "Update casks" "brew upgrade --cask --greedy"
   else
     run "Update system packages" "sudo pacman -Syu"
     run "Update AUR packages" "pacom upgrade -a"
