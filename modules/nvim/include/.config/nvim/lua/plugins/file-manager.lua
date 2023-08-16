@@ -63,7 +63,6 @@ return function(use)
         sync_root_with_cwd = true,
         trash = { cmd = "trash" },
         hijack_cursor = true,
-        remove_keymaps = true,
         on_attach = mappings.nvim_tree,
         filters = {
           custom = {
