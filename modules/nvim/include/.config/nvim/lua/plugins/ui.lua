@@ -102,7 +102,7 @@ return function(use)
       -- Return the status of zoomwintoggle
       local zoomwin_icon = function()
         if vim.t.zoomwintab == 1 then
-          return '⮻ '
+          return '◱ '
         end
 
         return ''

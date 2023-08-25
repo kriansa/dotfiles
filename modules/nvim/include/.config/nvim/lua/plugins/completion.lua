@@ -28,7 +28,7 @@ return function(use)
         },
         filetypes = {
           yaml = true,
-          markdown = false,
+          markdown = true,
           help = false,
           gitcommit = false,
           gitrebase = false,
@@ -76,6 +76,19 @@ return function(use)
   }
 
   use {
+    "folke/which-key.nvim",
+    config = function()
+      vim.o.timeout = true
+      vim.o.timeoutlen = 300
+      require("which-key").setup({
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+      })
+    end
+  }
+
+  use {
     'neovim/nvim-lspconfig',
     after = 'nvim-cmp',
     config = function()
@@ -96,7 +109,7 @@ return function(use)
       })
 
       -- Set left signs
-      local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+      local signs = { Error = "󰅚 ", Warn = "󰀪 ", Hint = "󰌶 ", Info = "󰋽 " }
       for type, icon in pairs(signs) do
         local hl = "DiagnosticSign" .. type
         vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })

@@ -234,18 +234,18 @@ mappings.gitsigns = function(bufnr)
   end, {expr=true})
 
   -- Actions
-  map({'n', 'v'}, '<leader>hs', ':Gitsigns stage_hunk<CR>')
-  map({'n', 'v'}, '<leader>hu', ':Gitsigns reset_hunk<CR>')
+  map('n', '<leader>hs', gs.stage_hunk)
+  map('n', '<leader>hr', gs.reset_hunk)
+  map('v', '<leader>hs', function() gs.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+  map('v', '<leader>hr', function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
   map('n', '<leader>hp', gs.preview_hunk)
 
   -- This has very similar behavior as `hp` above
-  map('n', '<leader>gb', function() gs.blame_line{full=true} end)
+  map('n', '<leader>gb', gs.toggle_current_line_blame)
+  map('n', '<leader>gB', function() gs.blame_line{full=true} end)
 
   map('n', '<leader>gd', gs.diffthis)
   map('n', '<leader>gD', function() gs.diffthis('~') end)
-
-  -- Not very useful for my liking
-  -- map('n', '<leader>gb', gs.toggle_current_line_blame)
 
   -- Text object
   map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>')

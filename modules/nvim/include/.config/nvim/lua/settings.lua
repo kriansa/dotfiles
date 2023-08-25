@@ -55,6 +55,9 @@ cmd([[
 
   " Show when text is yanked
   autocmd TextYankPost * silent! lua vim.highlight.on_yank({ timeout = 80 })
+
+  " Auto resize splits
+  autocmd VimResized * :wincmd =
 ]])
 
 -- Add existing filetypes

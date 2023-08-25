@@ -17,16 +17,31 @@ return function(use)
           changedelete = { hl = 'RedSign', text = '~', numhl = 'GitSignsChangeNr' },
         },
         on_attach = mappings.gitsigns,
+        current_line_blame_opts = {
+          virt_text = true,
+          virt_text_pos = 'right_align', -- 'eol' | 'overlay' | 'right_align'
+          delay = 200,
+          ignore_whitespace = false,
+        },
       })
     end
   }
 
   use {
-    'NeogitOrg/neogit',
-    requires = 'nvim-lua/plenary.nvim',
-    cmd = 'Neogit',
+    "sindrets/diffview.nvim",
     config = function()
-      local neogit = require('neogit')
+      require("diffview").setup({
+        use_icons = false,
+      })
+    end,
+  }
+
+  use {
+    "NeogitOrg/neogit",
+    requires = { "nvim-lua/plenary.nvim", "sindrets/diffview.nvim" },
+    cmd = "Neogit",
+    config = function()
+      local neogit = require("neogit")
       neogit.setup({})
     end,
   }
