@@ -6,3 +6,5 @@ python-lsp-server
 python-lsp-server[pylint]
 python-lsp-black
 pydocstyle
+sqlite-utils
+datasette
