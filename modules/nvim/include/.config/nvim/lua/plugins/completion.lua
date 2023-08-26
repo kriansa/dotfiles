@@ -152,11 +152,17 @@ return function(use)
         pylsp = {
           pylsp = {
             plugins = {
+              -- Use black for formatting
               black = {
                 enabled = true,
               },
+              -- Use pylint for linting
               pylint = {
                 enabled = true,
+              },
+              -- Then disable all else
+              yapf = {
+                enabled = false,
               },
               autopep8 = {
                 enabled = false,
