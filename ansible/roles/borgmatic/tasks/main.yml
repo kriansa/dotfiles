@@ -1,4 +1,4 @@
 ---
 - import_tasks: install_borgmatic.yml
 - import_tasks: setup_network_drive.yml
-# - import_tasks: restore_data.yml
+- import_tasks: restore_data.yml

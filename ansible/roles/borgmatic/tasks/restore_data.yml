@@ -1,9 +1,9 @@
 ---
 - name: extract data out of existing backup
   become: true
+  when: restore_data | default(False)
   ansible.builtin.command:
-  debug:
-    path: "{{ home_path }}"
+    chdir: "{{ home_path }}"
     cmd: >
       borgmatic extract -c "{{ home_path }}/.config/borgmatic/config.yaml"
       --archive latest {% for path in paths %} --path "home/{{ user_name }}/{{ path }}"{% endfor %}
@@ -37,3 +37,4 @@
       - .config/obs-studio
       - .config/Rapid Photo Downloader
       - .local/share/rapid-photo-downloader
+      - .mozilla/firefox

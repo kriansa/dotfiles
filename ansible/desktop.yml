@@ -1,17 +1,18 @@
 ---
 - hosts: all
+  vars_prompt:
+    - name: restore_data
+      prompt: "Should we also restore data from latest backup?"
+      private: no
+      default: no
   roles:
     - role: 1-common-handlers
-    - role: base-arch
-    - role: systemd-boot
-    - role: aur-manager
-    - role: dev-tools
+    # - role: base-arch
+    # - role: systemd-boot # TODO: setup windows dual boot
+    # - role: aur-manager
+    # - role: dev-tools
     - role: borgmatic
-    - role: yubikey
-
-    # NOT validated
-    # - role: syncthing
-
-    - role: network
-    - role: gnome
-    - role: desktop-tools # TODO: setup Firefox and Ananicy
+    # - role: yubikey
+    # - role: network
+    # - role: gnome
+    # - role: desktop-tools # TODO: setup Firefox and Ananicy
