@@ -45,7 +45,7 @@
   become: true
   become_user: "{{ user_name }}"
   register: gpg_path
-  ansible.builtin.file: path="{{ home_path }}/.local/share/pikaur/gnupg" state=directory mode=0755
+  ansible.builtin.file: path="{{ home_path }}/.local/share/pikaur/gnupg" state=directory mode=0700
 
 - name: initialize gpg if gnupg is not existent
   become: true
