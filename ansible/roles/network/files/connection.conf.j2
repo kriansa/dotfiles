@@ -1,0 +1,30 @@
+[connection]
+id={{ item.name }}
+uuid={{ item.name | to_uuid }}
+type=wireguard
+autoconnect={{ "true" if item.autoconnect else "false" }}
+interface-name={{ item.ifname }}
+timestamp={{ ansible_date_time.epoch }}
+
+[wireguard]
+private-key={{ item.private_key }}
+
+[wireguard-peer.{{ item.peer_public_key }}]
+endpoint={{ item.peer_endpoint }}
+allowed-ips={{ item.peer_allowed_ips }}
+{% if item.peer_psk is defined -%}
+preshared-key={{ item.peer_psk }}
+preshared-key-flags=0
+{% endif %}
+
+[ipv4]
+address1={{ item.addresses }}
+dns={{ item.dns }}
+dns-search={{ item.dns_search }}
+method=manual
+
+[ipv6]
+addr-gen-mode=stable-privacy
+method=ignore
+
+[proxy]

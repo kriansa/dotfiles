@@ -1,6 +1,7 @@
 ---
 - name: install common desktop packages
   become: true
+  register: common_desktop_packages
   community.general.pacman:
     name:
       # Browsers
@@ -33,18 +34,37 @@
       - ttf-croscore
       - noto-fonts-cjk
       - ttf-joypixels
+      - ttf-nerd-fonts-symbols
 
       # Printer drivers
       - cups
-      - hplip
 
-      # ---------------------
-      # Packages on AUR/pacom
-      - overdue # complement for pacman
+      # Tools
+      - qalculate-gtk
+      - flameshot
+      - zathura
+      - zathura-pdf-mupdf
+
+- name: install desktop packages on AUR
+  become: true
+  become_user: "{{ user_name }}"
+  register: aur_packages
+  aur:
+    name:
+      # Complement for pacman
+      - overdue
+
+      # Password managers
+      - authy
+      - 1password
 
       # Beancount
       - beancount
       - fava
+
+      # DDC
+      - ddccontrol
+      - ddccontrol-db-git
 
       # Spotify
       - spotify
@@ -61,24 +81,19 @@
       - ttf-iosevka-term
       - ttf-gelasio
       - ttf-comic-neue
-      - ttf-nerd-glyphs
 
 - name: reload font cache
-  ansible.builtin.command: fc-cache -fv
-
-- name: install ananicy
-  become: true
-  community.general.pacman: name=ananicy-git
-
-- name: start and enable ananicy at boot time
-  become: true
-  ansible.builtin.systemd: name=ananicy enabled=true state=started
-
-- name: install psi-notify
-  become: true
-  community.general.pacman: name=psi-notify
-
-- name: start and enable psi-notify at boot time
   become: true
   become_user: "{{ user_name }}"
-  ansible.builtin.systemd: name=psi-notify enabled=true state=started scope=user
+  when: common_desktop_packages.changed or aur_packages.changed
+  ansible.builtin.command: fc-cache -fv
+
+# TODO: Install ananicy or equivalent such as system76-scheduler
+# - name: install psi-notify
+#   become: true
+#   community.general.pacman: name=psi-notify
+#
+# - name: start and enable psi-notify at boot time
+#   become: true
+#   become_user: "{{ user_name }}"
+#   ansible.builtin.systemd: name=psi-notify enabled=true state=started scope=user

@@ -1,5 +1,5 @@
-# Install Arch on Desktop
-> Last update: May 30th, 2022.
+# Install Arch base system
+> Last update: Sep 1st, 2023.
 
 First and foremost you will need to disable secure boot on your system. For newer ASUS motherboards,
 [you will need to remove
@@ -27,13 +27,22 @@ documented here were extracted from [Arch installation
 guide](https://wiki.archlinux.org/index.php/Installation_guide) and many other linked wikis. It's
 advisable to read it if you have questions.
 
-##### 1. (Optional) Load the keyboard setup if you use a keyboard standard different than US.
+##### 1. (optional) Load the keyboard setup if you use a keyboard standard different than US.
     # loadkeys br-abnt
 
-##### 2. Update system clock
+##### 2A. Connect to the network (WLAN)
+    # iwctl --passphrase <password> station wlan0 connect[-hidden] <SSID>
+
+##### 2B. Connect to the network (Ethernet)
+
+If DHCP is enabled, you should simply check if it's already connected.
+
+    # ip a
+
+##### 3. Update system clock
     # timedatectl set-ntp true
 
-##### 3. Now you should partition your disk. To list all available disk and partitions, type:
+##### 4. Now you should partition your disk. To list all available disk and partitions, type:
     # fdisk -l
 
 **Important**: The steps below are for when your setup is using EFI instead BIOS. To check if you're
@@ -43,22 +52,25 @@ Once you know which disk you will partition/install, lets partition it using GNU
 
 ##### 4. Partition the disk
     # parted /dev/sdX
-    
+
 Replace `sdX` by the disk that you want to install Arch on.
 
 ##### 1. To list all disk and current partitions, you run:
     (parted) print all
 
-> If you see an error like: /dev/sdX: unrecognized disk label That means that your disk partition
-> table hasn't been initialized on either GPT (UEFI) or MBR (msdos)
-> To initialize using GPT, run the command (on parted):
-> `(parted) mklabel gpt`
+If you see an error like: /dev/sdX: unrecognized disk label That means that your disk partition
+table hasn't been initialized on either GPT (UEFI) or MBR (msdos)
+To initialize using GPT, run the command (on parted):
+`(parted) mklabel gpt`
 
-> **Important:** You will need at least 2 partitions:
-> * One partition `fat32` for EFI boot and bootloader - Bootable (512MB) Assuming that Windows is
->   already installed, this partition already exists and it's 100MB length.
-> * One partition `ext4` to be used as a base for your LVM (All space left) This one can be created
->   with the command below.
+**Important:** You will need at least 2 partitions:
+* One partition `fat32` for EFI boot and bootloader - Bootable (1024MB). Assuming that Windows is
+  already installed, this partition already exists and it's 100MB length -- you will need to extend
+  it.
+* One partition `xfs` to be used as a base for your LVM (All space left) This one can be created
+  with the command below.
+* If your disk already have a `lvm` set and you want to remove it, you can use `lvs` to list all
+  available lvs and then `lvchange -an <vgname>` to unmount them.
 
 ###### 2A. _(optional)_ Extend existing EFI partition
 
@@ -74,14 +86,14 @@ even for BitLocker-encrypted partitions.
 
 > That is usually **NOT** required because you will have one already created by Windows installer.
 
-    (parted) mkpart primary 1024KiB 100%
+    (parted) mkpart primary 1024KiB 1GB
     (parted) set 1 esp on
     (parted) name 1 "EFI system partition"
 
 Replace 1 by the number of the EFI partition (use `print` to list them).
 
 ##### 3. Create a new partition to use the entire disk
-    (parted) mkpart primary 512MB 100%
+    (parted) mkpart primary 2MB 100%
     (parted) print
     (parted) name X "Linux LVM"
 
@@ -91,94 +103,120 @@ Answer `yes`. Then use `print` to list partition IDs and then rename it.
 ##### 4. Now, quit parted
     (parted) quit
 
-##### 5. Create an LVM partition:
+##### 5. (optional) Enable LUKS (Disk Encryption)
+    # cryptsetup luksFormat /dev/sdXY
+    # cryptsetup --allow-discards --persistent open /dev/sdXY luks-lvm
+
+> **Important:** Replace `sdXY` by that big partition that you've created for Linux.
+
+##### 6A. Setup partitioning using LVM and LUKS
+    # pvcreate /dev/mapper/luks-lvm
+    # vgcreate vg0 /dev/mapper/luks-lvm
+
+##### 6B. Setup partitioning using LVM WITHOUT LUKS:
     # pvcreate /dev/sdX5
     # vgcreate vg0 /dev/sdX5
 
 > **Important:** Replace `sdX5` by that big partition that you've created for Linux.
 
-##### 6. Creates several Logical Groups (LV)
-    # lvcreate --size 16G vg0 --name swap
-    # lvcreate --size 20G vg0 --name root
+##### 7. Creates several Logical Groups (LV)
+    # lvcreate --size 32G vg0 --name swap
+    # lvcreate --size 80G vg0 --name root
     # lvcreate --extents +100%FREE vg0 --name home
 
 > **Important:** Adjust the swap to the size of your RAM so you can use hibernation.
 
-##### 7. Create filesystems on those partitions
+##### 8. Create filesystems on those partitions
     # mkswap /dev/vg0/swap
     # mkfs.xfs /dev/vg0/root
     # mkfs.xfs /dev/vg0/home
 
-##### 7.5. If needed, format the EFI partition
+##### 8.1. (optional) If needed, format the EFI partition
     # mkfs.fat -F32 /dev/sdXY
 
-##### 8. Mount the new system
+##### 9. Mount the new system
     # mount /dev/vg0/root /mnt
     # swapon /dev/vg0/swap
     # mkdir /mnt/home
     # mount /dev/vg0/home /mnt/home
     # mkdir /mnt/boot
-    # mount /dev/sdXY /mnt/boot 
+    # mount /dev/sdXY /mnt/boot
 
 > EFI Bootloader is in the separate partition (marked by `sdXY`).
 > Replace it by the partition that you found when you ran `fdisk -l`
 
-> If your system uses cable connection and dhcp, it's already configured. 
+> If your system uses cable connection and dhcp, it's already configured.
 
-##### 9. Install Arch base packages
-    # pacstrap /mnt base lvm2 xfsprogs linux linux-firmware sudo intel-ucode networkmanager neovim
+##### 10. Install Arch base packages
+    # pacstrap /mnt base lvm2 xfsprogs linux linux-firmware sudo <intel|amd>-ucode networkmanager neovim
 
-##### 10. Generate the fstab file so every disk is mapped and loaded at boot time
+##### 11. Generate the fstab file so every disk is mapped and loaded at boot time
     # genfstab -U /mnt >> /mnt/etc/fstab
 
-##### 11. Enter in the new system
+##### 12. Enter in the new system
     # arch-chroot /mnt
-    
+
 > **Notice:** Now, you're in the filesystem of your new installation. Any
 > change that you do here will be persisted.
 
-##### 12. Set the default keymap (use `br-abnt` for the Portuguese version)
+##### 13. Set the default keymap (use `br-abnt` for the Portuguese version)
     # echo "KEYMAP=us" > /etc/vconsole.conf
 
-##### 13. Configure boot (without LUKS)
+##### 14A. Configure boot (with LUKS)
+Edit `/etc/mkinitcpio.conf` this way:
+1. Replace `udev` by `systemd` on HOOKS
+2. Add `xfs` in the MODULES line
+3. Add `sd-encrypt lvm2` between `block` and `filesystems` on HOOKS
+4. Add `keyboard sd-vconsole` before `autodetect` on HOOKS
 
+##### 14B. Configure boot (without LUKS)
 If you aren't using LUKS, then configure `/etc/mkinitcpio.conf` this way:
 1. Replace `udev` by `systemd` on HOOKS
-2. Add `lvm2` between `block` and `filesystems` on HOOKS
+2. Add `xfs` in the MODULES line
+3. Add `lvm2` between `block` and `filesystems` on HOOKS
 
-##### 14. Generate initramfs
+##### 15. Generate initramfs
     # mkinitcpio -P
 
-##### 15. Set a root password
+##### 16. Set a root password
     # passwd
 
-##### 16. Install [systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot)
+##### 17. Install [systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot)
     # bootctl install
 
-##### 17. Configure Linux bootloader entry
+##### 18. Configure Linux bootloader entry
     # nvim /boot/loader/entries/arch.conf
 
 Add the content below to this file:
 
-    title          Arch Linux
-    linux          /vmlinuz-linux
-    initrd         /intel-ucode.img
-    initrd         /initramfs-linux.img
-    options        root=/dev/vg0/root resume=/dev/vg0/swap rw
+```
+title   Arch Linux
+linux   /vmlinuz-linux
+initrd  /<intel|amd>-ucode.img
+initrd  /initramfs-linux.img
+options root=/dev/vg0/root resume=/dev/vg0/swap rw rootflags=x-systemd.device-timeout=30
+```
 
-> If you're not using Intel, you can remove intel-ucode from the list below
+> Replace the `<intel|amd>` properly
 
-##### 18. Exit new system and go into the cd shell
+##### 18.1. (optional) Add options for booting with LUKS
+When using LUKS, replace the last line of the file above by:
+
+```
+options        root=/dev/vg0/root resume=/dev/vg0/swap rw rootflags=x-systemd.device-timeout=30 rd.luks.options=discard,timeout=30 rd.luks.name=$(blkid -s UUID -o value /dev/sdXY)=vg0
+```
+
+##### 19. Exit new system and go into the cd shell
     # exit
 
-##### 19. Unmount all partitions
+##### 20. Unmount all partitions
     # umount -R /mnt
     # swapoff -a
 
-##### 20. Reboot the system
+##### 21. Reboot the system
     # reboot
 
-## Part 3: Configuring Arch
+## Configuring Arch
 
 After rebooting, you will have a very basic form of Arch installed, but you will need to configure
 it and install your applications. This step can be done automatically for you with Ansible.
@@ -186,6 +224,10 @@ it and install your applications. This step can be done automatically for you wi
 But first, let's ensure that we have internet connection, so start the network manager:
 
     # systemctl start NetworkManager
+
+If you need wi-fi, also run:
+
+    # nmcli dev wifi connect  <SSID> name Wi-Fi password <PASSWORD> [hidden yes]
 
 From here you will have two options: either running Ansible from the system locally or remotely.
 Pick one and follow the steps.
@@ -199,7 +241,7 @@ Pick one and follow the steps.
     # cd /tmp && git clone --depth 1 https://github.com/kriansa/dotfiles && cd dotfiles
 
 ##### 3. Run it
-    # bin/setup localhost desktop
+    # bin/setup localhost <laptop|desktop>
 
 ##### 4. Run the additional steps asked on the screen, then reboot
     # reboot
@@ -209,11 +251,11 @@ Pick one and follow the steps.
 ##### 1. Locally, install and start SSH
     # pacman -S openssh python
     # systemctl start sshd
-    # mkdir -m 700 .ssh
-    # install -m 600 <(curl https://github.com/kriansa.keys) .ssh/authorized_keys
+    # install -m 0600 <(curl https://github.com/kriansa.keys) .ssh/authorized_keys
+    # ip a
 
 ##### 2. On the remote computer, run:
-    $ bin/setup root@<ip> laptop [--debug]
+    $ bin/setup root@<ip> <laptop|desktop> [--debug]
 
 ##### 3. Reboot
     $ ssh <ip> reboot

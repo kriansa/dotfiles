@@ -1,0 +1,15 @@
+---
+- name: install packages
+  become: true
+  register: install_packages
+  community.general.pacman:
+    name:
+      - pass
+      - ccid
+      - yubikey-manager
+      - pam-u2f
+
+- name: enable pcscd
+  become: true
+  when: install_packages.changed
+  ansible.builtin.systemd: name=pcscd.socket enabled=yes state=restarted

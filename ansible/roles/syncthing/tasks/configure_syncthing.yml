@@ -1,4 +1,10 @@
 ---
+- name: install syncthing
+  become: true
+  register: install_packages
+  community.general.pacman:
+    name: syncthing
+
 - name: check for presence of syncthing config
   become: true
   become_user: "{{ user_name }}"

@@ -14,7 +14,7 @@
     conn_name: Wi-Fi
     ssid: "{{ lookup('community.general.passwordstore', 'PC-Config/Wi-Fi-SSID') }}"
     wifi:
-      hidden: yes
+      hidden: "{{ wifi_hidden }}"
     wifi_sec:
       key-mgmt: wpa-psk
       psk: "{{ lookup('community.general.passwordstore', 'PC-Config/Wi-Fi-Password') }}"
@@ -34,47 +34,40 @@
     state: absent
     conn_name: Wired connection 1
 
-- name: configure vlans
-  become: true
-  community.general.nmcli:
-    state: present
-    conn_name: "{{ item.name }}"
-    type: vlan
-    ifname: ""
-    vlanid: "{{ item.vlan }}"
-    vlandev: "{{ eth_device }}"
-    autoconnect: "{{ item.auto }}"
-    dns4_ignore_auto: yes
-    never_default4: yes
-    ip_privacy6: disabled
-    # TODO: Add that in the future when it's available on Ansible
-    # never_default6: yes
+- name: configure wireguard tunnels
+  register: configure_connections
+  ansible.builtin.template:
+    src: files/connection.conf.j2
+    dest: /etc/NetworkManager/system-connections/{{ item.name }}.nmconnection
+    mode: "0600"
   loop:
-    - { name: "Admin", vlan: "1010", auto: true }
-    - { name: "IoT", vlan: "1003", auto: false }
-    - { name: "External-Services", vlan: "1004", auto: false }
-
-- name: create /etc/wireguard
-  become: true
-  ansible.builtin.file: path=/etc/wireguard state=directory mode=0700
-
-- name: configure
-  ansible.builtin.include_tasks: create_wg_connection.yml
-  loop:
-    - name: Proxy
-      ifname: proxy
+    - name: Lab
+      ifname: lab
       autoconnect: no
-      private_key: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/Proxy/Private-Key') }}"
-      addresses: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/Proxy/Local-IPs') }}"
-      peer_public_key: "{{ lookup('community.general.passwordstore', 'Network/Proxy-VPN/Public-Key') }}"
-      peer_endpoint: "{{ lookup('community.general.passwordstore', 'Network/Proxy-VPN/Endpoint') }}"
-      peer_allowed_ips: 0.0.0.0/0,::0/0
-
-    - name: VPN
-      ifname: vpn
-      autoconnect: yes
       private_key: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Private-Key') }}"
       addresses: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Local-IPs') }}"
-      peer_public_key: "{{ lookup('community.general.passwordstore', 'Network/VPN/Public-Key') }}"
-      peer_endpoint: "{{ lookup('community.general.passwordstore', 'Network/VPN/Endpoint') }}"
-      peer_allowed_ips: "{{ lookup('community.general.passwordstore', 'Network/VPN/CIDR') }}"
+      dns: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/DNS') }}"
+      dns_search: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/DNS-Search-Domain') }}"
+      peer_public_key: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Endpoint-Public-Key') }}"
+      peer_endpoint: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Endpoint') }}"
+      peer_psk: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/PSK') }}"
+      peer_allowed_ips: 192.168.0.0/16;
+
+    - name: Lab-Tunnel
+      ifname: lab-tunnel
+      autoconnect: no
+      private_key: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Private-Key') }}"
+      addresses: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Local-IPs') }}"
+      dns: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/DNS') }}"
+      dns_search: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/DNS-Search-Domain') }}"
+      peer_public_key: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Endpoint-Public-Key') }}"
+      peer_endpoint: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/Endpoint') }}"
+      peer_psk: "{{ lookup('community.general.passwordstore', 'PC-Config/' + secrets_base_dir + '/VPN/PSK') }}"
+      peer_allowed_ips: 0.0.0.0/0;
+
+- name: reload NetworkManager when needed
+  become: true
+  when: configure_connections.changed
+  ansible.builtin.systemd:
+    name: NetworkManager
+    state: restarted

@@ -1,5 +1,4 @@
 ---
 - import_tasks: install_packages.yml
-- import_tasks: configure_syncthing.yml
-# - import_tasks: setup_gpg.yml
 - import_tasks: configure_u2f_login.yml
+- import_tasks: setup_gpg.yml

@@ -1,0 +1,12 @@
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Keeping the last cache and currently package...
+When = PostTransaction
+Depends = pacman-contrib
+Exec = /usr/bin/paccache --remove --keep 2 --cachedir {{ home_path }}/.cache/pikaur/pkg

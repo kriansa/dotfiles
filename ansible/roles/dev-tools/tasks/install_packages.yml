@@ -48,9 +48,7 @@
       # DevOps tools
       - aws-cli
       - ansible
-      - sshpass
       - terraform
-      - python-dotenv
       - kubectl
       - kubectx
       - helm
@@ -58,10 +56,17 @@
       # Golang dev
       - go
 
-      # ---------------------
-      # Packages on AUR/pacom
-
-      # Common development SDKs
+- name: install development packages (AUR)
+  become: true
+  become_user: "{{ user_name }}"
+  aur:
+    name:
       - asdf-vm
       - ansible-bundler
       - concourse-fly-cli
+      - heroku-cli-bin
+      - postman-bin
+
+      # Kubernetes
+      - openlens-bin
+      - kfilt-bin

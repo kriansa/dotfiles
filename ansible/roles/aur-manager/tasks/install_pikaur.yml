@@ -1,0 +1,56 @@
+---
+- name: check if pikaur is installed
+  ansible.builtin.package_facts:
+    manager: pacman
+
+- name: install pikaur
+  when: "'pikaur' not in ansible_facts.packages"
+  block:
+    - name: create a temp folder to build pikaur
+      become: true
+      ansible.builtin.file: path=/tmp/pikaur state=directory mode=0755 owner={{ user_name }} group={{ user_name }}
+
+    - name: download and extract pikaur from aur
+      become: true
+      become_user: "{{ user_name }}"
+      ansible.builtin.unarchive:
+        remote_src: yes
+        src: https://aur.archlinux.org/cgit/aur.git/snapshot/pikaur.tar.gz
+        dest: /tmp
+
+    - name: build and install pikaur
+      become: true
+      become_user: "{{ user_name }}"
+      ansible.builtin.command: makepkg --noconfirm --noprogressbar --nocolor --force --syncdeps --install
+      args:
+        chdir: /tmp/pikaur
+
+    - name: remove temp folder with pikaur build
+      become: true
+      become_user: "{{ user_name }}"
+      ansible.builtin.file: path=/tmp/pikaur state=absent
+
+- name: add pacman hook to cleanup the cache
+  become: true
+  ansible.builtin.template:
+    src: files/pikaur-cache-cleanup.hook
+    dest: /etc/pacman.d/hooks/pikaur-cache-cleanup.hook
+
+- name: create pikaur home
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.file: path="{{ home_path }}/.local/share/pikaur" state=directory mode=0755
+
+- name: create gnupg home for pikaur
+  become: true
+  become_user: "{{ user_name }}"
+  register: gpg_path
+  ansible.builtin.file: path="{{ home_path }}/.local/share/pikaur/gnupg" state=directory mode=0755
+
+- name: initialize gpg if gnupg is not existent
+  become: true
+  become_user: "{{ user_name }}"
+  when: gpg_path.changed
+  ansible.builtin.command: gpg --list-keys
+  environment:
+    GNUPGHOME: "{{ home_path }}/.local/share/pikaur/gnupg"

@@ -1,3 +1,2 @@
 ---
 - import_tasks: setup_network.yml
-- import_tasks: setup_network_drive.yml

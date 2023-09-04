@@ -1,6 +1,6 @@
 ---
 # Hostname of this machine
-hostname: Arch-Home.lan.cx
+hostname: daniel-desktop.lan.cx
 
 # The username we want to create
 user_name: dpereira

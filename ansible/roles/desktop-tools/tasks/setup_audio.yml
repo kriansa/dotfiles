@@ -1,0 +1,17 @@
+---
+- name: install audio stuff
+  become: true
+  community.general.pacman:
+    name:
+      # This will enable pipewire and pipewire-pulse systemd user services automatically
+      - pipewire
+      - pipewire-pulse
+      - realtime-privileges
+      - wireplumber
+      # Mixer/volume control apps
+      - pavucontrol
+      - helvum
+
+- name: add my user to the realtime group
+  become: true
+  ansible.builtin.user: name={{ user_name }} groups=realtime append=yes

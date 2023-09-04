@@ -1,13 +1,17 @@
 ---
 - hosts: all
-
   roles:
     - role: 1-common-handlers
     - role: base-arch
     - role: systemd-boot
-    - role: gnome
-    - role: desktop-tools
+    - role: aur-manager
+    - role: dev-tools
     - role: borgmatic
     - role: yubikey
-    - role: dev-tools
-    - role: dotfiles
+
+    # NOT validated
+    # - role: syncthing
+
+    - role: network
+    - role: gnome
+    - role: desktop-tools # TODO: setup Firefox and Ananicy

@@ -3,5 +3,5 @@
   become: true
   ansible.builtin.lineinfile:
     path: /etc/pam.d/system-auth
-    line: auth       sufficient                  pam_u2f.so cue origin=pam://dpereira
+    line: auth       sufficient                  pam_u2f.so cue origin=pam://{{ user_name }}
     insertafter: auth       required                    pam_faillock.so      preauth

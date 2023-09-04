@@ -4,12 +4,11 @@
 - import_tasks: install_base_packages.yml
 - import_tasks: add_i2c_to_nonroot.yml
 - import_tasks: add_user.yml
-- import_tasks: install_pacom.yml
 - import_tasks: enable_basic_services.yml
 - import_tasks: allow_mounting_partitions.yml
 - import_tasks: configure_journal.yml
+- import_tasks: performance_tweaks.yml
 - import_tasks: install_nvidia.yml
   when: install_nvidia_drivers == true
-- import_tasks: performance_tweaks.yml
 - import_tasks: install_intel_gpu.yml
   when: install_intel_drivers == true

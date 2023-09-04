@@ -1,6 +1,4 @@
 [User]
-Language=en_US.UTF-8
-Session=gnome
-XSession=gnome
+Session=
 Icon=/usr/share/pixmaps/faces/cat.jpg
 SystemAccount=false

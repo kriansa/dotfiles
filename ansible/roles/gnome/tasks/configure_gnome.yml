@@ -1,31 +1,4 @@
 ---
-  # Disable Wayland on proprietary Nvidia drivers
-  # See: https://bugs.archlinux.org/task/53284
-- name: disable Wayland on GDM
-  become: true
-  ansible.builtin.lineinfile:
-    path: /etc/gdm/custom.conf
-    line: "WaylandEnable=false"
-    regexp: "#?WaylandEnable=false"
-
-- name: scale gnome to hidpi monitor
-  become: true
-  become_user: "{{ item }}"
-  ansible.builtin.command: dbus-launch gsettings set org.gnome.desktop.interface scaling-factor 2
-  when: use_hidpi == true
-  loop:
-    - "{{ user_name }}"
-    - gdm
-
-- name: scale fonts out when not using hidpi
-  become: true
-  become_user: "{{ item }}"
-  ansible.builtin.command: dbus-launch gsettings set org.gnome.desktop.interface text-scaling-factor 1.10
-  when: use_hidpi == false
-  loop:
-    - "{{ user_name }}"
-    - gdm
-
 - name: set default user settings
   become: true
   ansible.builtin.copy:
@@ -33,7 +6,35 @@
     dest: /var/lib/AccountsService/users/{{ user_name }}
     mode: "0644"
 
-- name: synchronize user password changes for gnome-keyring
+- name: import gnome settings
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.command:
+    cmd: dbus-launch dconf load /
+    stdin: "{{ lookup('ansible.builtin.template', 'files/settings.dconf.j2') }}"
+
+- name: create automatic dconf systemd service
+  become: true
+  become_user: "{{ user_name }}"
+  register: dconf_auto_dumper
+  ansible.builtin.copy:
+    dest: "{{ home_path }}/.config/systemd/user/gnome-auto-dconf-dump.{{ item }}"
+    src: "gnome-auto-dconf-dump.{{ item }}"
+  loop:
+    - service
+    - timer
+
+- name: enable and start automatic dconf systemd service
+  become: true
+  become_user: "{{ user_name }}"
+  when: dconf_auto_dumper.changed
+  ansible.builtin.systemd:
+    name: gnome-auto-dconf-dump.timer
+    daemon_reload: yes
+    scope: user
+    enabled: yes
+
+- name: synchronize user password changes for gnome-keyring (bugfix)
   become: true
   ansible.builtin.lineinfile:
     path: /etc/pam.d/passwd

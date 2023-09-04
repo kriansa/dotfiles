@@ -10,6 +10,14 @@
   when: dualboot_windows == true
   ansible.builtin.copy: src=windows.conf dest=/boot/loader/entries/windows.conf mode=0644
 
+# TODO: ensure windows works
+- name: install edk2-shell to support windows in separate partitions
+  become: true
+  when: dualboot_windows == true and windows_efi != "/EFI/Microsoft/Boot/bootmgfw.efi"
+  ansible.builtin.pacman:
+    name: edk2-shell
+    state: present
+
 - name: copy loader defaults
   become: true
   ansible.builtin.template: src=loader.conf.j2 dest=/boot/loader/loader.conf mode=0644

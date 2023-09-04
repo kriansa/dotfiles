@@ -11,7 +11,7 @@ main() {
     run "Update casks" "brew upgrade --cask --greedy"
   else
     run "Update system packages" "sudo pacman -Syu"
-    run "Update AUR packages" "pacom upgrade -a"
+    run "Update AUR packages" "pikaur -Sayu"
   fi
 
   run "Update Ruby and its global packages" "update-ruby"

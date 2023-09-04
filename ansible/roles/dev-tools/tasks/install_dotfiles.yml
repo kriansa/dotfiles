@@ -2,38 +2,46 @@
 - ansible.builtin.stat: path="{{ dotfiles_path }}"
   register: dotfiles_exist
 
-- name: download dotfiles
-  become: true
-  become_user: "{{ user_name }}"
-  when: dotfiles_exist.stat.exists == false
-  ansible.builtin.git:
-    repo: https://github.com/kriansa/dotfiles.git
-    dest: "{{ dotfiles_path }}"
-    update: no
+- when: dotfiles_exist.stat.exists == false
+  block:
+    - name: download dotfiles
+      become: true
+      become_user: "{{ user_name }}"
+      ansible.builtin.git:
+        repo: https://github.com/kriansa/dotfiles.git
+        dest: "{{ dotfiles_path }}"
+        update: no
 
-- name: update dotfiles remote to use SSH instead of HTTPS
-  become: true
-  become_user: "{{ user_name }}"
-  ansible.builtin.command: git remote set-url origin git@github.com:kriansa/dotfiles.git
-  args:
-    chdir: "{{ dotfiles_path }}"
+    - name: update dotfiles remote to use SSH instead of HTTPS
+      become: true
+      become_user: "{{ user_name }}"
+      ansible.builtin.command: git remote set-url origin git@github.com:kriansa/dotfiles.git
+      args:
+        chdir: "{{ dotfiles_path }}"
 
-- name: remove fish files if they exist before running dotup
-  become: true
-  become_user: "{{ user_name }}"
-  ansible.builtin.file:
-    path: "{{ home_path }}/.config/fish"
-    state: absent
-  loop:
-    - .config/fish
-    - .gnupg/sshcontrol
+    - name: remove fish files if they exist before running dotup
+      become: true
+      become_user: "{{ user_name }}"
+      ansible.builtin.file:
+        path: "{{ home_path }}/.config/fish"
+        state: absent
+      loop:
+        - .config/fish
+        - .gnupg/sshcontrol
 
-- name: execute dotup
-  become: true
-  become_user: "{{ user_name }}"
-  ansible.builtin.command:
-    chdir: "{{ dotfiles_path }}"
-    cmd: bin/dotup
+    - name: set the dotup scope
+      become: true
+      become_user: "{{ user_name }}"
+      ansible.builtin.copy:
+        dest: "{{ dotfiles_path }}/.dotup-scopes"
+        content: "{{ dotup_scopes }}"
 
-- ansible.builtin.debug: msg="After this setup, please run `update-system`"
-- ansible.builtin.debug: msg="After this setup, please import your latest backup!"
+    - name: execute dotup
+      become: true
+      become_user: "{{ user_name }}"
+      ansible.builtin.command:
+        chdir: "{{ dotfiles_path }}"
+        cmd: bin/dotup
+
+    - ansible.builtin.debug: msg="After this setup, please run `update-system`"
+    - ansible.builtin.debug: msg="After this setup, please import your latest backup!"

@@ -8,6 +8,12 @@
       # Disable loading watchdog modules as they aren't necessary in laptop/desktop configurations
       blacklist iTCO_wdt
 
+- name: create /etc/modules-load.d directory
+  become: true
+  ansible.builtin.file:
+    dest: /etc/modules.load.d
+    state: directory
+
 - name: load kyber to use as the default scheduler for nvme/ssds
   become: true
   ansible.builtin.copy:

@@ -1,0 +1,7 @@
+[Unit]
+Description=Automatically dump dconf settings
+
+[Service]
+Type=oneshot
+RemainAfterExit=false
+ExecStart=%h/.dotfiles/modules/gnome/libexec/settings-dump

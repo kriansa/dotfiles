@@ -1,8 +1,4 @@
 ---
-- name: create /etc/pacman.d/hooks directory
-  become: true
-  ansible.builtin.file: path=/etc/pacman.d/hooks state=directory mode=0755
-
 - name: update system
   become: true
   community.general.pacman:
@@ -17,12 +13,13 @@
       - linux
       - linux-lts
       - base-devel
+      - acpid
+      - man-db
       - nftables
       - wireguard-tools
       - usbutils
       - sudo
       - avahi
-      - pulseaudio
       - wget
       - openbsd-netcat
       - openssh
@@ -43,6 +40,7 @@
       - zip
       - hdparm
       - lsof
+      - less
       - ldns         # for drill tool (dig with DNSSEC)
 
 # no downtime on kernel updates

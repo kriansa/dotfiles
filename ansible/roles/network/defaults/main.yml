@@ -2,14 +2,13 @@
 # The user we're installing to
 # Should be the same set at base-arch's role
 user_name: dpereira
-
-# Default paths
 home_path: /home/{{ user_name }}
 
 # Whether or not to setup wi-fi
 configure_wifi: no
 wifi_device: wlp0s20f3
-eth_device: enp5s0
+wifi_hidden: yes
+eth_device: enp9s0
 
 # Specific path when looking for secrets for this machine specifically
 secrets_base_dir: Desktop

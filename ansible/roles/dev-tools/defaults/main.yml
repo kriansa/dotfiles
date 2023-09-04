@@ -6,3 +6,6 @@ user_name: dpereira
 # Set common paths
 home_path: /home/{{ user_name }}
 dotfiles_path: /home/{{ user_name }}/.dotfiles
+
+# Set the dotup scope
+dotup_scopes: desktop
