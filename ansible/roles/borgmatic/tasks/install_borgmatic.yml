@@ -1,0 +1,31 @@
+---
+- name: install borgmatic
+  become: true
+  community.general.pacman:
+    state: present
+    name:
+      - borgmatic
+      - python-llfuse # optional: for mount action
+
+- name: link right borgmatic config
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.file:
+    src: "{{ dotfiles_path }}/modules/borgmatic/include/.config/borgmatic/{{ config_file_suffix }}.yaml"
+    dest: "{{ dotfiles_path }}/modules/borgmatic/include/.config/borgmatic/config.yaml"
+    state: link
+    force: yes
+
+- name: create systemd timer for borgmatic
+  notify: reload systemd
+  become: true
+  ansible.builtin.copy: src=borgmatic.timer dest=/etc/systemd/system/borgmatic.timer
+
+- name: create systemd service for borgmatic
+  notify: reload systemd
+  become: true
+  ansible.builtin.template: src=files/borgmatic.service dest=/etc/systemd/system/borgmatic.service
+
+- name: enable systemd timer for borgmatic
+  become: true
+  ansible.builtin.systemd: state=started enabled=yes name=borgmatic.timer

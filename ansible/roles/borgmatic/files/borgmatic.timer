@@ -3,7 +3,8 @@ Description=Run borgmatic backup on a daily basis
 
 [Timer]
 RandomizedDelaySec=120
-OnCalendar=*-*-* 21:00:00
+OnCalendar=*-*-* 20:00:00
+OnCalendar=*-*-* 08:00:00
 Persistent=true
 
 [Install]

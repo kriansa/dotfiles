@@ -1,8 +1,0 @@
----
-# The user we're installing to
-# Should be the same set at base-arch's role
-user_name: dpereira
-home_path: /home/{{ user_name }}
-
-# For all machine-dependent config files, append this suffix to determine which one to use
-config_file_suffix: desktop

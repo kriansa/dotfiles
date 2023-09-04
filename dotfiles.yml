@@ -8,7 +8,6 @@ modules:
   - python
   - borgmatic
   - devops
-  - yubikey
   - vlc
   - git
   - ruby
@@ -25,8 +24,6 @@ modules:
   - { name: arch-btw, scopes: desktop }
   - { name: alacritty-linux, scopes: desktop }
   - { name: gnupg, scopes: desktop }
-  - { name: transmission-remote, scopes: desktop }
-  - { name: rapid-photo-downloader, scopes: desktop }
   - { name: psi-notify, scopes: desktop }
   - { name: fontconfig, scopes: desktop }
   # - { name: twm-x11, scopes: desktop }

@@ -44,6 +44,7 @@
         Identifier   "nvidia-gpu"
         Driver       "nvidia"
         VendorName   "NVIDIA Corporation"
+        BusID        "PCI:1:0:0"
         Option       "ConnectToAcpid" "0"
         Option       "SidebandSocketPath" "/run/nvidia-xdriver"
       EndSection

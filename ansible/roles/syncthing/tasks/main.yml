@@ -1,3 +1,0 @@
----
-- import_tasks: setup_network_drive.yml
-- import_tasks: restore_data.yml

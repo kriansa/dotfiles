@@ -7,3 +7,8 @@ dotfiles_path: /home/{{ user_name }}/.dotfiles
 
 # For all machine-dependent config files, append this suffix to determine which one to use
 config_file_suffix: desktop
+
+# Network shares for my user
+shared_drive:
+  media_location: //nas.lan.cx/media
+  drive_location: nas.lan.cx:/mnt/pool1/Daniel/Unix

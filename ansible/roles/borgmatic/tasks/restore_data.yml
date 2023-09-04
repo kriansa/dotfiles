@@ -1,0 +1,39 @@
+---
+- name: extract data out of existing backup
+  become: true
+  ansible.builtin.command:
+  debug:
+    path: "{{ home_path }}"
+    cmd: >
+      borgmatic extract -c "{{ home_path }}/.config/borgmatic/config.yaml"
+      --archive latest {% for path in paths %} --path "home/{{ user_name }}/{{ path }}"{% endfor %}
+  vars:
+    paths:
+      # Personal data
+      - Documents
+      - Downloads
+      - ProgramasRFB
+      - Projects
+
+      # Secrets
+      - .aws
+      - .config/gh
+      - .gnupg/pubring.kbx
+      - .gnupg/tofu.db
+      - .gnupg/trustdb.gpg
+      - .local/share/backgrounds
+      - .local/share/keyrings
+      - .password-store
+      - .ssh
+      - .kube
+
+      # Application states/configs
+      - .local/share/DBeaverData
+      - .local/share/zathura
+      - .local/share/qalculate
+      - .local/share/pikaur
+      - .local/share/fish
+      - .config/transmission-remote-gtk
+      - .config/obs-studio
+      - .config/Rapid Photo Downloader
+      - .local/share/rapid-photo-downloader

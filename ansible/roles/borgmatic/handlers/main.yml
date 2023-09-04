@@ -1,0 +1,4 @@
+---
+- name: mount drives from fstab
+  become: true
+  ansible.builtin.command: mount -a

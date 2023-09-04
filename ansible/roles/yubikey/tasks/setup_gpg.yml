@@ -1,9 +1,20 @@
 ---
 - name: verify yubikey
+  tags: interactive
   ansible.builtin.pause:
-    prompt: Please, insert your YubiKey, then press enter to continue
+    prompt: Please, insert your YubiKey, then press enter to continue (you have 30 seconds)
+    seconds: 30
 
 - name: ack private gpg from the card
+  tags: interactive
   become: true
   become_user: "{{ user_name }}"
   ansible.builtin.command: gpg --card-status
+  ignore_errors: yes
+
+- name: ack private gpg from the card (touch your yubikey flashing)
+  tags: interactive
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.shell: pamu2fcfg --origin=pam://{{ user_name }} > ~/.config/Yubico/u2f_keys
+  ignore_errors: yes

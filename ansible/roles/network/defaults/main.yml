@@ -12,8 +12,3 @@ eth_device: enp9s0
 
 # Specific path when looking for secrets for this machine specifically
 secrets_base_dir: Desktop
-
-# Network shares for my user
-shared_drive:
-  media_location: //nas.lan.cx/media
-  drive_location: nas.lan.cx:/mnt/pool1/Daniel/Unix

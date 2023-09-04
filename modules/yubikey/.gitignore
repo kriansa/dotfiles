@@ -1,3 +1,0 @@
-# Ignore application config files that aren't useful to kept being tracked
-include/.config/Yubico/YKPersonalization.conf
-include/.config/Yubico/YubiKey Manager.conf
