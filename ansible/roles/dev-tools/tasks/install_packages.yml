@@ -27,7 +27,7 @@
       - bat
       - git-delta
       - fd
-      - exa
+      - eza
       - vivid
       - ripgrep
       - cowsay

@@ -8,6 +8,9 @@ dotfiles_path: /home/{{ user_name }}/.dotfiles
 # For all machine-dependent config files, append this suffix to determine which one to use
 config_file_suffix: desktop
 
+# Whether or not to restore data (usually only useful for bootstrap)
+restore_data: no
+
 # Network shares for my user
 shared_drive:
   media_location: //nas.lan.cx/media

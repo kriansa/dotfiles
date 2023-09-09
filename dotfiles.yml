@@ -26,9 +26,7 @@ modules:
   - { name: gnupg, scopes: desktop }
   - { name: psi-notify, scopes: desktop }
   - { name: fontconfig, scopes: desktop }
-  # - { name: twm-x11, scopes: desktop }
   - { name: gnome, scopes: desktop }
-  - { name: gtk, scopes: desktop }
 
   # Only for Work
   - { name: homebrew, scopes: work }

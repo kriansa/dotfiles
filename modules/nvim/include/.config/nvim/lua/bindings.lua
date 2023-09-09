@@ -130,18 +130,20 @@ vim.keymap.set({"x", "o"}, "Z", "<Plug>(leap-backward-till)", { silent = true, d
 
 -- lir
 nmap("-", "<cmd>lua require('lir.float').toggle()<CR>")
-local lir_actions = require('lir.actions')
-mappings.lir = {
-  ['o']     = lir_actions.edit,
-  ['<CR>']  = lir_actions.edit,
-  ['l']     = lir_actions.edit,
-  ['h']     = lir_actions.up,
-  ['q']     = lir_actions.quit,
+mappings.lir = function()
+  local lir_actions = require('lir.actions')
+  return {
+    ['o']     = lir_actions.edit,
+    ['<CR>']  = lir_actions.edit,
+    ['l']     = lir_actions.edit,
+    ['h']     = lir_actions.up,
+    ['q']     = lir_actions.quit,
 
-  ['r']     = lir_actions.rename,
-  ['d']     = lir_actions.delete,
-  ['gy']    = lir_actions.yank_path,
-}
+    ['r']     = lir_actions.rename,
+    ['d']     = lir_actions.delete,
+    ['gy']    = lir_actions.yank_path,
+  }
+end
 
 -- Nvim-tree
 nmap("\\", "<cmd>NvimTreeFindFileToggle<CR>")
@@ -202,13 +204,19 @@ mappings.nvim_tree = function(bufnr)
 end
 
 -- Cmp (autocompletion)
-local cmp = require('cmp')
-mappings.cmp_insert = cmp.mapping.preset.insert({
-  ['<CR>'] = cmp.mapping.confirm({ select = false }),
-})
-mappings.cmp_cmdline = cmp.mapping.preset.cmdline({
-  ['<CR>'] = cmp.mapping.confirm({ select = false }),
-})
+mappings.cmp_insert = function()
+  local cmp = package.loaded.cmp
+  return cmp.mapping.preset.insert({
+    ['<CR>'] = cmp.mapping.confirm({ select = false }),
+  })
+end
+
+mappings.cmp_cmdline = function()
+  local cmp = package.loaded.cmp
+  return cmp.mapping.preset.cmdline({
+    ['<CR>'] = cmp.mapping.confirm({ select = false }),
+  })
+end
 
 -- Gitsigns
 mappings.gitsigns = function(bufnr)
@@ -235,9 +243,9 @@ mappings.gitsigns = function(bufnr)
 
   -- Actions
   map('n', '<leader>hs', gs.stage_hunk)
-  map('n', '<leader>hr', gs.reset_hunk)
+  map('n', '<leader>hu', gs.reset_hunk)
   map('v', '<leader>hs', function() gs.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
-  map('v', '<leader>hr', function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+  map('v', '<leader>hu', function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
   map('n', '<leader>hp', gs.preview_hunk)
 
   -- This has very similar behavior as `hp` above

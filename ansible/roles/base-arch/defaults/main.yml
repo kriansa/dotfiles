@@ -26,6 +26,9 @@ install_intel_drivers: false
 
 # Install nvidia
 install_nvidia_drivers: true
+# See: https://www.x.org/releases/X11R7.7/doc/man/man5/xorg.conf.5.xhtml
+# Get this info by running lspci
+nvidia_bus_id: PCI:1:0:0
 
 # Enable bluetooth?
 enable_bluetooth: false

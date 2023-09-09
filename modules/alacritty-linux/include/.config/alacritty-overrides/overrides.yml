@@ -5,7 +5,7 @@ window:
 font:
   normal:
     family: Iosevka Term
-  size: 17
+  size: 14
 
 key_bindings:
   # Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map

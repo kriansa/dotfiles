@@ -1,0 +1,9 @@
+---
+- name: configure apple keyboards to use function mode first
+  become: true
+  notify: rebuild initramfs
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/hid_apple.conf
+    content: |
+      # Ensure that Apple keyboards (including Keychron) have my preferred Fn keys behavior
+      options hid_apple fnmode=1

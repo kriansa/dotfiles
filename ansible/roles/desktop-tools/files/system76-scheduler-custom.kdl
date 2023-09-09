@@ -1,0 +1,10 @@
+assignments {
+	desktop-environment {
+		kwin_x11
+		kwin_wayland
+	}
+
+	package-manager {
+		pacman
+	}
+}

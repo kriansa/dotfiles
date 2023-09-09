@@ -8,6 +8,7 @@
 - import_tasks: allow_mounting_partitions.yml
 - import_tasks: configure_journal.yml
 - import_tasks: performance_tweaks.yml
+- import_tasks: configure_keychron_k3.yml
 - import_tasks: install_nvidia.yml
   when: install_nvidia_drivers == true
 - import_tasks: install_intel_gpu.yml

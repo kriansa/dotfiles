@@ -51,7 +51,7 @@ return function(use)
       local cmp = require('cmp')
 
       cmp.setup({
-        mapping = mappings.cmp_insert,
+        mapping = mappings.cmp_insert(),
         snippet = {
           expand = function(args)
             require('snippy').expand_snippet(args.body)
@@ -66,7 +66,7 @@ return function(use)
       })
 
       cmp.setup.cmdline(':', {
-        mapping = mappings.cmp_cmdline,
+        mapping = mappings.cmp_cmdline(),
         sources = cmp.config.sources({
           { name = 'path' },
           { name = 'cmdline' },

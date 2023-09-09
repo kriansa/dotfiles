@@ -17,7 +17,6 @@ cpu_brand: amd
 
 # Are we using windows?
 dualboot_windows: yes
-windows_efi: /EFI/Microsoft/Boot/bootmgfw.efi
 
 # What's the default OS we want to boot to
 default_loader: "@saved"

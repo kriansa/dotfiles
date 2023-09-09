@@ -10,7 +10,7 @@ return function(use)
           enable = false,
           highlight_dirname = false
         },
-        mappings = mappings.lir,
+        mappings = mappings.lir(),
         float = {
           winblend = 0,
           curdir_window = {

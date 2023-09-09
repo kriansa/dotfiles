@@ -1,5 +1,5 @@
 ---
-- ansible.builtin.stat: path="{{ dotfiles_path }}"
+- ansible.builtin.stat: path={{ dotfiles_path }}
   register: dotfiles_exist
 
 - when: dotfiles_exist.stat.exists == false
@@ -19,11 +19,21 @@
       args:
         chdir: "{{ dotfiles_path }}"
 
-    - name: remove fish files if they exist before running dotup
+    # gpg requires an absolute path and therefore it needs to be manually symlinked
+    # See: https://dev.gnupg.org/T4588
+    - name: symlink pinentry-gui to /usr/local/bin
+      become: true
+      ansible.builtin.file:
+        src: "{{ home_path }}/.bin/pinentry-gui"
+        dest: /usr/local/bin/pinentry-gui
+        state: link
+        force: true
+
+    - name: remove state files if they exist before running dotup
       become: true
       become_user: "{{ user_name }}"
       ansible.builtin.file:
-        path: "{{ home_path }}/.config/fish"
+        path: "{{ home_path }}/{{ item }}"
         state: absent
       loop:
         - .config/fish

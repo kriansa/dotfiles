@@ -39,6 +39,9 @@
       # Printer drivers
       - cups
 
+      # Scheduler
+      - system76-scheduler
+
       # Tools
       - qalculate-gtk
       - flameshot
@@ -83,18 +86,27 @@
       - ttf-gelasio-ib
       - ttf-comic-neue
 
+      # psi-notify
+      - psi-notify
+
 - name: reload font cache
   become: true
   become_user: "{{ user_name }}"
   when: common_desktop_packages.changed or aur_packages.changed
   ansible.builtin.command: fc-cache -fv
 
-# TODO: Install ananicy or equivalent such as system76-scheduler
-# - name: install psi-notify
-#   become: true
-#   community.general.pacman: name=psi-notify
-#
-# - name: start and enable psi-notify at boot time
-#   become: true
-#   become_user: "{{ user_name }}"
-#   ansible.builtin.systemd: name=psi-notify enabled=true state=started scope=user
+- name: setup system76-scheduler
+  become: true
+  notify: restart system76-scheduler
+  ansible.builtin.copy:
+    dest: /etc/system76-scheduler/process-scheduler/custom.kdl
+    src: system76-scheduler-custom.kdl
+
+- name: start and enable system76-scheduler at boot time
+  become: true
+  ansible.builtin.systemd: name=com.system76.Scheduler enabled=yes state=started
+
+- name: start and enable psi-notify at boot time
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.systemd: name=psi-notify enabled=yes state=started scope=user

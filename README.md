@@ -9,20 +9,17 @@ I'm doing my machines bootstrapping using [Ansible](https://www.ansible.com/).
 
 ## Available machines
 
-* [Desktop](doc/desktop-install.md)
-* [Laptop](doc/laptop-install.md)
+* [Desktop/Laptop](doc/arch-install.md)
 * [MacOS](doc/macos-install.md)
 
 ## Installation
 
-1. Clone this project to `~/.dotfiles`
+1. Clone this project to `~/.dotfiles`:
+  ```shell
+  $ git clone git@github.com:kriansa/dotfiles.git ~/.dotfiles
+  ```
 
-```shell
-$ git clone git@github.com:kriansa/dotfiles.git ~/.dotfiles
-```
-
-2. Run `bin/setup`
-3. Run `sudo ln -s $(which pinentry-gui) /usr/local/bin`
+2. Run `cd .dotfiles && bin/dotup`
 
 ## Docs
 

@@ -5,18 +5,14 @@
   args:
     creates: /boot/EFI/systemd/systemd-bootx64.efi
 
-- name: copy windows entry file to EFI partition
+- name: set EFI boot to windows located at the same EFI disk
   become: true
   when: dualboot_windows == true
-  ansible.builtin.copy: src=windows.conf dest=/boot/loader/entries/windows.conf mode=0644
-
-# TODO: ensure windows works
-- name: install edk2-shell to support windows in separate partitions
-  become: true
-  when: dualboot_windows == true and windows_efi != "/EFI/Microsoft/Boot/bootmgfw.efi"
-  ansible.builtin.pacman:
-    name: edk2-shell
-    state: present
+  ansible.builtin.copy:
+    dest: /boot/loader/entries/windows.conf
+    content: |
+      title Windows
+      efi   /EFI/Microsoft/Boot/bootmgfw.efi
 
 - name: copy loader defaults
   become: true

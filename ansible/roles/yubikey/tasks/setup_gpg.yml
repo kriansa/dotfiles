@@ -12,6 +12,14 @@
   ansible.builtin.command: gpg --card-status
   ignore_errors: yes
 
+- name: create ~/.config/Yubico folder
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.file:
+    mode: "0700"
+    dest: "{{ home_path }}/.config/Yubico"
+    state: directory
+
 - name: ack private gpg from the card (touch your yubikey flashing)
   tags: interactive
   become: true

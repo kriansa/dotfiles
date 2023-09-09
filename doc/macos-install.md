@@ -13,6 +13,12 @@ Add the following file content to `/etc/paths.d/homebrew`:
 /opt/homebrew/sbin
 ```
 
+## Link pinentry-gui to /usr/local/bin
+
+```
+sudo ln -s $(which pinentry-gui) /usr/local/bin
+```
+
 ## Install packages
 
 brew install --cask 1password alacritty coretto font-iosevka-nerd-font \

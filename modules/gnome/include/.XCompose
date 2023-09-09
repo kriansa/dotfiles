@@ -1,0 +1,6 @@
+# Include system-wide compose keys
+include "%L"
+
+# Overrides C acute with Ccedilla:
+<dead_acute> <C> 			: "Ç"
+<dead_acute> <c> 			: "ç"
