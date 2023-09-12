@@ -26,13 +26,16 @@ end
 local function tnoremap(lhs, rhs, opts)
   return tmap(lhs, rhs, { noremap = true })
 end
+local function vnoremap(lhs, rhs, opts)
+  return vmap(lhs, rhs, { noremap = true })
+end
+
+-- Declare all global variables in Lua that are needed for other plugins to work
+mappings = {}
 
 -- Leader/local leader
 g.mapleader = [[ ]]
 g.maplocalleader = [[ ]]
-
--- Declare all global variables in Lua that are needed for other plugins to work
-mappings = {}
 
 -- Save a shift press for commands
 nnoremap(';', ':')
@@ -336,3 +339,7 @@ mappings.lsp = function(bufnr)
     vim.notify("Code formatted")
   end, bufopts)
 end
+
+-- Try to get used not typing C-c to exit insert/visual mode
+inoremap('<C-c>', '<Nop>')
+vnoremap('<C-c>', '<Nop>')

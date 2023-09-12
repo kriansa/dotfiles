@@ -18,7 +18,6 @@ modules:
   - javascript
   - asdf
   - golang
-  - zathura
 
   # Only for my Home desktop
   - { name: linux, scopes: desktop }
@@ -28,6 +27,7 @@ modules:
   - { name: psi-notify, scopes: desktop }
   - { name: fontconfig, scopes: desktop }
   - { name: gnome, scopes: desktop }
+  - { name: zathura, scopes: desktop }
 
   # Only for Work
   - { name: homebrew, scopes: work }
