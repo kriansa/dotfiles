@@ -44,7 +44,6 @@
 
       # Tools
       - qalculate-gtk
-      - flameshot
       - zathura
       - zathura-pdf-mupdf
 

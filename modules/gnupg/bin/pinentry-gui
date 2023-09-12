@@ -5,6 +5,8 @@
 
 if test -f /opt/homebrew/bin/pinentry-mac; then
   /opt/homebrew/bin/pinentry-mac "$@" 3<&0
+elif test -f /usr/bin/pinentry-qt; then
+  /usr/bin/pinentry-qt "$@" 3<&0
 elif test -f /usr/bin/pinentry-gnome3; then
   /usr/bin/pinentry-gnome3 "$@" 3<&0
 else
