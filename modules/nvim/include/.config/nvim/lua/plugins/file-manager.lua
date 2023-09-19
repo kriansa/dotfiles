@@ -1,5 +1,5 @@
-return function(use)
-  use {
+return {
+  {
     'tamago324/lir.nvim',
     config = function()
       require('lir').setup({
@@ -36,12 +36,12 @@ return function(use)
         },
       })
     end
-  }
+  },
 
   -- Main tree-view
-  use {
+  {
     'nvim-tree/nvim-tree.lua',
-    requires = { 'nvim-tree/nvim-web-devicons' },
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
     config = function()
       -- Customize colors
 
@@ -92,5 +92,5 @@ return function(use)
         },
       })
     end,
-  }
-end
+  },
+}

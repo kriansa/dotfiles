@@ -1,9 +1,9 @@
-return function(use)
+return {
   -- Telescope
-  use {
+  {
     'nvim-telescope/telescope.nvim',
-    requires = 'nvim-lua/plenary.nvim',
-    after = {
+    dependencies = {
+      'nvim-lua/plenary.nvim',
       'telescope-fzf-native.nvim',
     },
     config = function()
@@ -176,11 +176,11 @@ return function(use)
 
       require('telescope').load_extension('fzf')
     end
-  }
+  },
 
   -- Use same fuzzy finder algorithm as FZF
-  use {
+  {
     'nvim-telescope/telescope-fzf-native.nvim',
-    run = 'make',
-  }
-end
+    build = 'make',
+  },
+}

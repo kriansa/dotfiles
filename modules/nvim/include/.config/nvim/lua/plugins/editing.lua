@@ -1,29 +1,29 @@
-return function(use)
+return {
   -- surrounds
-  use {
+  {
     "kylechui/nvim-surround",
     config = function()
       require("nvim-surround").setup()
     end
-  }
-  use 'tpope/vim-repeat'
+  },
+  { 'tpope/vim-repeat' },
 
   -- Use gS and gJ to break and join multiline statements
-  use 'AndrewRadev/splitjoin.vim'
+  { 'AndrewRadev/splitjoin.vim' },
 
   -- Move to two-character search patterns
-  use 'ggandor/leap.nvim'
-  use {
+  { 'ggandor/leap.nvim' },
+  {
     'ggandor/flit.nvim',
-    requires = { "ggandor/leap.nvim" },
+    dependencies = { "ggandor/leap.nvim" },
     config = function()
       require('flit').setup()
     end,
-  }
+  },
 
-  use {
+  {
     'andymass/vim-matchup',
-    requires = { 'nvim-treesitter/nvim-treesitter' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
       require('nvim-treesitter.configs').setup({
         matchup = {
@@ -39,34 +39,34 @@ return function(use)
       vim.g.matchup_matchparen_deferred_show_delay = 100
       vim.g.matchup_matchparen_offscreen = { method = "status_manual" }
     end
-  }
+  },
 
   -- Commenter
-  use {
+  {
     'numToStr/Comment.nvim',
     config = function()
       require('Comment').setup()
     end
-  }
+  },
 
-  use {
+  {
     'nvim-treesitter/nvim-treesitter',
-    run = ':TSUpdate',
+    build = ':TSUpdate',
     config = function()
-      require 'nvim-treesitter.configs'.setup({
+      require('nvim-treesitter.configs').setup({
         highlight = { enable = true },
         indent = { enable = true },
         incremental_selection = { enable = true },
         textobjects = { enable = true },
       })
     end
-  }
+  },
 
   -- Extend textobjects
   -- This has integration with LSP: https://github.com/nvim-treesitter/nvim-treesitter-textobjects#textobjects-lsp-interop
-  use {
+  {
     "nvim-treesitter/nvim-treesitter-textobjects",
-    requires = { 'nvim-treesitter/nvim-treesitter' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
       require('nvim-treesitter.configs').setup({
         textobjects = {
@@ -110,36 +110,36 @@ return function(use)
         },
       })
     end
-  }
+  },
 
   -- Replace tpope's endwise
   -- See: https://github.com/nvim-treesitter/nvim-treesitter/issues/703
-  use {
+  {
     'RRethy/nvim-treesitter-endwise',
-    requires = { 'nvim-treesitter/nvim-treesitter' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
       require('nvim-treesitter.configs').setup {
         endwise = { enable = true },
       }
     end
-  }
+  },
 
   -- This needs setup to work along with nvim-cmp
-  use {
+  {
     "windwp/nvim-autopairs",
-    requires = { 'nvim-treesitter/nvim-treesitter' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
       require('nvim-autopairs').setup({
         check_ts = true,
         enable_check_bracket_line = false,
       })
     end
-  }
+  },
 
   -- Endwise for html, auto-close html tags
-  use {
+  {
     "windwp/nvim-ts-autotag",
-    requires = { 'nvim-treesitter/nvim-treesitter' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
       require('nvim-treesitter.configs').setup({
         autotag = {
@@ -147,12 +147,12 @@ return function(use)
         }
       })
     end
-  }
+  },
 
   -- Indentation lines
-  use {
+  {
     "lukas-reineke/indent-blankline.nvim",
-    requires = { 'nvim-treesitter/nvim-treesitter' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
       require("indent_blankline").setup({
         show_end_of_line = true,
@@ -160,21 +160,21 @@ return function(use)
         space_char_highlight_list = { 'Whitespace' },
       })
     end
-  }
+  },
 
   -- Markdown
-  use {
+  {
     'iamcco/markdown-preview.nvim',
     ft = "markdown",
-    run = 'cd app && yarn install',
-  }
+    build = 'cd app && yarn install',
+  },
 
   -- CSS/HTML
-  use {
+  {
     'norcalli/nvim-colorizer.lua',
     ft = { 'css', 'javascript', 'vim', 'html', 'vue', 'jsx', 'tsx' },
     config = function()
       require('colorizer').setup({'css', 'javascript', 'vim', 'html', 'vue', 'jsx', 'tsx'})
     end
-  }
-end
+  },
+}

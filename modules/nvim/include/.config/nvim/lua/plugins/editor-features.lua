@@ -1,39 +1,33 @@
-return function(use)
-  -- Packer can manage itself
-  use 'wbthomason/packer.nvim'
-
-  -- Speed up loading Lua modules in Neovim to improve startup time.
-  use 'lewis6991/impatient.nvim'
-
+return {
   -- Automatically set shiftwidt and expandtab
-  use 'tpope/vim-sleuth'
+  { 'tpope/vim-sleuth' },
 
   -- Add file manipulation commands
-  use {
+  {
     'tpope/vim-eunuch',
     cmd = {
-      "Delete", "Delete!", "Unlink", "Unlink!", "Move", "Move!", "Rename", "Rename!", "Chmod",
-      "Mkdir", "Mkdir!", "Cfind", "Cfind!", "Lfind", "Lfind!", "Clocate", "Clocate!", "Llocate",
-      "Llocate!", "SudoEdit", "SudoWrite", "Wall", "W"
+      "Delete", "Unlink", "Move", "Rename", "Chmod",
+      "Mkdir", "Cfind", "Lfind", "Clocate", "Llocate",
+      "SudoEdit", "SudoWrite", "Wall", "W"
     },
-  }
+  },
 
   -- Make loading sessions seamless
-  use "tpope/vim-obsession"
+  { "tpope/vim-obsession" },
 
   -- See contents of registers
-  use {
+  {
     'tversteeg/registers.nvim',
     config = function()
 		  require("registers").setup()
 	  end
-  }
+  },
 
   -- Window management
-  use 'mhinz/vim-sayonara'
-  use 'simeji/winresizer'
-  use 'troydm/zoomwintab.vim'
-  use {
+  { 'mhinz/vim-sayonara' },
+  { 'simeji/winresizer' },
+  { 'troydm/zoomwintab.vim' },
+  {
     "folke/zen-mode.nvim",
     config = function()
       require("zen-mode").setup({
@@ -56,5 +50,5 @@ return function(use)
         end,
       })
     end
-  }
-end
+  },
+}

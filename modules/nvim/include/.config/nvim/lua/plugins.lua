@@ -1,44 +1,36 @@
--- This is the lazy load plugin loader, and is only ever required when we make changes to either of
--- the installed plugins or add a new one. Otherwise this file is never loaded (see init.lua)
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
 
-local packer = nil
-local function init()
-  if packer == nil then
-    -- Bootstrap packer.nvim if it hasn't been installed yet
-    local install_path = vim.fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
-    if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-      packer_bootstrap = vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
-    end
+-- Now load our plugins in a single table
+local plugin_list = {
+  'editor-features',
+  'file-finder',
+  'file-manager',
+  'editing',
+  'completion',
+  'git',
+  'ui',
+}
 
-    vim.cmd([[packadd packer.nvim]])
-    packer = require('packer')
-    packer.init({ disable_commands = true })
-  end
-
-  -- Make sure we unload all required plugins first
-  pcall(function()
-    require('plenary.reload').reload_module('plugins')
-  end)
-
-  packer.reset()
-  local use = packer.use
-
-  -- Require plugins
-  require('plugins.editor-features')(use)
-  require('plugins.file-finder')(use)
-  require('plugins.file-manager')(use)
-  require('plugins.editing')(use)
-  require('plugins.completion')(use)
-  require('plugins.git')(use)
-  require('plugins.ui')(use)
+local plugins_table = {}
+for _, plugin_name in pairs(plugin_list) do
+  loaded_plugin = require("plugins." .. plugin_name)
+  for _, v in pairs(loaded_plugin) do table.insert(plugins_table, v) end
 end
 
--- Create virtually the same exports as require(`packer`): install, update, sync, clean & compile
-local plugins = setmetatable({}, {
-  __index = function(_, key)
-    init()
-    return packer[key]
-  end,
-})
+-- Declare lazy.nvim options
+-- See: https://github.com/folke/lazy.nvim/tree/main#%EF%B8%8F-configuration
+local opts = {}
 
-return plugins
+require("lazy").setup(plugins_table, opts)

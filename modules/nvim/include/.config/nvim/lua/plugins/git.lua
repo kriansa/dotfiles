@@ -1,7 +1,7 @@
-return function(use)
-  use {
+return {
+  {
     'lewis6991/gitsigns.nvim',
-    requires = { 'nvim-lua/plenary.nvim' },
+    dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       require('gitsigns').setup({
         signs = {
@@ -25,24 +25,24 @@ return function(use)
         },
       })
     end
-  }
+  },
 
-  use {
+  {
     "sindrets/diffview.nvim",
     config = function()
       require("diffview").setup({
         use_icons = false,
       })
     end,
-  }
+  },
 
-  use {
+  {
     "NeogitOrg/neogit",
-    requires = { "nvim-lua/plenary.nvim", "sindrets/diffview.nvim" },
+    dependencies = { "nvim-lua/plenary.nvim", "sindrets/diffview.nvim" },
     cmd = "Neogit",
     config = function()
       local neogit = require("neogit")
       neogit.setup({})
     end,
-  }
-end
+  },
+}

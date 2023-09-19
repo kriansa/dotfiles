@@ -1,5 +1,5 @@
-return function(use)
-  use {
+return {
+  {
     "zbirenbaum/copilot.lua",
     cmd = "Copilot",
     event = "InsertEnter",
@@ -39,11 +39,11 @@ return function(use)
         },
       })
     end,
-  }
+  },
 
-  use {
+  {
     'hrsh7th/nvim-cmp',
-    requires = {
+    dependencies = {
       'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'hrsh7th/cmp-path', 'hrsh7th/cmp-cmdline',
       'dcampos/nvim-snippy', 'dcampos/cmp-snippy', 'honza/vim-snippets'
     },
@@ -73,9 +73,9 @@ return function(use)
         })
       })
     end,
-  }
+  },
 
-  use {
+  {
     "folke/which-key.nvim",
     config = function()
       vim.o.timeout = true
@@ -86,11 +86,11 @@ return function(use)
         -- refer to the configuration section below
       })
     end
-  }
+  },
 
-  use {
+  {
     'neovim/nvim-lspconfig',
-    after = 'nvim-cmp',
+    dependencies = { 'hrsh7th/nvim-cmp', 'hrsh7th/cmp-nvim-lsp' },
     config = function()
       -- Set the editor UI for LSP diagnostics
       vim.diagnostic.config({
@@ -182,5 +182,5 @@ return function(use)
         })
       end
     end,
-  }
-end
+  },
+}

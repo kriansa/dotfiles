@@ -1,7 +1,7 @@
-return function(use)
+return {
   -- Theme
-  --  use 'EdenEast/nightfox.nvim'
-  use {
+  --  { 'EdenEast/nightfox.nvim' }
+  {
     'sainnhe/edge',
     config = function()
       vim.cmd([[
@@ -46,14 +46,13 @@ return function(use)
         color edge
       ]])
     end
-  }
+  },
 
   -- Status bar
-  use {
+  {
     'nvim-lualine/lualine.nvim',
     -- We must ensure lualine gets loaded after the theme otherwise it fails to pick up some colors
-    after = { 'edge' },
-    requires = { 'kyazdani42/nvim-web-devicons' },
+    dependencies = { 'sainnhe/edge', 'nvim-tree/nvim-web-devicons' },
     config = function()
       local mode_map = function(str)
         local replacements = {
@@ -138,10 +137,10 @@ return function(use)
         extensions = {'nvim-tree', 'quickfix', 'fugitive', lir_ext},
       })
     end
-  }
+  },
 
   -- Enhance and colorize the experience of qf window
-  use {
+  {
     "https://gitlab.com/yorickpeterse/nvim-pqf",
     config = function()
       require('pqf').setup({
@@ -153,5 +152,5 @@ return function(use)
         }
       })
     end
-  }
-end
+  },
+}
