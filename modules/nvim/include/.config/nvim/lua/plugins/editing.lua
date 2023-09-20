@@ -54,6 +54,14 @@ return {
     build = ':TSUpdate',
     config = function()
       require('nvim-treesitter.configs').setup({
+        ensure_installed = {
+          "awk", "bash", "c", "comment", "cpp", "css", "csv", "diff", "dockerfile", "fish",
+          "git_config", "git_rebase", "gitattributes", "gitcommit", "gitignore", "go", "gomod",
+          "gosum", "html", "ini", "java", "javascript", "jq", "json", "jsonc", "json5", "kotlin",
+          "latex", "lua", "luadoc", "make", "markdown", "markdown_inline", "passwd", "pem",
+          "promql", "python", "ruby", "rust", "sql", "ssh_config", "toml", "tsx", "typescript",
+          "vim", "vue", "yaml", "xml"
+        },
         highlight = { enable = true },
         indent = { enable = true },
         incremental_selection = { enable = true },
