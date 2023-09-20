@@ -86,6 +86,10 @@ return {
             },
             glyphs = {
               symlink = "",
+              folder = {
+                arrow_open = "▾",
+                arrow_closed = "▸",
+              },
             },
           },
           special_files = {},
