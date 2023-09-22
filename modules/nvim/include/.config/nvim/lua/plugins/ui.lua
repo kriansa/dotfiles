@@ -121,7 +121,7 @@ return {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
           lualine_b = { 'branch', { 'diff', source = gitsigns_src } },
           lualine_c = {'filename'},
-          lualine_x = {},
+          lualine_x = {'location'},
           lualine_y = {'bo:filetype', 'diagnostics'},
           lualine_z = {},
         },
@@ -134,7 +134,7 @@ return {
           lualine_z = {},
         },
         tabline = {},
-        extensions = {'nvim-tree', 'quickfix', 'fugitive', lir_ext},
+        extensions = {'nvim-tree', 'quickfix', lir_ext},
       })
     end
   },

@@ -15,6 +15,7 @@ return {
           delete = { hl = 'RedSign', text = '_', numhl = 'GitSignsDeleteNr' },
           topdelete = { hl = 'RedSign', text = '‾', numhl = 'GitSignsDeleteNr' },
           changedelete = { hl = 'RedSign', text = '~', numhl = 'GitSignsChangeNr' },
+          untracked = { hl = 'GreenSign', text = '┆', numhl = 'GitSignsAddNr' },
         },
         on_attach = mappings.gitsigns,
         current_line_blame_opts = {

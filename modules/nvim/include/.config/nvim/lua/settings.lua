@@ -88,14 +88,14 @@ o.showmode = false              -- Disable showing the mode (such as -- INSERT -
 o.swapfile = false              -- Never create swap files
 o.backup = false                -- Disable usage of backup files (~)
 o.writebackup = false           -- Disable creation of backup files
-o.mouse = "a"                   -- Enable the mouse
+o.mouse = "nvi"                 -- Enable the mouse
 o.laststatus = 2                -- Always enable bottom status line
 o.hlsearch = true               -- Enable search highlight
 o.autoread = true               -- Enable auto-read of files edited outside vim
 o.synmaxcol = 300               -- Limit syntax highlighting for long lines
 o.colorcolumn = "+1"            -- Set a width to show a column after texwidth
 o.foldenable = false            -- Disable folding
-o.lazyredraw = true             -- Do not redraw screen in the middle of a macro.
+-- o.lazyredraw = true             -- Do not redraw screen in the middle of a macro.
 o.signcolumn = "yes"            -- Always show the sign column
 o.list = true                        -- Show hidden chars
 o.listchars = "tab:▸ ,eol:¬,space:·,trail:+" -- chars to be displayed
@@ -118,6 +118,7 @@ o.shiftwidth = 2            -- Number of spaces to use for autoindenting
 o.tabstop = 2               -- Size of the tabs by default
 o.smarttab = true           -- Insert tabs on the start of a line according to shiftwidth, not tabstop
 o.shiftround = true         -- Use multiple of shiftwidth when indenting with '<' and '>'
+o.relativenumber = true     -- Show relative numbers
 
 o.complete:append("kspell") -- Use spell completion when spell check is enabled
 

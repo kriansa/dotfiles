@@ -99,8 +99,8 @@ nnoremap(']q', '<cmd>QNext<CR>', { silent = true })
 nnoremap('[q', '<cmd>QPrev<CR>', { silent = true })
 nnoremap('<C-q>', '<cmd>QToggle<CR>', { silent = true })
 
--- -- Packer
-nmap("<leader>ls", "<cmd>Lazy sync<CR>", { silent = true })
+-- Lazy.nvim (package manager)
+nmap("<leader>ps", "<cmd>Lazy sync<CR>", { silent = true })
 
 -- Toggles zoom between the current buffer
 nnoremap("<Leader>tt", "<cmd>ZoomWinTabToggle<CR>", { silent = true })

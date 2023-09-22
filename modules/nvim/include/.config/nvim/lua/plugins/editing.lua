@@ -12,7 +12,30 @@ return {
   { 'AndrewRadev/splitjoin.vim' },
 
   -- Move to two-character search patterns
-  { 'ggandor/leap.nvim' },
+  {
+    'ggandor/leap.nvim',
+    config = function()
+      -- TODO: Remove this workaround when this gets fixed (see github.com/ggandor/leap.nvim)
+      vim.api.nvim_create_autocmd(
+        "User",
+        { callback = function()
+          vim.cmd.hi("Cursor", "blend=100")
+          vim.opt.guicursor:append { "a:Cursor/lCursor" }
+        end,
+          pattern = "LeapEnter"
+        }
+      )
+      vim.api.nvim_create_autocmd(
+        "User",
+        { callback = function()
+          vim.cmd.hi("Cursor", "blend=0")
+          vim.opt.guicursor:remove { "a:Cursor/lCursor" }
+        end,
+          pattern = "LeapLeave"
+        }
+      )
+    end
+  },
   {
     'ggandor/flit.nvim',
     dependencies = { "ggandor/leap.nvim" },
@@ -59,8 +82,8 @@ return {
           "git_config", "git_rebase", "gitattributes", "gitcommit", "gitignore", "go", "gomod",
           "gosum", "html", "ini", "java", "javascript", "jq", "json", "jsonc", "json5", "kotlin",
           "latex", "lua", "luadoc", "make", "markdown", "markdown_inline", "passwd", "pem",
-          "promql", "python", "ruby", "rust", "sql", "ssh_config", "toml", "tsx", "typescript",
-          "vim", "vue", "yaml", "xml"
+          "promql", "python", "ruby", "regex", "rust", "sql", "ssh_config", "toml", "tsx",
+          "typescript", "vim", "vue", "yaml", "xml",
         },
         highlight = { enable = true },
         indent = { enable = true },
@@ -125,6 +148,7 @@ return {
   {
     'RRethy/nvim-treesitter-endwise',
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    event = "InsertEnter",
     config = function()
       require('nvim-treesitter.configs').setup {
         endwise = { enable = true },
@@ -136,6 +160,7 @@ return {
   {
     "windwp/nvim-autopairs",
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    event = "InsertEnter",
     config = function()
       require('nvim-autopairs').setup({
         check_ts = true,
@@ -166,6 +191,7 @@ return {
         show_end_of_line = true,
         use_treesitter = true,
         space_char_highlight_list = { 'Whitespace' },
+        show_current_context = true,
       })
     end
   },
@@ -184,5 +210,17 @@ return {
     config = function()
       require('colorizer').setup({'css', 'javascript', 'vim', 'html', 'vue', 'jsx', 'tsx'})
     end
+  },
+
+  -- Delay train
+  {
+    'ja-ford/delaytrain.nvim',
+    config = function()
+      require('delaytrain').setup({
+        delay_ms = 1000,  -- How long repeated usage of a key should be prevented
+        grace_period = 1, -- How many repeated keypresses are allowed
+        ignore_filetypes = { "help", "NvimTree", "NeogitStatus" },
+      })
+    end,
   },
 }
