@@ -43,10 +43,10 @@ return {
         },
         -- Disable indent-blankline.nvim
         on_open = function()
-          require("indent_blankline.commands").disable()
+          require("ibl").update({ enabled = false })
         end,
         on_close = function()
-          require("indent_blankline.commands").enable()
+          require("ibl").update({ enabled = true })
         end,
       })
     end

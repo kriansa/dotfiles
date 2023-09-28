@@ -187,11 +187,17 @@ return {
     "lukas-reineke/indent-blankline.nvim",
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
-      require("indent_blankline").setup({
-        show_end_of_line = true,
-        use_treesitter = true,
-        space_char_highlight_list = { 'Whitespace' },
-        show_current_context = true,
+      require("ibl").setup({
+        enabled = true,
+        show_end = true,
+        whitespace = {
+          highlight = { 'Whitespace' }
+        },
+        indent = {
+          char = "│",
+          smart_indent_cap = false,
+        },
+        scope = { enabled = false },
       })
     end
   },
