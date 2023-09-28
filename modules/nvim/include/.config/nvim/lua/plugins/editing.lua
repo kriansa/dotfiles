@@ -80,10 +80,10 @@ return {
         ensure_installed = {
           "awk", "bash", "c", "comment", "cpp", "css", "csv", "diff", "dockerfile", "fish",
           "git_config", "git_rebase", "gitattributes", "gitcommit", "gitignore", "go", "gomod",
-          "gosum", "html", "ini", "java", "javascript", "jq", "json", "jsonc", "json5", "kotlin",
-          "latex", "lua", "luadoc", "make", "markdown", "markdown_inline", "passwd", "pem",
-          "promql", "python", "ruby", "regex", "rust", "scss", "sql", "toml", "tsx",
-          "typescript", "vim", "vue", "yaml", "xml",
+          "gosum", "hcl", "html", "ini", "java", "javascript", "jq", "json", "jsonc", "json5",
+          "kotlin", "latex", "lua", "luadoc", "make", "markdown", "markdown_inline", "passwd",
+          "pem", "promql", "python", "ruby", "regex", "rust", "scss", "sql", "ssh_config", "toml",
+          "tsx", "terraform", "typescript", "vim", "vue", "yaml", "xml",
         },
         highlight = { enable = true },
         indent = { enable = true },
@@ -218,7 +218,7 @@ return {
     config = function()
       require('delaytrain').setup({
         delay_ms = 1000,  -- How long repeated usage of a key should be prevented
-        grace_period = 1, -- How many repeated keypresses are allowed
+        grace_period = 5, -- How many repeated keypresses are allowed
         ignore_filetypes = { "help", "NvimTree", "NeogitStatus" },
       })
     end,
