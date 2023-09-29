@@ -4,14 +4,15 @@
 local M = {}
 function should_close_split()
   local bufname = vim.api.nvim_buf_get_name(0)
-  local fugitive_status = not not vim.regex("\\.git/index$"):match_str(bufname)
-  local editing_commit_message = (bufname == ".git/COMMIT_EDITMSG" and vim.fn.winnr("$") > 1)
+
+  local fugitive_status = vim.o.filetype == "fugitive"
+  local editing_commit_message = vim.o.filetype == "gitcommit" or
+    vim.o.filetype == "NeogitCommitMessage"
   local fugitive_diff = not not vim.regex("^fugitive://"):match_str(bufname)
-  local far_split = not not vim.regex("^FAR"):match_str(bufname)
 
   return vim.o.diff or vim.o.buftype == "help" or vim.o.buftype == "quickfix" or
     vim.o.buftype == 'nofile' or editing_commit_message or fugitive_diff or
-    fugitive_status or far_split
+    fugitive_status
 end
 
 function M.close()

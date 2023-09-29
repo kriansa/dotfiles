@@ -38,12 +38,24 @@ return {
   },
 
   {
+    "tpope/vim-fugitive",
+    cmd = { "G", "Git" },
+  },
+
+  {
     "NeogitOrg/neogit",
     dependencies = { "nvim-lua/plenary.nvim", "sindrets/diffview.nvim" },
     cmd = "Neogit",
     config = function()
       local neogit = require("neogit")
-      neogit.setup({})
+      neogit.setup({
+        auto_refresh = false,
+        disable_commit_confirmation = true,
+        integrations = {
+          telescope = true,
+          diffview = true,
+        },
+      })
     end,
   },
 }
