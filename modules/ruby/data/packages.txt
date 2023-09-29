@@ -2,6 +2,7 @@ bundler-audit
 reek
 brakeman
 standard
+standard-rails
 rubocop-rspec
 rubocop-rails
 solargraph
