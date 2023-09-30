@@ -32,33 +32,19 @@ g.loaded_vimball = 1
 g.loaded_vimballPlugin = 1
 g.zipPlugin = 1
 
--- Autocmds
-cmd([[
-  " Terminal settings
-  autocmd TermOpen term://* setlocal nolist
+-- Auto resize splits
+vim.api.nvim_create_autocmd("VimResized", {
+  pattern = "*",
+  command = ":wincmd =",
+})
 
-  " Disable invisible chars
-  autocmd FileType qf,dirvish,NvimTree setlocal nonumber nowrap nolist colorcolumn=
-  autocmd FileType qf,dirvish,NvimTree let b:indent_blankline_enabled=v:false
-
-  " Enhance qf
-  autocmd FileType qf setlocal nobuflisted winfixheight
-
-  " Enable spell checking for git commit messages
-  autocmd FileType gitcommit setlocal spell
-
-  " Enable line-wrap for markdown
-  autocmd FileType markdown setlocal wrap
-
-  " Enable autocompletion for @ on scss
-  autocmd FileType scss setlocal iskeyword+=@-@
-
-  " Show when text is yanked
-  autocmd TextYankPost * silent! lua vim.highlight.on_yank({ timeout = 80 })
-
-  " Auto resize splits
-  autocmd VimResized * :wincmd =
-]])
+-- Highlight when yanking
+vim.api.nvim_create_autocmd("TextYankPost", {
+  pattern = "*",
+  callback = function()
+    vim.highlight.on_yank({ timeout = 80 })
+  end
+})
 
 -- Add existing filetypes
 vim.filetype.add({
