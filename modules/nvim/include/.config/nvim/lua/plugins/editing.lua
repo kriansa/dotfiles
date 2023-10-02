@@ -189,7 +189,6 @@ return {
     config = function()
       require("ibl").setup({
         enabled = true,
-        show_end = true,
         whitespace = {
           highlight = { 'Whitespace' }
         },
@@ -200,7 +199,10 @@ return {
           char = "│",
           smart_indent_cap = false,
         },
-        scope = { enabled = false },
+        scope = {
+          enabled = false,
+          show_end = true,
+        },
       })
     end
   },
@@ -228,7 +230,7 @@ return {
       require('delaytrain').setup({
         delay_ms = 1000,  -- How long repeated usage of a key should be prevented
         grace_period = 5, -- How many repeated keypresses are allowed
-        ignore_filetypes = { "help", "NvimTree", "NeogitStatus", "fugitive", "gitcommit" },
+        ignore_filetypes = { "help", "NvimTree", "NeogitStatus", "fugitive", "gitcommit", "qf" },
       })
     end,
   },
