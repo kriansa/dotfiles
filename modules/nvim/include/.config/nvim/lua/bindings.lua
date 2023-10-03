@@ -109,8 +109,9 @@ nnoremap("<Leader>tz", "<cmd>ZenMode<CR>", { silent = true })
 -- Winresizer starts with <Leader>+e
 g.winresizer_start_key = '<Leader>e'
 
--- Neogit
+-- Git (Neogit AND fugitive)
 nmap("<leader>gs", "<cmd>Neogit<CR>", { silent = true })
+nmap("<leader>gS", "<cmd>Git<CR>", { silent = true })
 
 -- Github Copilot
 mappings.gh_copilot = {
