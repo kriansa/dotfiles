@@ -8,6 +8,9 @@
       # Disable loading watchdog modules as they aren't necessary in laptop/desktop configurations
       blacklist iTCO_wdt
 
+      # Disables the watchdog present on AMD Ryzen chipsets
+      blacklist sp5100_tco
+
 - name: create /etc/modules-load.d directory
   become: true
   ansible.builtin.file:

@@ -30,11 +30,13 @@
     method6: auto
 
 - name: remove default network
+  become: true
   community.general.nmcli:
     state: absent
     conn_name: Wired connection 1
 
 - name: configure wireguard tunnels
+  become: true
   register: configure_connections
   ansible.builtin.template:
     src: files/connection.conf.j2

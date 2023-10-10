@@ -2,7 +2,7 @@
 - name: verify yubikey
   tags: interactive
   ansible.builtin.pause:
-    prompt: Please, insert your YubiKey, then press enter to continue (you have 30 seconds)
+    prompt: Please, insert your YubiKey
     seconds: 30
 
 - name: ack private gpg from the card

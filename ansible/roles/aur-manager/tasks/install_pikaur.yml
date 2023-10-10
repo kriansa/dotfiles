@@ -4,7 +4,7 @@
     manager: pacman
 
 - name: install pikaur
-  when: "'pikaur' not in ansible_facts.packages"
+  when: "'pikaur-git' not in ansible_facts.packages"
   block:
     - name: create a temp folder to build pikaur
       become: true
@@ -15,7 +15,7 @@
       become_user: "{{ user_name }}"
       ansible.builtin.unarchive:
         remote_src: yes
-        src: https://aur.archlinux.org/cgit/aur.git/snapshot/pikaur.tar.gz
+        src: https://aur.archlinux.org/cgit/aur.git/snapshot/pikaur-git.tar.gz
         dest: /tmp
 
     - name: build and install pikaur

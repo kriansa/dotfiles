@@ -2,4 +2,4 @@ title    {{ item.name }}
 linux    /{{ item.vmlinuz_path }}
 initrd   /{{ cpu_brand }}-ucode.img
 initrd   /{{ item.initramfs_path }}
-options  nowatchdog root={{ root_partition }} resume={{ swap_partition }} rw rootflags=x-systemd.device-timeout=30 {%- if encrypt_disk == True %} rd.luks.options=discard rd.luks.name={{ encrypted_partition_uuid }}={{ lvm_vg_name }}{% endif %}
+options  nowatchdog nmi_watchdog=0 intel_iommu=on iommu=pt root={{ root_partition }} resume={{ swap_partition }} rw rootflags=x-systemd.device-timeout=30 {%- if encrypt_disk == True %} rd.luks.options=discard rd.luks.name={{ encrypted_partition_uuid }}={{ lvm_vg_name }}{% endif %}
