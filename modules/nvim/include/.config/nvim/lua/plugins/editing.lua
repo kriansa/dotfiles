@@ -222,16 +222,4 @@ return {
       require('colorizer').setup({'css', 'javascript', 'vim', 'html', 'vue', 'jsx', 'tsx'})
     end
   },
-
-  -- Delay train
-  {
-    'ja-ford/delaytrain.nvim',
-    config = function()
-      require('delaytrain').setup({
-        delay_ms = 1000,  -- How long repeated usage of a key should be prevented
-        grace_period = 5, -- How many repeated keypresses are allowed
-        ignore_filetypes = { "help", "NvimTree", "NeogitStatus", "fugitive", "gitcommit", "qf" },
-      })
-    end,
-  },
 }
