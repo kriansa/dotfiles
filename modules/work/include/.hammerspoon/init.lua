@@ -21,7 +21,7 @@ hs.window.animationDuration = 0
 local frameCache = {}
 
 -- Toggle a window between its normal size, and being maximized
-hs.hotkey.bind({"shift", "alt"}, "Return", function()
+hs.hotkey.bind({"cmd", "shift"}, "Up", function()
   local win = hs.window.focusedWindow()
   local isMaximized = win:frame() == win:screen():frame()
 
@@ -40,8 +40,8 @@ hs.hotkey.bind({"shift", "alt"}, "Return", function()
   end
 end)
 
--- Alt+shift+H - Move window to the left
-hs.hotkey.bind({"shift", "alt"}, "H", function()
+-- Move window to the left
+hs.hotkey.bind({"cmd", "shift"}, "Left", function()
   local win = hs.window.focusedWindow()
   local f = win:frame()
   local screen = win:screen()
@@ -54,8 +54,8 @@ hs.hotkey.bind({"shift", "alt"}, "H", function()
   win:setFrame(f)
 end)
 
--- Alt+shift+L - Move window to the right
-hs.hotkey.bind({"shift", "alt"}, "L", function()
+-- Move window to the right
+hs.hotkey.bind({"cmd", "shift"}, "Right", function()
   local win = hs.window.focusedWindow()
   local f = win:frame()
   local screen = win:screen()
@@ -69,20 +69,20 @@ hs.hotkey.bind({"shift", "alt"}, "L", function()
 end)
 
 -- Alt+[hjkl] - Move focus
-hs.hotkey.bind({"alt"}, "L", function()
-  hs.window.focusedWindow():focusWindowEast()
-end)
-
-hs.hotkey.bind({"alt"}, "H", function()
-  hs.window.focusedWindow():focusWindowWest()
-end)
-
-hs.hotkey.bind({"alt"}, "J", function()
-  hs.window.focusedWindow():focusWindowSouth()
-end)
-
-hs.hotkey.bind({"alt"}, "K", function()
-  hs.window.focusedWindow():focusWindowNorth()
-end)
+-- hs.hotkey.bind({"alt"}, "L", function()
+--   hs.window.focusedWindow():focusWindowEast()
+-- end)
+--
+-- hs.hotkey.bind({"alt"}, "H", function()
+--   hs.window.focusedWindow():focusWindowWest()
+-- end)
+--
+-- hs.hotkey.bind({"alt"}, "J", function()
+--   hs.window.focusedWindow():focusWindowSouth()
+-- end)
+--
+-- hs.hotkey.bind({"alt"}, "K", function()
+--   hs.window.focusedWindow():focusWindowNorth()
+-- end)
 
 hs.alert.show("Loaded")
