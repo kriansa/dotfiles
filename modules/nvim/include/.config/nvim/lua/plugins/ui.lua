@@ -31,9 +31,6 @@ return {
           " Customize NvimTree
           call edge#highlight('NvimTreeExecFile', l:palette.none, l:palette.none, 'bold')
           call edge#highlight('NvimTreeSymlink', l:palette.purple, l:palette.none)
-
-          call edge#highlight('LirFloatBorder', l:palette.grey, l:palette.none)
-          call edge#highlight('LirSymLink', l:palette.purple, l:palette.none)
         endfunction
 
         augroup EdgeCustom
@@ -78,17 +75,6 @@ return {
         return replacements[str] or str
       end
 
-      -- A small extension to support lir
-      local get_lir_path = function()
-        local Path = require('plenary.path')
-        local current_path = require('lir').get_context().dir
-        return Path:new(current_path):make_relative(vim.fn.getcwd())
-      end
-      local lir_ext = {
-        sections = { lualine_a = {get_lir_path}, lualine_y = {'bo:filetype'} },
-        filetypes = {'lir'},
-      }
-
       -- A small function to use gitsigns as source for git diff
       local gitsigns_src = function()
         return {
@@ -106,6 +92,16 @@ return {
 
         return ''
       end
+
+      -- A small extension to support dirvish
+      local dirvish_ext = {
+        sections = {
+          lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
+          lualine_c = {'filename'},
+          lualine_y = {'bo:filetype'},
+        },
+        filetypes = {'dirvish'},
+      }
 
       require('lualine').setup({
         options = {
@@ -134,7 +130,7 @@ return {
           lualine_z = {},
         },
         tabline = {},
-        extensions = {'nvim-tree', 'quickfix', lir_ext},
+        extensions = {'nvim-tree', 'quickfix', dirvish_ext},
       })
     end
   },

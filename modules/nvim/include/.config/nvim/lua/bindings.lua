@@ -131,23 +131,6 @@ vim.keymap.set({"n", "x", "o"}, "S", "<Plug>(leap-backward-to)", { silent = true
 vim.keymap.set({"x", "o"}, "z", "<Plug>(leap-forward-till)", { silent = true, desc = "Leap forward till" })
 vim.keymap.set({"x", "o"}, "Z", "<Plug>(leap-backward-till)", { silent = true, desc = "Leap backward till" })
 
--- lir
-nmap("-", "<cmd>lua require('lir.float').toggle()<CR>")
-mappings.lir = function()
-  local lir_actions = require('lir.actions')
-  return {
-    ['o']     = lir_actions.edit,
-    ['<CR>']  = lir_actions.edit,
-    ['l']     = lir_actions.edit,
-    ['h']     = lir_actions.up,
-    ['q']     = lir_actions.quit,
-
-    ['r']     = lir_actions.rename,
-    ['d']     = lir_actions.delete,
-    ['gy']    = lir_actions.yank_path,
-  }
-end
-
 -- Nvim-tree
 nmap("\\", "<cmd>NvimTreeFindFileToggle<CR>")
 mappings.nvim_tree = function(bufnr)
