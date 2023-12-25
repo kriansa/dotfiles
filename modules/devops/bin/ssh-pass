@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# Usage: PASS_PATH=my/password/path ssh <HOST> [<COMMAND>]
+#
+# Prints out a password located at PASS_PATH using the pass utility. Used in conjunction with
+# OpenSSH 8.4+ feature to use a password from an executable.
+
+if test -n "$PASS_PATH"; then
+  printf "%s" "$(pass "$PASS_PATH")"
+else
+  echo -e "You can pass \e[1mPASS_PATH\e[0m env var to the path of the password on \`pass\`" >&2
+
+  {
+    oldtty=$(stty -g)
+    trap 'stty $oldtty < /dev/tty 2> /dev/null' EXIT INT TERM HUP
+    stty -echo
+    printf "%s" "$*"
+    read -r password 2>/dev/null || exit 1
+    printf "\n"
+  } > /dev/tty < /dev/tty
+
+  printf "%s" "$password"
+  echo >&2
+fi
