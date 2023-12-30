@@ -1,0 +1,149 @@
+[mouse]
+hide_when_typing = false
+
+[window]
+decorations = "buttonless"
+
+[font]
+size = 22
+
+[font.bold]
+style = "Regular"
+
+[font.bold_italic]
+style = "Oblique"
+
+[font.italic]
+style = "Light Oblique"
+
+[font.normal]
+family = "Iosevka Nerd Font"
+style = "Light"
+
+# Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map
+# CMD-D to tmux, then use it as the following:
+# `- { key: D, mods: Command, chars: "\x1cd" }`
+# And then "capture it" on tmux keybindings as if they are using a C-\ prefix (by using a custom
+# key table):
+# `bind -T alacritty d split-window -h`
+
+# MacOS bindings (using Command instead of Alt)
+[[keyboard.bindings]]
+chars = "\u001Ct"
+key = "T"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001Cd"
+key = "D"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001CD"
+key = "D"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001C\r"
+key = "Return"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001Ch"
+key = "H"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001Cj"
+key = "J"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001Ck"
+key = "K"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001Cl"
+key = "L"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001CH"
+key = "H"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001CJ"
+key = "J"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001CK"
+key = "K"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001CL"
+key = "L"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001C0"
+key = "Key0"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C1"
+key = "Key1"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C2"
+key = "Key2"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C3"
+key = "Key3"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C4"
+key = "Key4"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C5"
+key = "Key5"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C6"
+key = "Key6"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C7"
+key = "Key7"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C8"
+key = "Key8"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C9"
+key = "Key9"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C]"
+key = "RBracket"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001C["
+key = "LBracket"
+mods = "Command"

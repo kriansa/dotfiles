@@ -1,0 +1,136 @@
+[window]
+decorations = "none"
+startup_mode = "Windowed"
+
+[font]
+size = 17
+builtin_box_drawing = false
+
+[font.normal]
+family = "Iosevka Term"
+
+# Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map
+# CMD-D to tmux, then use it as the following:
+# `- { key: D, mods: Command, chars: "\x1cd" }`
+# And then "capture it" on tmux keybindings as if they are using a C-\ prefix (by using a custom
+# key table):
+# `bind -T alacritty d split-window -h`
+[[keyboard.bindings]]
+chars = "\u001Ct"
+key = "T"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001Cd"
+key = "D"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001CD"
+key = "D"
+mods = "Super|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001C\r"
+key = "Return"
+mods = "Super|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001Ch"
+key = "H"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001Cj"
+key = "J"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001Ck"
+key = "K"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001Cl"
+key = "L"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001CH"
+key = "H"
+mods = "Super|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001CJ"
+key = "J"
+mods = "Super|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001CK"
+key = "K"
+mods = "Super|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001CL"
+key = "L"
+mods = "Super|Shift"
+
+[[keyboard.bindings]]
+chars = "\u001C0"
+key = "Key0"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C1"
+key = "Key1"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C2"
+key = "Key2"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C3"
+key = "Key3"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C4"
+key = "Key4"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C5"
+key = "Key5"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C6"
+key = "Key6"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C7"
+key = "Key7"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C8"
+key = "Key8"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C9"
+key = "Key9"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C]"
+key = "RBracket"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001C["
+key = "LBracket"
+mods = "Super"
