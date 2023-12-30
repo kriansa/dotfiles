@@ -1,0 +1,9 @@
+---
+- name: install amdgpu drivers
+  become: true
+  community.general.pacman:
+    state: present
+    name:
+      - libva-mesa-driver
+      - mesa-vdpau
+      - vulkan-radeon

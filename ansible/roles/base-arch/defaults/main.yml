@@ -25,10 +25,13 @@ disable_nvidia_i2c: true
 install_intel_drivers: false
 
 # Install nvidia
-install_nvidia_drivers: true
+install_nvidia_drivers: false
 # See: https://www.x.org/releases/X11R7.7/doc/man/man5/xorg.conf.5.xhtml
 # Get this info by running lspci
 nvidia_bus_id: PCI:1:0:0
+
+# Install amd
+install_amd_drivers: true
 
 # Enable bluetooth?
 enable_bluetooth: false

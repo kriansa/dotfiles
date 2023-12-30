@@ -5,5 +5,9 @@
 if [[ "$OSTYPE" == "darwin"* ]]; then
   /usr/bin/pbcopy "$@"
 else
-  xclip -in -selection clipboard
+  if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+    wl-copy
+  else
+    xclip -in -selection clipboard
+  fi
 fi

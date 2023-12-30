@@ -43,7 +43,6 @@
       - less
       - ldns         # for drill tool (dig with DNSSEC)
       - fwupd
-      - mesa-utils
 
 # no downtime on kernel updates
 - name: install kernel-modules-hook

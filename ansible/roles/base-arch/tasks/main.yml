@@ -13,3 +13,5 @@
   when: install_nvidia_drivers == true
 - import_tasks: install_intel_gpu.yml
   when: install_intel_drivers == true
+- import_tasks: install_amd_gpu.yml
+  when: install_amd_drivers == true

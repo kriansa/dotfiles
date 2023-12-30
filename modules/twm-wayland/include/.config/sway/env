@@ -16,9 +16,6 @@ QT_STYLE_OVERRIDE=adwaita
 # Prefer wayland on GDK apps
 GDK_BACKEND=wayland
 
-# Use Wayland on Firefox
-MOZ_ENABLE_WAYLAND=1
-
 # Set XDG vars
 XDG_CURRENT_DESKTOP=sway
 XDG_SESSION_DESKTOP=sway

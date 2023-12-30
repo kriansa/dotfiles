@@ -6,6 +6,7 @@
     # Configure onboard intel gpu drivers
     install_intel_drivers: true
     install_nvidia_drivers: true
+    install_amd_drivers: false
 
     # Mobile settings
     enable_bluetooth: yes
