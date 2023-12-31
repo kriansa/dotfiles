@@ -3,12 +3,12 @@
 local M = {}
 
 function M.yank_filename()
-  vim.fn.setreg("+", vim.fn.expand("%"))
+  vim.fn.setreg(0, vim.fn.expand("%"))
   print("Filename copied to clipboard")
 end
 
 function M.yank_filename_line()
-  vim.fn.setreg("+", table.concat({ vim.fn.expand("%"), vim.fn.line(".") }, ":"))
+  vim.fn.setreg(0, table.concat({ vim.fn.expand("%"), vim.fn.line(".") }, ":"))
   print("Filename and line number copied to clipboard")
 end
 

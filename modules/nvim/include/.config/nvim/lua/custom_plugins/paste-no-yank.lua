@@ -1,17 +1,15 @@
 -- This plugin avoids yanking text to a register when you paste on insert mode
 
 local M = {
-  registers = { a = "", b = "" }
+  registers = { a = "" }
 }
 
 function M.restore_registers()
-  vim.fn.setreg("+", M.registers.a)
-  vim.fn.setreg("\"", M.registers.b)
+  vim.fn.setreg("\"", M.registers.a)
 end
 
 function M.paste_over(cmd)
-  M.registers.a = vim.fn.getreg("+")
-  M.registers.b = vim.fn.getreg("\"")
+  M.registers.a = vim.fn.getreg("\"")
   return cmd .. ":lua require('custom_plugins.paste-no-yank').restore_registers()\n"
 end
 

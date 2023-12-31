@@ -85,7 +85,7 @@ nnoremap("<S-K>", "i<CR><ESC>", { silent = true })
 --
 
 -- Use CTRL-S to save
-nnoremap('<C-S>', '<cmd>WriteBuffer<CR>')
+nnoremap('<C-S>', '<cmd>write<CR>')
 
 -- Closes current buffer with <Leader>w
 nnoremap("<Leader>w", "<cmd>Close<CR>", { silent = true })

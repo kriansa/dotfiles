@@ -3,11 +3,11 @@
 # Small shim to add cross-platform support for pbcopy/pbpaste
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  /usr/bin/pbpaste "$@"
+  exec /usr/bin/pbpaste "$@"
 else
   if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-    wl-paste
+    exec wl-paste "$@"
   else
-    xclip -out -selection clipboard
+    exec xclip -out -selection clipboard "$@"
   fi
 fi

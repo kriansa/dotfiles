@@ -54,7 +54,6 @@ function M.setup(opts)
 
   vim.cmd [[autocmd BufLeave,FocusLost * silent! lua require('custom_plugins.auto-save').auto_save()]]
   vim.cmd [[command! AutoSaveToggle lua require('custom_plugins.auto-save').auto_save_toggle()]]
-  vim.cmd [[command! WriteBuffer lua require('custom_plugins.auto-save').write_buffer()]]
 end
 
 return M
