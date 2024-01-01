@@ -129,9 +129,28 @@ return {
           lualine_y = {},
           lualine_z = {},
         },
-        tabline = {},
+        tabline = {
+          lualine_a = {{
+            'tabs',
+            mode = 1,
+            path = 1,
+            -- This sets the maximum filename length so it can be shortened when overflowing,
+            -- becoming for instance a/b/c/file.txt
+            tab_max_length = 40,
+            -- This sets the maximum name length for all tabs, so the ones that are not active will
+            -- be shortened to ellipsis when overflowing this threshold, thus becoming `...`
+            max_length = function() return vim.o.columns end,
+            component_separators = { left = '', right = ''},
+            section_separators = { left = '', right = ''},
+          }},
+        },
         extensions = {'nvim-tree', 'quickfix', dirvish_ext},
       })
+
+      -- When using `tabline` option, lualine automatically sets `showtabline` to 2, but it isn't
+      -- what we want, so we override it after the setup
+      -- See: https://github.com/nvim-lualine/lualine.nvim/issues/395#issuecomment-1312371694
+      vim.o.showtabline = 1
     end
   },
 

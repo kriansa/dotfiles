@@ -1,16 +1,15 @@
 return {
   {
     'lewis6991/gitsigns.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       require('gitsigns').setup({
         signs = {
-          add = { hl = 'GreenSign', text = '+', numhl = 'GitSignsAddNr' },
-          change = { hl = 'BlueSign', text = '~', numhl = 'GitSignsChangeNr' },
-          delete = { hl = 'RedSign', text = '_', numhl = 'GitSignsDeleteNr' },
-          topdelete = { hl = 'RedSign', text = '‾', numhl = 'GitSignsDeleteNr' },
-          changedelete = { hl = 'RedSign', text = '~', numhl = 'GitSignsChangeNr' },
-          untracked = { hl = 'GreenSign', text = '┆', numhl = 'GitSignsAddNr' },
+          add = { text = '+' },
+          change = { text = '~' },
+          delete = { text = '_' },
+          topdelete = { text = '‾' },
+          changedelete = { text = '~' },
+          untracked = { text = '┆' },
         },
         on_attach = mappings.gitsigns,
         current_line_blame_opts = {
@@ -39,7 +38,11 @@ return {
 
   {
     "NeogitOrg/neogit",
-    dependencies = { "nvim-lua/plenary.nvim", "sindrets/diffview.nvim" },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "sindrets/diffview.nvim",
+      "nvim-telescope/telescope.nvim"
+    },
     cmd = "Neogit",
     config = function()
       local neogit = require("neogit")
@@ -49,6 +52,10 @@ return {
         integrations = {
           telescope = true,
           diffview = true,
+        },
+        signs = {
+          item = { "🞂", "🞃"},
+          section = { "🞂", "🞃"},
         },
       })
     end,

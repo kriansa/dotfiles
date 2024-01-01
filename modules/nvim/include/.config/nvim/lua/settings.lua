@@ -87,7 +87,7 @@ vim.api.nvim_create_autocmd("FocusLost", {
 vim.api.nvim_create_autocmd("FocusGained", {
   pattern = "*",
   callback = with_locked_clipboard(function()
-    vim.fn.setreg(0, vim.fn.getreg("+"))
+    vim.fn.setreg("@", vim.fn.getreg("+"))
   end)
 })
 
