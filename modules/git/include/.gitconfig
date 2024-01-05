@@ -28,6 +28,8 @@
 [push]
   default = current
   followTags = true
+[pull]
+	rebase = false
 [rebase]
   autoStash = true
 [branch "master"]
