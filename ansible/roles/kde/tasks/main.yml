@@ -1,0 +1,37 @@
+---
+- name: install kde packages
+  become: true
+  community.general.pacman:
+    state: present
+    name:
+      - plasma
+      - plasma-wayland-session
+      - kde-gtk-config
+
+      # Tools
+      - plasma-systemmonitor
+      - gwenview
+      - dolphin
+      - partitionmanager
+      - phonon-qt5-vlc
+      - wl-clipboard
+
+      # Screenshot tool
+      - spectacle
+
+      # To decompress on Dolphin
+      - ark
+
+      # Frontend for pinentry on QT
+      - pinentry-qt
+
+- name: create systemd kde service unit for single-user
+  become: true
+  notify: reload systemd
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/kde@.service
+    src: kde@.service
+
+- name: enable kde auto-login
+  become: true
+  ansible.builtin.systemd: enabled=yes name=kde@{{ user_name }}

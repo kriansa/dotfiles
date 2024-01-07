@@ -5,7 +5,6 @@
     state: present
     name:
       - gnome-shell
-      - gdm
 
       # Base GNOME apps
       - nautilus
@@ -17,6 +16,8 @@
       - gnome-tweaks
       - gnome-keyring
       - seahorse
+      - xdg-desktop-portal
+      - xdg-desktop-portal-gnome
 
       # Shell extensions
       - gnome-shell-extensions
@@ -37,8 +38,3 @@
   aur:
     name:
       - gnome-shell-extension-system-monitor-next-git
-      - gnome-shell-extension-impatience-git
-
-- name: enable gdm at boot time
-  become: true
-  ansible.builtin.systemd: name=gdm enabled=true

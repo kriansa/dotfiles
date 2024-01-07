@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+exec systemctl reboot --boot-loader-entry=windows.conf "$@"

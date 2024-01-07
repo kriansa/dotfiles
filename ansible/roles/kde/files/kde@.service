@@ -1,0 +1,35 @@
+# See: https://unix.stackexchange.com/questions/735746/how-to-start-weston-as-user-in-a-systemd-service
+[Unit]
+Description=KDE graphical session for %i
+After=graphical.target systemd-user-sessions.service
+
+[Service]
+User=%i
+WorkingDirectory=~
+ExecStart=/usr/bin/startplasma-wayland
+
+# Register the process as a PAM session for the login service, which includes
+# pam_systemd. This module registers the session to the systemd login manager.
+PAMName=login
+
+# Use a fixed dedicated tty number
+# When the TTY is active, the user is granted additional access to local
+# devices—notably display, sound, keyboard, mouse. These additional rights are
+# needed to get Wayland working.
+TTYPath=/dev/tty8
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+
+# Fail to start if not controlling the tty.
+StandardInput=tty-fail
+
+# Helps applications relying on utmp to find out logged users (like commands w and who)
+UtmpIdentifier=tty8
+UtmpMode=user
+
+# Auto-restart KDE whenever there's a failure
+Restart=on-failure
+
+[Install]
+WantedBy=graphical.target

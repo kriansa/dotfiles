@@ -31,7 +31,7 @@ install_nvidia_drivers: false
 nvidia_bus_id: PCI:1:0:0
 
 # Install amd
-install_amd_drivers: true
+install_amd_drivers: false
 
 # Enable bluetooth?
 enable_bluetooth: false

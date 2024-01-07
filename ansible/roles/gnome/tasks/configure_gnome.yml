@@ -39,3 +39,14 @@
   ansible.builtin.lineinfile:
     path: /etc/pam.d/passwd
     line: password	optional	pam_gnome_keyring.so
+
+- name: create systemd gnome service unit for single-user
+  become: true
+  notify: reload systemd
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/gnome@.service
+    src: gnome@.service
+
+- name: enable gnome auto-login
+  become: true
+  ansible.builtin.systemd: enabled=yes name=gnome@{{ user_name }}

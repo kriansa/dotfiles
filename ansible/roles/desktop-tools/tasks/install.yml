@@ -31,6 +31,11 @@
       # Fonts
       - ttf-roboto
       - ttf-roboto-mono
+      - ttc-iosevka
+      - ttf-ibm-plex
+      - ttf-opensans
+      - otf-fira-sans
+      - adobe-source-sans-fonts
       - ttf-croscore
       - noto-fonts-cjk
       - ttf-joypixels
@@ -81,7 +86,6 @@
 
       # Fonts
       - ttf-symbola
-      - ttf-iosevka-term
       - ttf-gelasio-ib
       - ttf-comic-neue
 
