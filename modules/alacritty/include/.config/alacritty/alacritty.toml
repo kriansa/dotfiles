@@ -7,7 +7,7 @@
 # All imports must either be absolute paths starting with `/`, or paths relative
 # to the user's home directory starting with `~/`.
 import = [
-  "/home/dpereira/.config/alacritty/theme.toml",
-  "/home/dpereira/.config/alacritty/custom.toml",
-  "/home/dpereira/.config/alacritty-overrides/overrides.toml",
+  "~/.config/alacritty/theme.toml",
+  "~/.config/alacritty/custom.toml",
+  "~/.config/alacritty-overrides/overrides.toml",
 ]

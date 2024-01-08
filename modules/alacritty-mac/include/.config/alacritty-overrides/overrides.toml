@@ -6,6 +6,7 @@ decorations = "buttonless"
 
 [font]
 size = 22
+builtin_box_drawing = true
 
 [font.bold]
 style = "Regular"
