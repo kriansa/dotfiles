@@ -88,55 +88,82 @@ return {
     end
   },
 
+  -- {
+  --   "mfussenegger/nvim-lint",
+  --   -- TODO: Evaluate this plugin OR https://github.com/nvimtools/none-ls.nvim/tree/main
+  --   config = function()
+  --     require('lint').linters_by_ft = {
+  --       -- TODO: Create a single "linter" wrapper that runs all ruby linters according to the
+  --       -- project config (e.g. .standardrb, .rubocop.yml, .reek.yml)
+  --       -- Use: [ standard || rubocop ], reek
+  --       -- ruby = {"rubocop"},
+  --     }
+  --
+  --     vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+  --       callback = function()
+  --         require("lint").try_lint()
+  --       end,
+  --     })
+  --   end
+  -- },
+
   {
     'neovim/nvim-lspconfig',
     dependencies = { 'hrsh7th/nvim-cmp', 'hrsh7th/cmp-nvim-lsp' },
     config = function()
-      -- Set the editor UI for LSP diagnostics
+      -- Set the editor UI for vim diagnostics
       vim.diagnostic.config({
         virtual_text = false,
         signs = true,
         underline = true,
-        update_in_insert = false,
+        update_in_insert = true,
         severity_sort = true,
         float = {
-          border = 'single',
-          source = 'always',
-          scope = 'line',
+          border = "single",
+          source = true,
+          scope = "line",
           header = "",
-          prefix = ' ',
+          prefix = "",
         },
       })
 
-      -- Set left signs
+      -- Set diagnostic signs
       local signs = { Error = "󰅚 ", Warn = "󰀪 ", Hint = "󰌶 ", Info = "󰋽 " }
       for type, icon in pairs(signs) do
         local hl = "DiagnosticSign" .. type
         vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
       end
 
-      local on_attach = function(client, bufnr)
-        vim.api.nvim_create_autocmd("CursorHold", {
-          buffer = bufnr,
-          callback = function()
-            -- Don't open diagnostic if there's at least one float window open (we assume it's
-            -- diagnostic float window)
-            for _, win in ipairs(vim.api.nvim_list_wins()) do
-              local is_floating_window = vim.api.nvim_win_get_config(win).relative ~= ""
-              if is_floating_window then
-                return
-              end
+      -- Enable opening float popup on hovering the line
+      vim.api.nvim_create_autocmd("CursorHold", {
+        callback = function()
+          -- Don't open diagnostic if there's at least one float window open (we assume it's
+          -- diagnostic float window)
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local is_floating_window = vim.api.nvim_win_get_config(win).relative ~= ""
+            if is_floating_window then
+              return
             end
-
-            vim.diagnostic.open_float({
-              close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
-            })
           end
-        })
 
-        -- Apply keymap for lsp
-        mappings.lsp(bufnr)
-      end
+          vim.diagnostic.open_float({
+            focus = false,
+            close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+          })
+        end
+      })
+
+      -- Use LspAttach autocommand to only map the following keys
+      -- after the language server attaches to the current buffer
+      vim.api.nvim_create_autocmd('LspAttach', {
+        callback = function(ev)
+          -- Enable completion triggered by <c-x><c-o>
+          vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+
+          -- Apply buffer local mappings
+          mappings.lsp(ev.buf)
+        end,
+      })
 
       -- Add additional capabilities supported by nvim-cmp
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -175,7 +202,6 @@ return {
       for _, lsp in ipairs(servers) do
         settings = server_settings[lsp] or {}
         lspconfig[lsp].setup({
-          on_attach = on_attach,
           capabilities = capabilities,
           flags = lsp_flags,
           settings = settings,

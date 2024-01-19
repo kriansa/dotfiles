@@ -4,7 +4,7 @@ startup_mode = "Windowed"
 
 [font]
 size = 17
-builtin_box_drawing = false
+builtin_box_drawing = true
 
 [font.normal]
 family = "Iosevka Term"

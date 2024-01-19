@@ -295,12 +295,13 @@ nmap('<Leader>a', '<cmd>lua require("custom_plugins.better-file-finder").live_gr
 nmap('<Leader>s', '<cmd>lua require("custom_plugins.better-file-finder").live_grep_current_word()<CR>')
 vmap('<Leader>s', '<cmd>lua require("custom_plugins.better-file-finder").live_grep_current_selection()<CR>')
 
-mappings.lsp = function(bufnr)
-  local opts = { noremap=true, silent=true }
-  vim.keymap.set('n', '[l', vim.diagnostic.goto_prev, opts)
-  vim.keymap.set('n', ']l', vim.diagnostic.goto_next, opts)
-  vim.keymap.set('n', '<leader>lq', vim.diagnostic.setloclist, opts)
+-- Vim diagnostics
+-- See `:help vim.lsp.*` for documentation on any of the below functions
+vim.keymap.set('n', '[l', vim.diagnostic.goto_prev)
+vim.keymap.set('n', ']l', vim.diagnostic.goto_next)
+vim.keymap.set('n', '<leader>lq', vim.diagnostic.setloclist)
 
+mappings.lsp = function(bufnr)
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   local bufopts = { noremap=true, silent=true, buffer=bufnr }
   vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
