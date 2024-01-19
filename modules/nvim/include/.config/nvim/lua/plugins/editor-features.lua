@@ -15,20 +15,6 @@ return {
   -- Make loading sessions seamless
   { "tpope/vim-obsession" },
 
-  -- See contents of registers
-  {
-    'tversteeg/registers.nvim',
-    config = function()
-		  require("registers").setup({
-		    show_empty = false,
-		    window = {
-		      border = "single",
-		      transparency = 0,
-		    },
-		  })
-	  end
-  },
-
   -- Window management
   { 'mhinz/vim-sayonara' },
   { 'simeji/winresizer' },

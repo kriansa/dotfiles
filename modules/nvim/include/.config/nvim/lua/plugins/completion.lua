@@ -91,6 +91,8 @@ return {
   -- {
   --   "mfussenegger/nvim-lint",
   --   -- TODO: Evaluate this plugin OR https://github.com/nvimtools/none-ls.nvim/tree/main
+  --   TODO: Use [standard || rubocop], reek AND always prefer the `bundled` version (bundle exec)
+  --         over the system installed one
   --   config = function()
   --     require('lint').linters_by_ft = {
   --       -- TODO: Create a single "linter" wrapper that runs all ruby linters according to the
