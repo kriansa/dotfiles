@@ -19,4 +19,6 @@ if status is-interactive
   set --global pure_show_jobs true
   set --global pure_threshold_command_duration 1
   set --global pure_show_subsecond_command_duration true
+  set --global pure_enable_container_detection false
+  set --global async_prompt_functions _pure_prompt_git
 end
