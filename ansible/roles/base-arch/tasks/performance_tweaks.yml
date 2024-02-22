@@ -46,19 +46,3 @@
   ansible.builtin.copy:
     src: 50-usb-realtek-net.rules
     dest: /etc/udev/rules.d/50-usb-realtek-net.rules
-
-- name: install dbus-broker
-  become: true
-  community.general.pacman:
-    name: dbus-broker
-
-- name: enable dbus-broker
-  become: true
-  notify: reboot
-  ansible.builtin.systemd: enabled=yes name=dbus-broker
-
-- name: enable user dbus-broker
-  become: true
-  become_user: "{{ user_name }}"
-  notify: reboot
-  ansible.builtin.systemd: scope=user enabled=yes name=dbus-broker
