@@ -1,0 +1,22 @@
+---
+- name: configure NetworkManager to use systemd-resolved
+  become: true
+  notify: restart NetworkManager
+  ansible.builtin.copy:
+    dest: /etc/NetworkManager/conf.d/10-dns.conf
+    content: |
+      [main]
+      dns=systemd-resolved
+
+- name: setup links for /etc/resolv.conf
+  become: true
+  notify: restart systemd-resolved
+  ansible.builtin.file:
+    src: /run/systemd/resolve/stub-resolv.conf
+    dest: /etc/resolv.conf
+    force: yes
+    state: link
+
+- name: enable systemd-resolved service
+  become: true
+  ansible.builtin.systemd: name=systemd-resolved state=started enabled=yes
