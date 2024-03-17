@@ -204,6 +204,35 @@ mappings.cmp_cmdline = function()
   })
 end
 
+-- Gitgutter
+mappings.gitgutter = function()
+  local function map(mode, l, r, opts)
+    vim.keymap.set(mode, l, r, opts or {})
+  end
+
+  -- Navigation
+  map('n', '[c', "<Plug>(GitGutterPrevHunk)", {silent=true, desc="Previous diff"})
+  map('n', ']c', "<Plug>(GitGutterNextHunk)", {silent=true, desc="Next diff"})
+
+  -- Text objects
+  map({'o', 'x'}, 'ic', "<Plug>(GitGutterTextObjectInnerPending)", {noremap=true, silent=true, desc="Inner diff"})
+  map({'o', 'x'}, 'ac', "<Plug>(GitGutterTextObjectOuterPending)", {noremap=true, silent=true, desc="Around diff"})
+
+  -- Operations
+  map('n', '<Leader>hs', "<Plug>(GitGutterStageHunk)", {silent=true, desc="Stage hunk"})
+  map('n', '<Leader>hu', "<Plug>(GitGutterUndoHunk)", {silent=true, desc="Undo hunk"})
+  map('n', '<Leader>hp', "<Plug>(GitGutterPreviewHunk)", {silent=true, desc="Preview hunk"})
+end
+
+mappings.git_blame = function()
+  local function map(mode, l, r, opts)
+    vim.keymap.set(mode, l, r, opts or {})
+  end
+
+  -- Navigation
+  map('n', '<Leader>gb', "<cmd>GitBlameToggle<CR>", {silent=true, desc="Toggle git blame"})
+end
+
 -- Gitsigns
 mappings.gitsigns = function(bufnr)
   local gs = package.loaded.gitsigns
@@ -318,11 +347,13 @@ mappings.lsp = function(bufnr)
   end, bufopts)
   vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, bufopts)
   vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts)
-  vim.keymap.set({'n', 'v'}, '<leader>lf', function()
-    vim.lsp.buf.format({ async = false })
-    vim.notify("Code formatted")
-  end, bufopts)
 end
+
+-- Conform to format code
+vim.keymap.set({'n', 'v'}, '<leader>lf', function()
+  require("conform").format({ async = true })
+  vim.notify("Code formatted")
+end, bufopts)
 
 -- Try to get used not typing C-c to exit insert/visual mode
 inoremap('<C-c>', '<Nop>')

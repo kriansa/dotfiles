@@ -75,13 +75,25 @@ return {
         return replacements[str] or str
       end
 
-      -- A small function to use gitsigns as source for git diff
-      local gitsigns_src = function()
-        return {
-          added = vim.b.gitsigns_status_dict and vim.b.gitsigns_status_dict.added,
-          modified = vim.b.gitsigns_status_dict and vim.b.gitsigns_status_dict.changed,
-          removed = vim.b.gitsigns_status_dict and vim.b.gitsigns_status_dict.removed,
-        }
+      -- A small function to use gitsigns or gitgutter as source for git diff
+      local git_status = function()
+        if vim.b.gitsigns_status_dict then
+          return {
+            added = vim.b.gitsigns_status_dict.added,
+            modified = vim.b.gitsigns_status_dict.changed,
+            removed = vim.b.gitsigns_status_dict.removed,
+          }
+
+        elseif vim.b.gitgutter and vim.b.gitgutter.summary then
+          return {
+            added = vim.b.gitgutter.summary[1],
+            modified = vim.b.gitgutter.summary[2],
+            removed = vim.b.gitgutter.summary[3],
+          }
+
+        else
+          return {}
+        end
       end
 
       -- Return the status of zoomwintoggle
@@ -115,7 +127,7 @@ return {
         },
         sections = {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
-          lualine_b = { 'branch', { 'diff', source = gitsigns_src } },
+          lualine_b = { 'branch', { 'diff', source = git_status } },
           lualine_c = {'filename'},
           lualine_x = {'location'},
           lualine_y = {'bo:filetype', 'diagnostics'},
