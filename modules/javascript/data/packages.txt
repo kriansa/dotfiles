@@ -1,8 +1,9 @@
-alex
 prettier
+prettier-eslint
 typescript
 typescript-language-server
-vscode-langservers-extracted
-@ansible/ansible-language-server
-bash-language-server
+eslint
+eslint-config-prettier
+eslint-plugin-vue
+eslint-plugin-react
 vls

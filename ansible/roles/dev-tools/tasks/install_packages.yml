@@ -70,3 +70,6 @@
       # Kubernetes
       - openlens-bin
       - kfilt-bin
+
+      # Prose linter
+      - vale
