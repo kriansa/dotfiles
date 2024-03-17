@@ -58,6 +58,13 @@ vim.filetype.add({
   },
   pattern = {
     ["^Dockerfile[-.].*"] = "dockerfile",
+    [".*/playbooks/.*%.ya?ml"] = "yaml.ansible",
+
+    -- Don't try to make a single regex for these, as it won't work (been there, done that)
+    ['.*/roles/.*/defaults/.*%.ya?ml'] = "yaml.ansible",
+    ['.*/roles/.*/handlers/.*%.ya?ml'] = "yaml.ansible",
+    ['.*/roles/.*/meta/.*%.ya?ml'] = "yaml.ansible",
+    ['.*/roles/.*/tasks/.*%.ya?ml'] = "yaml.ansible",
   },
 })
 

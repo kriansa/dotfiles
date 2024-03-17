@@ -1,3 +1,17 @@
+function ruby_linter_command()
+  local dirname = vim.fn.expand("%:p:h")
+
+  local found_standard = vim.fs.find({".standard.yml", ".standard.yaml"}, { upward = true, path = dirname })[1]
+  local found_rubocop = vim.fs.find({".rubocop.yml", ".rubocop.yaml"}, { upward = true, path = dirname })[1]
+
+  if found_rubocop and not found_standard then
+    return "rubocop"
+  end
+
+  -- By default we use standardrb
+  return "standardrb"
+end
+
 return {
   {
     "zbirenbaum/copilot.lua",
@@ -80,34 +94,146 @@ return {
     config = function()
       vim.o.timeout = true
       vim.o.timeoutlen = 300
-      require("which-key").setup({
-        -- your configuration comes here
-        -- or leave it empty to use the default settings
-        -- refer to the configuration section below
+      require("which-key").setup()
+    end
+  },
+
+  {
+    "stevearc/conform.nvim",
+    config = function()
+      -- vim.o.formatexpr = "v:lua.require('conform').formatexpr({'timeout_ms':2000})"
+
+      require("conform").setup({
+        formatters_by_ft = {
+          -- A lot of languages are supported by prettier
+          ["javascript"] = { "prettier" },
+          ["javascriptreact"] = { "prettier" },
+          ["typescript"] = { "prettier" },
+          ["typescriptreact"] = { "prettier" },
+          ["vue"] = { "prettier" },
+          ["css"] = { "prettier" },
+          ["scss"] = { "prettier" },
+          ["less"] = { "prettier" },
+          ["html"] = { "prettier" },
+          ["json"] = { "prettier" },
+          ["jsonc"] = { "prettier" },
+          ["yaml"] = { "prettier" },
+          ["markdown"] = { "prettier" },
+          ["markdown.mdx"] = { "prettier" },
+          ["graphql"] = { "prettier" },
+          ["handlebars"] = { "prettier" },
+
+          ["go"] = { "goimports", "gofmt" },
+          ["python"] = { "isort", "black" },
+
+          ["ruby"] = function() return { ruby_linter_command() } end,
+        },
       })
     end
   },
 
-  -- {
-  --   "mfussenegger/nvim-lint",
-  --   -- TODO: Evaluate this plugin OR https://github.com/nvimtools/none-ls.nvim/tree/main
-  --   TODO: Use [standard || rubocop], reek AND always prefer the `bundled` version (bundle exec)
-  --         over the system installed one
-  --   config = function()
-  --     require('lint').linters_by_ft = {
-  --       -- TODO: Create a single "linter" wrapper that runs all ruby linters according to the
-  --       -- project config (e.g. .standardrb, .rubocop.yml, .reek.yml)
-  --       -- Use: [ standard || rubocop ], reek
-  --       -- ruby = {"rubocop"},
-  --     }
-  --
-  --     vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
-  --       callback = function()
-  --         require("lint").try_lint()
-  --       end,
-  --     })
-  --   end
-  -- },
+  {
+    "mfussenegger/nvim-lint",
+    config = function()
+      local sev = vim.diagnostic.severity
+
+      local severity_map = {
+        ['fatal'] = vim.diagnostic.severity.ERROR,
+        ['error'] = vim.diagnostic.severity.ERROR,
+        ['warning'] = vim.diagnostic.severity.WARN,
+        ['convention'] = vim.diagnostic.severity.HINT,
+        ['refactor'] = vim.diagnostic.severity.INFO,
+        ['info'] = vim.diagnostic.severity.INFO,
+      }
+
+      -- Define a linter wrapper that will use standardrb or rubocop depending on the presence of a
+      -- configuration file
+      require('lint').linters.standardrb_or_rubocop = {
+        cmd = ruby_linter_command,
+        args = {"--force-exclusion", "--stdin", function() return vim.fn.expand("%:p") end, "--format", "json"},
+        stdin = true,
+        ignore_exitcode = true,
+        parser = function(output)
+          local diagnostics = {}
+          local decoded = vim.json.decode(output)
+          local offences = decoded.files[1].offenses
+
+          for _, off in pairs(offences or {}) do
+            table.insert(diagnostics, {
+              lnum = off.location.start_line - 1,
+              col = off.location.start_column - 1,
+              end_lnum = off.location.last_line - 1,
+              end_col = off.location.last_column,
+              severity = severity_map[off.severity],
+              message = off.message,
+              code = off.cop_name,
+              user_data = {
+                lsp = {
+                  code = off.cop_name,
+                }
+              }
+            })
+          end
+
+          return diagnostics
+        end,
+      }
+
+      -- function json_diagnostic(find_offenses, transform_offenses)
+      --   return function(output)
+      --     local diagnostics = {}
+      --     local offenses = vim.json.decode(output)
+      --     if json_entrypoint then offenses = json_entrypoint(offenses) end
+      --
+      --     for _, offense in pairs(offences or {}) do
+      --       table.insert(diagnostics, transform_offenses(offense))
+      --     end
+      --
+      --     return diagnostics
+      --   end
+      -- end
+      --
+      -- require('lint').linters.ansible_lint = {
+      --   cmd = 'ansible-lint',
+      --   args = { '--offline', '-f', 'json', function() return vim.fn.expand("%:p") end },
+      --   ignore_exitcode = true,
+      --   parser = json_diagnostic(nil, function(offense)
+      --     return {
+      --       lnum =
+      --     }
+      --   end)
+      -- }
+
+      require('lint').linters.vale.ignore_exitcode = true
+
+      require('lint').linters_by_ft = {
+        -- TODO: Add reek
+        ruby = {"standardrb_or_rubocop"},
+        markdown = {"vale"},
+        python = {"pylint", "mypy"},
+
+        -- Not working:
+        -- ["yaml.ansible"] = {"ansible_lint"},
+
+        javascript = {"eslint"},
+        javascriptreact = {"eslint"},
+        typescript = {"eslint"},
+        typescriptreact = {"eslint"},
+        vue = {"eslint"},
+
+        go = {"golangcilint"},
+
+        fish = {"fish"},
+        sh = {"shellcheck"},
+      }
+
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave", "TextChanged" }, {
+        callback = function()
+          require("lint").try_lint(nil, { ignore_errors = true })
+        end,
+      })
+    end
+  },
 
   {
     'neovim/nvim-lspconfig',
@@ -174,28 +300,16 @@ return {
       local lspconfig = require('lspconfig')
       local lsp_flags = { debounce_text_changes = 150 }
       local servers = {
-        'solargraph', 'tsserver', 'eslint', 'vls', 'cssls', 'html', 'pylsp', 'ansiblels', 'bashls',
-        'gopls',
+        'solargraph', 'tsserver', 'vuels', 'pylsp', 'gopls',
       }
       local server_settings = {
         pylsp = {
           pylsp = {
             plugins = {
-              -- Use black for formatting
-              black = {
-                enabled = true,
-              },
-              -- Use pylint for linting
-              pylint = {
-                enabled = true,
-              },
-              -- Then disable all else
-              yapf = {
-                enabled = false,
-              },
-              autopep8 = {
-                enabled = false,
-              },
+              black = { enabled = false },
+              pylint = { enabled = false },
+              yapf = { enabled = false },
+              autopep8 = { enabled = false },
             },
           },
         },
