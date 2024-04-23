@@ -8,6 +8,7 @@
   vars:
     install_amd_drivers: true
     install_nvidia_drivers: true
+    enable_bluetooth: yes
 
   roles:
     - role: 1-common-handlers

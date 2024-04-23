@@ -38,6 +38,8 @@ upgrade_node_version() {
   echo "Installing latest version (v$version)"
   asdf plugin update nodejs
   ASDF_NODE_BUILD_VERSION=master asdf install nodejs "$version"
+  test $? -ne 0 && return
+
   asdf global nodejs "$version"
 
   # Return if this is the first install

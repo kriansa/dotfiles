@@ -52,6 +52,7 @@
       - kubectl
       - kubectx
       - helm
+      - nmap
 
       # Golang dev
       - go
