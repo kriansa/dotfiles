@@ -32,7 +32,13 @@ end
 vim.api.nvim_create_autocmd("FocusLost", {
   pattern = "*",
   callback = with_locked_clipboard(function()
-    vim.fn.setreg("+", vim.fn.getreg(0))
+    local current_yank = vim.fn.getreg(0)
+
+    if vim.g._last_yank ~= current_yank then
+      vim.fn.setreg("+", current_yank)
+    end
+
+    vim.g._last_yank = current_yank
   end)
 })
 
