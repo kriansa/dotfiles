@@ -132,6 +132,19 @@ return {
     end
   },
 
+  -- This requires installing efm-langserver
+  -- See: https://github.com/mattn/efm-langserver
+  {
+    'creativenull/efmls-configs-nvim',
+    version = 'v1.6.0', -- version is optional, but recommended
+    dependencies = { 'neovim/nvim-lspconfig' },
+
+    config = function()
+      -- TODO: Configure
+      -- See: https://github.com/creativenull/efmls-configs-nvim
+    end
+  },
+
   {
     "mfussenegger/nvim-lint",
     config = function()
@@ -208,7 +221,7 @@ return {
 
       require('lint').linters_by_ft = {
         -- TODO: Add reek
-        ruby = {"standardrb_or_rubocop"},
+        -- ruby = {"standardrb_or_rubocop"},
         markdown = {"vale"},
         python = {"pylint", "mypy"},
 
@@ -300,7 +313,7 @@ return {
       local lspconfig = require('lspconfig')
       local lsp_flags = { debounce_text_changes = 150 }
       local servers = {
-        'solargraph', 'tsserver', 'vuels', 'pylsp', 'gopls',
+        'tsserver', 'vuels', 'pylsp', 'gopls',
       }
       local server_settings = {
         pylsp = {

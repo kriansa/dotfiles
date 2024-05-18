@@ -13,30 +13,6 @@ return {
 
   -- Move to two-character search patterns
   {
-    'ggandor/leap.nvim',
-    config = function()
-      -- TODO: Remove this workaround when this gets fixed (see github.com/ggandor/leap.nvim)
-      vim.api.nvim_create_autocmd(
-        "User",
-        { callback = function()
-          vim.cmd.hi("Cursor", "blend=100")
-          vim.opt.guicursor:append { "a:Cursor/lCursor" }
-        end,
-          pattern = "LeapEnter"
-        }
-      )
-      vim.api.nvim_create_autocmd(
-        "User",
-        { callback = function()
-          vim.cmd.hi("Cursor", "blend=0")
-          vim.opt.guicursor:remove { "a:Cursor/lCursor" }
-        end,
-          pattern = "LeapLeave"
-        }
-      )
-    end
-  },
-  {
     'ggandor/flit.nvim',
     dependencies = { "ggandor/leap.nvim" },
     config = function()
@@ -65,6 +41,7 @@ return {
   },
 
   -- Commenter
+  -- TODO: replace with nvim 0.10 builtin comment support
   {
     'numToStr/Comment.nvim',
     config = function()
