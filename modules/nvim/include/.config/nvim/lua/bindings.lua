@@ -326,9 +326,8 @@ vmap('<Leader>s', '<cmd>lua require("custom_plugins.better-file-finder").live_gr
 
 -- Vim diagnostics
 -- See `:help vim.lsp.*` for documentation on any of the below functions
-vim.keymap.set('n', '[l', vim.diagnostic.goto_prev)
-vim.keymap.set('n', ']l', vim.diagnostic.goto_next)
-vim.keymap.set('n', '<leader>lq', vim.diagnostic.setloclist)
+-- ]d and [d navigates between diagnostic entries
+vim.keymap.set('n', '<leader>dq', vim.diagnostic.setloclist)
 
 mappings.lsp = function(bufnr)
   -- See `:help vim.lsp.*` for documentation on any of the below functions

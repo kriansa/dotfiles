@@ -93,7 +93,6 @@ o.signcolumn = "yes"            -- Always show the sign column
 o.list = true                        -- Show hidden chars
 o.listchars = "tab:▸ ,eol:¬,space:·,trail:+" -- chars to be displayed
 o.showbreak = "↪"                    -- char to be displayed on wraped lines
-o.termguicolors = true               -- Use truebit on terminal
 o.updatetime = 250                   -- Time to trigger CursorHold
 
 -- Spend extra time to generate the smallest possible diff
