@@ -15,7 +15,6 @@
       - yq
       - shellcheck
       - github-cli
-      - python-cookiecutter
 
       # Pandoc
       - pandoc
@@ -35,11 +34,14 @@
       - duf
       - xclip
       - tmux
+      - nmap
+      - traceroute
 
       # Python dev
       - python
       - python-pip
       - python-poetry
+      - python-cookiecutter
 
       # Java dev
       - jdk-openjdk
@@ -52,7 +54,8 @@
       - kubectl
       - kubectx
       - helm
-      - nmap
+      - cilium-cli
+      - fluxcd
 
       # Golang dev
       - go
