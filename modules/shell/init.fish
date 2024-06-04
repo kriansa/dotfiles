@@ -28,3 +28,13 @@ if status is-interactive
   ../../..
   end
 end
+
+# Because we'reoverriding the `rm` command, in some cases we want to use the original one, such as
+# on `fish-async-prompt` cleanup. Here, if it uses the aliased `rm`, it will start filling up the
+# system trash with a lot of tempfiles on every terminal exit.
+#
+# TODO: This should be fixed upstream. Remove when fixed.
+# See: https://github.com/acomagu/fish-async-prompt
+function __async_prompt_tmpdir_cleanup --on-event fish_exit
+  command rm -rf "$__async_prompt_tmpdir"
+end
