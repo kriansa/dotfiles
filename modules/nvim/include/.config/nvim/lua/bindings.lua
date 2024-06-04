@@ -277,10 +277,21 @@ end
 -- Telescope
 mappings.telescope_defaults = function()
   local actions = require("telescope.actions")
+  local actions_set = require("telescope.actions.set")
   local transform_mod = require('telescope.actions.mt').transform_mod
-  local custom_actions = transform_mod({ open_qflist = function()
-    vim.cmd("QFOpen")
-  end})
+  local custom_actions = transform_mod({
+    open_qflist = function()
+      vim.cmd("QFOpen")
+    end,
+
+    move_multiple_selection_next = function(prompt_bufnr)
+      actions_set.shift_selection(prompt_bufnr, 5)
+    end,
+
+    move_multiple_selection_previous = function(prompt_bufnr)
+      actions_set.shift_selection(prompt_bufnr, -5)
+    end,
+  })
 
   return {
     -- History
@@ -292,15 +303,13 @@ mappings.telescope_defaults = function()
     ["<C-k>"] = "move_selection_previous",
     ["<C-n>"] = "move_selection_next",
     ["<C-p>"] = "move_selection_previous",
+    ["<C-d>"] = custom_actions.move_multiple_selection_next,
+    ["<C-u>"] = custom_actions.move_multiple_selection_previous,
 
     -- Opening
     ["<CR>"] = "select_default",
     ["<C-v>"] = "select_vertical",
     ["<C-s>"] = "select_horizontal",
-
-    -- Scroll preview
-    ["<C-u>"] = "preview_scrolling_up",
-    ["<C-d>"] = "preview_scrolling_down",
 
     -- Basic
     ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
