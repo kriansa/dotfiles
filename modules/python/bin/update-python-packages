@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
 
-# Use pip3 to install pip if the latter is not available
-if ! command -v pip > /dev/null; then
-  pip3 install --break-system-packages --upgrade pip
-fi
-
 # Upgrade pip itself
-pip install --break-system-packages --upgrade pip
+pip3 install --break-system-packages --upgrade pip
 
 # Install all packages described by requirements.txt as well as their dependencies, even if they've
 # been installed already
-pip install --user --break-system-packages --upgrade --upgrade-strategy eager \
+pip3 install --user --break-system-packages --upgrade --upgrade-strategy eager \
   --requirement "$HOME/.dotfiles/modules/python/data/requirements.txt"
