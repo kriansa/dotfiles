@@ -47,8 +47,12 @@
 [diff "sqlite"]
   textconv = echo .dump | sqlite3
 
+;; Include static configuration work-related
+[include]
+  path = ~/.gitconfig-work-global
+
 ;; Override settings for anything under Projects folder (work-related)
 ;; This must be added as last entry so it can take precedence and override attributes
 ;; The trailing slash is required
 [includeIf "gitdir:~/Projects/"]
-  path = ~/.gitconfig-work
+  path = ~/.gitconfig-work-projects

@@ -1,0 +1,14 @@
+# vim: ft=bash
+
+# set focus follows mouse mode (default: off, options: off, autoraise, autofocus)
+yabai -m config focus_follows_mouse autofocus
+
+# # disable focus_follows_mouse when a Zoom window is focused
+# yabai -m signal --add event=window_focused app=^zoom.us$ action="yabai -m config focus_follows_mouse off"
+#
+# # renable focus_follows_mouse autofocus after Zoom meeting is finished
+# yabai -m signal --add event=application_deactivated app=^zoom.us$ action="yabai -m config focus_follows_mouse autofocus"
+# yabai -m signal --add event=application_terminated app=^zoom.us$ action="yabai -m config focus_follows_mouse autofocus"
+# yabai -m signal --add event=application_hidden app=^zoom.us$ action="yabai -m config focus_follows_mouse autofocus"
+# yabai -m signal --add event=window_destroyed app=^zoom.us$ action="yabai -m config focus_follows_mouse autofocus"
+# yabai -m signal --add event=window_minimized app=^zoom.us$ action="yabai -m config focus_follows_mouse autofocus"

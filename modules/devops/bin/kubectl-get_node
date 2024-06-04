@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# Describe the node of a given pod
+
+pod=$1; shift
+[[ "$pod" = pod/* ]] && pod=${pod#pod/}
+
+node=$(kubectl get pod "$pod" -o jsonpath='{.spec.nodeName}') || exit 1
+kubectl describe node "$@" "$node"

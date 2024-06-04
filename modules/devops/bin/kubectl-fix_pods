@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+kubectl get pods | grep -E "(Terminating|CrashLoopBackOff)" | awk '{ print $1 }' | \
+  xargs kubectl patch pod -p '{"metadata":{"finalizers":null}}'

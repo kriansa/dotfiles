@@ -3,6 +3,17 @@ hs.hotkey.bind({"alt", "ctrl"}, "R", function()
   hs.reload()
 end)
 
+hs.caffeinate.watcher.new(function(event)
+  local isLock = event == hs.caffeinate.watcher.screensDidLock
+  local isUnlock = event == hs.caffeinate.watcher.screensDidUnlock
+
+  if isLock then
+    os.execute("/opt/homebrew/bin/blueutil --power 0")
+  elseif isUnlock then
+    os.execute("/opt/homebrew/bin/blueutil --power 1")
+  end
+end):start()
+
 -- Global shortcut for DeepL
 hs.hotkey.bind({"cmd"}, "Escape", function()
   local app_name = hs.window.focusedWindow():application():title()
@@ -67,22 +78,5 @@ hs.hotkey.bind({"cmd", "shift"}, "Right", function()
   f.h = max.h
   win:setFrame(f)
 end)
-
--- Alt+[hjkl] - Move focus
--- hs.hotkey.bind({"alt"}, "L", function()
---   hs.window.focusedWindow():focusWindowEast()
--- end)
---
--- hs.hotkey.bind({"alt"}, "H", function()
---   hs.window.focusedWindow():focusWindowWest()
--- end)
---
--- hs.hotkey.bind({"alt"}, "J", function()
---   hs.window.focusedWindow():focusWindowSouth()
--- end)
---
--- hs.hotkey.bind({"alt"}, "K", function()
---   hs.window.focusedWindow():focusWindowNorth()
--- end)
 
 hs.alert.show("Loaded")

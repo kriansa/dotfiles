@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+kubectl exec -tic application "$1" -- ${2:-bash}

@@ -1,1 +1,3 @@
 private.fish
+include/.gitconfig-work-global
+include/.gitconfig-work-projects

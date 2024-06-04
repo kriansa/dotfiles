@@ -17,5 +17,5 @@ else
   abbr --global --add d docker
 end
 
-set -x SSH_ASKPASS ssh-pass 
+set -x SSH_ASKPASS ssh-pass
 set -x SSH_ASKPASS_REQUIRE prefer
