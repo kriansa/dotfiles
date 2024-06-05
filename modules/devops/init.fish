@@ -11,7 +11,12 @@ abbr_subcommand kubectl get g
 if type -q podman
   abbr --global --add d podman
   abbr --global --add p podman
-  set --global --export DOCKER_HOST "unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+
+  # On Podman Mac, `podman-mac-helper` will add a socket symlink to /var/run/docker.sock
+  if ! test -S /var/run/docker.sock
+    set --global --export DOCKER_HOST "unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+  end
+
   set --global --export DOCKER_BUILDKIT 0
 else
   abbr --global --add d docker

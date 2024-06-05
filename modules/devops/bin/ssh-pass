@@ -8,7 +8,7 @@
 if test -n "$PASS_PATH"; then
   printf "%s" "$(pass "$PASS_PATH")"
 else
-  echo -e "You can pass \e[1mPASS_PATH\e[0m env var to the path of the password on \`pass\`" >&2
+  echo -e "You can pass \033[1mPASS_PATH\033[0m env var to the path of the password on \`pass\`" >&2
 
   {
     oldtty=$(stty -g)
