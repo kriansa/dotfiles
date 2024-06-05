@@ -109,7 +109,6 @@ o.shiftwidth = 2            -- Number of spaces to use for autoindenting
 o.tabstop = 2               -- Size of the tabs by default
 o.smarttab = true           -- Insert tabs on the start of a line according to shiftwidth, not tabstop
 o.shiftround = true         -- Use multiple of shiftwidth when indenting with '<' and '>'
-o.relativenumber = true     -- Show relative numbers
 
 o.complete:append("kspell") -- Use spell completion when spell check is enabled
 

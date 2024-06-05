@@ -1,13 +1,14 @@
 -- This effectively replaces the `set clipboard=unnamedplus` option, which sets every yanked text to
 -- the system clipboard. The problem with that is that when doing several deletes or changes in a
 -- row, the clipboard will keep getting overwritten, as well as calling the system clipboard app
--- every time. On GNOME, this is particularly slow, blocks the UI and steals the focus, causing
--- events such as `FocusLost` and `FocusGained` to be triggered, which is not what we want.
+-- every time. On GNOME Wayland, this is particularly slow, because it blocks the UI and steals the
+-- focus, causing events such as `FocusLost` and `FocusGained` to be triggered constantly, which is
+-- not what we want.
 --
--- This way, it will only copy to the system clipboard when the editor loses focus, which is
--- usually when you switch to another application. We also set a timer so we avoid conflicts while
--- alt-tabbing, especially on GNOME where the wl-clipboard steals the focus, causing an infinite
--- loop.
+-- This way, it will only copy to the system clipboard the last yanked text when the editor loses
+-- focus, which is usually when you switch to another application. We also set a timer so we avoid
+-- conflicts while alt-tabbing, especially on GNOME where the wl-clipboard steals the focus, causing
+-- an infinite loop.
 --
 -- See: https://github.com/neovim/neovim/issues/11804
 -- See: https://github.com/neovim/neovim/issues/24470
@@ -29,7 +30,7 @@ function with_locked_clipboard(fn)
   end
 end
 
-vim.api.nvim_create_autocmd("FocusLost", {
+vim.api.nvim_create_autocmd({"FocusLost", "VimLeave"}, {
   pattern = "*",
   callback = with_locked_clipboard(function()
     local current_yank = vim.fn.getreg(0)

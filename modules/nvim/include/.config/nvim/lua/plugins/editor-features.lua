@@ -3,14 +3,7 @@ return {
   { 'tpope/vim-sleuth' },
 
   -- Add file manipulation commands
-  {
-    'tpope/vim-eunuch',
-    cmd = {
-      "Delete", "Unlink", "Move", "Rename", "Chmod",
-      "Mkdir", "Cfind", "Lfind", "Clocate", "Llocate",
-      "SudoEdit", "SudoWrite", "Wall", "W"
-    },
-  },
+  { 'tpope/vim-eunuch' },
 
   -- Make loading sessions seamless
   { "tpope/vim-obsession" },
