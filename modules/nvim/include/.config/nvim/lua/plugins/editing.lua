@@ -41,15 +41,10 @@ return {
   },
 
   -- Commenter
-  -- TODO: replace with nvim 0.10 builtin comment support
   {
     'numToStr/Comment.nvim',
     config = function()
       require('Comment').setup()
-
-      -- TODO: Remove when https://github.com/numToStr/Comment.nvim/pull/398 gets merged
-      local ft = require('Comment.ft')
-      ft.hcl = {'#%s', '/*%s*/'}
     end
   },
 
