@@ -8,6 +8,13 @@ abbr --global --add kctx kubectx
 abbr_subcommand kubectl describe d
 abbr_subcommand kubectl get g
 
+# Binaries from kubectl krew
+fish_add_path --path --global $HOME/.krew/bin
+set --global --export KREW_NO_UPGRADE_CHECK 1
+
+# Set default image for kubectl node-shell
+set --global --export KUBECTL_NODE_SHELL_IMAGE nicolaka/netshoot
+
 if type -q podman
   abbr --global --add d podman
   abbr --global --add p podman
