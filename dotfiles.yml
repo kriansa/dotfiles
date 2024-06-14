@@ -27,6 +27,7 @@ modules:
   - { name: psi-notify, scopes: desktop }
   - { name: fontconfig, scopes: desktop }
   - { name: gnome, scopes: desktop }
+  - { name: kde, scopes: desktop }
   - { name: zathura, scopes: desktop }
 
   # Only for Work

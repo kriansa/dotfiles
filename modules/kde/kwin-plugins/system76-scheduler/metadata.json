@@ -1,0 +1,12 @@
+{
+  "KPlugin": {
+    "Name": "System76 Scheduler Integration",
+    "Description": "Integrates with usermode scheduler",
+    "Icon": "preferences-system-windows",
+    "Id": "system76-scheduler",
+    "Website": "https://github.com/kriansa"
+  },
+  "X-Plasma-API": "javascript",
+  "X-Plasma-MainScript": "code/main.js",
+  "KPackageStructure": "KWin/Script"
+}

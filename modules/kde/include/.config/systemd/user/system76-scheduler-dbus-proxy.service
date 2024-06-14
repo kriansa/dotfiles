@@ -1,0 +1,9 @@
+[Unit]
+Description=System76 Scheduler DBus Proxy
+
+[Service]
+ExecStart=%h/.dotfiles/modules/kde/libexec/system76-scheduler-dbus-proxy.sh
+Restart=no
+
+[Install]
+WantedBy=default.target
