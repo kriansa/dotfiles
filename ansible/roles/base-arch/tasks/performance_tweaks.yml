@@ -1,4 +1,11 @@
 ---
+- name: enable irqbalance
+  become: true
+  ansible.builtin.service:
+    name: irqbalance
+    state: started
+    enabled: yes
+
 - name: disable watchdogs
   become: true
   notify: rebuild initramfs

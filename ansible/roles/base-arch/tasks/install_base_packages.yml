@@ -43,6 +43,7 @@
       - less
       - ldns         # for drill tool (dig with DNSSEC)
       - fwupd
+      - irqbalance
 
 # no downtime on kernel updates
 - name: install kernel-modules-hook

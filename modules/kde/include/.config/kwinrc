@@ -35,7 +35,6 @@ kwin4_effect_dimscreenEnabled=true
 kwin4_effect_fadedesktopEnabled=true
 screenedgeEnabled=false
 slideEnabled=false
-system76-schedulerEnabled=true
 tilegapsEnabled=false
 zoomEnabled=false
 

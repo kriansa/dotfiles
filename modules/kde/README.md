@@ -1,5 +1,12 @@
 # Enable system76-scheduler integration
 
+## Status
+
+Currently this is disabled. `system76-scheduler` doesn't seem to properly reassign priorities to
+processes on foreground an background.
+
+## Installation
+
 Run the following commands to enable system76-scheduler integration:
 
 ```bash
