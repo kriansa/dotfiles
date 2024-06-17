@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#
+# Copies the OTP for the given account to the clipboard
+
+PATH="$PATH:/opt/homebrew/bin"
+pass otp "$1" | tr -d '\n' | pbcopy
