@@ -1,30 +1,30 @@
 return {
-  -- This plugin is giving me a headache, turning off for now.
-  --
-  -- {
-  --   'lewis6991/gitsigns.nvim',
-  --   config = function()
-  --     require('gitsigns').setup({
-  --       signs = {
-  --         add = { text = '+' },
-  --         change = { text = '~' },
-  --         delete = { text = '_' },
-  --         topdelete = { text = '‾' },
-  --         changedelete = { text = '~' },
-  --         untracked = { text = '┆' },
-  --       },
-  --       on_attach = mappings.gitsigns,
-  --       current_line_blame_opts = {
-  --         virt_text = true,
-  --         virt_text_pos = 'right_align', -- 'eol' | 'overlay' | 'right_align'
-  --         delay = 200,
-  --         ignore_whitespace = false,
-  --       },
-  --     })
-  --   end
-  -- },
-
   {
+    'lewis6991/gitsigns.nvim',
+    config = function()
+      require('gitsigns').setup({
+        signs = {
+          add = { text = '+' },
+          change = { text = '~' },
+          delete = { text = '_' },
+          topdelete = { text = '‾' },
+          changedelete = { text = '~' },
+          untracked = { text = '┆' },
+        },
+        on_attach = mappings.gitsigns,
+        current_line_blame_opts = {
+          virt_text = true,
+          virt_text_pos = 'right_align', -- 'eol' | 'overlay' | 'right_align'
+          delay = 200,
+          ignore_whitespace = false,
+        },
+      })
+    end
+  },
+
+  -- I'm giving another chance for gitsigns
+  --
+  --[[ {
     "airblade/vim-gitgutter",
     config = function()
       vim.g.gitgutter_map_keys = 0
@@ -54,7 +54,7 @@ return {
 
       mappings.git_blame()
     end
-  },
+  }, ]]
 
   {
     "sindrets/diffview.nvim",
