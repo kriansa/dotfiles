@@ -59,7 +59,7 @@ return {
           "gosum", "hcl", "html", "ini", "java", "javascript", "jq", "json", "jsonc", "json5",
           "kotlin", "latex", "lua", "luadoc", "make", "markdown", "markdown_inline", "passwd",
           "pem", "promql", "python", "ruby", "regex", "rust", "scss", "sql", "toml", "tsx",
-          "terraform", "typescript", "vim", "vue", "yaml", "xml",
+          "terraform", "typescript", "vim", "vimdoc", "vue", "yaml", "xml",
         },
         highlight = { enable = true },
         indent = { enable = true },

@@ -110,8 +110,8 @@ nnoremap("<Leader>tz", "<cmd>ZenMode<CR>", { silent = true })
 g.winresizer_start_key = '<Leader>e'
 
 -- Git (Neogit AND fugitive)
-nmap("<leader>gs", "<cmd>Neogit<CR>", { silent = true })
-nmap("<leader>gS", "<cmd>tab Git<CR>", { silent = true })
+nmap("<leader>gS", "<cmd>Neogit<CR>", { silent = true })
+nmap("<leader>gs", "<cmd>tab Git<CR>", { silent = true })
 
 -- Github Copilot
 mappings.gh_copilot = {
@@ -140,12 +140,34 @@ mappings.nvim_tree = function(bufnr)
     return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
   end
 
+  local function toggle_expand()
+    local default = 30
+    local max = vim.o.columns
+    local current = require('nvim-tree.view').View.width
+
+    require('nvim-tree.view').resize(current == default and max or default)
+  end
+
+  -- Open a file but resize the tree view to the default width if expanded
+  local function open(open_function)
+    return function(...)
+      open_function(...)
+
+      local default = 30
+      local current = require('nvim-tree.view').View.width
+
+      if current ~= default then
+        require('nvim-tree.view').resize(default)
+      end
+    end
+  end
+
   -- Opening files
-  vim.keymap.set('n', '<CR>', api.node.open.edit, opts('Open'))
-  vim.keymap.set('n', 'O', api.node.open.edit, opts('Open'))
-  vim.keymap.set('n', '<2-LeftMouse>', api.node.open.edit, opts('Open'))
-  vim.keymap.set('n', '<Tab>', api.node.open.preview, opts('Open Preview'))
-  vim.keymap.set('n', 'o', api.node.open.no_window_picker, opts('Open: No Window Picker'))
+  vim.keymap.set('n', '<CR>', open(api.node.open.edit), opts('Open'))
+  vim.keymap.set('n', 'O', open(api.node.open.edit), opts('Open'))
+  vim.keymap.set('n', '<2-LeftMouse>', open(api.node.open.edit), opts('Open'))
+  vim.keymap.set('n', '<Tab>', open(api.node.open.preview), opts('Open Preview'))
+  vim.keymap.set('n', 'o', open(api.node.open.no_window_picker), opts('Open: No Window Picker'))
   vim.keymap.set('n', 'U', api.tree.change_root_to_parent, opts('CD to parent'))
   vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
   vim.keymap.set('n', 'S', api.node.run.system, opts('Run System'))
@@ -164,13 +186,7 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', 'g?', api.tree.toggle_help, opts('Help'))
   vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
   vim.keymap.set('n', 'R', api.tree.reload, opts('Refresh'))
-  vim.keymap.set('n', 'A', function()
-    local default = 30
-    local max = vim.o.columns
-    local current = require('nvim-tree.view').View.width
-
-    require('nvim-tree.view').resize(current == default and max or default)
-  end, opts('Toggle tree view size'))
+  vim.keymap.set('n', 'A', toggle_expand, opts('Toggle tree view size'))
 
   -- Manipulation
   vim.keymap.set('n', 'a', api.fs.create, opts('Create'))
@@ -179,8 +195,8 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', '.', api.node.run.cmd, opts('Run Command'))
 
   -- Other
-  vim.keymap.set('n', '<C-v>', api.node.open.vertical, opts('Open: Vertical Split'))
-  vim.keymap.set('n', '<C-s>', api.node.open.horizontal, opts('Open: Horizontal Split'))
+  vim.keymap.set('n', '<C-v>', open(api.node.open.vertical), opts('Open: Vertical Split'))
+  vim.keymap.set('n', '<C-s>', open(api.node.open.horizontal), opts('Open: Horizontal Split'))
   vim.keymap.set('n', 'K', api.node.navigate.parent, opts('Parent Directory'))
   vim.keymap.set('n', 'I', api.tree.toggle_gitignore_filter, opts('Toggle Git Ignore'))
   vim.keymap.set('n', 'y', api.fs.copy.filename, opts('Copy Name'))

@@ -69,14 +69,15 @@ vim.filetype.add({
 })
 
 -- Settings
-cmd("lang en_US.UTF-8")         -- Fix encoding issues on MacOS
-o.encoding = "utf-8"            -- Enables utf8 encoding
+-- cmd("lang en_US.UTF-8")         -- Fix encoding issues on MacOS
+-- o.encoding = "utf-8"            -- Enables utf8 encoding
 o.backspace = "indent,eol"      -- Enables backspace on indentation and end of lines
 o.hidden = true                 -- This allows buffers to be hidden if you've modified a buffer.
 o.number = true                 -- Display line numbers
 o.wrap = false                  -- Disable word-wrap
 o.wildmenu = true               -- Helps command-line completion menu
 o.cursorline = true             -- Highlight the line the cursor is in
+o.cursorlineopt = "number"      -- Highlight the line number only
 o.showmode = false              -- Disable showing the mode (such as -- INSERT --) in the bottom
 o.swapfile = false              -- Never create swap files
 o.backup = false                -- Disable usage of backup files (~)
@@ -89,14 +90,23 @@ o.synmaxcol = 300               -- Limit syntax highlighting for long lines
 o.colorcolumn = "+1"            -- Set a width to show a column after texwidth
 o.foldenable = false            -- Disable folding
 -- o.lazyredraw = true             -- Do not redraw screen in the middle of a macro.
+o.showcmd = false               -- Disable showing the command you're typing at the bottom
 o.signcolumn = "yes"            -- Always show the sign column
-o.list = true                        -- Show hidden chars
+o.list = true                   -- Show hidden chars
 o.listchars = "tab:▸ ,eol:¬,space:·,trail:+" -- chars to be displayed
-o.showbreak = "↪"                    -- char to be displayed on wraped lines
-o.updatetime = 250                   -- Time to trigger CursorHold
+o.showbreak = "↪"               -- char to be displayed on wraped lines
+o.updatetime = 250              -- Time to trigger CursorHold
+o.startofline = true            -- Move the cursor to the start of the line after screen movements
+o.virtualedit = "block"         -- Allow cursor to move where there is no text in visual block mode
+o.writeany = true               -- Allow writing to any file with no need for "!" override
+o.confirm = true                -- Ask for confirmation when closing unsaved buffers
+
+-- Scrolling
+o.scrolloff=3
+o.sidescrolloff=3
 
 -- Spend extra time to generate the smallest possible diff
-o.diffopt:append("algorithm:patience")
+o.diffopt:append("algorithm:histogram")
 o.diffopt:append("linematch:60")
 
 -- Indentation settings

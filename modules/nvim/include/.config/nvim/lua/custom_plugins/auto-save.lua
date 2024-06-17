@@ -7,8 +7,8 @@ function M.is_buffer_writable()
   local blank_buffer = bufname == ""
 
   return not vim.o.diff and vim.o.modifiable and vim.o.modified and
-    vim.o.buftype ~= 'nofile' and not vim.o.readonly and not fugitive_status
-    and not fugitive_diff and not blank_buffer
+    vim.o.buftype ~= "nofile" and vim.o.buftype ~= "terminal" and vim.o.buftype ~= "prompt" and
+    not vim.o.readonly and not fugitive_status and not fugitive_diff and not blank_buffer
 end
 
 function M.write_buffer()

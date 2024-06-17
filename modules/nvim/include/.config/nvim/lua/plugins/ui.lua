@@ -99,7 +99,7 @@ return {
       -- Return the status of zoomwintoggle
       local zoomwin_icon = function()
         if vim.t.zoomwintab == 1 then
-          return '◱ '
+          return '󰁌 '
         end
 
         return ''
@@ -129,7 +129,7 @@ return {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
           lualine_b = { 'branch', { 'diff', source = git_status } },
           lualine_c = {'filename'},
-          lualine_x = {'location'},
+          lualine_x = {'location'}, -- or %c for only column
           lualine_y = {'bo:filetype', 'diagnostics'},
           lualine_z = {},
         },
