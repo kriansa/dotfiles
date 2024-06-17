@@ -17,7 +17,7 @@ program = "/usr/bin/env"
 [env]
 # Enable true-color support
 LANG = "en_US.UTF-8"
-TERM = "xterm-256color"
+TERM = "tmux-256color"
 
 # Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map
 # CMD-D to tmux, then use it as the following:
