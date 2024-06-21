@@ -19,13 +19,13 @@ function copyOTP(name)
   end
 end
 
-local menu = hs.menubar.new()
-menu:setTitle("MFA")
-menu:setMenu({
-  { title = "Meli SSO", fn = copyOTP("ML/SSO") },
-  { title = "Google", fn = copyOTP("ML/Google") },
-  { title = "Github", fn = copyOTP("ML/Github") },
-})
+hs.menubar.new(true, "mfa")
+  :setTitle("MFA")
+  :setMenu({
+    { title = "Meli SSO", fn = copyOTP("ML/SSO") },
+    { title = "Google", fn = copyOTP("ML/Google") },
+    { title = "Github", fn = copyOTP("ML/Github") },
+  })
 
 -- Global shortcut for DeepL
 hs.hotkey.bind({"cmd"}, "Escape", function()
