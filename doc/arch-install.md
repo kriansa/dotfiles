@@ -162,18 +162,20 @@ Answer `yes`. Then use `print` to list partition IDs and then rename it.
 ##### 13. Set the default keymap (use `br-abnt` for the Portuguese version)
     # echo "KEYMAP=us" > /etc/vconsole.conf
 
-##### 14A. Configure boot (with LUKS)
+##### 14. Configure initcpio
 Edit `/etc/mkinitcpio.conf` this way:
 1. Replace `udev` by `systemd` on HOOKS
 2. Add `xfs` in the MODULES line
-3. Add `sd-encrypt lvm2` between `block` and `filesystems` on HOOKS
-4. Add `keyboard sd-vconsole` before `autodetect` on HOOKS
+3. Set `yes` to the MODULES_DECOMPRESS line
+
+##### 14A. Configure boot (with LUKS)
+Edit `/etc/mkinitcpio.conf` this way:
+1. Add `sd-encrypt lvm2` between `block` and `filesystems` on HOOKS
+2. Add `keyboard sd-vconsole` before `autodetect` on HOOKS
 
 ##### 14B. Configure boot (without LUKS)
 If you aren't using LUKS, then configure `/etc/mkinitcpio.conf` this way:
-1. Replace `udev` by `systemd` on HOOKS
-2. Add `xfs` in the MODULES line
-3. Add `lvm2` between `block` and `filesystems` on HOOKS
+1. Add `lvm2` between `block` and `filesystems` on HOOKS
 
 ##### 15. Generate initramfs
     # mkinitcpio -P
