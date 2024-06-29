@@ -35,17 +35,22 @@ vim.api.nvim_create_autocmd({"FocusLost", "VimLeave"}, {
   callback = with_locked_clipboard(function()
     local current_yank = vim.fn.getreg(0)
 
+    -- Avoid touching the system clipboard register if it hasn't been changed. It helps with not
+    -- spamming wl-clipboard on GNOME Wayland after we LostFocus
     if vim.g._last_yank ~= current_yank then
       vim.fn.setreg("+", current_yank)
+      vim.g._last_yank = current_yank
     end
-
-    vim.g._last_yank = current_yank
   end)
 })
 
 vim.api.nvim_create_autocmd("FocusGained", {
   pattern = "*",
-  callback = with_locked_clipboard(function()
-    vim.fn.setreg("@", vim.fn.getreg("+"))
-  end)
+  callback = function()
+    -- Sometimes it may take a while before the + register reflects the content on system clipboard,
+    -- so we need to compensate for that by rewriting the @ register 100ms after getting focused.
+    vim.defer_fn(function()
+      vim.fn.setreg("@", vim.fn.getreg("+"))
+    end, 100)
+  end
 })

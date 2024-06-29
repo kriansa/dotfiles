@@ -169,7 +169,7 @@ return {
           highlight = { 'Whitespace' }
         },
         exclude = {
-          filetypes = { 'fugitive' },
+          filetypes = { 'fugitive', 'git' },
         },
         indent = {
           char = "│",
@@ -188,6 +188,14 @@ return {
     'iamcco/markdown-preview.nvim',
     ft = "markdown",
     build = 'cd app && yarn install',
+  },
+
+  {
+    'MeanderingProgrammer/markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    config = function()
+      require('render-markdown').setup({})
+    end,
   },
 
   -- CSS/HTML
