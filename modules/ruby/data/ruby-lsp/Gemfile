@@ -1,0 +1,8 @@
+# This is a Gemfile that usually gets created automatically by `ruby-lsp` gem on every project.
+#
+# This one is crafted specifically to be used as a "centralized" Gemfile for all projects that use
+# `ruby-lsp` gem. So far it's working well (July 2024), but it's not guaranteed to work in the
+# future should the implementation of `ruby-lsp` gem change.
+
+gem "ruby-lsp", require: false, group: :development
+gem "ruby-lsp-rails", require: false, group: :development

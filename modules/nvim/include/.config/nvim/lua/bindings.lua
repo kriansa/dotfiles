@@ -373,12 +373,13 @@ mappings.lsp = function(bufnr)
   vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts)
 end
 
--- Conform to format code
+-- Conform to format code (mnemonic: Linter Format)
 vim.keymap.set({'n', 'v'}, '<leader>lf', function()
   require("conform").format({ async = true })
   vim.notify("Code formatted")
-end, bufopts)
+end)
 
--- Try to get used not typing C-c to exit insert/visual mode
-inoremap('<C-c>', '<Nop>')
-vnoremap('<C-c>', '<Nop>')
+-- Toggle linting (mnemonic: Linter Toggle)
+vim.keymap.set({'n', 'v'}, '<leader>lt', function()
+  vim.cmd("LintToggle")
+end)

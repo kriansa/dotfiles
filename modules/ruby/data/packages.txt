@@ -5,4 +5,5 @@ standard
 standard-rails
 rubocop-rspec
 rubocop-rails
-solargraph
+ruby-lsp
+ruby-lsp-rails
