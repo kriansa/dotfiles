@@ -59,8 +59,11 @@ class CLI:
                 Stower().load(scopes=args.scopes)
             elif args.command == 'unload':
                 Stower().unload()
+
+        # pylint: disable=broad-exception-caught
         except Exception as err:
-            return Term.error(err)
+        # pylint: enable=broad-exception-caught
+            Term.error(err)
 
 
 class State:
@@ -69,8 +72,10 @@ class State:
     def __init__(self, file):
         self.file = file
         self.db = sqlite3.connect(file)
+        self.state = {}
 
     def load(self):
+        """Initialize the state database and load the existing state"""
         self.db.execute("CREATE TABLE IF NOT EXISTS links(path TEXT, PRIMARY KEY (path ASC)) STRICT")
         self.db.execute("CREATE TABLE IF NOT EXISTS local_links(path TEXT, PRIMARY KEY (path ASC)) STRICT")
         self.db.commit()
@@ -157,7 +162,7 @@ class Stower:
     dotfiles_path: str = ""
     destination_path: str = ""
     settings_path: str = ""
-    state: State = None
+    state: State|None = None
     settings: dict[str, Any] = {}
 
     def __init__(self, dotfiles_path = "~/.dotfiles", destination_path = "~"):
@@ -172,7 +177,7 @@ class Stower:
         self._clear_symlinks()
         Term.status("Configuration unloaded")
 
-    def load(self, scopes: list[str] = None):
+    def load(self, scopes: list[str]|None = None):
         """With all settings loaded, this will setup all enabled modules"""
         Term.status("Loading settings")
         self._load_settings(scopes)
@@ -188,7 +193,7 @@ class Stower:
         self.state = State(f"{self.dotfiles_path}/dotstate.db")
         self.state.load()
 
-    def _load_settings(self, scopes: list[str] = None):
+    def _load_settings(self, scopes: list[str]|None = None):
         """Load all dotfiles settings recursively"""
         try:
             self.settings = yaml.load(
@@ -359,8 +364,8 @@ class Stower:
                 if os.path.islink(sym_to) and os.readlink(sym_to) == sym_from:
                     self.state.add_symlink(destination)
                     return
-                else:
-                    raise RuntimeError(f"Path {sym_to} already exists!")
+
+                raise RuntimeError(f"Path {sym_to} already exists!")
 
             os.makedirs(os.path.dirname(sym_to), exist_ok=True)
             os.symlink(sym_from, sym_to)
@@ -386,8 +391,8 @@ class Stower:
                 if os.path.islink(sym_to) and os.readlink(sym_to) == sym_from:
                     self.state.add_local_symlink(destination)
                     return
-                else:
-                    raise RuntimeError(f"Path {sym_to} already exists!")
+
+                raise RuntimeError(f"Path {sym_to} already exists!")
 
             # Internally we want to create relative links only
             relpath_from = os.path.relpath(sym_from, os.path.dirname(sym_to))
