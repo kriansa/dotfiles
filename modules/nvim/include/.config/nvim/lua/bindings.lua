@@ -101,6 +101,7 @@ nnoremap('<C-q>', '<cmd>QToggle<CR>', { silent = true })
 
 -- Lazy.nvim (package manager)
 nmap("<leader>ps", "<cmd>Lazy sync<CR>", { silent = true })
+nmap("<leader>pr", "<cmd>Lazy restore<CR>", { silent = true })
 
 -- Toggles zoom between the current buffer
 nnoremap("<Leader>tt", "<cmd>ZoomWinTabToggle<CR>", { silent = true })
