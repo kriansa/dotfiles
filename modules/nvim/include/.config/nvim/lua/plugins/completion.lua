@@ -272,19 +272,22 @@ return {
       vim.api.nvim_create_user_command('LintToggle', function()
         vim.g._linter_enabled = not vim.g._linter_enabled
 
+        local status
         if vim.g._linter_enabled then
-          require("lint").try_lint()
+          status = "enabled"
+          require("lint").try_lint(nil, { ignore_errors = true })
         else
+          status = "disabled"
           vim.diagnostic.reset()
         end
 
-        print("Linter: " .. (vim.g._linter_enabled and "enabled" or "disabled"))
+        print("Linter: " .. status)
       end, { desc = "Toggle the automatic linter execution on buffers" })
 
       vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "TextChanged" }, {
         callback = function()
           if vim.g._linter_enabled then
-            require("lint").try_lint()
+            require("lint").try_lint(nil, { ignore_errors = true })
           end
         end,
       })

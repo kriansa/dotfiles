@@ -1,3 +1,4 @@
+python-lsp-server
 pylint
 mypy
 isort
