@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+#
+# Opens an application on the terminal, but instead of opening a new window every time, it first
+# finds for existing open terminal emulator windows. Then, it opens the program in a tmux window
+# (tab) so it fits better my work gymnastics.
+
+TERMINAL_DESKTOP_FILENAME="Alacritty"
+TERMINAL_COMMAND="alacritty"
+
+main() {
+	trap 'cleanup' EXIT
+	trap 'cleanup HUP' HUP
+	trap 'cleanup TERM' TERM
+	trap 'cleanup INT' INT
+
+	# This is a trick to launch a program in the background using process substitution
+	# See: https://unix.stackexchange.com/questions/700506/bash-ipc-using-named-pipes
+	exec {OUTPUT}< <(dbus_listen)
+	LISTENER_PID=$!
+
+	# Either finds an existing terminal emulator and focus it or open a new one
+	focus_or_execute_terminal
+
+  # Ignore first arg if it's a `-e` for compatiblity with other terminal emulators
+  [[ $1 == "-e" ]] && shift
+
+	# Lastly, we open a new tmux window as now the terminal emulator is already open or focused
+	tmux new-window -n "$(basename "${1:-$SHELL}")" "$@"
+}
+
+# Create a listener for a D-BUS call on an arbitrary interface so we can communicate with the script
+# that we launch through KWin scripting system.
+#
+# This listener will wait for a specific message (ProgramIsFound) and then exit, outputting the
+# result boolean value
+dbus_listen() {
+	dbus-monitor "interface=com.kriansa.PlasmaMessenger,member=ProgramIsFound" |
+		while true; do
+			read -r method_call
+			read -r _ result
+
+			if [[ $method_call =~ ^method\ call.*member=ProgramIsFound ]]; then
+				echo "$result"
+				exit
+			fi
+
+			sleep .001	# Prevent busy loop if something fails...
+		done
+}
+
+execute_kwin_window_finder() {
+	TMPSCRIPT=$(mktemp)
+	cat <<-EOF > "$TMPSCRIPT"
+		function main() {
+			const service = "com.kriansa.PlasmaMessenger"
+			const object = "/Program"
+			const interface = "com.kriansa.PlasmaMessenger"
+			const method = "ProgramIsFound"
+
+			for (const window of workspace.windowList()) {
+				const found = window.desktopFileName === "$TERMINAL_DESKTOP_FILENAME"
+
+				if (!found) {
+					continue
+				}
+
+				workspace.activeWindow = window
+				callDBus(service, object, interface, method, true)
+				return
+			}
+
+			callDBus(service, object, interface, method, false)
+		}
+
+		main()
+	EOF
+}
+
+focus_or_execute_terminal() {
+	execute_kwin_window_finder
+
+	KWIN_SCRIPT_ID=$(dbus-send --print-reply --dest=org.kde.KWin \
+		/Scripting org.kde.kwin.Scripting.loadScript \
+		"string:$TMPSCRIPT" 2>/dev/null | tail -1 | awk '{ print $2 }')
+	dbus-send --print-reply --dest=org.kde.KWin "/Scripting/Script${KWIN_SCRIPT_ID}" \
+		org.kde.kwin.Script.run &>/dev/null
+
+	# Wait for the output of the listener in the background and store its value in the $result variable
+	read -ru $OUTPUT result
+
+	# This means that the program was not found and we need to launch it
+	if [[ "$result" == "false" ]]; then
+		$TERMINAL_COMMAND & disown $!
+	fi
+}
+
+cleanup() {
+	# Remove the EXIT trap along with the trap that originated this function call
+	trap - EXIT
+	test -n "$1" && trap - "$1"
+
+	rm -f "$TMPSCRIPT"
+	test -n "$KWIN_SCRIPT_ID" && dbus-send --print-reply \
+		--dest=org.kde.KWin "/Scripting/Script${KWIN_SCRIPT_ID}" \
+		org.kde.kwin.Script.stop &>/dev/null
+
+	# Kills the child listener process with the same signal as the parent
+	pkill -P -"${1:-TERM}" $LISTENER_PID &>/dev/null
+}
+
+main "$@"
