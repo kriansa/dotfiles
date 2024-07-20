@@ -51,6 +51,11 @@ vim.api.nvim_create_autocmd("FocusGained", {
     -- so we need to compensate for that by rewriting the @ register 100ms after getting focused.
     vim.defer_fn(function()
       vim.fn.setreg("@", vim.fn.getreg("+"))
+      vim.g._last_yank = vim.fn.getreg("+")
     end, 100)
+
+    -- Always reset last yank cache when returning to vim, so next time we lost the focus we ensure
+    -- that we always copy whatever is in the clipboard
+    vim.g._last_yank = nil
   end
 })
