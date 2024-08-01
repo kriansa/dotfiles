@@ -12,7 +12,6 @@ modules:
   - git
   - ruby
   - tmux
-  - emacs
   - java
   - nvim
   - javascript
@@ -21,14 +20,18 @@ modules:
 
   # Only for my Home desktop
   - { name: linux, scopes: desktop }
-  - { name: arch-btw, scopes: desktop }
   - { name: alacritty-linux, scopes: desktop }
   - { name: gnupg, scopes: desktop }
   - { name: psi-notify, scopes: desktop }
   - { name: fontconfig, scopes: desktop }
-  - { name: gnome, scopes: desktop }
   - { name: kde, scopes: desktop }
   - { name: zathura, scopes: desktop }
+
+  # Incompatible with KDE
+  # - { name: gnome, scopes: desktop }
+
+  # Disabled
+  # - { name: emacs }
 
   # Only for Work
   - { name: homebrew, scopes: work }
