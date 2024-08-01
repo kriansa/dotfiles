@@ -16,6 +16,9 @@
       # Subtitles editor
       - gaupol
 
+      # Ebook reader
+      - foliate
+
       # Faster camera download
       - rapid-photo-downloader
 

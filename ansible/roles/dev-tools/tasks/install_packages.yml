@@ -6,8 +6,6 @@
     name:
       # Editors
       - neovim
-      - emacs
-      - cmake # required for emacs's vterm
       - dbeaver
 
       # Utilities

@@ -3,6 +3,13 @@
   become: true
   ansible.builtin.file: path=/etc/NetworkManager/system-connections mode=0700 state=directory
 
+- name: enable/disable wpa_supplicant
+  become: true
+  ansible.builtin.systemd:
+    name: wpa_supplicant
+    state: "{{ 'started' if configure_wifi == true else 'stopped' }}"
+    enabled: "{{ configure_wifi == true }}"
+
 - name: configure wifi
   become: true
   when: configure_wifi == true

@@ -42,7 +42,6 @@
       - lsof
       - less
       - ldns         # for drill tool (dig with DNSSEC)
-      - fwupd
       - irqbalance
 
 # no downtime on kernel updates
