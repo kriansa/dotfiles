@@ -6,7 +6,16 @@ After=graphical.target systemd-user-sessions.service
 [Service]
 User=%i
 WorkingDirectory=~
-ExecStart=/usr/bin/startplasma-wayland
+# Prepending the $HOME/.bin to $PATH makes it possible for KDE/KWin to find user's own executables
+# such as the ones installed by dotfiles manager.
+#
+# Find out the exact path of the process by running `systemctl status kde@<user>`, getting its PID
+# and then executing `sudo strings /proc/<pid>/environ | grep PATH`
+#
+# On KDE, this PATH is also used to update the user's systemd session PATH env variable (run
+# `systemctl --user show-environment` to see it).
+Environment=PATH=/home/%i/.bin:/usr/local/sbin:/usr/local/bin:/usr/bin
+ExecStart=startplasma-wayland
 
 # Register the process as a PAM session for the login service, which includes
 # pam_systemd. This module registers the session to the systemd login manager.

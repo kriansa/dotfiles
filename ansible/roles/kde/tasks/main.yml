@@ -3,21 +3,23 @@
   become: true
   community.general.pacman:
     state: present
+    extra_args: --ignore discover --ignore flatpak-kcm --ignore sddm-kcm --ignore plasma-welcome
     name:
       - plasma
-      - plasma-wayland-session
-      - kde-gtk-config
 
       # Tools
       - plasma-systemmonitor
       - gwenview
       - dolphin
       - partitionmanager
-      - phonon-qt5-vlc
+      - phonon-qt6-vlc
       - wl-clipboard
 
       # Screenshot tool
       - spectacle
+
+      # Webcam
+      - kamoso
 
       # To decompress on Dolphin
       - ark

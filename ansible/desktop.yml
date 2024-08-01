@@ -19,5 +19,5 @@
     - role: borgmatic
     - role: yubikey
     - role: network
-    - role: gnome
+    - role: kde
     - role: desktop-tools

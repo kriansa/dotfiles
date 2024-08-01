@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#
+# This simply ensures that the GTK+ file chooser dialog is in sync with the bookmarks that I have
+# defined in Dolphin (KDE's file manager). The proper way to do this would be ensuring that the GTK
+# application uses XDG portals, but we can't expect every application to migrate.
+#
+# See: https://wiki.archlinux.org/title/Uniform_look_for_Qt_and_GTK_applications#Consistent_file_dialog
+# See: https://github.com/jlu5/bookmarksync
+
+awk -F\" '/<bookmark href="file/ { if ($2 != "file://" ENVIRON["HOME"]) print $2 }' \
+  < "$HOME/.local/share/user-places.xbel" \
+  > "$HOME/.config/gtk-3.0/bookmarks"
