@@ -5,7 +5,7 @@ function get_search_dirs()
 
   -- `dirs` is a key-valued table and we add values as keys so they aren't duplicated
   local dirs = {}
-  for _, node in ipairs(require("nvim-tree.api").marks.list()) do
+  for _, node in ipairs(require("nvim-tree.api").marks.list() or {}) do
     local abspath
 
     -- If the selected node is a file, then we use its parent directory in the search
@@ -52,9 +52,9 @@ function M.live_grep_current_word()
 end
 
 function M.live_grep_current_selection()
-	vim.cmd('noau normal! "vy"')
-	local selection = vim.fn.getreg('v'):gsub("^%s*(.-)%s*$", "%1")
-	vim.fn.setreg('v', {})
+  vim.cmd('noau normal! "vy"')
+  local selection = vim.fn.getreg('v'):gsub("^%s*(.-)%s*$", "%1")
+  vim.fn.setreg('v', {})
 
   require("telescope.builtin").live_grep({
     default_text=selection,
