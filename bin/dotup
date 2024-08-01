@@ -85,11 +85,11 @@ class State:
             "local_links": self.db.execute("SELECT path FROM local_links").fetchall(),
         }
 
-    def add_symlink(self, symlink):
-        """Adds a reference of an added symlink to the state DB"""
-        self.db.execute("INSERT INTO links(path) VALUES (?)", (symlink,))
+    def add_link(self, link):
+        """Adds a reference of an added link to the state DB"""
+        self.db.execute("INSERT INTO links(path) VALUES (?)", (link,))
         self.db.commit()
-        self.state["links"].append(symlink)
+        self.state["links"].append(link)
 
     def add_local_symlink(self, symlink):
         """Adds a reference of a locally added symlink to the state DB"""
@@ -97,16 +97,16 @@ class State:
         self.db.commit()
         self.state["local_links"].append(symlink)
 
-    def symlinks(self):
-        """Retrieves a list of stored symlinks in the state DB"""
+    def links(self):
+        """Retrieves a list of stored links in the state DB"""
         return self.state["links"]
 
     def local_symlinks(self):
         """Retrieves a list of local-scoped symlinks stored in the state DB"""
         return self.state["local_links"]
 
-    def erase_symlinks(self):
-        """Erase the entire list of symlinks and local symlinks in the state DB"""
+    def erase_links(self):
+        """Erase the entire list of links and local links in the state DB"""
         self.state["links"] = []
         self.state["local_links"] = []
         self.db.execute("DELETE FROM links")
@@ -174,7 +174,7 @@ class Stower:
     def unload(self):
         """Unload all previously loaded dotfiles based on the state"""
         self._load_state()
-        self._clear_symlinks()
+        self._clear_links()
         Term.status("Configuration unloaded")
 
     def load(self, scopes: list[str]|None = None):
@@ -245,7 +245,7 @@ class Stower:
             raise RuntimeError(f"Module folder '{module}' not found")
 
         # Link include files
-        self._load_module_symlinks(module)
+        self._load_module_links(module)
         Term.status("Files linked", indent = 2)
 
         # Load shell config files
@@ -256,9 +256,9 @@ class Stower:
         self._load_module_bins(module)
         Term.status("Binary files linked", indent = 2)
 
-    def _load_module_symlinks(self, module):
+    def _load_module_links(self, module):
         for link in self._list_module_links(module):
-            self._symlink(f"modules/{module}/include/{link}", link)
+            self._link(f"modules/{module}/include/{link}", link)
 
     def _load_module_shell_plugins(self, module):
         for link in self._list_module_shell_links(module):
@@ -271,7 +271,7 @@ class Stower:
 
     def _load_module_bins(self, module):
         for file in self._list_module_bins(module):
-            self._symlink(f"modules/{module}/bin/{file}", f".bin/{file}")
+            self._link(f"modules/{module}/bin/{file}", f".bin/{file}")
 
     def _list_module_shell_links(self, module) -> list[str]:
         module_path = self._module_path(module)
@@ -298,12 +298,12 @@ class Stower:
         for root, _dirs, files in os.walk(include_path):
             rel_root = root.removeprefix(f"{include_path}").lstrip("/")
 
-            # Just skips this entire folder if their parent is already marked for symlinking
+            # Just skips this entire folder if their parent is already marked for linking
             path_already_linked = [True for path in linkable_paths if rel_root.startswith(f"{path}/")]
             if path_already_linked:
                 continue
 
-            if root != include_path and not Stower.symlinked_denied(rel_root):
+            if root != include_path and not Stower.linked_denied(rel_root):
                 linkable_paths.append(rel_root)
                 continue
 
@@ -320,13 +320,13 @@ class Stower:
         return os.listdir(bin_path)
 
     @staticmethod
-    def symlinked_denied(path) -> bool:
+    def linked_denied(path) -> bool:
         """
         Returns whether the specified path is in the paths deny_list, meaning that this specific
-        path can not be symlinked.
+        path can not be linked.
 
         E.g. If we're testing the path /etc and /etc/etcd is in the denylist, then /etc can't be
-        symlinked because there's a child node that can't.
+        linked because there's a child node that can't.
         """
         for denial in Stower.paths_denylist():
             if denial.startswith(path):
@@ -335,7 +335,7 @@ class Stower:
 
     @staticmethod
     def paths_denylist() -> list[str]:
-        """This is a list of paths that shouldn't never be symlinked, only their child nodes"""
+        """This is a list of paths that shouldn't never be linked, only their child nodes"""
         return [
             ".local/share",              # XDG_DATA_HOME
             ".config",                   # XDG_CONFIG_HOME
@@ -343,39 +343,72 @@ class Stower:
             ".cache",                    # XDG_CACHE_HOME
             ".gnupg",                    # GnuPG metadata
             ".config/vlc",               # VLC metadata
+            ".config/gtk-3.0",           # GTK3 settings
             ".config/pulse",             # PulseAudio
             ".config/systemd/user",      # SystemD user units
             ".local/share/applications", # Desktop entries
         ]
 
-    def _symlink(self, origin, destination):
+    @staticmethod
+    def paths_hardlink() -> list[str]:
+        """This is a list of paths that should be hardlinked instead of symlinked"""
+        return [
+            ".local/share/applications/*.desktop", # Desktop entries
+        ]
+
+    @staticmethod
+    def should_be_hardlinked(path) -> bool:
+        """Returns whether the specified path should be hardlinked instead of symlinked"""
+        for hardlink in Stower.paths_hardlink():
+            if Path(path).match(hardlink):
+                return True
+        return False
+
+    @staticmethod
+    def is_linked(origin, destination, hardlink=False) -> bool:
+        """Returns whether the specified path is already linked"""
+        if hardlink:
+            # Raise error if origin and destination are not in the same filesystem
+            if os.stat(origin).st_dev != os.stat(destination).st_dev:
+                raise RuntimeError(f"Path {destination} is not in the same filesystem as {origin}!")
+
+            return os.stat(origin).st_ino == os.stat(destination).st_ino
+
+        return os.path.islink(destination) and os.readlink(destination) == origin
+
+    def _link(self, origin, destination):
         """
-        Creates a symlink between an origin inside dotfiles to a destination at destination_path
+        Creates a link between an origin inside dotfiles to a destination at destination_path
         """
         try:
             sym_from = f"{self.dotfiles_path}/{origin}"
             sym_to = f"{self.destination_path}/{destination}"
+            should_be_hardlinked = Stower.should_be_hardlinked(origin)
 
             if not os.path.exists(sym_from):
                 raise RuntimeError(f"File {sym_from} was not found!")
             if os.path.exists(sym_to):
-                # If the file is a symlink and it is already pointing to where we want to, just
+                # If the file is a link and it is already pointing to where we want to, just
                 # include it into our state, otherwise let the user fix it.
-                if os.path.islink(sym_to) and os.readlink(sym_to) == sym_from:
-                    self.state.add_symlink(destination)
+                if Stower.is_linked(sym_from, sym_to, hardlink=should_be_hardlinked):
+                    self.state.add_link(destination)
                     return
 
                 raise RuntimeError(f"Path {sym_to} already exists!")
 
             os.makedirs(os.path.dirname(sym_to), exist_ok=True)
-            os.symlink(sym_from, sym_to)
-            self.state.add_symlink(destination)
+            if should_be_hardlinked:
+                os.link(sym_from, sym_to)
+            else:
+                os.symlink(sym_from, sym_to)
+
+            self.state.add_link(destination)
         except Exception as err:
-            raise RuntimeError(f"Failed to symlink file {origin} at {destination}") from err
+            raise RuntimeError(f"Failed to link file {origin} at {destination}") from err
 
     def _symlink_internal(self, origin, destination):
         """
-        This is similar to _symlink, but it is meant to link an internal module to another
+        This is similar to _link, but it is meant to link an internal module to another
         already internal module (such as linking shell plugins)
         """
         try:
@@ -403,14 +436,20 @@ class Stower:
         except Exception as err:
             raise RuntimeError(f"Failed to symlink file {origin} at {destination}") from err
 
-    def _clear_symlinks(self):
-        """Clear all symlinks created by dotfiles, both internal and external ones"""
-        for file in self.state.symlinks():
-            symlink = f"{self.destination_path}/{file}"
+    def _clear_links(self):
+        """Clear all links created by dotfiles, both internal and external ones"""
+        for file in self.state.links():
+            link = f"{self.destination_path}/{file}"
+            should_be_hardlinked = Stower.should_be_hardlinked(file)
 
-            # Make sure we only ever delete symlinks we know we linked
-            if os.path.islink(symlink) and os.readlink(symlink).startswith(self.dotfiles_path):
-                os.remove(symlink)
+            # Make sure we only ever delete links we know we linked
+            # For hardlinks, there's no way to be sure, so we just check files that have the link
+            # count greater than 1, meaning there's at least another file pointing to it -- so
+            # definitely a hardlink, we just can't be sure to where.
+            is_symlink = os.path.islink(link) and os.readlink(link).startswith(self.dotfiles_path)
+            is_hardlink = should_be_hardlinked and os.path.exists(link) and os.stat(link).st_nlink > 1
+            if is_symlink or is_hardlink:
+                os.remove(link)
 
         for file in self.state.local_symlinks():
             symlink = f"{self.dotfiles_path}/{file}"
@@ -420,6 +459,6 @@ class Stower:
             if os.path.islink(symlink) and link_path.startswith(self.dotfiles_path):
                 os.remove(symlink)
 
-        self.state.erase_symlinks()
+        self.state.erase_links()
 
 CLI.start()
