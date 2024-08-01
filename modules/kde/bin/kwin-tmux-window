@@ -24,8 +24,16 @@ main() {
   # Ignore first arg if it's a `-e` for compatiblity with other terminal emulators
   [[ $1 == "-e" ]] && shift
 
-	# Lastly, we open a new tmux window as now the terminal emulator is already open or focused
-	tmux new-window -n "$(basename "${1:-$SHELL}")" "$@"
+	# Lastly, we open a new tmux window as now the terminal emulator is already open and focused
+	#
+	# We invoke the specified command from the default shell so it executes the user's shell
+	# configuration files prior, which may be needed as it usually sets up the environment for the
+	# user such as some entries in $PATH and whatnot. In order to do so, we need to re-quote all
+	# parameters sent to this script so they become "safe" to be passed to the shell again.
+	# If no command is supplied, we just open a new shell without args.
+	# See: https://stackoverflow.com/questions/1668649/how-can-i-keep-quotes-in-bash-arguments
+  test $# -gt 0 && ARGS=(-ic "$(printf " %q" "$@")") || ARGS=(-i)
+	tmux new-window -n "$(basename "${1:-$SHELL}")" "$SHELL" "${ARGS[@]}"
 }
 
 # Create a listener for a D-BUS call on an arbitrary interface so we can communicate with the script

@@ -1,10 +1,11 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Terminal
-GenericName=Terminal
+StartupNotify=false
+Name=Tmux window
+GenericName=tmux
 Comment=A new tmux window on the existing terminal emulator
-Exec=/home/dpereira/.dotfiles/modules/kde/bin/terminal
-TryExec=/home/dpereira/.dotfiles/modules/kde/bin/terminal
+Exec=kwin-tmux-window
+TryExec=kwin-tmux-window
 Icon=utilities-terminal
 Categories=System;TerminalEmulator;
