@@ -1,12 +1,13 @@
 ---
-- name: extract data out of existing backup
+- name: extract data out of last backup (it might take ~15m)
   become: true
-  when: restore_data == True
+  when: restore_data | bool
   ansible.builtin.command:
     chdir: /
     cmd: >
       borgmatic extract -c "{{ home_path }}/.config/borgmatic/config.yaml"
-      --archive latest {% for path in paths %} --path "home/{{ user_name }}/{{ path }}"{% endfor %}
+      --archive latest
+      {% for path in paths %} --path "home/{{ user_name }}/{{ path }}"{% endfor %}
   vars:
     paths:
       # Personal data

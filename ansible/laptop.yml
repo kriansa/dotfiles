@@ -3,6 +3,7 @@
   vars_prompt:
     - name: restore_data
       prompt: Should we also restore data from latest backup?
+      private: no
       default: no
 
   vars:
