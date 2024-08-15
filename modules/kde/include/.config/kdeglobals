@@ -157,7 +157,7 @@ smallestReadableFont=Roboto Condensed,9,-1,5,50,0,0,0,0,0
 toolBarFont=Roboto Condensed,11,-1,5,50,0,0,0,0,0
 
 [KDE]
-AnimationDurationFactor=0.17677669529663687
+AnimationDurationFactor=0
 ShowDeleteCommand=false
 SingleClick=false
 widgetStyle=Breeze
