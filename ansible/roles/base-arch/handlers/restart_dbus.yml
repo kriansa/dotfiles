@@ -1,4 +1,0 @@
----
-- name: restart dbus
-  become: true
-  ansible.builtin.command: systemctl restart dbus NetworkManager

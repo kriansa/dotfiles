@@ -18,6 +18,8 @@
   become: true
   ansible.builtin.template: src=loader.conf.j2 dest=/boot/loader/loader.conf mode=0644
 
+- set_fact: luks_name="{{ ansible_facts.proc_cmdline['rd.luks.name'] }}"
+
 - name: copy linux entries
   become: true
   ansible.builtin.template: src=arch-entry.conf.j2 dest=/boot/loader/entries/{{ item.loader_path }}

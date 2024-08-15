@@ -1,4 +1,23 @@
 ---
-- import_tasks: restart_dbus.yml
-- import_tasks: update_pacman_repo.yml
-- import_tasks: enable_kernel_modules_hook.yml
+- name: enable kernel modules hook
+  become: true
+  ansible.builtin.systemd: daemon_reload=yes enabled=yes name=linux-modules-cleanup
+
+- name: restart dbus
+  become: true
+  ansible.builtin.command: systemctl restart dbus NetworkManager
+
+- name: update pacman repo db
+  become: true
+  community.general.pacman:
+    update_cache: yes
+
+- name: reload systemd-logind
+  become: true
+  ansible.builtin.command: systemctl kill -s HUP systemd-logind
+  args:
+    warn: no
+
+- name: reload hwdb
+  become: true
+  ansible.builtin.shell: systemd-hwdb update && udevadm trigger

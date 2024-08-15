@@ -1,0 +1,10 @@
+---
+- name: disable linux fallback presets
+  become: true
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    line: "PRESETS=('default')"
+    regexp: "PRESETS=\\(.*\\)"
+  loop:
+    - /etc/mkinitcpio.d/linux.preset
+    - /etc/mkinitcpio.d/linux-lts.preset

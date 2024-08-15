@@ -1,0 +1,28 @@
+---
+- name: configure dell 5511 keyboard
+  become: true
+  notify: reload hwdb
+  ansible.builtin.copy:
+    dest: /etc/udev/hwdb.d/01-dell-g15-5511-keyboard.hwdb
+    content: |
+      # Dell G15 551*
+      evdev:atkbd:dmi:bvn*:bvr*:bd*:svnDellInc.:pnDellG15551*:*
+        KEYBOARD_KEY_68=prog1              # G button → XF86Launch1
+        KEYBOARD_KEY_69=kbdillumtoggle     # Toggle keyboard illumination
+
+- name: create logind config path
+  become: true
+  ansible.builtin.file: dest=/etc/systemd/logind.conf.d state=directory
+
+- name: configure logind on how to handle some acpi events
+  become: true
+  notify: reload systemd-logind
+  ansible.builtin.copy:
+    dest: /etc/systemd/logind.conf.d/01-handle-power-events.conf
+    content: |
+      [Login]
+      # Let us handle lid switch and power key events at userspace
+      HandleLidSwitch=ignore
+      HandleLidSwitchExternalPower=ignore
+      HandleLidSwitchDocked=ignore
+      HandlePowerKey=ignore

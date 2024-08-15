@@ -1,5 +1,0 @@
----
-- name: update pacman repo db
-  become: true
-  community.general.pacman:
-    update_cache: yes

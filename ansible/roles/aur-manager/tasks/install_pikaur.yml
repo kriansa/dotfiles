@@ -15,7 +15,7 @@
       become_user: "{{ user_name }}"
       ansible.builtin.unarchive:
         remote_src: yes
-        src: https://aur.archlinux.org/cgit/aur.git/snapshot/pikaur-git.tar.gz
+        src: https://aur.archlinux.org/cgit/aur.git/snapshot/pikaur.tar.gz
         dest: /tmp
 
     - name: build and install pikaur
@@ -54,3 +54,11 @@
   ansible.builtin.command: gpg --list-keys
   environment:
     GNUPGHOME: "{{ home_path }}/.local/share/pikaur/gnupg"
+
+- name: set the config to use the specific gnupg dir
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.lineinfile:
+    path: "{{ home_path }}/.config/pikaur.conf"
+    line: gpgdir = "{{ home_path }}/.local/share/pikaur/gnupg"
+    regexp: "^gpgdir ="

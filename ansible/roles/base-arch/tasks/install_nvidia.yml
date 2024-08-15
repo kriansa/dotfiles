@@ -34,7 +34,12 @@
     dest: /run/nvidia-xdriver
     state: directory
 
+- name: check if xorg is installed
+  ansible.builtin.package_facts:
+    manager: pacman
+
 - name: add device config for nvidia on xorg
+  when: "'xorg-server' in ansible_facts.packages"
   become: true
   ansible.builtin.copy:
     dest: /etc/X11/xorg.conf.d/20-nvidia-device.conf

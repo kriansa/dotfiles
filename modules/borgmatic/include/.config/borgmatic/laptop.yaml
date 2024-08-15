@@ -349,7 +349,7 @@ check_last: 1
 # the actions for each repository.
 before_actions:
     - test -d /mnt/Backup || mkdir /mnt/Backup
-    - mountpoint /mnt/Backup > /dev/null || mount nas.lan.cx:/mnt/pool1/Daniel/Backups /mnt/Backup
+    - mountpoint -q /mnt/Backup || mount nas.lan.cx:/mnt/pool1/Daniel/Backups /mnt/Backup
 
 # List of one or more shell commands or scripts to execute before
 # creating a backup, run once per repository.
@@ -403,8 +403,8 @@ before_actions:
 
 # List of one or more shell commands or scripts to execute after all
 # actions for each repository.
-# after_actions:
-    # - umount /mnt/Backup && rmdir /mnt/Backup
+after_actions:
+    - "systemd-run --no-block /bin/sh -c 'sleep 5; findmnt --type fuse --source borgfs &>/dev/null || ( mountpoint -q /mnt/Backup && umount /mnt/Backup && rmdir /mnt/Backup )'"
 
 # List of one or more shell commands or scripts to execute when an
 # exception occurs during a "create", "prune", "compact", or "check"

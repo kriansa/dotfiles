@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copied from https://github.com/ppacher/arch-ansible/blob/main/plugins/modules/aur.py
 # SPDX-License-Identifier: Apache-2.0 AND GPL-3.0-or-later
 

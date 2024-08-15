@@ -1,5 +1,5 @@
 # Install Arch base system
-> Last update: Sep 1st, 2023.
+> Last update: Aug 15th, 2024.
 
 First and foremost you will need to disable secure boot on your system. For newer ASUS motherboards,
 [you will need to remove
@@ -31,6 +31,7 @@ advisable to read it if you have questions.
     # loadkeys br-abnt
 
 ##### 2A. Connect to the network (WLAN)
+    # iwlist scan
     # iwctl --passphrase <password> station wlan0 connect[-hidden] <SSID>
 
 ##### 2B. Connect to the network (Ethernet)
@@ -148,7 +149,7 @@ Answer `yes`. Then use `print` to list partition IDs and then rename it.
 > If your system uses cable connection and dhcp, it's already configured.
 
 ##### 10. Install Arch base packages
-    # pacstrap /mnt base lvm2 xfsprogs linux linux-firmware sudo <intel|amd>-ucode networkmanager neovim
+    # pacstrap -K /mnt base lvm2 xfsprogs linux linux-firmware sudo <intel|amd>-ucode networkmanager neovim
 
 ##### 11. Generate the fstab file so every disk is mapped and loaded at boot time
     # genfstab -U /mnt >> /mnt/etc/fstab
@@ -165,13 +166,13 @@ Answer `yes`. Then use `print` to list partition IDs and then rename it.
 ##### 14. Configure initcpio
 Edit `/etc/mkinitcpio.conf` this way:
 1. Replace `udev` by `systemd` on HOOKS
-2. Add `xfs` in the MODULES line
-3. Set `yes` to the MODULES_DECOMPRESS line
+1. Add `xfs` in the MODULES line
+1. Set `yes` to the MODULES_DECOMPRESS line
 
 ##### 14A. Configure boot (with LUKS)
 Edit `/etc/mkinitcpio.conf` this way:
-1. Add `sd-encrypt lvm2` between `block` and `filesystems` on HOOKS
-2. Add `keyboard sd-vconsole` before `autodetect` on HOOKS
+1. Add `keyboard` before `autodetect` on HOOKS
+1. Add `sd-vconsole sd-encrypt lvm2` between `block` and `filesystems` on HOOKS
 
 ##### 14B. Configure boot (without LUKS)
 If you aren't using LUKS, then configure `/etc/mkinitcpio.conf` this way:
@@ -251,7 +252,7 @@ Pick one and follow the steps.
 #### B) Remote configuration
 
 ##### 1. Locally, install and start SSH
-    # pacman -S openssh python
+    # pacman -S openssh
     # systemctl start sshd
     # install -m 0600 <(curl https://github.com/kriansa.keys) .ssh/authorized_keys
     # ip a

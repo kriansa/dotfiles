@@ -44,6 +44,13 @@
       - ldns         # for drill tool (dig with DNSSEC)
       - irqbalance
 
+- name: install bluetooth
+  become: true
+  when: enable_bluetooth == true
+  community.general.pacman:
+    name:
+      - bluez
+
 # no downtime on kernel updates
 - name: install kernel-modules-hook
   become: true

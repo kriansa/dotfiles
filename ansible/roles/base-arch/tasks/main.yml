@@ -9,6 +9,9 @@
 - import_tasks: configure_journal.yml
 - import_tasks: performance_tweaks.yml
 - import_tasks: configure_keychron_k3.yml
+- import_tasks: disable_linux_fallback.yml
+- import_tasks: configure_dell_5511.yml
+  when: ansible_product_name == "Dell G15 5511"
 - import_tasks: install_nvidia.yml
   when: install_nvidia_drivers == true
 - import_tasks: install_intel_gpu.yml

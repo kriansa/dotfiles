@@ -6,6 +6,7 @@
     name:
       # Editors
       - neovim
+      - tree-sitter-cli # neovim dependency
       - dbeaver
 
       # Utilities
@@ -48,6 +49,7 @@
       # DevOps tools
       - aws-cli
       - ansible
+      - python-passlib # ansible dependency
       - terraform
       - kubectl
       - kubectx
@@ -65,13 +67,12 @@
     name:
       - asdf-vm
       - ansible-bundler
-      - concourse-fly-cli
       - heroku-cli-bin
       - postman-bin
 
       # Kubernetes
       - openlens-bin
-      - kfilt-bin
+      - krew
 
       # Prose linter
       - vale

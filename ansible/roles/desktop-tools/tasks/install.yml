@@ -55,6 +55,16 @@
       - zathura
       - zathura-pdf-mupdf
 
+- name: import keys for AUR packages
+  become: true
+  become_user: "{{ user_name }}"
+  environment:
+    GNUPGHOME: /home/{{ user_name }}/.local/share/pikaur/gnupg
+  ansible.builtin.command: gpg --recv-keys {{ item }}
+  loop:
+    - 3FEF9748469ADBE15DA7CA80AC2D62742012EA22 # 1password
+    - 63CBEEC9006602088F9B19326224F9941A8AA6D1 # Spotify
+
 - name: install desktop packages on AUR
   become: true
   become_user: "{{ user_name }}"
@@ -65,7 +75,6 @@
       - overdue
 
       # Password managers
-      - authy
       - 1password
 
       # Beancount

@@ -9,7 +9,7 @@
     append: yes
     shell: /usr/bin/fish
     update_password: on_create
-    password: "{{ '123' | password_hash }}"
+    password: "{{ '123' | password_hash('sha512') }}"
 
 - when: add_user.changed
   ansible.builtin.debug:

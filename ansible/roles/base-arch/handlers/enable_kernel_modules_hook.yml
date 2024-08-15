@@ -1,4 +1,0 @@
----
-- name: enable kernel modules hook
-  become: true
-  ansible.builtin.systemd: daemon_reload=yes enabled=yes name=linux-modules-cleanup

@@ -8,6 +8,7 @@
       - plasma
 
       # Tools
+      - power-profiles-daemon
       - plasma-systemmonitor
       - gwenview
       - dolphin
@@ -24,8 +25,8 @@
       # To decompress on Dolphin
       - ark
 
-      # Frontend for pinentry on QT
-      - pinentry-qt
+      # Frontend for pinentry
+      - pinentry
 
 - name: create systemd kde service unit for single-user
   become: true

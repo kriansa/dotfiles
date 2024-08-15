@@ -6,9 +6,12 @@
       default: no
 
   vars:
+    hostname: daniel-desktop.lan.cx
+
     install_amd_drivers: true
     install_nvidia_drivers: true
-    enable_bluetooth: yes
+    enable_bluetooth: true
+    cpu_brand: amd
 
   roles:
     - role: 1-common-handlers
@@ -16,8 +19,8 @@
     - role: systemd-boot
     - role: aur-manager
     - role: dev-tools
-    - role: borgmatic
     - role: yubikey
     - role: network
     - role: kde
     - role: desktop-tools
+    - role: borgmatic
