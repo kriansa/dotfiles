@@ -23,8 +23,6 @@ if type -q podman
   if ! test -S /var/run/docker.sock
     set --global --export DOCKER_HOST "unix://$XDG_RUNTIME_DIR/podman/podman.sock"
   end
-
-  set --global --export DOCKER_BUILDKIT 0
 else
   abbr --global --add d docker
 end

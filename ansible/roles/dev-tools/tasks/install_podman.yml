@@ -6,6 +6,7 @@
     name:
       - podman
       - podman-docker
+      - crun
       - docker-compose
       - netavark
       - aardvark-dns
@@ -29,9 +30,7 @@
 
 - name: set the default userns keep-id so that rootless docker-compose is identical to docker
   become: true
-  notify:
-    - reload systemd for user
-    - enable podman.socket so we can use docker-compose
+  register: set_default_userns
   ansible.builtin.copy:
     dest: /usr/lib/systemd/user/podman.service.d/set-default-userns.conf
     mode: "0644"
@@ -42,3 +41,14 @@
       # the container have the same ownership metadata as they do in the host.
       [Service]
       Environment=PODMAN_USERNS=keep-id
+
+- name: reload systemd for user
+  become: true
+  become_user: "{{ user_name }}"
+  when: set_default_userns.changed
+  ansible.builtin.systemd: daemon_reload=yes scope=user
+
+- name: enable podman.socket so we can use docker-compose
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.systemd: state=restarted enabled=yes scope=user name=podman.socket
