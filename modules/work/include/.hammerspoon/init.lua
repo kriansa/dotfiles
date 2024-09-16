@@ -3,13 +3,15 @@ hs.hotkey.bind({"alt", "ctrl"}, "R", function()
   hs.reload()
 end)
 
-hs.caffeinate.watcher.new(function(event)
+screenWatcher = hs.caffeinate.watcher.new(function(event)
   if event == hs.caffeinate.watcher.screensDidLock then
     os.execute("/opt/homebrew/bin/blueutil --power 0")
   elseif event == hs.caffeinate.watcher.screensDidUnlock then
     os.execute("/opt/homebrew/bin/blueutil --power 1")
   end
-end):start()
+end)
+
+screenWatcher:start()
 
 -- Menu bar for copying MFA codes
 function copyOTP(name)
@@ -19,8 +21,8 @@ function copyOTP(name)
   end
 end
 
-hs.menubar.new(true, "mfa")
-  :setTitle("MFA")
+menubar = hs.menubar.new(true, "mfa")
+menubar:setTitle("MFA")
   :setMenu({
     { title = "Meli SSO", fn = copyOTP("ML/SSO") },
     { title = "Google", fn = copyOTP("ML/Google") },
@@ -29,7 +31,7 @@ hs.menubar.new(true, "mfa")
 
 -- Global shortcut for DeepL
 hs.hotkey.bind({"cmd"}, "Escape", function()
-  local app_name = hs.window.focusedWindow():application():title()
+  local app_name = hs.application.frontmostApplication():title()
 
   if app_name == "DeepL" then
     hs.eventtap.keyStroke({"cmd"}, "q")
