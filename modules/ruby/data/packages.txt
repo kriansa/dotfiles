@@ -6,4 +6,3 @@ standard-rails
 rubocop-rspec
 rubocop-rails
 ruby-lsp
-ruby-lsp-rails

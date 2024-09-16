@@ -4,5 +4,5 @@
 # `ruby-lsp` gem. So far it's working well (July 2024), but it's not guaranteed to work in the
 # future should the implementation of `ruby-lsp` gem change.
 
-gem "ruby-lsp", require: false, group: :development
-gem "ruby-lsp-rails", require: false, group: :development
+# source "https://rubygems.org"
+# gem "ruby-lsp", require: false, group: :development

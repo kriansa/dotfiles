@@ -344,9 +344,6 @@ return {
       -- after the language server attaches to the current buffer
       vim.api.nvim_create_autocmd('LspAttach', {
         callback = function(ev)
-          -- Enable completion triggered by <c-x><c-o>
-          vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
           -- Apply buffer local mappings
           mappings.lsp(ev.buf)
         end,
@@ -358,7 +355,7 @@ return {
       -- Setup each available language server
       local lspconfig = require('lspconfig')
       local lsp_flags = { debounce_text_changes = 150 }
-      local servers = { 'tsserver', 'vuels', 'pylsp', 'gopls', 'ruby_lsp' }
+      local servers = { 'ts_ls', 'vuels', 'pylsp', 'gopls', 'ruby_lsp' }
       local server_config = {
         pylsp = {
           settings = {
@@ -375,6 +372,11 @@ return {
 
         ruby_lsp = {
           cmd_env = { BUNDLE_GEMFILE = vim.fn.expand("$DOTFILES_PATH" .. "/modules/ruby/data/ruby-lsp/Gemfile") },
+          indexing = {
+            excludedGems = { "rubocop", "rubocop-performance", "standard", "standard-rails" },
+            excludedPatterns = { "**/test/**.rb", "**/spec/**/*_spec.rb", "**/activerecord-*/examples/**/*.rb" },
+            excludedMagicComments = { "compiled:true" },
+          },
         },
       }
 

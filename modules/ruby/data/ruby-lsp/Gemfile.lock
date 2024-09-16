@@ -1,26 +1,11 @@
 GEM
   specs:
-    language_server-protocol (3.17.0.3)
-    logger (1.6.0)
-    prism (0.30.0)
-    rbs (3.5.1)
-      logger
-    ruby-lsp (0.17.4)
-      language_server-protocol (~> 3.17.0)
-      prism (>= 0.29.0, < 0.31)
-      rbs (>= 3, < 4)
-      sorbet-runtime (>= 0.5.10782)
-    ruby-lsp-rails (0.3.7)
-      ruby-lsp (>= 0.17.0, < 0.18.0)
-    sorbet-runtime (0.5.11463)
 
 PLATFORMS
   ruby
   x86_64-linux
 
 DEPENDENCIES
-  ruby-lsp
-  ruby-lsp-rails
 
 BUNDLED WITH
-   2.5.14
+   2.5.18
