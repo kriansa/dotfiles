@@ -153,7 +153,7 @@ return {
         parser = function(output)
           local diagnostics = {}
           local decoded = vim.json.decode(output)
-          local offences = decoded.files[1].offenses
+          local offences = #decoded.files > 0 and decoded.files[1].offenses or {}
           local severity_map = {
             ['fatal'] = vim.diagnostic.severity.ERROR,
             ['error'] = vim.diagnostic.severity.ERROR,
@@ -284,7 +284,7 @@ return {
         print("Linter: " .. status)
       end, { desc = "Toggle the automatic linter execution on buffers" })
 
-      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "TextChanged" }, {
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufRead", "BufWritePost", "TextChanged" }, {
         callback = function()
           if vim.g._linter_enabled then
             require("lint").try_lint(nil, { ignore_errors = true })
@@ -390,6 +390,27 @@ return {
           cmd_env = config.cmd_env,
         })
       end
+    end,
+  },
+
+  {
+    "robitx/gp.nvim",
+    config = function()
+      local conf = {
+        providers = {
+          copilot = {
+            endpoint = "https://api.githubcopilot.com/chat/completions",
+            secret = {
+              "bash",
+              "-c",
+              "cat ~/.config/github-copilot/hosts.json | sed -e 's/.*oauth_token...//;s/\".*//'",
+            },
+          },
+        }
+      }
+
+      require("gp").setup(conf)
+      -- Setup shortcuts here (see Usage > Shortcuts in the Documentation/Readme)
     end,
   },
 }
