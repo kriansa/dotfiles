@@ -73,6 +73,7 @@
       # Kubernetes
       - openlens-bin
       - krew
+      - kubecolor
 
       # Prose linter
       - vale

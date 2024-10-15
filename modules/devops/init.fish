@@ -8,6 +8,11 @@ abbr --global --add kctx kubectx
 abbr_subcommand kubectl describe d
 abbr_subcommand kubectl get g
 
+# Wrap kubectl with kubecolor
+alias kubectl="kubecolor"
+set --global --export KUBECOLOR_PRESET light
+set --global --export KUBECOLOR_THEME_TABLE_COLUMNS white/blue
+
 # Binaries from kubectl krew
 fish_add_path --path --global $HOME/.krew/bin
 set --global --export KREW_NO_UPGRADE_CHECK 1
