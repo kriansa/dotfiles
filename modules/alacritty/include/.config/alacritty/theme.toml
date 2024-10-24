@@ -1,5 +1,3 @@
-import = ["~/.config/alacritty/themes/one-light.toml"]
-
 [window]
 startup_mode = "Maximized"
 title = "Terminal"
@@ -20,3 +18,6 @@ blink_interval = 400
 #   - On: Enable blinking by default
 #   - Always: Force the cursor to always blink
 blinking = "Always"
+
+[general]
+import = ["~/.config/alacritty/themes/one-light.toml"]

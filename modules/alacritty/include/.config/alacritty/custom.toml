@@ -1,6 +1,3 @@
-# Live config reload (changes require restart)
-live_config_reload = true
-
 [scrolling]
 # Maximum number of lines in the scrollback buffer.
 # Specifying '0' will disable scrolling.
@@ -10,7 +7,7 @@ history = 0
 # Hides the cursor temporarily when typing.
 hide_when_typing = true
 
-[shell]
+[terminal.shell]
 args = ["sh", "-lc", "tmux attach || tmux"]
 program = "/usr/bin/env"
 
@@ -74,3 +71,7 @@ action = "ReceiveChar"
 key = "F"
 mode = "~Search"
 mods = "Control|Shift"
+
+[general]
+# Live config reload (changes require restart)
+live_config_reload = true
