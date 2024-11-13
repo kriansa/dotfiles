@@ -74,6 +74,10 @@ nnoremap("<C-j>", ":wincmd j<CR>", { silent = true })
 nnoremap("<C-k>", ":wincmd k<CR>", { silent = true })
 nnoremap("<C-l>", ":wincmd l<CR>", { silent = true })
 
+-- Use ]t and [t for tab navigation
+nnoremap("]t", ":tabnext<CR>", { silent = true })
+nnoremap("[t", ":tabprevious<CR>", { silent = true })
+
 -- Make all splits with equal size
 nnoremap("<Leader>=", ":wincmd =<CR>", { silent = true })
 

@@ -148,3 +148,8 @@ mods = "Command"
 chars = "\u001C["
 key = "LBracket"
 mods = "Command"
+
+[[keyboard.bindings]]
+action = "ResetFontSize"
+key = "0"
+mods = "Command"
