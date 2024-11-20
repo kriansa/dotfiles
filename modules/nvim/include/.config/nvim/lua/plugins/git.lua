@@ -1,5 +1,19 @@
 return {
   {
+    'echasnovski/mini.diff',
+    config = function()
+      require('mini.diff').setup({
+        view = {
+          style = 'sign',
+          signs = { add = '+', change = '~', delete = '_' },
+        },
+        mappings = mappings.minidiff,
+      })
+    end
+  },
+
+  -- Gitsigns is showing some problems with slowness, so I'm using minidiff for now
+  --[[ {
     'lewis6991/gitsigns.nvim',
     config = function()
       require('gitsigns').setup({
@@ -22,7 +36,7 @@ return {
     end
   },
 
-  -- I'm giving another chance for gitsigns
+  -- Alternatively, vim-gitgutter could also replace gitsigns
   --
   --[[ {
     "airblade/vim-gitgutter",
@@ -39,22 +53,22 @@ return {
 
       mappings.gitgutter()
     end,
-  },
+  }, ]]
 
   {
     "f-person/git-blame.nvim",
     config = function()
       require('gitblame').setup({
         enabled = false,
-        virtual_text_column = 80,
-        message_template = "<author>, <date> - <summary>",
+        virtual_text_column = 1,
+        message_template = "  <author>, <date> - <summary>",
         date_format = "%r",
-        message_when_not_committed = "",
+        message_when_not_committed = "  -- Uncommited --",
       })
 
       mappings.git_blame()
     end
-  }, ]]
+  },
 
   {
     "sindrets/diffview.nvim",
@@ -83,6 +97,7 @@ return {
       neogit.setup({
         auto_refresh = false,
         disable_commit_confirmation = true,
+        disable_insert_on_commit = true,
         integrations = {
           telescope = true,
           diffview = true,

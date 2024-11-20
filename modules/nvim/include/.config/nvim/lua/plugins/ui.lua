@@ -75,9 +75,15 @@ return {
         return replacements[str] or str
       end
 
-      -- A small function to use gitsigns or gitgutter as source for git diff
+      -- A small function to use minidiff, gitsigns or gitgutter as source for git diff
       local git_status = function()
-        if vim.b.gitsigns_status_dict then
+        if vim.b.minidiff_summary then
+          return {
+            added = vim.b.minidiff_summary.add,
+            modified = vim.b.minidiff_summary.change,
+            removed = vim.b.minidiff_summary.delete,
+          }
+        elseif vim.b.gitsigns_status_dict then
           return {
             added = vim.b.gitsigns_status_dict.added,
             modified = vim.b.gitsigns_status_dict.changed,

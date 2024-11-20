@@ -245,6 +245,25 @@ mappings.gitgutter = function()
   map('n', '<Leader>hp', "<Plug>(GitGutterPreviewHunk)", {silent=true, desc="Preview hunk"})
 end
 
+-- Mini diff
+mappings.minidiff = {
+  -- Apply hunks inside a visual/operator region
+  apply = '<Leader>hs',
+
+  -- Reset hunks inside a visual/operator region
+  reset = '<Leader>hu',
+
+  -- Hunk range textobject to be used inside operator
+  -- Works also in Visual mode if mapping differs from apply and reset
+  textobject = 'ac',
+
+  -- Go to hunk range in corresponding direction
+  goto_first = '[C',
+  goto_prev = '[c',
+  goto_next = ']c',
+  goto_last = ']C',
+}
+
 mappings.git_blame = function()
   local function map(mode, l, r, opts)
     vim.keymap.set(mode, l, r, opts or {})
