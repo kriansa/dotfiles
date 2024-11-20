@@ -31,11 +31,16 @@ Mode=Times
 [Plugins]
 desktopchangeosdEnabled=false
 diminactiveEnabled=true
+dimscreenEnabled=true
+fadingpopupsEnabled=false
+fullscreenEnabled=false
 kwin4_effect_dimscreenEnabled=true
 kwin4_effect_fadedesktopEnabled=true
+maximizeEnabled=false
 screenedgeEnabled=false
 shakecursorEnabled=false
 slideEnabled=false
+slidingpopupsEnabled=false
 tilegapsEnabled=false
 tileseditorEnabled=false
 zoomEnabled=false
@@ -98,6 +103,12 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
 
 [Tiling][d02c035d-eef0-5c68-aa2f-2e83d0ba08b1]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][d63ed7a4-731e-5239-934e-f9de093c6eb9]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][f0e5f0ea-6154-53e2-b0ab-7a760314b136]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Windows]
