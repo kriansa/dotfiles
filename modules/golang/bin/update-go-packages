@@ -3,7 +3,7 @@
 echo "Updating packages..."
 
 while IFS= read -r package; do
-  go install "$package"
+  go install -a "$package"
 done < "$HOME/.dotfiles/modules/golang/data/go-packages.txt"
 
 echo "Done."
