@@ -12,7 +12,8 @@ main() {
   else
     run "Update system packages" "sudo pacman -Syu"
     run "Update AUR packages" "pikaur -Sayu"
-    run "Remove orphaned packages" "pacman -Qdtq | xargs -r sudo pacman -Rnsc"
+    orphaned_packages=$(pacman -Qdtq)
+    [ -n "$orphaned_packages" ] && run "Remove orphaned packages" "sudo pacman -Rnsc $orphaned_packages"
   fi
 
   run "Update Ruby and its global packages" "update-ruby"
