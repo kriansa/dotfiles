@@ -6,6 +6,7 @@
     state: present
     name:
       - qemu
+      - qemu-ui-gtk
       - virt-manager
       - dnsmasq
       - swtpm     # This is necessary to enable TPM module to VMs

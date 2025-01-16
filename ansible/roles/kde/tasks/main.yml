@@ -16,6 +16,10 @@
       - phonon-qt6-vlc
       - wl-clipboard
 
+      # Remote access
+      - krdc
+      - libvncserver
+
       # Screenshot tool
       - spectacle
 
