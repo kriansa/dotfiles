@@ -8,3 +8,5 @@ python-lsp-server
 pydocstyle
 sqlite-utils
 datasette
+beancount
+fava
