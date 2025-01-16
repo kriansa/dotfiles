@@ -31,6 +31,9 @@ return {
           " Customize NvimTree
           call edge#highlight('NvimTreeExecFile', l:palette.none, l:palette.none, 'bold')
           call edge#highlight('NvimTreeSymlink', l:palette.purple, l:palette.none)
+
+          " Customize copilot-cmp
+          call edge#highlight('CmpItemKindCopilot', l:palette.blue, l:palette.none, 'bold')
         endfunction
 
         augroup EdgeCustom
@@ -49,7 +52,7 @@ return {
   {
     'nvim-lualine/lualine.nvim',
     -- We must ensure lualine gets loaded after the theme otherwise it fails to pick up some colors
-    dependencies = { 'sainnhe/edge', 'nvim-tree/nvim-web-devicons' },
+    dependencies = { 'sainnhe/edge', 'nvim-tree/nvim-web-devicons', 'AndreM222/copilot-lualine' },
     config = function()
       local mode_map = function(str)
         local replacements = {
@@ -136,7 +139,7 @@ return {
           lualine_b = { 'branch', { 'diff', source = git_status } },
           lualine_c = {'filename'},
           lualine_x = {'location'}, -- or %c for only column
-          lualine_y = {'bo:filetype', 'diagnostics'},
+          lualine_y = {'copilot', 'bo:filetype', 'diagnostics'},
           lualine_z = {},
         },
         inactive_sections = {

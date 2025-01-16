@@ -100,6 +100,8 @@ o.startofline = true            -- Move the cursor to the start of the line afte
 o.virtualedit = "block"         -- Allow cursor to move where there is no text in visual block mode
 o.writeany = true               -- Allow writing to any file with no need for "!" override
 o.confirm = true                -- Ask for confirmation when closing unsaved buffers
+o.pumheight = 6                 -- Maximum number of items in the popup menu
+o.completeopt = "menuone,noinsert,noselect"
 
 -- Scrolling
 o.scrolloff=3

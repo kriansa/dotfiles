@@ -407,3 +407,15 @@ end)
 vim.keymap.set({'n', 'v'}, '<leader>lt', function()
   vim.cmd("LintToggle")
 end)
+
+-- Toggle copilot (mnemonic: Copilot Toggle)
+vim.keymap.set({'n', 'v'}, '<leader>ct', function()
+  vim.cmd("Copilot toggle")
+end)
+
+mappings.snippy = {
+  is = {
+    ['<Tab>'] = 'expand_or_advance',
+    ['<S-Tab>'] = 'previous',
+  },
+}

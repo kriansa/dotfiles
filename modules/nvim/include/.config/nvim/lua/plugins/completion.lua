@@ -16,8 +16,6 @@ end
 return {
   {
     "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    event = "InsertEnter",
     config = function()
       require("copilot").setup({
         panel = {
@@ -36,22 +34,35 @@ return {
           },
         },
         suggestion = {
-          enabled = true,
-          auto_trigger = true,
+          enabled = false,
+          auto_trigger = false,
           debounce = 75,
           keymap = mappings.gh_copilot.suggestion,
         },
         filetypes = {
           yaml = true,
-          markdown = true,
+          markdown = false,
           help = false,
+          text = false,
           gitcommit = false,
           gitrebase = false,
           hgcommit = false,
           svn = false,
           cvs = false,
           ["."] = false,
+          sh = function ()
+            return not string.match(vim.fs.basename(vim.api.nvim_buf_get_name(0)), '^%.env.*')
+          end,
         },
+      })
+    end,
+  },
+
+  {
+    "dcampos/nvim-snippy",
+    config = function()
+      require("snippy").setup({
+        mappings = mappings.snippy,
       })
     end,
   },
@@ -60,10 +71,14 @@ return {
     'hrsh7th/nvim-cmp',
     dependencies = {
       'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'hrsh7th/cmp-path', 'hrsh7th/cmp-cmdline',
-      'dcampos/nvim-snippy', 'dcampos/cmp-snippy', 'honza/vim-snippets'
+      'dcampos/nvim-snippy', 'dcampos/cmp-snippy', 'honza/vim-snippets', 'zbirenbaum/copilot-cmp',
+      'mattn/emmet-vim', 'dcampos/cmp-emmet-vim',
     },
     config = function()
       local cmp = require('cmp')
+
+      -- Enable copilot-cmp
+      require("copilot_cmp").setup()
 
       cmp.setup({
         mapping = mappings.cmp_insert(),
@@ -73,11 +88,13 @@ return {
           end
         },
         sources = cmp.config.sources({
+          { name = "copilot" },
           { name = 'nvim_lsp' },
-          { name = 'snippy' },
           { name = 'buffer' },
           { name = 'path' },
-        })
+          { name = 'snippy' },
+          { name = "emmet_vim" },
+        }),
       })
 
       cmp.setup.cmdline(':', {
