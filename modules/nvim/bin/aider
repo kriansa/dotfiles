@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+~/.local/bin/aider --no-show-model-warnings \
+  --no-auto-commits --no-check-update --no-show-release-notes --analytics-disable \
+  --sonnet --anthropic-api-key "$(pass Anthropic/API-Key)"
