@@ -84,6 +84,9 @@ nnoremap("<Leader>=", ":wincmd =<CR>", { silent = true })
 -- Shift + J join lines. Shift + K should split lines
 nnoremap("<S-K>", "i<CR><ESC>", { silent = true })
 
+-- Adding a new keybinding for exiting insert mode from terminal
+tnoremap('<ESC><ESC>', '<C-\\><C-n>')
+
 --
 -- Plugin-related bindings
 --
@@ -413,6 +416,17 @@ vim.keymap.set({'n', 'v'}, '<leader>ct', function()
   vim.cmd("Copilot toggle")
 end)
 
+-- CodeCompanion (mnemonic: Code Companion)
+vim.keymap.set({'n', 'v'}, '<leader>cc', function()
+  vim.cmd("CodeCompanionChat")
+end)
+
+-- Aider
+mappings.aider = {
+  toggle = "<C-Space>"
+}
+
+-- Snippy is a snippet manager
 mappings.snippy = {
   is = {
     ['<Tab>'] = 'expand_or_advance',

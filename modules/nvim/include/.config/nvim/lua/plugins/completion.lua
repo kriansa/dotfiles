@@ -450,4 +450,37 @@ return {
       })
     end,
   },
+
+  {
+    "joshuavial/aider.nvim",
+    config = function()
+      require('aider').setup({
+        auto_manage_context = true,
+        default_bindings = false,
+        debug = false,
+        ignore_buffers = {'^term:', 'NeogitConsole', 'NvimTree_', 'neo-tree filesystem', '^fugitive://'}
+      })
+
+      -- Setup a toggle keybinding
+      -- 1. From normal mode
+      vim.keymap.set({"n"}, mappings.aider.toggle, function()
+        require("aider").AiderOpen("--architect")
+
+        vim.defer_fn(function()
+          vim.cmd("startinsert")
+        end, 100)
+      end, {silent = true, desc = "Toggle Aider chat window"})
+
+      -- 2. From terminal on insert mode
+      vim.api.nvim_set_keymap('t', mappings.aider.toggle, '<C-\\><C-n><C-w>q', {noremap = true})
+
+      -- 2. From terminal on normal mode
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "AiderConsole",
+        callback = function()
+          vim.api.nvim_buf_set_keymap(0, "n", mappings.aider.toggle, "<C-w>q", {noremap = true, desc = "Toggle Aider chat window"})
+        end
+      })
+    end
+  },
 }

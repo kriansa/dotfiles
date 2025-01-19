@@ -51,6 +51,7 @@ return {
   -- Status bar
   {
     'nvim-lualine/lualine.nvim',
+    event = "VeryLazy",
     -- We must ensure lualine gets loaded after the theme otherwise it fails to pick up some colors
     dependencies = { 'sainnhe/edge', 'nvim-tree/nvim-web-devicons', 'AndreM222/copilot-lualine' },
     config = function()
@@ -114,6 +115,15 @@ return {
         return ''
       end
 
+      local filename = function()
+        if vim.bo.buftype == 'terminal' then
+          return ""
+        end
+
+        local lualine_filename = require('lualine.components.filename')
+        return lualine_filename:new():update_status()
+      end
+
       -- A small extension to support dirvish
       local dirvish_ext = {
         sections = {
@@ -137,7 +147,7 @@ return {
         sections = {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
           lualine_b = { 'branch', { 'diff', source = git_status } },
-          lualine_c = {'filename'},
+          lualine_c = {filename},
           lualine_x = {'location'}, -- or %c for only column
           lualine_y = {'copilot', 'bo:filetype', 'diagnostics'},
           lualine_z = {},
@@ -145,7 +155,7 @@ return {
         inactive_sections = {
           lualine_a = {},
           lualine_b = {},
-          lualine_c = {'filename'},
+          lualine_c = {filename},
           lualine_x = {'bo:filetype'},
           lualine_y = {},
           lualine_z = {},
