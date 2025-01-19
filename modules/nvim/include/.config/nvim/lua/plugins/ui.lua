@@ -121,7 +121,7 @@ return {
         end
 
         local lualine_filename = require('lualine.components.filename')
-        return lualine_filename:new():update_status()
+        return lualine_filename:new({ path = 1 }):update_status()
       end
 
       -- A small extension to support dirvish
