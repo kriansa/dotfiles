@@ -1,10 +1,23 @@
 #!/usr/bin/env bash
 
-# Upgrade pip itself
-pip3 install --break-system-packages --no-warn-script-location --upgrade pip
+main() {
+  # Upgrade pip itself
+  pip3 install --break-system-packages --no-warn-script-location --upgrade pip
 
-# Install all packages described by requirements.txt as well as their dependencies, even if they've
-# been installed already
-pip3 install --user --break-system-packages --no-warn-script-location \
-  --upgrade --upgrade-strategy eager \
-  --requirement "$HOME/.dotfiles/modules/python/data/requirements.txt"
+  # Install all packages described by requirements.txt as well as their dependencies, even if they've
+  # been installed already
+  user-install --requirement "$HOME/.dotfiles/modules/python/data/requirements.txt"
+
+  # Install uv (a package manager for Python)
+  user-install uv
+
+  # Then install Python 3.12-specific packages
+  uv tool install --force --python 3.12 aider-chat@latest
+}
+
+user-install() {
+  pip3 install --user --break-system-packages --no-warn-script-location \
+    --upgrade --upgrade-strategy eager "$@"
+}
+
+main "$@"
