@@ -36,3 +36,6 @@ end
 
 set -x SSH_ASKPASS ssh-pass
 set -x SSH_ASKPASS_REQUIRE prefer
+
+# Tell K9s to use the same dir both on Linux as well as on macOS
+set -x K9S_CONFIG_DIR $HOME/.config/k9s
