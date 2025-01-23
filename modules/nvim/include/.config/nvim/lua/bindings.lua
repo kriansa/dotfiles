@@ -84,8 +84,11 @@ nnoremap("<Leader>=", ":wincmd =<CR>", { silent = true })
 -- Shift + J join lines. Shift + K should split lines
 nnoremap("<S-K>", "i<CR><ESC>", { silent = true })
 
--- Adding a new keybinding for exiting insert mode from terminal
+-- Exit insert mode from terminal
 tnoremap('<ESC><ESC>', '<C-\\><C-n>')
+
+-- Exit insert mode by mistyping C-[
+inoremap("<C-]>", "<ESC>")
 
 --
 -- Plugin-related bindings
