@@ -63,7 +63,7 @@
   ansible.builtin.command: gpg --recv-keys {{ item }}
   loop:
     - 3FEF9748469ADBE15DA7CA80AC2D62742012EA22 # 1password
-    - 63CBEEC9006602088F9B19326224F9941A8AA6D1 # Spotify
+    - B420FD3777CCE3A7F0076B55C85668DF69375001 # Spotify
 
 - name: install desktop packages on AUR
   become: true

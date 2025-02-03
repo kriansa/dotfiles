@@ -10,7 +10,7 @@
     hostname: daniel-desktop.lan.cx
 
     install_amd_drivers: true
-    install_nvidia_drivers: true
+    install_nvidia_drivers: false
     enable_bluetooth: true
     cpu_brand: amd
 
