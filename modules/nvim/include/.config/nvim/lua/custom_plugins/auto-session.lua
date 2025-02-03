@@ -40,5 +40,5 @@ return {
   setup = function()
     vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = load_session, nested = true })
     vim.api.nvim_create_user_command("SaveSession", save_session, {})
-  end
+  end,
 }

@@ -1,6 +1,5 @@
 return {
   -- Theme
-  --  { 'EdenEast/nightfox.nvim' }
   {
     'sainnhe/edge',
     config = function()
@@ -31,6 +30,10 @@ return {
           " Customize NvimTree
           call edge#highlight('NvimTreeExecFile', l:palette.none, l:palette.none, 'bold')
           call edge#highlight('NvimTreeSymlink', l:palette.purple, l:palette.none)
+          highlight! link NvimTreeFolderName BlueSign
+          highlight! link NvimTreeEmptyFolderName NvimTreeFolderName
+          highlight! link NvimTreeOpenedFolderName NvimTreeFolderName
+          highlight! link NvimTreeSymlinkFolderName NvimTreeFolderName
 
           " Customize copilot-cmp
           call edge#highlight('CmpItemKindCopilot', l:palette.blue, l:palette.none, 'bold')
@@ -115,6 +118,16 @@ return {
         return ''
       end
 
+      -- This is sort of a workaround for the lack of extensions driven by "buftypes".
+      -- Traditionally, lualine allows creating an extension for a given filetype, so one can show a
+      -- different bar setup for specific filetypes. However, when on Terminal buffers, the filetype
+      -- is set to a blank string, and the buftype is the one that gets set to "terminal".
+      --
+      -- There's an open PR to add that feature.
+      -- See: https://github.com/nvim-lualine/lualine.nvim/pull/1125
+      --
+      -- The workaround is to create a section that checks for the buftype and then sets the the
+      -- output filename to a blank string.
       local filename = function()
         if vim.bo.buftype == 'terminal' then
           return ""
@@ -124,14 +137,38 @@ return {
         return lualine_filename:new({ path = 1 }):update_status()
       end
 
-      -- A small extension to support dirvish
-      local dirvish_ext = {
+      function removeprefix(s, p)
+        return (s:sub(0, #p) == p) and s:sub(#p+1) or s
+      end
+
+      function removesuffix(s, p)
+        return (s:sub(-#p) == p) and s:sub(1, -#p-1) or s
+      end
+
+      local unprefixed_filename = function()
+        local name = removeprefix(vim.fn.expand('%'), "oil://")
+        name = removeprefix(name, vim.fn.getcwd() .. "/")
+        name = removesuffix(name, "/")
+
+        local flags = ""
+        if vim.bo.modified then
+          flags = " [+]"
+        end
+        return name .. flags
+      end
+
+      local oil = function()
+        return "Oil"
+      end
+
+      -- A small extension to support oil.nvim
+      local oil_ext = {
         sections = {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
-          lualine_c = {'filename'},
-          lualine_y = {'bo:filetype'},
+          lualine_c = {unprefixed_filename},
+          lualine_z = {oil},
         },
-        filetypes = {'dirvish'},
+        filetypes = {'oil'},
       }
 
       require('lualine').setup({
@@ -175,7 +212,7 @@ return {
             section_separators = { left = '', right = ''},
           }},
         },
-        extensions = {'nvim-tree', 'quickfix', dirvish_ext},
+        extensions = {'nvim-tree', 'quickfix', oil_ext},
       })
 
       -- When using `tabline` option, lualine automatically sets `showtabline` to 2, but it isn't

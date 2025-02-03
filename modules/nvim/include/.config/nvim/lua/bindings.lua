@@ -175,17 +175,16 @@ mappings.nvim_tree = function(bufnr)
 
   -- Opening files
   vim.keymap.set('n', '<CR>', open(api.node.open.edit), opts('Open'))
-  vim.keymap.set('n', 'O', open(api.node.open.edit), opts('Open'))
   vim.keymap.set('n', '<2-LeftMouse>', open(api.node.open.edit), opts('Open'))
   vim.keymap.set('n', '<Tab>', open(api.node.open.preview), opts('Open Preview'))
   vim.keymap.set('n', 'o', open(api.node.open.no_window_picker), opts('Open: No Window Picker'))
-  vim.keymap.set('n', 'U', api.tree.change_root_to_parent, opts('CD to parent'))
-  vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
   vim.keymap.set('n', 'S', api.node.run.system, opts('Run System'))
 
   -- Navigation
   vim.keymap.set('n', 'X', api.tree.collapse_all, opts('Collapse'))
   vim.keymap.set('n', 'x', api.node.navigate.parent_close, opts('Close Directory'))
+  vim.keymap.set('n', 'U', api.tree.change_root_to_parent, opts('CD to parent'))
+  vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
 
   -- Copy/paste operations
   vim.keymap.set('n', 'm', api.fs.cut, opts('Cut'))
@@ -194,7 +193,6 @@ mappings.nvim_tree = function(bufnr)
 
   -- Basic
   vim.keymap.set('n', 'q', api.tree.close, opts('Close'))
-  vim.keymap.set('n', 'g?', api.tree.toggle_help, opts('Help'))
   vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
   vim.keymap.set('n', 'R', api.tree.reload, opts('Refresh'))
   vim.keymap.set('n', 'A', toggle_expand, opts('Toggle tree view size'))
@@ -208,8 +206,6 @@ mappings.nvim_tree = function(bufnr)
   -- Other
   vim.keymap.set('n', '<C-v>', open(api.node.open.vertical), opts('Open: Vertical Split'))
   vim.keymap.set('n', '<C-s>', open(api.node.open.horizontal), opts('Open: Horizontal Split'))
-  vim.keymap.set('n', 'K', api.node.navigate.parent, opts('Parent Directory'))
-  vim.keymap.set('n', 'I', api.tree.toggle_gitignore_filter, opts('Toggle Git Ignore'))
   vim.keymap.set('n', 'y', api.fs.copy.filename, opts('Copy Name'))
   vim.keymap.set('n', 'Y', api.fs.copy.relative_path, opts('Copy Relative Path'))
   vim.keymap.set('n', 'gy', api.fs.copy.absolute_path, opts('Copy Absolute Path'))
@@ -435,4 +431,21 @@ mappings.snippy = {
     ['<Tab>'] = 'expand_or_advance',
     ['<S-Tab>'] = 'previous',
   },
+}
+
+-- Oil.nvim
+vim.keymap.set("n", "-", "<cmd>Oil<CR>", { desc = "Open parent directory" })
+mappings.oil = {
+  ["?"] = { "actions.show_help", mode = "n" },
+  ["<CR>"] = "actions.select",
+  ["<C-v>"] = { "actions.select", opts = { vertical = true } },
+  ["<C-s>"] = { "actions.select", opts = { horizontal = true } },
+  ["<C-t>"] = { "actions.select", opts = { tab = true } },
+  ["gp"] = "actions.preview",
+  ["gr"] = "actions.refresh",
+  ["-"] = { "actions.parent", mode = "n" },
+  ["_"] = { "actions.open_cwd", mode = "n" },
+  ["gs"] = { "actions.change_sort", mode = "n" },
+  ["gx"] = "actions.open_external",
+  ["q"] = { "actions.close", mode = "n" },
 }
