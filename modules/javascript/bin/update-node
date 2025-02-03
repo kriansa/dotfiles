@@ -21,7 +21,7 @@ install_asdf_plugin() {
 }
 
 global_node_version() {
-  cd && asdf current nodejs 2> /dev/null | awk '{ print $2 }'
+  cd && asdf current --no-header nodejs 2> /dev/null | awk '{ print $2 }'
 }
 
 upgrade_node_version() {
@@ -40,7 +40,7 @@ upgrade_node_version() {
   ASDF_NODE_BUILD_VERSION=master asdf install nodejs "$version"
   test $? -ne 0 && return
 
-  asdf global nodejs "$version"
+  asdf set --home nodejs "$version"
 
   # Return if this is the first install
   test "$installed_version" = "" && return

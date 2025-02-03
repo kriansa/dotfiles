@@ -1,5 +1,1 @@
-if test (uname) = "Linux"
-  source /opt/asdf-vm/asdf.fish
-else
-  source /opt/homebrew/opt/asdf/libexec/asdf.fish
-end
+fish_add_path --path --global $HOME/.asdf/shims

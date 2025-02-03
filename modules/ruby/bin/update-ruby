@@ -21,7 +21,7 @@ install_asdf_plugin() {
 }
 
 global_ruby_version() {
-  cd && asdf current ruby 2> /dev/null | awk '{ print $2 }'
+  cd && asdf current --no-header ruby 2> /dev/null | awk '{ print $2 }'
 }
 
 upgrade_ruby_version() {
@@ -38,7 +38,7 @@ upgrade_ruby_version() {
   echo "Installing latest version (v$version)"
   asdf plugin update ruby
   ASDF_RUBY_BUILD_VERSION=master asdf install ruby "$version"
-  asdf global ruby "$version"
+  asdf set --home ruby "$version"
 
   # Return if this is the first install
   test "$installed_version" = "" && return

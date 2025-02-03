@@ -12,7 +12,7 @@ export ASDF_RUBY_VERSION; ASDF_RUBY_VERSION=$(grep '^ruby .*' ~/.tool-versions |
 status=$?
 
 if [ $status -ne 0 ]; then
-  echo "Please set the global ruby version using 'asdf global ruby <version>'" && exit 1
+  echo "Please set the global ruby version using 'asdf set --home ruby <version>'" && exit 1
 fi
 
 shim_path="$(asdf which "$binary")"
