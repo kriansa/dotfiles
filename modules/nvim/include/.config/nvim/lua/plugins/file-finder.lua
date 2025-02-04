@@ -101,6 +101,11 @@ return {
           scroll_strategy = 'cycle',
           default_mappings = {
             i = mappings.telescope_defaults(),
+            -- Avoids cases where one can press a key too quickly
+            n = {
+              ["<ESC>"] = "close",
+              ["<C-c>"] = "close",
+            },
           },
         },
         pickers = {
