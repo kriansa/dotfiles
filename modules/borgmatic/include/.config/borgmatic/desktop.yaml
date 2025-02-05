@@ -1,11 +1,12 @@
-# Constants to use in the configuration file. All occurrences of the
-# constant name within curly braces will be replaced with the value.
-# For example, if you have a constant named "hostname" with the value
-# "myhostname", then the string "{hostname}" will be replaced with
-# "myhostname" in the configuration file.
+# Constants to use in the configuration file. Within option values,
+# all occurrences of the constant name in curly braces will be
+# replaced with the constant value. For example, if you have a
+# constant named "app_name" with the value "myapp", then the string
+# "{app_name}" will be replaced with "myapp" in the configuration
+# file.
 # constants:
-    # hostname: myhostname
-    # prefix: myprefix
+    # app_name: myapp
+    # user: myuser
 
 # List of source directories and files to back up. Globs and tildes
 # are expanded. Do not backslash spaces in path names.
@@ -27,16 +28,15 @@ repositories:
     - path: /mnt/Backup/Desktop
       label: server
 
-# Working directory for the "borg create" command. Tildes are
-# expanded. Useful for backing up using relative paths. See
-# http://borgbackup.readthedocs.io/en/stable/usage/create.html for
+# Working directory to use when running actions, useful for backing up
+# using relative source directory paths. Does not currently apply to
+# borgmatic configuration file paths or includes. Tildes are expanded.
+# See http://borgbackup.readthedocs.io/en/stable/usage/create.html for
 # details. Defaults to not set.
 # working_directory: /path/to/working/directory
 
 # Stay in same file system; do not cross mount points beyond the given
-# source directories. Defaults to false. But when a database hook is
-# used, the setting here is ignored and one_file_system is considered
-# true.
+# source directories. Defaults to false.
 one_file_system: true
 
 # Only store/extract numeric user and group identifiers. Defaults to
@@ -78,8 +78,7 @@ one_file_system: true
 # Any paths matching these patterns are included/excluded from
 # backups. Globs are expanded. (Tildes are not.) See the output of
 # "borg help patterns" for more details. Quote any value if it
-# contains leading punctuation, so it parses correctly. Note that only
-# one of "patterns" and "source_directories" may be used.
+# contains leading punctuation, so it parses correctly.
 # patterns:
     # - R /
     # - '- /home/*/.cache'
@@ -87,9 +86,8 @@ one_file_system: true
     # - '- /home/*'
 
 # Read include/exclude patterns from one or more separate named files,
-# one pattern per line. Note that Borg considers this option
-# experimental. See the output of "borg help patterns" for more
-# details.
+# one pattern per line. See the output of "borg help patterns" for
+# more details.
 # patterns_from:
     # - /etc/borgmatic/patterns
 
@@ -125,26 +123,37 @@ exclude_patterns:
 # Exclude files with the NODUMP flag. Defaults to false.
 # exclude_nodump: true
 
-# Path for additional source files used for temporary internal state
-# like borgmatic database dumps. Note that changing this path prevents
-# "borgmatic restore" from finding any database dumps created before
-# the change. Defaults to ~/.borgmatic
-borgmatic_source_directory: /var/lib/borg/borgmatic
+# Deprecated. Only used for locating database dumps and bootstrap
+# metadata within backup archives created prior to deprecation.
+# Replaced by user_runtime_directory and user_state_directory.
+# Defaults to ~/.borgmatic
+# borgmatic_source_directory: /tmp/borgmatic
 
-# Store configuration files used to create a backup in the backup
-# itself. Defaults to true. Changing this to false prevents "borgmatic
-# bootstrap" from extracting configuration files from the backup.
-# store_config_files: true
+# Path for storing temporary runtime data like streaming database
+# dumps and bootstrap metadata. borgmatic automatically creates and
+# uses a "borgmatic" subdirectory here. Defaults to $XDG_RUNTIME_DIR
+# or or $TMPDIR or $TEMP or /run/user/$UID.
+# user_runtime_directory: /run/user/1001
 
-# If true, then source directories must exist, otherwise an error is
-# raised. Defaults to false.
+# Path for storing borgmatic state files like records of when checks
+# last ran. borgmatic automatically creates and uses a "borgmatic"
+# subdirectory here. If you change this option, borgmatic must
+# create the check records again (and therefore re-run checks).
+# Defaults to $XDG_STATE_HOME or ~/.local/state.
+user_state_directory: /var/lib/borg
+
+# If true, then source directories (and root pattern paths) must
+# exist. If they don't, an error is raised. Defaults to false.
 # source_directories_must_exist: true
 
 # The standard output of this command is used to unlock the encryption
 # key. Only use on repositories that were initialized with
 # passcommand/repokey/keyfile encryption. Note that if both
 # encryption_passcommand and encryption_passphrase are set, then
-# encryption_passphrase takes precedence. Defaults to not set.
+# encryption_passphrase takes precedence. This can also be used to
+# access encrypted systemd service credentials. Defaults to not set.
+# For more details, see:
+# https://torsion.org/borgmatic/docs/how-to/provide-your-passwords/
 # encryption_passcommand: secret-tool lookup borg-repository repo-name
 
 # Passphrase to unlock the encryption key with. Only use on
@@ -172,7 +181,8 @@ borgmatic_source_directory: /var/lib/borg/borgmatic
 # details. Defaults to "19,23,21,4095".
 # chunker_params: 19,23,21,4095
 
-# Type of compression to use when creating archives. See
+# Type of compression to use when creating archives. (Compression
+# level can be added separated with a comma, like "zstd,7".) See
 # http://borgbackup.readthedocs.io/en/stable/usage/create.html for
 # details. Defaults to "lz4".
 # compression: lz4
@@ -181,16 +191,22 @@ borgmatic_source_directory: /var/lib/borg/borgmatic
 # unlimited.
 # upload_rate_limit: 100
 
+# Size of network upload buffer in MiB. Defaults to no buffer.
+# upload_buffer_size: 160
+
 # Number of times to retry a failing backup before giving up. Defaults
 # to 0 (i.e., does not attempt retry).
 # retries: 3
 
-# Wait time between retries (in seconds) to allow transient issues to
-# pass. Increases after each retry as a form of backoff. Defaults to 0
-# (no wait).
+# Wait time between retries (in seconds) to allow transient issues
+# to pass. Increases after each retry by that same wait time as a
+# form of backoff. Defaults to 0 (no wait).
 # retry_wait: 10
 
-# Directory where temporary files are stored. Defaults to $TMPDIR.
+# Directory where temporary Borg files are stored. Defaults to
+# $TMPDIR. See "Resource Usage" at
+# https://borgbackup.readthedocs.io/en/stable/usage/general.html for
+# details.
 # temporary_directory: /path/to/tmpdir
 
 # Command to use instead of "ssh". This can be used to specify ssh
@@ -220,18 +236,32 @@ borg_cache_directory: /var/lib/borg/cache
 # $borg_base_directory/.config/borg/keys
 # borg_keys_directory: /path/to/base/config/keys
 
+# A list of Borg exit codes that should be elevated to errors or
+# squashed to warnings as indicated. By default, Borg error exit codes
+# (2 to 99) are treated as errors while warning exit codes (1 and
+# 100+) are treated as warnings. Exit codes other than 1 and 2 are
+# only present in Borg 1.4.0+.
+# borg_exit_codes:
+    # - code: 13
+      # treat_as: warning
+    # - code: 100
+      # treat_as: error
+
 # Umask used for when executing Borg or calling hooks. Defaults to
 # 0077 for Borg or the umask that borgmatic is run with for hooks.
-# umask: 0077
+# umask: 77
 
 # Maximum seconds to wait for acquiring a repository/cache lock.
 # Defaults to 1.
 # lock_wait: 5
 
-# Name of the archive. Borg placeholders can be used. See the output
-# of "borg help placeholders" for details. Defaults to
-# "{hostname}-{now:%Y-%m-%dT%H:%M:%S.%f}". When running actions like
-# rlist, info, or check, borgmatic automatically tries to match only
+# Name of the archive to create. Borg placeholders can be used. See
+# the output of "borg help placeholders" for details. Defaults to
+# "{hostname}-{now:%Y-%m-%dT%H:%M:%S.%f}" with Borg 1 and
+# "{hostname}" with Borg 2, as Borg 2 does not require unique
+# archive names; identical archive names form a common "series" that
+# can be targeted together. When running actions like repo-list,
+# info, or check, borgmatic automatically tries to match only
 # archives created with this name format.
 # archive_name_format: '{hostname}-documents-{now}'
 
@@ -276,7 +306,8 @@ unknown_unencrypted_repo_access_is_ok: true
     # Extra command-line options to pass to "borg check".
     # check: --extra-option
 
-# Keep all archives within this time interval.
+# Keep all archives within this time interval. See "skip_actions" for
+# disabling pruning altogether.
 # keep_within: 3H
 
 # Number of secondly archives to keep.
@@ -311,23 +342,83 @@ keep_daily: 14
 # (if "frequency" is set) or every time borgmatic runs checks (if
 # "frequency" is omitted).
 # checks:
-    # Name of consistency check to run: "repository",
-    # "archives", "data", and/or "extract". Set to "disabled"
-    # to disable all consistency checks. "repository" checks
-    # the consistency of the repository, "archives" checks all
-    # of the archives, "data" verifies the integrity of the
-    # data within the archives, and "extract" does an
-    # extraction dry-run of the most recent archive. Note that
-    # "data" implies "archives".
-    # - name: repository
+    # Name of the consistency check to run:
+    #  * "repository" checks the consistency of the
+    # repository.
+    #  * "archives" checks all of the archives.
+    #  * "data" verifies the integrity of the data
+    # within the archives and implies the "archives"
+    # check as well.
+    #  * "spot" checks that some percentage of source
+    # files are found in the most recent archive (with
+    # identical contents).
+    #  * "extract" does an extraction dry-run of the
+    # most recent archive.
+    #  * See "skip_actions" for disabling checks
+    # altogether.
+    # - name: spot
 
-      # How frequently to run this type of consistency check (as
-      # a best effort). The value is a number followed by a unit
-      # of time. E.g., "2 weeks" to run this consistency check
-      # no more than every two weeks for a given repository or
-      # "1 month" to run it no more than monthly. Defaults to
-      # "always": running this check every time checks are run.
+      # How frequently to run this type of consistency
+      # check (as a best effort). The value is a number
+      # followed by a unit of time. E.g., "2 weeks" to
+      # run this consistency check no more than every
+      # two weeks for a given repository or "1 month" to
+      # run it no more than monthly. Defaults to
+      # "always": running this check every time checks
+      # are run.
       # frequency: 2 weeks
+
+      # After the "frequency" duration has elapsed, only
+      # run this check if the current day of the week
+      # matches one of these values (the name of a day of
+      # the week in the current locale). "weekday" and
+      # "weekend" are also accepted. Defaults to running
+      # the check on any day of the week.
+      # only_run_on:
+          # - Saturday
+          # - Sunday
+
+      # The percentage delta between the source
+      # directories file count and the most recent backup
+      # archive file count that is allowed before the
+      # entire consistency check fails. This can catch
+      # problems like incorrect excludes, inadvertent
+      # deletes, etc. Required (and only valid) for the
+      # "spot" check.
+      # count_tolerance_percentage: 10
+
+      # The percentage of total files in the source
+      # directories to randomly sample and compare to
+      # their corresponding files in the most recent
+      # backup archive. Required (and only valid) for the
+      # "spot" check.
+      # data_sample_percentage: 1
+
+      # The percentage of total files in the source
+      # directories that can fail a spot check comparison
+      # without failing the entire consistency check. This
+      # can catch problems like source files that have
+      # been bulk-changed by malware, backups that have
+      # been tampered with, etc. The value must be lower
+      # than or equal to the "contents_sample_percentage".
+      # Required (and only valid) for the "spot" check.
+      # data_tolerance_percentage: 0.5
+
+      # Command to use instead of "xxh64sum" to hash
+      # source files, usually found in an OS package named
+      # "xxhash". Do not substitute with a different hash
+      # type (SHA, MD5, etc.) or the check will never
+      # succeed. Only valid for the "spot" check.
+      # xxh64sum_command: /usr/local/bin/xxh64sum
+
+      # How many seconds to check the repository before
+      # interrupting the check. Useful for splitting a
+      # long-running repository check into multiple
+      # partial checks. Defaults to no interruption. Only
+      # applies to the "repository" check, does not check
+      # the repository index, and is not compatible with a
+      # simultaneous "archives" check or "--repair" flag.
+      # max_duration: 3600
 
 # Paths or labels for a subset of the configured "repositories" (see
 # above) on which to run consistency checks. Handy in case some of
@@ -344,6 +435,14 @@ check_last: 1
 # Apply color to console output. Can be overridden with --no-color
 # command-line flag. Defaults to true.
 # color: false
+
+# List of one or more actions to skip running for this configuration
+# file, even if specified on the command-line (explicitly or
+# implicitly). This is handy for append-only configurations where you
+# never want to run "compact" or checkless configuration where you
+# want to skip "check". Defaults to not skipping any actions.
+# skip_actions:
+    # - compact
 
 # List of one or more shell commands or scripts to execute before all
 # the actions for each repository.
@@ -404,7 +503,7 @@ before_actions:
 # List of one or more shell commands or scripts to execute after all
 # actions for each repository.
 after_actions:
-    - "systemd-run --no-block /bin/sh -c 'sleep 5; findmnt --type fuse --source borgfs &>/dev/null || ( mountpoint -q /mnt/Backup && umount /mnt/Backup && rmdir /mnt/Backup )'"
+    - systemd-run --no-block /bin/sh -c 'sleep 5; findmnt --type fuse --source borgfs &>/dev/null || ( mountpoint -q /mnt/Backup && umount /mnt/Backup && rmdir /mnt/Backup )'
 
 # List of one or more shell commands or scripts to execute when an
 # exception occurs during a "create", "prune", "compact", or "check"
@@ -426,6 +525,15 @@ after_actions:
 # after_everything:
     # - echo Completed actions.
 
+# Support for the "borgmatic bootstrap" action, used to extract
+# borgmatic configuration files from a backup archive.
+# bootstrap:
+    # Store configuration files used to create a backup inside the
+    # backup itself. Defaults to true. Changing this to false
+    # prevents "borgmatic bootstrap" from extracting configuration
+    # files from the backup.
+    # store_config_files: false
+
 # List of one or more PostgreSQL databases to dump before creating a
 # backup, run once per configuration file. The database dumps are
 # added to your source directories at runtime and streamed directly
@@ -438,8 +546,8 @@ after_actions:
     # dump all databases on the host. (Also set the "format"
     # to dump each database to a separate file instead of one
     # combined file.) Note that using this database hook
-    # implicitly enables both read_special and one_file_system
-    # (see above) to support dump and restore streaming.
+    # implicitly enables read_special (see above) to support
+    # dump and restore streaming.
     # - name: users
 
       # Database hostname to connect to. Defaults to connecting
@@ -516,9 +624,12 @@ after_actions:
 
       # Command to use instead of "pg_dump" or "pg_dumpall".
       # This can be used to run a specific pg_dump version
-      # (e.g., one inside a running container). Defaults to
-      # "pg_dump" for single database dump or "pg_dumpall" to
-      # dump all databases.
+      # (e.g., one inside a running container). If you run it
+      # from within a container, make sure to mount your
+      # host's ".borgmatic" folder into the container using
+      # the same directory structure. Defaults to "pg_dump"
+      # for single database dump or "pg_dumpall" to dump all
+      # databases.
       # pg_dump_command: docker exec my_pg_container pg_dump
 
       # Command to use instead of "pg_restore". This can be used
@@ -560,9 +671,8 @@ after_actions:
 # mariadb_databases:
     # Database name (required if using this hook). Or "all" to
     # dump all databases on the host. Note that using this
-    # database hook implicitly enables both read_special and
-    # one_file_system (see above) to support dump and restore
-    # streaming.
+    # database hook implicitly enables read_special (see
+    # above) to support dump and restore streaming.
     # - name: users
 
       # Database hostname to connect to. Defaults to connecting
@@ -591,6 +701,19 @@ after_actions:
       # a password will only work if MariaDB is configured to
       # trust the configured username without a password.
       # password: trustsome1
+
+      # Command to use instead of "mariadb-dump". This can be
+      # used to run a specific mariadb_dump version (e.g., one
+      # inside a running container). If you run it from within
+      # a container, make sure to mount your host's
+      # ".borgmatic" folder into the container using the same
+      # directory structure. Defaults to "mariadb-dump".
+      # mariadb_dump_command: docker exec mariadb_container mariadb-dump
+
+      # Command to run instead of "mariadb". This can be used to
+      # run a specific mariadb version (e.g., one inside a
+      # running container). Defaults to "mariadb".
+      # mariadb_command: docker exec mariadb_container mariadb
 
       # Password with which to connect to the restore database.
       # Defaults to the "password" option.
@@ -636,9 +759,8 @@ after_actions:
 # mysql_databases:
     # Database name (required if using this hook). Or "all" to
     # dump all databases on the host. Note that using this
-    # database hook implicitly enables both read_special and
-    # one_file_system (see above) to support dump and restore
-    # streaming.
+    # database hook implicitly enables read_special (see
+    # above) to support dump and restore streaming.
     # - name: users
 
       # Database hostname to connect to. Defaults to connecting
@@ -671,6 +793,19 @@ after_actions:
       # Password with which to connect to the restore database.
       # Defaults to the "password" option.
       # restore_password: trustsome1
+
+      # Command to use instead of "mysqldump". This can be
+      # used to run a specific mysql_dump version (e.g., one
+      # inside a running container). If you run it from within
+      # a container, make sure to mount your host's
+      # ".borgmatic" folder into the container using the same
+      # directory structure. Defaults to "mysqldump".
+      # mysql_dump_command: docker exec mysql_container mysqldump
+
+      # Command to run instead of "mysql". This can be used to
+      # run a specific mysql version (e.g., one inside a running
+      # container). Defaults to "mysql".
+      # mysql_command: docker exec mysql_container mysql
 
       # Database dump output format. Currently only "sql" is
       # supported. Defaults to "sql" for a single database. Or,
@@ -711,9 +846,9 @@ after_actions:
 
       # Path to the SQLite database file to dump. If relative,
       # it is relative to the current working directory. Note
-      # that using this database hook implicitly enables both
-      # read_special and one_file_system (see above) to support
-      # dump and restore streaming.
+      # that using this database hook implicitly enables
+      # read_special (see above) to support dump and restore
+      # streaming.
       # path: /var/lib/sqlite/users.db
 
       # Path to the SQLite database file to restore to. Defaults
@@ -729,9 +864,8 @@ after_actions:
 # mongodb_databases:
     # Database name (required if using this hook). Or "all" to
     # dump all databases on the host. Note that using this
-    # database hook implicitly enables both read_special and
-    # one_file_system (see above) to support dump and restore
-    # streaming.
+    # database hook implicitly enables read_special (see
+    # above) to support dump and restore streaming.
     # - name: users
 
       # Database hostname to connect to. Defaults to connecting
@@ -800,6 +934,10 @@ after_actions:
     # The password used for authentication.
     # password: fakepassword
 
+    # An ntfy access token to authenticate with instead of
+    # username/password.
+    # access_token: tk_AgQdq7mVBoFD37zQVN29RhuMzNIz2
+
     # start:
         # The title of the message.
         # title: Ping!
@@ -846,6 +984,284 @@ after_actions:
         # - start
         # - finish
 
+# pushover:
+    # Your application's API token.
+    # token: 7ms6TXHpTokTou2P6x4SodDeentHRa
+
+    # Your user/group key (or that of your target user), viewable
+    # when logged into your dashboard: often referred to as
+    # USER_KEY in Pushover documentation and code examples.
+    # user: hwRwoWsXMBWwgrSecfa9EfPey55WSN
+
+    # start:
+        # Message to be sent to the user or group. If omitted
+        # the default is the name of the state.
+        # message: A backup job has started.
+
+        # A value of -2, -1, 0 (default), 1 or 2 that
+        # indicates the message priority.
+        # priority: 0
+
+        # How many seconds your notification will continue
+        # to be retried (every retry seconds). Defaults to
+        # 600. This settings only applies to priority 2
+        # notifications.
+        # expire: 600
+
+        # The retry parameter specifies how often
+        # (in seconds) the Pushover servers will send the
+        # same notification to the user. Defaults to 30. This
+        # settings only applies to priority 2 notifications.
+        # retry: 30
+
+        # The name of one of your devices to send just to
+        # that device instead of all devices.
+        # device: pixel8
+
+        # Set to True to enable HTML parsing of the message.
+        # Set to False for plain text.
+        # html: true
+
+        # The name of a supported sound to override your
+        # default sound choice. All options can be found
+        # here: https://pushover.net/api#sounds
+        # sound: bike
+
+        # Your message's title, otherwise your app's name is
+        # used.
+        # title: A backup job has started.
+
+        # The number of seconds that the message will live,
+        # before being deleted automatically. The ttl
+        # parameter is ignored for messages with a priority.
+        # value of 2.
+        # ttl: 3600
+
+        # A supplementary URL to show with your message.
+        # url: https://pushover.net/apps/xxxxx-borgbackup
+
+        # A title for the URL specified as the url parameter,
+        # otherwise just the URL is shown.
+        # url_title: Pushover Link
+
+    # finish:
+        # Message to be sent to the user or group. If omitted
+        # the default is the name of the state.
+        # message: A backup job has finished.
+
+        # A value of -2, -1, 0 (default), 1 or 2 that
+        # indicates the message priority.
+        # priority: 0
+
+        # How many seconds your notification will continue
+        # to be retried (every retry seconds). Defaults to
+        # 600. This settings only applies to priority 2
+        # notifications.
+        # expire: 600
+
+        # The retry parameter specifies how often
+        # (in seconds) the Pushover servers will send the
+        # same notification to the user. Defaults to 30. This
+        # settings only applies to priority 2 notifications.
+        # retry: 30
+
+        # The name of one of your devices to send just to
+        # that device instead of all devices.
+        # device: pixel8
+
+        # Set to True to enable HTML parsing of the message.
+        # Set to False for plain text.
+        # html: true
+
+        # The name of a supported sound to override your
+        # default sound choice. All options can be found
+        # here: https://pushover.net/api#sounds
+        # sound: bike
+
+        # Your message's title, otherwise your app's name is
+        # used.
+        # title: A backup job has started.
+
+        # The number of seconds that the message will live,
+        # before being deleted automatically. The ttl
+        # parameter is ignored for messages with a priority.
+        # value of 2.
+        # ttl: 3600
+
+        # A supplementary URL to show with your message.
+        # url: https://pushover.net/apps/xxxxx-borgbackup
+
+        # A title for the URL specified as the url parameter,
+        # otherwise just the URL is shown.
+        # url_title: Pushover Link
+
+    # fail:
+        # Message to be sent to the user or group. If omitted
+        # the default is the name of the state.
+        # message: A backup job has failed.
+
+        # A value of -2, -1, 0 (default), 1 or 2 that
+        # indicates the message priority.
+        # priority: 0
+
+        # How many seconds your notification will continue
+        # to be retried (every retry seconds). Defaults to
+        # 600. This settings only applies to priority 2
+        # notifications.
+        # expire: 600
+
+        # The retry parameter specifies how often
+        # (in seconds) the Pushover servers will send the
+        # same notification to the user. Defaults to 30. This
+        # settings only applies to priority 2 notifications.
+        # retry: 30
+
+        # The name of one of your devices to send just to
+        # that device instead of all devices.
+        # device: pixel8
+
+        # Set to True to enable HTML parsing of the message.
+        # Set to False for plain text.
+        # html: true
+
+        # The name of a supported sound to override your
+        # default sound choice. All options can be found
+        # here: https://pushover.net/api#sounds
+        # sound: bike
+
+        # Your message's title, otherwise your app's name is
+        # used.
+        # title: A backup job has started.
+
+        # The number of seconds that the message will live,
+        # before being deleted automatically. The ttl
+        # parameter is ignored for messages with a priority.
+        # value of 2.
+        # ttl: 3600
+
+        # A supplementary URL to show with your message.
+        # url: https://pushover.net/apps/xxxxx-borgbackup
+
+        # A title for the URL specified as the url parameter,
+        # otherwise just the URL is shown.
+        # url_title: Pushover Link
+
+    # List of one or more monitoring states to ping for: "start",
+    # "finish", and/or "fail". Defaults to pinging for failure
+    # only.
+    # states:
+        # - start
+        # - finish
+
+# zabbix:
+    # The ID of the Zabbix item used for collecting data.
+    # Unique across the entire Zabbix system.
+    # itemid: 55105
+
+    # Host name where the item is stored. Required if "itemid"
+    # is not set.
+    # host: borg-server
+
+    # Key of the host where the item is stored. Required if
+    # "itemid" is not set.
+    # key: borg.status
+
+    # The address of your Zabbix instance.
+    # server: https://zabbix.your-domain.com
+
+    # The username used for authentication. Not needed if using
+    # an API key.
+    # username: testuser
+
+    # The password used for authentication. Not needed if using
+    # an API key.
+    # password: fakepassword
+
+    # The API key used for authentication. Not needed if using
+    # an username/password.
+    # api_key: fakekey
+
+    # start:
+        # The value to set the item to on start.
+        # value: STARTED
+
+    # finish:
+        # The value to set the item to on finish.
+        # value: FINISH
+
+    # fail:
+        # The value to set the item to on fail.
+        # value: ERROR
+
+    # List of one or more monitoring states to ping for: "start",
+    # "finish", and/or "fail". Defaults to pinging for failure
+    # only.
+    # states:
+        # - start
+        # - finish
+
+# apprise:
+    # A list of Apprise services to publish to with URLs and
+    # labels. The labels are used for logging. A full list of
+    # services and their configuration can be found at
+    # https://github.com/caronc/apprise/wiki.
+    # services:
+        # - url: kodi://user@hostname
+          # label: kodi
+        # - url: line://Token@User
+          # label: line
+
+    # Send borgmatic logs to Apprise services as part the
+    # "finish", "fail", and "log" states. Defaults to true.
+    # send_logs: false
+
+    # Number of bytes of borgmatic logs to send to Apprise
+    # services. Set to 0 to send all logs and disable this
+    # truncation. Defaults to 1500.
+    # logs_size_limit: 100000
+
+    # start:
+        # Specify the message title. If left unspecified, no
+        # title is sent.
+        # title: Ping!
+
+        # Specify the message body.
+        # body: Starting backup process.
+
+    # finish:
+        # Specify the message title. If left unspecified, no
+        # title is sent.
+        # title: Ping!
+
+        # Specify the message body.
+        # body: Backups successfully made.
+
+    # fail:
+        # Specify the message title. If left unspecified, no
+        # title is sent.
+        # title: Ping!
+
+        # Specify the message body.
+        # body: Your backups have failed.
+
+    # log:
+        # Specify the message title. If left unspecified, no
+        # title is sent.
+        # title: Ping!
+
+        # Specify the message body.
+        # body: Here is some info about your backups.
+
+    # List of one or more monitoring states to ping for:
+    # "start", "finish", "fail", and/or "log". Defaults to
+    # pinging for failure only. For each selected state,
+    # corresponding configuration for the message title and body
+    # should be given. If any is left unspecified, a generic
+    # message is emitted instead.
+    # states:
+        # - start
+        # - finish
+
 # Configuration for a monitoring integration with Healthchecks. Create
 # an account at https://healthchecks.io (or self-host Healthchecks) if
 # you'd like to use this service. See borgmatic monitoring
@@ -875,6 +1291,28 @@ after_actions:
     # states:
         # - finish
 
+    # Create the check if it does not exist. Only works with
+    # the slug URL scheme (https://hc-ping.com/<ping-key>/<slug>
+    # as opposed to https://hc-ping.com/<uuid>).
+    # Defaults to false.
+    # create_slug: true
+
+# Configuration for a monitoring integration with Uptime Kuma using
+# the Push monitor type.
+# See more information here: https://uptime.kuma.pet
+# uptime_kuma:
+    # Uptime Kuma push URL without query string (do not include the
+    # question mark or anything after it).
+    # push_url: https://example.uptime.kuma/api/push/abcd1234
+
+    # List of one or more monitoring states to push for: "start",
+    # "finish", and/or "fail". Defaults to pushing for all
+    # states.
+    # states:
+        # - start
+        # - finish
+        # - fail
+
 # Configuration for a monitoring integration with Cronitor. Create an
 # account at https://cronitor.io if you'd like to use this service.
 # See borgmatic monitoring documentation for details.
@@ -891,10 +1329,98 @@ after_actions:
     # when a backup errors.
     # integration_key: a177cad45bd374409f78906a810a3074
 
-# Configuration for a monitoring integration with Crunhub. Create an
+# Configuration for a monitoring integration with Cronhub. Create an
 # account at https://cronhub.io if you'd like to use this service. See
 # borgmatic monitoring documentation for details.
 # cronhub:
     # Cronhub ping URL to notify when a backup begins,
     # ends, or errors.
     # ping_url: https://cronhub.io/ping/1f5e3410-254c-5587
+
+# Configuration for a monitoring integration with Grafana Loki. You
+# can send the logs to a self-hosted instance or create an account at
+# https://grafana.com/auth/sign-up/create-user. See borgmatic
+# monitoring documentation for details.
+# loki:
+    # Grafana loki log URL to notify when a backup begins,
+    # ends, or fails.
+    # url: http://localhost:3100/loki/api/v1/push
+
+    # Allows setting custom labels for the logging stream. At
+    # least one label is required. "__hostname" gets replaced by
+    # the machine hostname automatically. "__config" gets replaced
+    # by the name of the configuration file. "__config_path" gets
+    # replaced by the full path of the configuration file.
+    # labels:
+        # app: borgmatic
+        # config: __config
+        # hostname: __hostname
+
+# Configuration for a monitoring integration with Sentry. You can use
+# a self-hosted instance via https://develop.sentry.dev/self-hosted/
+# or create a cloud-hosted account at https://sentry.io. See borgmatic
+# monitoring documentation for details.
+# sentry:
+    # Sentry Data Source Name (DSN) URL, associated with a
+    # particular Sentry project. Used to construct a cron URL,
+    # notified when a backup begins, ends, or errors.
+    # data_source_name_url: https://5f80ec@o294220.ingest.us.sentry.io/203069
+
+    # Sentry monitor slug, associated with a particular Sentry
+    # project monitor. Used along with the data source name URL to
+    # construct a cron URL.
+    # monitor_slug: mymonitor
+
+    # List of one or more monitoring states to ping for: "start",
+    # "finish", and/or "fail". Defaults to pinging for all states.
+    # states:
+        # - start
+        # - finish
+
+# Configuration for integration with the ZFS filesystem.
+# zfs:
+    # Command to use instead of "zfs".
+    # zfs_command: /usr/local/bin/zfs
+
+    # Command to use instead of "mount".
+    # mount_command: /usr/local/bin/mount
+
+    # Command to use instead of "umount".
+    # umount_command: /usr/local/bin/umount
+
+# Configuration for integration with the Btrfs filesystem.
+# btrfs:
+    # Command to use instead of "btrfs".
+    # btrfs_command: /usr/local/bin/btrfs
+
+    # Command to use instead of "findmnt".
+    # findmnt_command: /usr/local/bin/findmnt
+
+# Configuration for integration with Linux LVM (Logical Volume
+# Manager).
+# lvm:
+    # Size to allocate for each snapshot taken, including the
+    # units to use for that size. Defaults to "10%ORIGIN" (10%
+    # of the size of logical volume being snapshotted). See the
+    # lvcreate "--size" and "--extents" documentation for more
+    # information:
+    # https://www.man7.org/linux/man-pages/man8/lvcreate.8.html
+    # snapshot_size: 5GB
+
+    # Command to use instead of "lvcreate".
+    # lvcreate_command: /usr/local/bin/lvcreate
+
+    # Command to use instead of "lvremove".
+    # lvremove_command: /usr/local/bin/lvremove
+
+    # Command to use instead of "lvs".
+    # lvs_command: /usr/local/bin/lvs
+
+    # Command to use instead of "lsblk".
+    # lsblk_command: /usr/local/bin/lsblk
+
+    # Command to use instead of "mount".
+    # mount_command: /usr/local/bin/mount
+
+    # Command to use instead of "umount".
+    # umount_command: /usr/local/bin/umount
