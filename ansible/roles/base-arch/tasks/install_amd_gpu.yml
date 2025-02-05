@@ -7,3 +7,4 @@
       - libva-mesa-driver
       - mesa-vdpau
       - vulkan-radeon
+      - rocm-smi-lib
