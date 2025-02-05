@@ -48,7 +48,7 @@
       - cups
 
       # Scheduler
-      - system76-scheduler
+      - ananicy-cpp
 
       # Tools
       - qalculate-gtk
@@ -73,6 +73,9 @@
     name:
       # Complement for pacman
       - overdue
+
+      # Ananicy rules
+      - cachyos-ananicy-rules-git
 
       # Password managers
       - 1password
@@ -110,18 +113,11 @@
   when: common_desktop_packages.changed or aur_packages.changed
   ansible.builtin.command: fc-cache -fv
 
-- name: setup system76-scheduler
-  become: true
-  notify: restart system76-scheduler
-  ansible.builtin.copy:
-    dest: /etc/system76-scheduler/process-scheduler/custom.kdl
-    src: system76-scheduler-custom.kdl
-
-- name: start and enable system76-scheduler at boot time
-  become: true
-  ansible.builtin.systemd: name=com.system76.Scheduler enabled=yes state=started
-
 - name: start and enable psi-notify at boot time
   become: true
   become_user: "{{ user_name }}"
   ansible.builtin.systemd: name=psi-notify enabled=yes state=started scope=user
+
+- name: start and enable ananicy-cpp at boot time
+  become: true
+  ansible.builtin.systemd: name=ananicy-cpp enabled=yes state=started

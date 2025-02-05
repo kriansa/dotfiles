@@ -1,4 +1,0 @@
----
-- name: restart system76-scheduler
-  become: true
-  ansible.builtin.systemd: name=com.system76.Scheduler enabled=yes state=restarted
