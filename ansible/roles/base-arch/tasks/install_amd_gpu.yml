@@ -8,3 +8,4 @@
       - mesa-vdpau
       - vulkan-radeon
       - rocm-smi-lib
+      - amdvlk
