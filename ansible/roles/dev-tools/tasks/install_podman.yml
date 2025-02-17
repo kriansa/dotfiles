@@ -26,13 +26,13 @@
 
 - name: create podman.service.d systemd drop-in folder
   become: true
-  ansible.builtin.file: path=/usr/lib/systemd/user/podman.service.d state=directory
+  ansible.builtin.file: path=/etc/systemd/user/podman.service.d state=directory
 
 - name: set the default userns keep-id so that rootless docker-compose is identical to docker
   become: true
   register: set_default_userns
   ansible.builtin.copy:
-    dest: /usr/lib/systemd/user/podman.service.d/set-default-userns.conf
+    dest: /etc/systemd/user/podman.service.d/set-default-userns.conf
     mode: "0644"
     content: |
       # This file will be appended to the existing configuration of podman.service (systemd calls it
