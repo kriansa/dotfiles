@@ -284,7 +284,7 @@ return {
               file = false,
               hidden = false,
               diagnostics = false,
-              bookmarks = false,
+              bookmarks = true,
             },
             glyphs = {
               symlink = "",

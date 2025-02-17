@@ -30,10 +30,10 @@ return {
           " Customize NvimTree
           call edge#highlight('NvimTreeExecFile', l:palette.none, l:palette.none, 'bold')
           call edge#highlight('NvimTreeSymlink', l:palette.purple, l:palette.none)
-          highlight! link NvimTreeFolderName BlueSign
-          highlight! link NvimTreeEmptyFolderName NvimTreeFolderName
-          highlight! link NvimTreeOpenedFolderName NvimTreeFolderName
-          highlight! link NvimTreeSymlinkFolderName NvimTreeFolderName
+          " highlight! link NvimTreeFolderName BlueSign
+          " highlight! link NvimTreeEmptyFolderName NvimTreeFolderName
+          " highlight! link NvimTreeOpenedFolderName NvimTreeFolderName
+          " highlight! link NvimTreeSymlinkFolderName NvimTreeFolderName
 
           " Customize copilot-cmp
           call edge#highlight('CmpItemKindCopilot', l:palette.blue, l:palette.none, 'bold')
