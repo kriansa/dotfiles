@@ -1,0 +1,23 @@
+[$Version]
+update_info=delete_cursor_old_default_size.upd:DeleteCursorOldDefaultSize,kcminputrc_fix_botched_5_21_0.upd:kcminputrc_fix_botched_5_21_0_pre,kcminputrc_fix_botched_5_21_0.upd:kcminputrc_fix_botched_5_21_0,kcminputrc_repeat.upd:kcminputrc_migrate_key_repeat
+
+[Keyboard]
+RepeatDelay=350
+RepeatRate=35
+
+[Libinput][5426][132][Razer Razer DeathAdder V2]
+PointerAcceleration=-0.400
+PointerAccelerationProfile=1
+
+[Libinput][5426][156][Razer Razer DeathAdder V2 X HyperSpeed]
+PointerAcceleration=-0.400
+PointerAccelerationProfile=1
+
+[Mouse]
+X11LibInputXAccelProfileFlat=true
+XLbInptPointerAcceleration=-0.2
+cursorSize=30
+cursorTheme=Breeze_Light
+
+[Tmp]
+update_info=delete_cursor_old_default_size.upd:DeleteCursorOldDefaultSize

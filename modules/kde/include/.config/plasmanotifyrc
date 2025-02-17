@@ -1,0 +1,12 @@
+[Applications][discord]
+Seen=true
+
+[Applications][firefox]
+Seen=true
+
+[Applications][slack]
+Seen=true
+
+[Notifications]
+PopupPosition=TopCenter
+PopupTimeout=3000

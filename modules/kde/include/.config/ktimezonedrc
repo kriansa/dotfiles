@@ -1,0 +1,4 @@
+[TimeZones]
+LocalZone=America/Sao_Paulo
+ZoneinfoDir=/usr/share/zoneinfo
+Zonetab=/usr/share/zoneinfo/zone.tab

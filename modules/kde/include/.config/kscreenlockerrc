@@ -1,0 +1,15 @@
+[$Version]
+update_info=kscreenlocker.upd:0.1-autolock
+
+[Daemon]
+Autolock=false
+LockGrace=0
+LockOnResume=false
+
+[Greeter][LnF][General]
+showMediaControls=false
+
+[Greeter][Wallpaper][org.kde.image][General]
+Image=/usr/share/wallpapers/Canopee/
+PreviewImage=/usr/share/wallpapers/Canopee/
+SlidePaths=/usr/share/wallpapers/

@@ -136,25 +136,28 @@ ForegroundPositive=39,174,96
 ForegroundVisited=155,89,182
 
 [DirSelect Dialog]
-DirSelectDialog Size=876,592
-History Items[$e]=file:$HOME/Media/Wallpapers,file:$HOME/Documents/Screenshots,file:$HOME/Screenshots,file:$HOME/Downloads,file:$HOME/Downloads,file:$HOME/Documents,file:$HOME/Media/Music,file:$HOME/Media/Photos,file:$HOME/Media/Videos,file:$HOME/Downloads,file:$HOME/Documents/Screenshots
+DirSelectDialog Size=868,591
 
 [General]
+AccentColor=0,0,0,0
 BrowserApplication=firefox.desktop
-ColorScheme=BreezeLight
-ColorSchemeHash=38f350e0530aaa58cc20a2cf2011a8a2d0c7a4fc
-LastUsedCustomAccentColor=184,117,220
+ColorSchemeHash=0be804dba87e3512aeb4be3d78ed981f59f0f2f4
+LastUsedCustomAccentColor=146,110,228
 TerminalApplication=kwin-tmux-window
 TerminalService=tmux-window.desktop
 UseSystemBell=true
 XftAntialias=true
 XftHintStyle=hintslight
 XftSubPixel=rgb
+accentColorFromWallpaper=false
 fixed=Iosevka Term,11,-1,5,50,0,0,0,0,0
 font=Roboto Condensed,12,-1,5,50,0,0,0,0,0
 menuFont=Roboto Condensed,11,-1,5,50,0,0,0,0,0
 smallestReadableFont=Roboto Condensed,9,-1,5,50,0,0,0,0,0
 toolBarFont=Roboto Condensed,11,-1,5,50,0,0,0,0,0
+
+[Icons]
+Theme=breeze
 
 [KDE]
 AnimationDurationFactor=0
@@ -165,7 +168,7 @@ widgetStyle=Breeze
 [KFileDialog Settings]
 Allow Expansion=false
 Automatically select filename extension=true
-Breadcrumb Navigation=true
+Breadcrumb Navigation=false
 Decoration position=2
 LocationCombo Completionmode=5
 PathCombo Completionmode=5
@@ -188,7 +191,7 @@ MaximumRemoteSize=0
 [WM]
 activeBackground=227,229,231
 activeBlend=227,229,231
-activeFont=Roboto Condensed,11,-1,5,50,0,0,0,0,0
+activeFont=Roboto Condensed,13,-1,5,700,0,0,0,0,0,0,0,0,0,0,1,Bold
 activeForeground=35,38,41
 frame=61,174,233
 inactiveBackground=239,240,241

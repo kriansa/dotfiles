@@ -1,6 +1,9 @@
 [$Version]
 update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-effect-to-js,kwin.upd:port-scale-effect-to-js,kwin.upd:port-dimscreen-effect-to-js,kwin.upd:auto-bordersize,kwin.upd:animation-speed,kwin.upd:desktop-grid-click-behavior,kwin.upd:no-swap-encourage,kwin.upd:make-translucency-effect-disabled-by-default,kwin.upd:remove-flip-switch-effect,kwin.upd:remove-cover-switch-effect,kwin.upd:remove-cubeslide-effect,kwin.upd:remove-xrender-backend,kwin.upd:enable-scale-effect-by-default,kwin.upd:overview-group-plugin-id,kwin.upd:animation-speed-cleanup,kwin.upd:replace-cascaded-zerocornered
 
+[Activities][LastVirtualDesktop]
+1755eaa4-3450-44e9-97de-fe453803621a=1020374b-1ad0-46c1-93fd-16edcba57d61
+
 [Desktops]
 Id_1=1020374b-1ad0-46c1-93fd-16edcba57d61
 Id_2=804d8c76-c41d-4c3a-9999-85d2ebb94631
@@ -12,7 +15,8 @@ Number=3
 Rows=1
 
 [Effect-diminactive]
-Strength=6
+DimKeepAbove=true
+Strength=10
 
 [Effect-kwin4_effect_translucency]
 Inactive=54
@@ -32,17 +36,19 @@ Mode=Times
 desktopchangeosdEnabled=false
 diminactiveEnabled=true
 dimscreenEnabled=true
+fadeEnabled=true
 fadingpopupsEnabled=false
 fullscreenEnabled=false
 kwin4_effect_dimscreenEnabled=true
 kwin4_effect_fadedesktopEnabled=true
 maximizeEnabled=false
+scaleEnabled=false
 screenedgeEnabled=false
 shakecursorEnabled=false
 slideEnabled=false
 slidingpopupsEnabled=false
-tilegapsEnabled=false
-tileseditorEnabled=false
+tilegapsEnabled=true
+tileseditorEnabled=true
 zoomEnabled=false
 
 [Script-desktopchangeosd]
@@ -61,55 +67,10 @@ HighlightWindows=false
 LayoutName=compact
 
 [Tiling]
-padding=4
-
-[Tiling][067ae6de-1418-5921-8a77-ea742c885e54]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][405f573c-d83b-5118-8a92-78ebe732fdce]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+padding=8
 
 [Tiling][4143c375-0b8a-5fa0-b98b-0da4a7d69606]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.15},{"width":0.35813953488372086},{"width":0.4918604651162791}]}
-
-[Tiling][4909c395-d052-55ef-bf10-bb8a7326f0c5]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][58ca410b-ce44-58d6-82b9-fefe44aba0e3]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][90769606-0554-5787-8fbe-625570f1c0b7]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
-
-[Tiling][92e842d7-5928-5c43-884a-4912e7cc82ed]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][aaa5549a-1998-530c-b56c-1dc8e8fe265e]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][c73684f0-83c4-5586-b5c5-86ac66d58d6c]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][c945befc-0f0f-5bd8-ba4e-b22c85399843]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][cb8897d1-84bd-52c8-a808-20bf2729166b]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][cdb69f73-a4fe-5a13-912d-dc995203abee]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][cfb84961-7902-532d-8494-eb620d7a3101]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
-
-[Tiling][d02c035d-eef0-5c68-aa2f-2e83d0ba08b1]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][d63ed7a4-731e-5239-934e-f9de093c6eb9]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
-
-[Tiling][f0e5f0ea-6154-53e2-b0ab-7a760314b136]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Windows]
 DelayFocusInterval=0
@@ -121,6 +82,8 @@ Scale=1
 XwaylandEavesdrops=Combinations
 
 [org.kde.kdecoration2]
+BorderSize=None
+BorderSizeAuto=false
 ButtonsOnLeft=F
 ButtonsOnRight=X
 library=org.kde.breeze

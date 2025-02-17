@@ -1,0 +1,60 @@
+[$Version]
+update_info=kwinrules.upd:replace-placement-string-to-enum,kwinrules.upd:use-virtual-desktop-ids
+
+[1]
+Description=Application settings for Slack
+above=true
+clientmachine=localhost
+desktops=5bb9b44a-aeb9-44c3-a7f4-1bb73c09819e
+desktopsrule=3
+maximizehoriz=true
+noborder=true
+position=0,40
+size=1720,1400
+windowrole=browser
+wmclass=slack Slack
+wmclasscomplete=true
+wmclassmatch=1
+
+[2]
+Description=Application settings for Spotify
+above=true
+clientmachine=localhost
+desktops=804d8c76-c41d-4c3a-9999-85d2ebb94631
+desktopsrule=3
+noborder=true
+noborderrule=3
+position=0,40
+size=1720,1400
+windowrole=browser
+wmclass=spotify Spotify
+wmclasscomplete=true
+wmclassmatch=1
+
+[3]
+Description=Application settings for Alacritty
+above=true
+clientmachine=localhost
+desktops=1020374b-1ad0-46c1-93fd-16edcba57d61
+desktopsrule=3
+noborder=true
+position=8,40
+positionrule=3
+size=1708,1392
+sizerule=3
+windowrole=browser
+wmclass=alacritty Alacritty
+wmclasscomplete=true
+wmclassmatch=1
+
+[4]
+Description=Application settings for discord
+clientmachine=localhost
+desktops=5bb9b44a-aeb9-44c3-a7f4-1bb73c09819e
+desktopsrule=3
+wmclass=discord
+wmclassmatch=1
+
+[General]
+count=4
+rules=3,4,2,1
