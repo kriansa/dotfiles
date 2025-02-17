@@ -3,6 +3,6 @@
 # Usage: trash <file> [...]
 
 case "$(uname)" in
-  Linux) gio trash "$@" ;;
-  Darwin) /opt/homebrew/bin/trash "$@" ;;
+  Linux) exec gio trash "$@" ;;
+  Darwin) exec /opt/homebrew/bin/trash "$@" ;;
 esac
