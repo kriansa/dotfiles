@@ -15,7 +15,7 @@
     marker: "# Enable network attached Media ({mark})"
     block: |
       # {{ home_path }}/Media
-      {{ shared_drive.media_location }}	{{ home_path }}/Media	cifs	_netdev,vers=3.0,x-gvfs-hide,guest,uid={{ user_name }},gid={{ user_name }},iocharset=utf8,noauto,x-systemd.automount,x-systemd.mount-timeout=5,x-systemd.requires=nss-lookup.target,rw	0	0
+      {{ shared_drive.media_location }}	{{ home_path }}/Media	cifs	_netdev,vers=3.0,x-gvfs-hide,username=media,password=media,uid={{ user_name }},gid={{ user_name }},iocharset=utf8,noauto,x-systemd.automount,x-systemd.mount-timeout=5,x-systemd.requires=nss-lookup.target,rw	0	0
 
 - name: add drive fstab entry
   become: true
