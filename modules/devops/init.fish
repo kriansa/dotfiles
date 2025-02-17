@@ -22,9 +22,17 @@ set --global --export KREW_NO_UPGRADE_CHECK 1
 # Set default image for kubectl node-shell
 set --global --export KUBECTL_NODE_SHELL_IMAGE nicolaka/netshoot
 
+# Disable "hints" for Docker CLI
+set --global --export DOCKER_CLI_HINTS 0
+
 if type -q podman
   abbr --global --add d podman
   abbr --global --add p podman
+
+  # BuildKit is no compatible with using PODMAN_USERNS=keep-id
+  # Disabling it is the compromise we make to ensure docker-compose is compatible with both docker
+  # and podman.
+  set --global --export DOCKER_BUILDKIT 0
 
   # On Podman Mac, `podman-mac-helper` will add a socket symlink to /var/run/docker.sock
   if ! test -S /var/run/docker.sock
