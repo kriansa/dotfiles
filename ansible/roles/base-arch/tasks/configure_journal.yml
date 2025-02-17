@@ -1,7 +1,13 @@
 ---
+- name: create journald drop-in directory
+  become: true
+  ansible.builtin.file: path=/etc/systemd/journald.conf.d state=directory
+
 - name: limit journal log retention size
   become: true
-  ansible.builtin.lineinfile:
-    path: /etc/systemd/journald.conf
-    regexp: "^#?SystemMaxUse="
-    line: "SystemMaxUse=500M"
+  notify: restart systemd-journald
+  ansible.builtin.copy:
+    dest: /etc/systemd/journald.conf.d/01-limit-space.conf
+    content: |
+      [Journal]
+      SystemMaxUse=50M

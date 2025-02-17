@@ -21,3 +21,7 @@
 - name: reload hwdb
   become: true
   ansible.builtin.shell: systemd-hwdb update && udevadm trigger
+
+- name: restart systemd-journald
+  become: true
+  ansible.builtin.service: name=systemd-journald state=restarted
