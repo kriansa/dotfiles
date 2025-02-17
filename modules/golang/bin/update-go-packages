@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 echo "Updating packages..."
+trap exit INT
 
 while IFS= read -r package; do
   go install -a "$package"

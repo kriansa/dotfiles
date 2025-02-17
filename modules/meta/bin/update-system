@@ -4,6 +4,7 @@
 # them interactively without having to remember each one since this is such a repetitive process
 
 main() {
+  trap exit INT
   echo -e "\033[1;33mStarting system upgrade\033[0m"
 
   if [ "$(uname)" == "Darwin" ]; then

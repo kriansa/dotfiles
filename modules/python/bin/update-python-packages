@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 main() {
+  trap exit INT
+
   # Upgrade pip itself
   pip3 install --break-system-packages --no-warn-script-location --upgrade pip
 
