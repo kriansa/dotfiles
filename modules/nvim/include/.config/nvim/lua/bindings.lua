@@ -1,33 +1,28 @@
 local g = vim.g
 
-local function set_keymap(mode, lhs, rhs, opts)
-  return vim.api.nvim_set_keymap(mode, lhs, rhs, opts or {})
-end
 local function nmap(lhs, rhs, opts)
-  return set_keymap('n', lhs, rhs, opts)
+  return vim.api.nvim_set_keymap('n', lhs, rhs, opts or {})
 end
 local function imap(lhs, rhs, opts)
-  return set_keymap('i', lhs, rhs, opts)
+  return vim.api.nvim_set_keymap('i', lhs, rhs, opts or {})
 end
 local function tmap(lhs, rhs, opts)
-  return set_keymap('t', lhs, rhs, opts)
+  return vim.api.nvim_set_keymap('t', lhs, rhs, opts or {})
 end
 local function vmap(lhs, rhs, opts)
-  return set_keymap('v', lhs, rhs, opts)
+  return vim.api.nvim_set_keymap('v', lhs, rhs, opts or {})
 end
 local function nnoremap(lhs, rhs, opts)
-  silent = (opts or {}).silent
-  expr = (opts or {}).expr
-  return nmap(lhs, rhs, { noremap = true, silent = silent, expr = expr })
+  return nmap(lhs, rhs, vim.tbl_extend("keep", opts or {}, { noremap = true }))
 end
 local function inoremap(lhs, rhs, opts)
-  return imap(lhs, rhs, { noremap = true })
+  return imap(lhs, rhs, vim.tbl_extend("keep", opts or {}, { noremap = true }))
 end
 local function tnoremap(lhs, rhs, opts)
-  return tmap(lhs, rhs, { noremap = true })
+  return tmap(lhs, rhs, vim.tbl_extend("keep", opts or {}, { noremap = true }))
 end
 local function vnoremap(lhs, rhs, opts)
-  return vmap(lhs, rhs, { noremap = true })
+  return vmap(lhs, rhs, vim.tbl_extend("keep", opts or {}, { noremap = true }))
 end
 
 -- Declare all global variables in Lua that are needed for other plugins to work
@@ -69,10 +64,15 @@ vmap("<", "<gv")
 vmap(">", ">gv")
 
 -- Use CTRL-h,j,k,l to move between splits
-nnoremap("<C-h>", ":wincmd h<CR>", { silent = true })
-nnoremap("<C-j>", ":wincmd j<CR>", { silent = true })
-nnoremap("<C-k>", ":wincmd k<CR>", { silent = true })
-nnoremap("<C-l>", ":wincmd l<CR>", { silent = true })
+nnoremap("<C-h>", "<cmd>wincmd h<CR>", { silent = true })
+nnoremap("<C-j>", "<cmd>wincmd j<CR>", { silent = true })
+nnoremap("<C-k>", "<cmd>wincmd k<CR>", { silent = true })
+nnoremap("<C-l>", "<cmd>wincmd l<CR>", { silent = true })
+
+-- Use CTRL-h,j,k to move up and down when in a terminal (keep Ctrl-L to clear terminal)
+tnoremap("<C-h>", "<cmd>wincmd h<CR>", { silent = true })
+tnoremap("<C-j>", "<cmd>wincmd j<CR>", { silent = true })
+tnoremap("<C-k>", "<cmd>wincmd k<CR>", { silent = true })
 
 -- Use ]t and [t for tab navigation
 nnoremap("]t", ":tabnext<CR>", { silent = true })
@@ -95,7 +95,7 @@ inoremap("<C-]>", "<ESC>")
 --
 
 -- Use CTRL-S to save
-nnoremap('<C-S>', '<cmd>write<CR>')
+nnoremap('<C-s>', '<cmd>write<CR>')
 
 -- Closes current buffer with <Leader>w
 nnoremap("<Leader>w", "<cmd>Close<CR>", { silent = true })

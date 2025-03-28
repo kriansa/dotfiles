@@ -46,6 +46,12 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end
 })
 
+-- Auto insert-mode when switching to a terminal
+vim.api.nvim_create_autocmd({ "TermOpen", "WinEnter" }, {
+  pattern = "term://*",
+  command = "startinsert",
+})
+
 -- Add existing filetypes
 vim.filetype.add({
   extension = {

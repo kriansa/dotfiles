@@ -19,6 +19,7 @@ local plugin_list = {
   'file-manager',
   'editing',
   'completion',
+  'ai',
   'git',
   'ui',
 }
