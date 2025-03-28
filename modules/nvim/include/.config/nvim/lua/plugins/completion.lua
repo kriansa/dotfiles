@@ -274,7 +274,14 @@ return {
       -- Set the editor UI for vim diagnostics
       vim.diagnostic.config({
         virtual_text = false,
-        signs = true,
+        signs = {
+          text = {
+            [vim.diagnostic.severity.ERROR] = "󰅚 ",
+            [vim.diagnostic.severity.WARN] = "󰀪 ",
+            [vim.diagnostic.severity.HINT] = "󰌶 ",
+            [vim.diagnostic.severity.INFO] = "󰋽 ",
+          },
+        },
         underline = true,
         update_in_insert = true,
         severity_sort = true,
@@ -286,13 +293,6 @@ return {
           prefix = "",
         },
       })
-
-      -- Set diagnostic signs
-      local signs = { Error = "󰅚 ", Warn = "󰀪 ", Hint = "󰌶 ", Info = "󰋽 " }
-      for type, icon in pairs(signs) do
-        local hl = "DiagnosticSign" .. type
-        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-      end
 
       -- Enable opening float popup on hovering the line
       vim.api.nvim_create_autocmd("CursorHold", {
@@ -317,7 +317,6 @@ return {
       -- after the language server attaches to the current buffer
       vim.api.nvim_create_autocmd('LspAttach', {
         callback = function(ev)
-          -- Apply buffer local mappings
           mappings.lsp(ev.buf)
         end,
       })
