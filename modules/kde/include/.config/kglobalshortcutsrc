@@ -17,7 +17,7 @@ _k_friendly_name=Accessibility
 [kcm_touchpad]
 Disable Touchpad=Touchpad Off,Touchpad Off,Disable Touchpad
 Enable Touchpad=Touchpad On,Touchpad On,Enable Touchpad
-Toggle Touchpad=Touchpad Toggle\tMeta+Ctrl+Zenkaku Hankaku,Touchpad Toggle\tMeta+Ctrl+Zenkaku Hankaku,Toggle Touchpad
+Toggle Touchpad=Touchpad Toggle\tMeta+Ctrl+Zenkaku Hankaku,Touchpad Toggle\tTouchpad Toggle\tMeta+Ctrl+Touchpad Toggle\tMeta+Ctrl+Zenkaku Hankaku,Toggle Touchpad
 _k_friendly_name=Touchpad
 
 [khotkeys]
@@ -287,6 +287,16 @@ toggle do not disturb=none,,Toggle do not disturb
 [services][org.kde.krunner.desktop]
 RunClipboard=none
 _launch=Search\tMeta+Space
+
+[services][org.kde.spectacle.desktop]
+ActiveWindowScreenShot=none
+FullScreenScreenShot=Meta+#
+RecordRegion=none
+RecordScreen=none
+RecordWindow=none
+RectangularRegionScreenShot=Meta+$
+WindowUnderCursorScreenShot=none
+_launch=none
 
 [wacomtablet]
 Map to fullscreen=Meta+Ctrl+F,Meta+Ctrl+F,Map to fullscreen

@@ -67,10 +67,16 @@ HighlightWindows=false
 LayoutName=compact
 
 [Tiling]
-padding=8
+padding=4
 
 [Tiling][4143c375-0b8a-5fa0-b98b-0da4a7d69606]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
+
+[Tiling][6efb30e3-416f-5e7f-85fc-cc8004bb77c1]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
+
+[Tiling][92e842d7-5928-5c43-884a-4912e7cc82ed]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Windows]
 DelayFocusInterval=0
