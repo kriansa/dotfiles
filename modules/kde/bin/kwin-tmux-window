@@ -18,10 +18,16 @@ main() {
 	exec {OUTPUT}< <(dbus_listen)
 	LISTENER_PID=$!
 
+  # Identify whether tmux was already running or not. If it wasn't running at this point, it means
+  # we'll have to account for a new session that will be initialized by the terminal emulator.
+  # That means that the terminal emulator needs to execute "tmux new-session -A"
+	tmux has-session &>/dev/null; TMUX_HAS_SESSION=$?
+
 	# Either finds an existing terminal emulator and focus it or open a new one
 	focus_or_execute_terminal
 
-  # Ignore first arg if it's a `-e` for compatiblity with other terminal emulators
+  # Ignore first arg if it's a `-e` for compatiblity with other terminal emulators that requires it
+  # to "execute" other commands
   [[ $1 == "-e" ]] && shift
 
 	# Lastly, we open a new tmux window as now the terminal emulator is already open and focused
@@ -33,7 +39,26 @@ main() {
 	# If no command is supplied, we just open a new shell without args.
 	# See: https://stackoverflow.com/questions/1668649/how-can-i-keep-quotes-in-bash-arguments
   test $# -gt 0 && ARGS=(-ic "$(printf " %q" "$@")") || ARGS=(-i)
+
+  # Wait for the tmux to be actually ready as it was been started concurrently by a different
+  # process
+  test $TMUX_HAS_SESSION -eq 1 && wait_tmux_server
+
+	# Launch the program in a new tmux window
 	tmux new-window -n "$(basename "${1:-$SHELL}")" "$SHELL" "${ARGS[@]}"
+
+	# Then we clean up the "default" blank window that is opened by default by tmux
+  test $TMUX_HAS_SESSION -eq 1 && {
+    window_id=$(tmux list-windows | head -n 1 | grep -Po "[0-9]+(?=:)")
+    tmux kill-window -t "${window_id}"
+  }
+}
+
+# Runs `tmux info` in loop to detect when the tmux server is ready to accept commands
+wait_tmux_server() {
+  while ! tmux info &>/dev/null; do
+    sleep .05
+  done
 }
 
 # Create a listener for a D-BUS call on an arbitrary interface so we can communicate with the script
@@ -98,7 +123,7 @@ focus_or_execute_terminal() {
 
 	# This means that the program was not found and we need to launch it
 	if [[ "$result" == "false" ]]; then
-		$TERMINAL_COMMAND & disown $!
+		$TERMINAL_COMMAND -e tmux new-session -A & disown $!
 	fi
 }
 

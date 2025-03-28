@@ -8,7 +8,8 @@ history = 0
 hide_when_typing = true
 
 [terminal.shell]
-args = ["sh", "-lc", "tmux attach || tmux"]
+# The -A flag makes new-session behave like attach-session if session-name already exists
+args = ["tmux", "new-session", "-A"]
 program = "/usr/bin/env"
 
 [env]
