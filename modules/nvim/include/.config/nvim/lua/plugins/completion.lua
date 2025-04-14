@@ -34,7 +34,7 @@ return {
       local cmp = require('cmp')
 
       -- Enable copilot-cmp
-      require("copilot_cmp").setup()
+      -- require("copilot_cmp").setup()
 
       cmp.setup({
         mapping = mappings.cmp_insert(),
@@ -44,7 +44,7 @@ return {
           end
         },
         sources = cmp.config.sources({
-          { name = "copilot" },
+          -- { name = "copilot" },
           { name = 'nvim_lsp' },
           { name = 'buffer' },
           { name = 'path' },

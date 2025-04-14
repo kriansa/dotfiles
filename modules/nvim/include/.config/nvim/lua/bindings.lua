@@ -51,13 +51,13 @@ nnoremap("n", "'Nn'[v:searchforward]", { expr = true })
 nnoremap("N", "'nN'[v:searchforward]", { expr = true })
 
 -- Makes Ctrl+/ clear the last search
-nnoremap('<C-_>', ':let @/=""<CR>', { silent = true })
+nnoremap('<C-_>', '<cmd>let @/=""<CR>', { silent = true })
 
 -- Closes current selected window with <Leader>q
-nnoremap("<Leader>q", ":wincmd q<CR>", { silent = true })
+nnoremap("<Leader>q", "<cmd>wincmd q<CR>", { silent = true })
 
 -- Quit using Q
-nmap('Q', ':wqa<CR>')
+nmap('Q', '<cmd>wqa<CR>')
 
 -- Stay in visual mode while indenting
 vmap("<", "<gv")
@@ -75,11 +75,11 @@ tnoremap("<C-j>", "<cmd>wincmd j<CR>", { silent = true })
 tnoremap("<C-k>", "<cmd>wincmd k<CR>", { silent = true })
 
 -- Use ]t and [t for tab navigation
-nnoremap("]t", ":tabnext<CR>", { silent = true })
-nnoremap("[t", ":tabprevious<CR>", { silent = true })
+nnoremap("]t", "<cmd>tabnext<CR>", { silent = true })
+nnoremap("[t", "<cmd>tabprevious<CR>", { silent = true })
 
 -- Make all splits with equal size
-nnoremap("<Leader>=", ":wincmd =<CR>", { silent = true })
+nnoremap("<Leader>=", "<cmd>wincmd =<CR>", { silent = true })
 
 -- Shift + J join lines. Shift + K should split lines
 nnoremap("<S-K>", "i<CR><ESC>", { silent = true })
@@ -95,7 +95,7 @@ inoremap("<C-]>", "<ESC>")
 --
 
 -- Use CTRL-S to save
-nnoremap('<C-s>', '<cmd>write<CR>')
+-- nnoremap('<C-s>', '<cmd>write<CR>')
 
 -- Closes current buffer with <Leader>w
 nnoremap("<Leader>w", "<cmd>Close<CR>", { silent = true })
@@ -370,7 +370,7 @@ mappings.telescope_buffers = {
 
 -- Telescope
 nmap('<Leader><Leader>', '<cmd>lua require("custom_plugins.better-file-finder").find_buffers()<CR>')
-nmap('<C-P>', '<cmd>lua require("custom_plugins.better-file-finder").find_files()<CR>')
+nmap('<C-p>', '<cmd>lua require("custom_plugins.better-file-finder").find_files()<CR>')
 nmap('<Leader>a', '<cmd>lua require("custom_plugins.better-file-finder").live_grep()<CR>')
 nmap('<Leader>s', '<cmd>lua require("custom_plugins.better-file-finder").live_grep_current_word()<CR>')
 vmap('<Leader>s', '<cmd>lua require("custom_plugins.better-file-finder").live_grep_current_selection()<CR>')
@@ -383,20 +383,20 @@ vim.keymap.set('n', '<leader>dq', vim.diagnostic.setloclist)
 mappings.lsp = function(bufnr)
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   local bufopts = { noremap=true, silent=true, buffer=bufnr }
+  vim.keymap.set('n', '?', vim.lsp.buf.hover, bufopts)
   vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
   vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
   vim.keymap.set('n', 'gy', vim.lsp.buf.type_definition, bufopts)
-  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-  vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-  vim.keymap.set('n', '?', vim.lsp.buf.hover, bufopts)
-  vim.keymap.set('n', '<leader>ls', vim.lsp.buf.signature_help, bufopts)
-  vim.keymap.set('n', '<leader>lwa', vim.lsp.buf.add_workspace_folder, bufopts)
-  vim.keymap.set('n', '<leader>lwr', vim.lsp.buf.remove_workspace_folder, bufopts)
-  vim.keymap.set('n', '<leader>lwl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, bufopts)
-  vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, bufopts)
-  vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts)
+  -- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts) -- gri
+  -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts) -- grr
+  -- vim.keymap.set('n', '<leader>ls', vim.lsp.buf.signature_help, bufopts) -- CTRL-S
+  -- vim.keymap.set('n', '<leader>lwa', vim.lsp.buf.add_workspace_folder, bufopts)
+  -- vim.keymap.set('n', '<leader>lwr', vim.lsp.buf.remove_workspace_folder, bufopts)
+  -- vim.keymap.set('n', '<leader>lwl', function()
+  --   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  -- end, bufopts)
+  -- vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, bufopts) -- grn
+  -- vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts) -- gra
 end
 
 -- Conform to format code (mnemonic: Linter Format)
@@ -416,13 +416,13 @@ vim.keymap.set({'n', 'v'}, '<leader>ct', function()
 end)
 
 -- CodeCompanion (mnemonic: Code Companion)
-vim.keymap.set({'n', 'v'}, '<leader>cc', function()
-  vim.cmd("CodeCompanionChat")
-end)
+-- vim.keymap.set({'n', 'v'}, '<leader>cc', function()
+--   vim.cmd("CodeCompanionChat")
+-- end)
 
--- Aider
+-- Aider (mnemonic: Code Aider)
 mappings.aider = {
-  toggle = "<C-Space>"
+  toggle = "<leader>ca"
 }
 
 -- Snippy is a snippet manager

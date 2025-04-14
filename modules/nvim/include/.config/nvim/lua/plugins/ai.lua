@@ -40,11 +40,12 @@ return {
           },
         },
         suggestion = {
-          enabled = false,
+          enabled = true,
           auto_trigger = false,
           debounce = 75,
           keymap = mappings.gh_copilot.suggestion,
         },
+        copilot_model = "gpt-4o-copilot",
         filetypes = {
           yaml = true,
           markdown = false,
@@ -119,62 +120,62 @@ return {
       })
 
       -- 1. Create mapping for normal mode
-      vim.api.nvim_set_keymap('n', mappings.aider.toggle, "<cmd>AiderTerminalToggle<CR>", { silent = true })
+      vim.api.nvim_set_keymap('n', mappings.aider.toggle, "<cmd>Aider toggle<CR>", { silent = true })
 
       -- 2. From terminal on insert mode
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "snacks_terminal",
-        callback = function()
-          vim.api.nvim_buf_set_keymap(0, "t", mappings.aider.toggle, "<cmd>AiderTerminalToggle<CR>", {noremap = true, desc = "Toggle Aider chat window"})
-        end
-      })
+      -- vim.api.nvim_create_autocmd("FileType", {
+      --   pattern = "snacks_terminal",
+      --   callback = function()
+      --     vim.api.nvim_buf_set_keymap(0, "t", mappings.aider.toggle, "<cmd>Aider toggle<CR>", {noremap = true, desc = "Toggle Aider chat window"})
+      --   end
+      -- })
     end,
   },
 
-  {
-    "olimorris/codecompanion.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    config = function()
-      require("codecompanion").setup({
-        adapters = {
-          anthropic = function()
-            return require("codecompanion.adapters").extend("anthropic", {
-              env = {
-                api_key = "cmd:pass Anthropic/API-Key"
-              },
-            })
-          end,
-
-          copilot = function()
-            return require("codecompanion.adapters").extend("copilot", {
-              schema = {
-                model = {
-                  default = "claude-3.7-sonnet",
-                },
-              },
-            })
-          end,
-        },
-        strategies = {
-          chat = {
-            adapter = "copilot",
-          },
-          inline = {
-            adapter = "copilot",
-          },
-        },
-        display = {
-          diff = {
-            enabled = true,
-            close_chat_at = 240, -- Close an open chat buffer if the total columns of your display are less than...
-            layout = "vertical", -- vertical|horizontal split for default provider
-            provider = "mini_diff", -- default|mini_diff
-          },
-        },
-      })
-    end,
-  },
+  -- {
+  --   "olimorris/codecompanion.nvim",
+  --   dependencies = {
+  --     "nvim-lua/plenary.nvim",
+  --     "nvim-treesitter/nvim-treesitter",
+  --   },
+  --   config = function()
+  --     require("codecompanion").setup({
+  --       adapters = {
+  --         anthropic = function()
+  --           return require("codecompanion.adapters").extend("anthropic", {
+  --             env = {
+  --               api_key = "cmd:pass Anthropic/API-Key"
+  --             },
+  --           })
+  --         end,
+  --
+  --         copilot = function()
+  --           return require("codecompanion.adapters").extend("copilot", {
+  --             schema = {
+  --               model = {
+  --                 default = "claude-3.7-sonnet",
+  --               },
+  --             },
+  --           })
+  --         end,
+  --       },
+  --       strategies = {
+  --         chat = {
+  --           adapter = "copilot",
+  --         },
+  --         inline = {
+  --           adapter = "copilot",
+  --         },
+  --       },
+  --       display = {
+  --         diff = {
+  --           enabled = true,
+  --           close_chat_at = 240, -- Close an open chat buffer if the total columns of your display are less than...
+  --           layout = "vertical", -- vertical|horizontal split for default provider
+  --           provider = "mini_diff", -- default|mini_diff
+  --         },
+  --       },
+  --     })
+  --   end,
+  -- },
 }
