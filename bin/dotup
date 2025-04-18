@@ -1,24 +1,18 @@
 #!/usr/bin/env python3
+# pylint: disable=missing-module-docstring
 # vim: shiftwidth=4
 #
 # dotup - Update your existing configurations based on the dotfiles settings.
-#
-# External dependencies:
-# - PyYAML (Arch: python-yaml, MacOS: pip3 install PyYAML)
 
+import os
+import sqlite3
+import tomllib
+from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any
-from argparse import ArgumentParser
-import os
-import sys
-import sqlite3
-try:
-    import yaml
-except ImportError:
-    print("PyYAML is not installed!")
-    sys.exit(1)
 
 
+# pylint: disable=too-few-public-methods
 class CLI:
     """
     Update your $HOME configuration files based upon the dotfiles arrangement.
@@ -43,26 +37,31 @@ class CLI:
 
         parser = ArgumentParser(prog="dotup", description=CLI.__doc__)
         parser.add_argument(
-            "-s", "--scope", action="append", dest="scopes",
-            help="list of defined scopes. it can be passed multiple times"
+            "-s",
+            "--scope",
+            action="append",
+            dest="scopes",
+            help="list of defined scopes. it can be passed multiple times",
         )
         parser.add_argument(
-            'command',
-            choices=['load', 'unload'], default='load', nargs='?',
-            help='action to run. (default: %(default)s)',
+            "command",
+            choices=["load", "unload"],
+            default="load",
+            nargs="?",
+            help="action to run. (default: %(default)s)",
         )
 
         try:
             args = parser.parse_args()
 
-            if args.command == 'load':
+            if args.command == "load":
                 Stower().load(scopes=args.scopes)
-            elif args.command == 'unload':
+            elif args.command == "unload":
                 Stower().unload()
 
         # pylint: disable=broad-exception-caught
         except Exception as err:
-        # pylint: enable=broad-exception-caught
+            # pylint: enable=broad-exception-caught
             Term.error(err)
 
 
@@ -76,8 +75,12 @@ class State:
 
     def load(self):
         """Initialize the state database and load the existing state"""
-        self.db.execute("CREATE TABLE IF NOT EXISTS links(path TEXT, PRIMARY KEY (path ASC)) STRICT")
-        self.db.execute("CREATE TABLE IF NOT EXISTS local_links(path TEXT, PRIMARY KEY (path ASC)) STRICT")
+        self.db.execute(
+            "CREATE TABLE IF NOT EXISTS links(path TEXT, PRIMARY KEY (path ASC)) STRICT"
+        )
+        self.db.execute(
+            "CREATE TABLE IF NOT EXISTS local_links(path TEXT, PRIMARY KEY (path ASC)) STRICT"
+        )
         self.db.commit()
         self.db.row_factory = lambda cursor, row: row[0]
         self.state = {
@@ -119,15 +122,16 @@ class Term:
     """
     All terminal output related functions
     """
+
     @staticmethod
-    def status(*messages, indent = 1):
+    def status(*messages, indent=1):
         """Formats and outputs a standardized status message in the terminal"""
         message = " ".join(str(msg) for msg in messages)
         pad_str = "  " * (indent - 1)
         print(f"\033[1m{pad_str} →\033[0m {message}")
 
     @staticmethod
-    def success(*messages, indent = 1):
+    def success(*messages, indent=1):
         """Formats and outputs a standardized success messages in the terminal"""
         message = " ".join(str(msg) for msg in messages)
         pad_str = "  " * (indent - 1)
@@ -145,8 +149,10 @@ class Term:
             else:
                 exc_name = exception.__class__.__name__
 
-            indent_str = ' ' * indent
-            print(f"{indent_str}\033[1m{err_title}:\033[0m \033[3;31m{exc_name}\033[0m: {exception}")
+            indent_str = " " * indent
+            print(
+                f"{indent_str}\033[1m{err_title}:\033[0m \033[3;31m{exc_name}\033[0m: {exception}"
+            )
             if exception.__cause__:
                 exception = exception.__cause__
                 indent += 2
@@ -159,16 +165,17 @@ class Stower:
     """
     Reads both existing state and dotfiles configuration and properly install them as necessary
     """
+
     dotfiles_path: str = ""
     destination_path: str = ""
     settings_path: str = ""
-    state: State|None = None
+    state: State | None = None
     settings: dict[str, Any] = {}
 
-    def __init__(self, dotfiles_path = "~/.dotfiles", destination_path = "~"):
+    def __init__(self, dotfiles_path="~/.dotfiles", destination_path="~"):
         self.dotfiles_path = os.path.expanduser(dotfiles_path)
         self.destination_path = os.path.expanduser(destination_path)
-        self.settings_path = f"{self.dotfiles_path}/dotfiles.yml"
+        self.settings_path = f"{self.dotfiles_path}/dotfiles.toml"
         self.scopes_path = f"{self.dotfiles_path}/.dotup-scopes"
 
     def unload(self):
@@ -177,7 +184,7 @@ class Stower:
         self._clear_links()
         Term.status("Configuration unloaded")
 
-    def load(self, scopes: list[str]|None = None):
+    def load(self, scopes: list[str] | None = None):
         """With all settings loaded, this will setup all enabled modules"""
         Term.status("Loading settings")
         self._load_settings(scopes)
@@ -193,18 +200,20 @@ class Stower:
         self.state = State(f"{self.dotfiles_path}/dotstate.db")
         self.state.load()
 
-    def _load_settings(self, scopes: list[str]|None = None):
+    def _load_settings(self, scopes: list[str] | None = None):
         """Load all dotfiles settings recursively"""
         try:
-            self.settings = yaml.load(
+            self.settings = tomllib.loads(
                 Path(self.settings_path).read_text("UTF-8"),
-                Loader=yaml.loader.SafeLoader,
             )
 
             if not scopes:
                 scopes_path = Path(self.scopes_path)
                 if scopes_path.exists():
-                    scopes = [scope.strip() for scope in scopes_path.read_text("UTF-8").strip().split("\n")]
+                    scopes = [
+                        scope.strip()
+                        for scope in scopes_path.read_text("UTF-8").strip().split("\n")
+                    ]
                 else:
                     scopes = []
 
@@ -214,13 +223,17 @@ class Stower:
                     return module
 
                 if not isinstance(module, dict):
-                    raise RuntimeError("The allowed types for modules are string or dict!")
+                    raise RuntimeError(
+                        "The allowed types for modules are string or dict!"
+                    )
 
                 if "name" not in module:
-                    raise RuntimeError("You must define a 'name' when defining a module using a dict!")
+                    raise RuntimeError(
+                        "You must define a 'name' when defining a module using a dict!"
+                    )
 
                 if "scopes" in module:
-                    if type(module["scopes"]) is str:
+                    if isinstance(module["scopes"], str):
                         module["scopes"] = [module["scopes"]]
 
                     if not set(scopes).issubset(module["scopes"]):
@@ -229,12 +242,13 @@ class Stower:
                 return module["name"]
 
             self.settings["modules"] = filter(
-                lambda m: m is not None,
-                map(normalize_module, self.settings["modules"])
+                lambda m: m is not None, map(normalize_module, self.settings["modules"])
             )
 
         except Exception as err:
-            raise RuntimeError(f"Failure to load settings from {self.settings_path}") from err
+            raise RuntimeError(
+                f"Failure to load settings from {self.settings_path}"
+            ) from err
 
     def _module_path(self, module):
         return f"{self.dotfiles_path}/modules/{module}"
@@ -246,15 +260,15 @@ class Stower:
 
         # Link include files
         self._load_module_links(module)
-        Term.status("Files linked", indent = 2)
+        Term.status("Files linked", indent=2)
 
         # Load shell config files
         self._load_module_shell_plugins(module)
-        Term.status("Shell configured", indent = 2)
+        Term.status("Shell configured", indent=2)
 
         # Load binary files
         self._load_module_bins(module)
-        Term.status("Binary files linked", indent = 2)
+        Term.status("Binary files linked", indent=2)
 
     def _load_module_links(self, module):
         for link in self._list_module_links(module):
@@ -299,7 +313,9 @@ class Stower:
             rel_root = root.removeprefix(f"{include_path}").lstrip("/")
 
             # Just skips this entire folder if their parent is already marked for linking
-            path_already_linked = [True for path in linkable_paths if rel_root.startswith(f"{path}/")]
+            path_already_linked = [
+                True for path in linkable_paths if rel_root.startswith(f"{path}/")
+            ]
             if path_already_linked:
                 continue
 
@@ -337,23 +353,23 @@ class Stower:
     def paths_denylist() -> list[str]:
         """This is a list of paths that shouldn't never be linked, only their child nodes"""
         return [
-            ".local/share",              # XDG_DATA_HOME
-            ".config",                   # XDG_CONFIG_HOME
-            ".local/state",              # XDG_STATE_HOME
-            ".cache",                    # XDG_CACHE_HOME
-            ".gnupg",                    # GnuPG metadata
-            ".config/vlc",               # VLC metadata
-            ".config/gtk-3.0",           # GTK3 settings
-            ".config/pulse",             # PulseAudio
-            ".config/systemd/user",      # SystemD user units
-            ".local/share/applications", # Desktop entries
+            ".local/share",  # XDG_DATA_HOME
+            ".config",  # XDG_CONFIG_HOME
+            ".local/state",  # XDG_STATE_HOME
+            ".cache",  # XDG_CACHE_HOME
+            ".gnupg",  # GnuPG metadata
+            ".config/vlc",  # VLC metadata
+            ".config/gtk-3.0",  # GTK3 settings
+            ".config/pulse",  # PulseAudio
+            ".config/systemd/user",  # SystemD user units
+            ".local/share/applications",  # Desktop entries
         ]
 
     @staticmethod
     def paths_hardlink() -> list[str]:
         """This is a list of paths that should be hardlinked instead of symlinked"""
         return [
-            ".local/share/applications/*.desktop", # Desktop entries
+            ".local/share/applications/*.desktop",  # Desktop entries
         ]
 
     @staticmethod
@@ -370,7 +386,9 @@ class Stower:
         if hardlink:
             # Raise error if origin and destination are not in the same filesystem
             if os.stat(origin).st_dev != os.stat(destination).st_dev:
-                raise RuntimeError(f"Path {destination} is not in the same filesystem as {origin}!")
+                raise RuntimeError(
+                    f"Path {destination} is not in the same filesystem as {origin}!"
+                )
 
             return os.stat(origin).st_ino == os.stat(destination).st_ino
 
@@ -404,7 +422,9 @@ class Stower:
 
             self.state.add_link(destination)
         except Exception as err:
-            raise RuntimeError(f"Failed to link file {origin} at {destination}") from err
+            raise RuntimeError(
+                f"Failed to link file {origin} at {destination}"
+            ) from err
 
     def _symlink_internal(self, origin, destination):
         """
@@ -434,7 +454,9 @@ class Stower:
             os.symlink(relpath_from, sym_to)
             self.state.add_local_symlink(destination)
         except Exception as err:
-            raise RuntimeError(f"Failed to symlink file {origin} at {destination}") from err
+            raise RuntimeError(
+                f"Failed to symlink file {origin} at {destination}"
+            ) from err
 
     def _clear_links(self):
         """Clear all links created by dotfiles, both internal and external ones"""
@@ -446,19 +468,28 @@ class Stower:
             # For hardlinks, there's no way to be sure, so we just check files that have the link
             # count greater than 1, meaning there's at least another file pointing to it -- so
             # definitely a hardlink, we just can't be sure to where.
-            is_symlink = os.path.islink(link) and os.readlink(link).startswith(self.dotfiles_path)
-            is_hardlink = should_be_hardlinked and os.path.exists(link) and os.stat(link).st_nlink > 1
+            is_symlink = os.path.islink(link) and os.readlink(link).startswith(
+                self.dotfiles_path
+            )
+            is_hardlink = (
+                should_be_hardlinked
+                and os.path.exists(link)
+                and os.stat(link).st_nlink > 1
+            )
             if is_symlink or is_hardlink:
                 os.remove(link)
 
         for file in self.state.local_symlinks():
             symlink = f"{self.dotfiles_path}/{file}"
-            link_path = os.path.realpath(f"{os.path.dirname(symlink)}/{os.readlink(symlink)}")
+            link_path = os.path.realpath(
+                f"{os.path.dirname(symlink)}/{os.readlink(symlink)}"
+            )
 
             # Make sure we only ever delete symlinks we know we linked
             if os.path.islink(symlink) and link_path.startswith(self.dotfiles_path):
                 os.remove(symlink)
 
         self.state.erase_links()
+
 
 CLI.start()
