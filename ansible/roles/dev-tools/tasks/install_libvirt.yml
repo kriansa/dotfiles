@@ -12,6 +12,13 @@
       - swtpm     # This is necessary to enable TPM module to VMs
       - dmidecode # This is an optional dependency for libvirtd
 
+      # Allow QEMU to access the host GPU
+      - qemu-hw-display-virtio-vga
+      - qemu-hw-display-virtio-vga-gl
+      - qemu-hw-display-virtio-gpu
+      - qemu-hw-display-virtio-gpu-gl
+      - qemu-ui-spice-core
+
 - name: add {{ user_name }} to group libvirt
   become: true
   ansible.builtin.user: name={{ user_name }} groups=libvirt append=yes
