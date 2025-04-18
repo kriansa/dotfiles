@@ -6,8 +6,8 @@
     name:
       - pass
       - ccid
-      - yubikey-manager
       - pam-u2f
+      - yubikey-personalization-gui
 
 - name: enable pcscd
   become: true
