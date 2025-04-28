@@ -384,19 +384,19 @@ mappings.lsp = function(bufnr)
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   local bufopts = { noremap=true, silent=true, buffer=bufnr }
   vim.keymap.set('n', '?', vim.lsp.buf.hover, bufopts)
-  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-  vim.keymap.set('n', 'gy', vim.lsp.buf.type_definition, bufopts)
+  vim.keymap.set('n', 'grD', vim.lsp.buf.declaration, bufopts)
+  vim.keymap.set('n', 'grd', vim.lsp.buf.definition, bufopts)
+  vim.keymap.set('n', 'gry', vim.lsp.buf.type_definition, bufopts)
   -- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts) -- gri
   -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts) -- grr
+  -- vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, bufopts) -- grn
+  -- vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts) -- gra
   -- vim.keymap.set('n', '<leader>ls', vim.lsp.buf.signature_help, bufopts) -- CTRL-S
   -- vim.keymap.set('n', '<leader>lwa', vim.lsp.buf.add_workspace_folder, bufopts)
   -- vim.keymap.set('n', '<leader>lwr', vim.lsp.buf.remove_workspace_folder, bufopts)
   -- vim.keymap.set('n', '<leader>lwl', function()
   --   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   -- end, bufopts)
-  -- vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, bufopts) -- grn
-  -- vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts) -- gra
 end
 
 -- Conform to format code (mnemonic: Linter Format)
