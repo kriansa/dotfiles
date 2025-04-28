@@ -75,8 +75,6 @@ vim.filetype.add({
 })
 
 -- Settings
--- cmd("lang en_US.UTF-8")         -- Fix encoding issues on MacOS
--- o.encoding = "utf-8"            -- Enables utf8 encoding
 o.backspace = "indent,eol"      -- Enables backspace on indentation and end of lines
 o.hidden = true                 -- This allows buffers to be hidden if you've modified a buffer.
 o.number = true                 -- Display line numbers
@@ -108,6 +106,12 @@ o.writeany = true               -- Allow writing to any file with no need for "!
 o.confirm = true                -- Ask for confirmation when closing unsaved buffers
 o.pumheight = 6                 -- Maximum number of items in the popup menu
 o.completeopt = "menuone,noinsert,noselect"
+
+-- Customize the cursor for all modes and force them all to blink
+o.guicursor = "n-v-sm-t:block" ..
+  ",i-c-ci-ve:ver25" ..
+  ",r-cr-o:hor20" ..
+  ",a:blinkon500-blinkoff500-TermCursor"
 
 -- Scrolling
 o.scrolloff=3
