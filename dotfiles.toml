@@ -16,6 +16,7 @@ modules = [
   "javascript",
   "asdf",
   "golang",
+  "wezterm",
 
   # Only for my Home desktop
   { name = "linux", scopes = "desktop" },

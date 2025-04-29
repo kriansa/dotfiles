@@ -1,3 +1,7 @@
+[general]
+# Live config reload (changes require restart)
+live_config_reload = true
+
 [scrolling]
 # Maximum number of lines in the scrollback buffer.
 # Specifying '0' will disable scrolling.
@@ -12,17 +16,12 @@ hide_when_typing = true
 args = ["sh", "-lc", "tmux new-session -A"]
 program = "/usr/bin/env"
 
-[env]
-# Enable true-color support
-LANG = "en_US.UTF-8"
-TERM = "tmux-256color"
-
 # Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map
 # CMD-D to tmux, then use it as the following:
 # `- { key: D, mods: Command, chars: "\x1cd" }`
 # And then "capture it" on tmux keybindings as if they are using a C-\ prefix (by using a custom
 # key table):
-# `bind -T alacritty d split-window -h`
+# `bind -T emuprefix d split-window -h`
 
 # Apparently, C-6 and C-/ don't work by default on Alacritty/Mac
 [[keyboard.bindings]]
@@ -72,7 +71,3 @@ action = "ReceiveChar"
 key = "F"
 mode = "~Search"
 mods = "Control|Shift"
-
-[general]
-# Live config reload (changes require restart)
-live_config_reload = true
