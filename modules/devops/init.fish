@@ -8,6 +8,7 @@ abbr --global --add kctx kubectx
 abbr_subcommand kubectl describe d
 abbr_subcommand kubectl delete dl
 abbr_subcommand kubectl get g
+abbr_subcommand kubectl "config current-context" st
 
 # Wrap kubectl with kubecolor
 alias kubectl="kubecolor"

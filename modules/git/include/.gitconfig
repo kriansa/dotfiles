@@ -29,6 +29,7 @@
 [push]
   default = current
   followTags = true
+  autoSetupRemote = true
 [pull]
   rebase = false
 [rebase]
