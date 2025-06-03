@@ -59,6 +59,9 @@ nnoremap("<Leader>q", "<cmd>wincmd q<CR>", { silent = true })
 -- Quit using Q
 nmap('Q', '<cmd>wqa<CR>')
 
+-- Save with C-S
+nmap('<C-S>', '<cmd>w<CR>')
+
 -- Stay in visual mode while indenting
 vmap("<", "<gv")
 vmap(">", ">gv")
@@ -123,18 +126,6 @@ g.winresizer_start_key = '<Leader>e'
 -- Git (Neogit AND fugitive)
 nmap("<leader>gs", "<cmd>Neogit<CR>", { silent = true })
 nmap("<leader>gS", "<cmd>tab Git<CR>", { silent = true })
-
--- Github Copilot
-mappings.gh_copilot = {
-  suggestion = {
-    accept = "<Tab>",
-    accept_word = false,
-    accept_line = false,
-    next = "<C-Space>",
-    prev = false,
-    dismiss = "<C-]>",
-  },
-}
 
 -- Leap
 vim.keymap.set({"n", "x", "o"}, "s", "<Plug>(leap-forward-to)", { silent = true, desc = "Leap forward to" })
@@ -210,21 +201,6 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', 'Y', api.fs.copy.relative_path, opts('Copy Relative Path'))
   vim.keymap.set('n', 'gy', api.fs.copy.absolute_path, opts('Copy Absolute Path'))
   vim.keymap.set('n', 'M', api.marks.toggle, opts('Toggle mark'))
-end
-
--- Cmp (autocompletion)
-mappings.cmp_insert = function()
-  local cmp = package.loaded.cmp
-  return cmp.mapping.preset.insert({
-    ['<CR>'] = cmp.mapping.confirm({ select = false }),
-  })
-end
-
-mappings.cmp_cmdline = function()
-  local cmp = package.loaded.cmp
-  return cmp.mapping.preset.cmdline({
-    ['<CR>'] = cmp.mapping.confirm({ select = false }),
-  })
 end
 
 -- Gitgutter
@@ -383,20 +359,15 @@ vim.keymap.set('n', '<leader>dq', vim.diagnostic.setloclist)
 mappings.lsp = function(bufnr)
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   local bufopts = { noremap=true, silent=true, buffer=bufnr }
-  vim.keymap.set('n', '?', vim.lsp.buf.hover, bufopts)
+  -- vim.keymap.set('n', 'gri', vim.lsp.buf.implementation, bufopts)
+  -- vim.keymap.set('n', 'grr', vim.lsp.buf.references, bufopts)
+  -- vim.keymap.set('n', 'grn', vim.lsp.buf.rename, bufopts)
+  -- vim.keymap.set('n', 'gra', vim.lsp.buf.code_action, bufopts)
   vim.keymap.set('n', 'grD', vim.lsp.buf.declaration, bufopts)
   vim.keymap.set('n', 'grd', vim.lsp.buf.definition, bufopts)
   vim.keymap.set('n', 'gry', vim.lsp.buf.type_definition, bufopts)
-  -- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts) -- gri
-  -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts) -- grr
-  -- vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, bufopts) -- grn
-  -- vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, bufopts) -- gra
-  -- vim.keymap.set('n', '<leader>ls', vim.lsp.buf.signature_help, bufopts) -- CTRL-S
-  -- vim.keymap.set('n', '<leader>lwa', vim.lsp.buf.add_workspace_folder, bufopts)
-  -- vim.keymap.set('n', '<leader>lwr', vim.lsp.buf.remove_workspace_folder, bufopts)
-  -- vim.keymap.set('n', '<leader>lwl', function()
-  --   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  -- end, bufopts)
+  -- vim.keymap.set('i', '<C-S>', vim.lsp.buf.signature_help, bufopts)
+  vim.keymap.set('n', '?', vim.lsp.buf.hover, bufopts)
 end
 
 -- Conform to format code (mnemonic: Linter Format)
@@ -412,26 +383,16 @@ end)
 
 -- Toggle copilot (mnemonic: Copilot Toggle)
 vim.keymap.set({'n', 'v'}, '<leader>ct', function()
-  vim.cmd("Copilot toggle")
+  local cmd = require("copilot.command")
+  if require("copilot.client").is_disabled() then
+    cmd.enable()
+  else
+    cmd.disable()
+  end
 end)
 
--- CodeCompanion (mnemonic: Code Companion)
--- vim.keymap.set({'n', 'v'}, '<leader>cc', function()
---   vim.cmd("CodeCompanionChat")
--- end)
-
 -- Aider (mnemonic: Code Aider)
-mappings.aider = {
-  toggle = "<leader>ca"
-}
-
--- Snippy is a snippet manager
-mappings.snippy = {
-  is = {
-    ['<Tab>'] = 'expand_or_advance',
-    ['<S-Tab>'] = 'previous',
-  },
-}
+vim.api.nvim_set_keymap('n', "<Leader>ca", "<cmd>Aider toggle<CR>", { silent = true })
 
 -- Oil.nvim
 vim.keymap.set("n", "-", "<cmd>Oil<CR>", { desc = "Open parent directory" })
