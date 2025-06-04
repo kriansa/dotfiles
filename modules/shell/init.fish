@@ -21,11 +21,11 @@ if status is-interactive
   # Add navigational helpers
   # (these functions couldn't be in their dedicated files because they would have weird names)
   function ...
-  ../..
+    ../..
   end
 
   function ....
-  ../../..
+    ../../..
   end
 end
 
@@ -34,7 +34,7 @@ end
 # system trash with a lot of tempfiles on every terminal exit.
 #
 # TODO: This should be fixed upstream. Remove when fixed.
-# See: https://github.com/acomagu/fish-async-prompt
+# See: https://github.com/acomagu/fish-async-prompt/pull/84
 function __async_prompt_tmpdir_cleanup --on-event fish_exit
   command rm -rf "$__async_prompt_tmpdir"
 end

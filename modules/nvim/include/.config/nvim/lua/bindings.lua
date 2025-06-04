@@ -410,3 +410,24 @@ mappings.oil = {
   ["gx"] = "actions.open_external",
   ["q"] = { "actions.close", mode = "n" },
 }
+
+-- avante.nvim
+local avante_prefix = "<leader>u"
+mappings.avante = {
+  ask = avante_prefix .. "a",
+  new_ask = avante_prefix .. "n",
+  edit = avante_prefix .. "e",
+  refresh = avante_prefix .. "r",
+  focus = avante_prefix .. "f",
+  stop = avante_prefix .. "S",
+  toggle = {
+    default = avante_prefix .. "t",
+    debug = avante_prefix .. "d",
+    hint = avante_prefix .. "h",
+    suggestion = avante_prefix .. "s",
+    repomap = avante_prefix .. "R",
+  },
+  sidebar = {
+    close_from_input = { normal = "q", insert = "<C-d>" },
+  },
+}
