@@ -4,18 +4,21 @@ local config = wezterm.config_builder()
 
 config.default_prog = { '/bin/sh', '-lc', 'tmux new-session -A' }
 config.term = "wezterm"
-config.font = wezterm.font("Iosevka Term")
+local font = function(attributes)
+  return wezterm.font("Iosevka Fixed", attributes or {})
+end
+config.font = font()
 config.font_rules = {
   -- This is the variant of the normal "font" attribute, but for italic effect (\033[3m)
-  { intensity = "Normal", italic = true, font = wezterm.font("Iosevka Term", { style = "Oblique" }) },
+  { intensity = "Normal", italic = true, font = font({ style = "Oblique" }) },
 
   -- This is for when we specify the font effect "Faint" (decreased intensity) (\033[2m)
-  { intensity = "Half", italic = false, font = wezterm.font("Iosevka Term", { weight = "Light" }) },
-  { intensity = "Half", italic = true, font = wezterm.font("Iosevka Term", { weight = "Light", style = "Oblique" }) },
+  { intensity = "Half", italic = false, font = font({ weight = "Light" }) },
+  { intensity = "Half", italic = true, font = font({ weight = "Light", style = "Oblique" }) },
 
   -- And this is for when specified the font effect "Bold" (\033[1m)
-  { intensity = "Bold", italic = false, font = wezterm.font("Iosevka Term", { weight = "Bold" }) },
-  { intensity = "Bold", italic = true, font = wezterm.font("Iosevka Term", { weight = "Bold", style = "Oblique" }) },
+  { intensity = "Bold", italic = false, font = font({ weight = "Bold" }) },
+  { intensity = "Bold", italic = true, font = font({ weight = "Bold", style = "Oblique" }) },
 }
 config.cell_width = 0.9
 config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
@@ -93,11 +96,12 @@ config.keys = {
   { key = 'v', mods = 'SHIFT|CTRL', action = act.PasteFrom 'Clipboard' },
   { key = 'v', mods = 'SUPER', action = act.PasteFrom 'Clipboard' },
 
-  { key = '=', mods = 'SHIFT|CTRL', action = act.IncreaseFontSize },
-  { key = '+', mods = 'SHIFT|CTRL', action = act.IncreaseFontSize },
-  { key = '-', mods = 'SHIFT|CTRL', action = act.DecreaseFontSize },
-  { key = '_', mods = 'SHIFT|CTRL', action = act.DecreaseFontSize },
-  { key = ')', mods = 'SHIFT|CTRL', action = act.ResetFontSize }, -- This is the number 0
+  { key = '=', mods = 'CTRL', action = act.IncreaseFontSize },
+  { key = '+', mods = 'CTRL', action = act.IncreaseFontSize },
+  { key = '-', mods = 'CTRL', action = act.DecreaseFontSize },
+  { key = '_', mods = 'CTRL', action = act.DecreaseFontSize },
+  { key = '0', mods = 'CTRL', action = act.ResetFontSize },
+  { key = ')', mods = 'CTRL', action = act.ResetFontSize }, -- This is the number 0
 }
 
 return config

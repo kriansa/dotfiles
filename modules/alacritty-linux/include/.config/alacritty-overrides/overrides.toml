@@ -7,7 +7,7 @@ size = 17
 builtin_box_drawing = true
 
 [font.normal]
-family = "Iosevka Term"
+family = "Iosevka Fixed"
 
 # Send \x1c (C-\) and the "key" that you want to send to Tmux. For instance, if I want to map
 # CMD-D to tmux, then use it as the following:
