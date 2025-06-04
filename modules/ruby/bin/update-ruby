@@ -21,7 +21,7 @@ install_asdf_plugin() {
 }
 
 global_ruby_version() {
-  cd && asdf current --no-header ruby 2> /dev/null | awk '{ print $2 }'
+  cd && asdf list ruby 2> /dev/null | sort | tail -1 | sed 's/^[ *]*//'
 }
 
 upgrade_ruby_version() {

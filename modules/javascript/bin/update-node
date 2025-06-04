@@ -21,7 +21,7 @@ install_asdf_plugin() {
 }
 
 global_node_version() {
-  cd && asdf current --no-header nodejs 2> /dev/null | awk '{ print $2 }'
+  cd && asdf list nodejs 2> /dev/null | sort | tail -1 | sed 's/^[ *]*//'
 }
 
 upgrade_node_version() {
