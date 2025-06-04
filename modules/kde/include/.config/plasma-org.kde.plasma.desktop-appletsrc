@@ -268,7 +268,8 @@ positions={"3440x1440":[]}
 url=file:///home/dpereira/Downloads
 
 [Containments][46][Wallpaper][org.kde.image][General]
-Image=/usr/share/wallpapers/Altai/
+Image=/usr/share/wallpapers/Nexus/
+PreviewImage=/usr/share/wallpapers/Nexus/
 SlidePaths=/usr/share/wallpapers/
 
 [Containments][46][Wallpaper][org.kde.potd][General]
@@ -283,6 +284,9 @@ lastScreen=1
 location=0
 plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
+
+[Containments][79][General]
+positions={"1920x1080":[]}
 
 [Containments][9]
 activityId=
@@ -339,7 +343,7 @@ immutability=1
 plugin=org.kde.plasma.battery
 
 [Containments][9][Applets][17][Configuration]
-PreloadWeight=2
+PreloadWeight=0
 
 [Containments][9][Applets][18]
 immutability=1
@@ -356,6 +360,7 @@ plugin=org.kde.plasma.volume
 PreloadWeight=100
 
 [Containments][9][Applets][19][Configuration][General]
+currentTab=streams
 migrated=true
 showVirtualDevices=true
 
@@ -384,7 +389,7 @@ immutability=1
 plugin=org.kde.plasma.mediacontroller
 
 [Containments][9][Applets][23][Configuration]
-PreloadWeight=0
+PreloadWeight=5
 
 [Containments][9][Applets][27]
 immutability=1
@@ -406,14 +411,14 @@ immutability=1
 plugin=org.kde.plasma.brightness
 
 [Containments][9][Applets][49][Configuration]
-PreloadWeight=0
+PreloadWeight=5
 
 [Containments][9][Applets][61]
 immutability=1
 plugin=org.kde.plasma.bluetooth
 
 [Containments][9][Applets][61][Configuration]
-PreloadWeight=27
+PreloadWeight=7
 
 [Containments][9][Applets][80]
 immutability=1
