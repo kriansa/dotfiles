@@ -157,18 +157,32 @@ return {
         return name .. flags
       end
 
-      local oil = function()
-        return "Oil"
-      end
-
       -- A small extension to support oil.nvim
       local oil_ext = {
         sections = {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
           lualine_c = {unprefixed_filename},
-          lualine_z = {oil},
+          lualine_z = {function() return "Oil" end},
         },
         filetypes = {'oil'},
+      }
+
+      -- A small extension to support avante.nvim
+      local avante_ext = {
+        sections = {
+          lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
+          lualine_c = {},
+          lualine_z = {'bo:filetype'},
+        },
+        inactive_sections = {
+          lualine_a = {},
+          lualine_b = {},
+          lualine_c = {},
+          lualine_x = {},
+          lualine_y = {},
+          lualine_z = {'bo:filetype'},
+        },
+        filetypes = {'Avante', 'AvanteSelectedFiles', 'AvanteInput'},
       }
 
       require('lualine').setup({
@@ -212,7 +226,7 @@ return {
             section_separators = { left = '', right = ''},
           }},
         },
-        extensions = {'nvim-tree', 'quickfix', oil_ext},
+        extensions = {'nvim-tree', 'quickfix', oil_ext, avante_ext},
       })
 
       -- When using `tabline` option, lualine automatically sets `showtabline` to 2, but it isn't

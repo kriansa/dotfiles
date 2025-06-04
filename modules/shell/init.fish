@@ -5,6 +5,9 @@ alias cat=bat
 # Disable cowsay for ansible
 set --global --export ANSIBLE_NOCOWS 1
 
+# Load secrets.env if present
+test -r ~/.local/state/secrets.env && source ~/.local/state/secrets.env
+
 # Set the function globally instead of keeping it under `functions`. Under that path it can be
 # easily autoloaded by fish runtime, however there can be only one `fish_greeting.fish` for the
 # entire setup. That can be conflicting if we happen to install some other package that also provide

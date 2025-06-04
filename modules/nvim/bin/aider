@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 ~/.local/bin/aider \
-  --api-key anthropic="$(pass Anthropic/API-Key)" \
-  --api-key gemini="$(pass Google/Gemini-API-Key)" \
+  --api-key anthropic="$ANTHROPIC_API_KEY" \
+  --api-key gemini="$GOOGLE_GEMINI_API_KEY" \
   "$@"

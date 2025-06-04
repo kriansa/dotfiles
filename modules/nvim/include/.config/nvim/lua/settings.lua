@@ -87,7 +87,7 @@ o.swapfile = false              -- Never create swap files
 o.backup = false                -- Disable usage of backup files (~)
 o.writebackup = false           -- Disable creation of backup files
 o.mouse = "nvi"                 -- Enable the mouse
-o.laststatus = 3                -- Always enable bottom status line
+o.laststatus = 2                -- Always enable bottom status line
 o.hlsearch = true               -- Enable search highlight
 o.autoread = true               -- Enable auto-read of files edited outside vim
 o.synmaxcol = 300               -- Limit syntax highlighting for long lines
@@ -106,7 +106,6 @@ o.writeany = true               -- Allow writing to any file with no need for "!
 o.confirm = true                -- Ask for confirmation when closing unsaved buffers
 o.pumheight = 6                 -- Maximum number of items in the popup menu
 o.completeopt = "menuone,noinsert,noselect"
-o.shada = ""                    -- Disable shada file, used to store command history, marks, etc.
 
 -- Customize the cursor for all modes and force them all to blink
 o.guicursor = "n-v-sm-t:block" ..

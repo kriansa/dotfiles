@@ -56,7 +56,7 @@ return {
       auto_suggestions_provider = "copilot",
       providers = {
         claude = {
-          api_key_name = "cmd:pass Anthropic/API-Key",
+          api_key_name = "ANTHROPIC_API_KEY",
         },
       },
       selector = {
