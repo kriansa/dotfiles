@@ -24,30 +24,6 @@
   become: true
   ansible.builtin.file: path=/etc/containers/nodocker state=touch modification_time=preserve access_time=preserve
 
-- name: create podman.service.d systemd drop-in folder
-  become: true
-  ansible.builtin.file: path=/etc/systemd/user/podman.service.d state=directory
-
-- name: set the default userns keep-id so that rootless docker-compose is identical to docker
-  become: true
-  register: set_default_userns
-  ansible.builtin.copy:
-    dest: /etc/systemd/user/podman.service.d/set-default-userns.conf
-    mode: "0644"
-    content: |
-      # This file will be appended to the existing configuration of podman.service (systemd calls it
-      # a drop-in) and it will add this setting below for podman server. It is necessary so that we
-      # get the same behavior on rootless Podman with docker-compose as we do with Docker: files in
-      # the container have the same ownership metadata as they do in the host.
-      [Service]
-      Environment=PODMAN_USERNS=keep-id
-
-- name: reload systemd for user
-  become: true
-  become_user: "{{ user_name }}"
-  when: set_default_userns.changed
-  ansible.builtin.systemd: daemon_reload=yes scope=user
-
 - name: enable podman.socket so we can use docker-compose
   become: true
   become_user: "{{ user_name }}"
