@@ -31,7 +31,7 @@ return {
     config = function()
       require("nvim_aider").setup({
         aider_cmd = "aider",
-        args = {"--architect"},
+        args = {"--architect", "--no-gitignore"},
       })
 
       -- 1. Create mapping for normal mode
