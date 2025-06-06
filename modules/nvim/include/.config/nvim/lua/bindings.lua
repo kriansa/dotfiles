@@ -430,4 +430,10 @@ mappings.avante = {
   sidebar = {
     close_from_input = { normal = "q", insert = "<C-d>" },
   },
+  files = {
+    add_current = avante_prefix .. "c", -- Add current buffer to selected files
+    add_all_buffers = avante_prefix .. "B", -- Add all buffer files to selected files
+  },
+  select_model = avante_prefix .. "?", -- Select model command
+  select_history = avante_prefix .. "h", -- Select history command
 }
