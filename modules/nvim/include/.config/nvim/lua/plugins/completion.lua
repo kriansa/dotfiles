@@ -56,6 +56,11 @@ return {
       completion = {
         documentation = { auto_show = true },
         ghost_text = { enabled = true },
+        list = {
+          selection = {
+            preselect = false,
+          },
+        },
       },
 
       signature = { enabled = true },
