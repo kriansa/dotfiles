@@ -4,12 +4,18 @@
 #
 # dotup - Update your existing configurations based on the dotfiles settings.
 
+from __future__ import annotations
 import os
 import sqlite3
-import tomllib
+import sys
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any
+
+if sys.version_info.major == 3 and sys.version_info.minor < 11:
+    from pip._vendor import tomli as tomllib
+else:
+    import tomllib
 
 
 # pylint: disable=too-few-public-methods
