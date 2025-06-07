@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+#
+# Squash the diff between the current branch and a base branch into a single commit.
+#
+# Usage: git squash-diff <base-branch>
+
+help() {
+  echo "Usage: git squash-diff <base-branch>"
+  echo
+  echo "This script squashes the diff between the current branch and the specified base branch"
+  echo "into a single commit."
+}
+
+main() {
+  sanity_check
+  validate_parameters "$@"
+
+  local base_branch=$1
+  local current_branch; current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+  git branch -m tmp
+  git checkout "$base_branch"
+  git checkout -b "$current_branch"
+  git diff "$base_branch"..tmp | git apply --index -
+  git branch -D tmp
+  git commit
+}
+
+sanity_check() {
+  if ! git rev-parse --is-inside-work-tree > /dev/null; then
+    echo "Not inside a git repository!" >&2
+    exit 1
+  fi
+}
+
+validate_parameters() {
+  if [ $# -ne 1 ]; then
+    help
+    exit 1
+  fi
+
+  local base_branch=$1
+  if ! git show-ref --verify --quiet "refs/heads/$base_branch"; then
+    echo "Base branch '$base_branch' does not exist!" >&2
+    exit 1
+  fi
+}
+
+main "$@"
