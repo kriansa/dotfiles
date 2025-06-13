@@ -15,6 +15,7 @@ main() {
 
   # Then install Python 3.12-specific packages
   uv tool install --force --python 3.12 aider-chat@latest
+  uv tool install --force --python 3.12 aider-chat[browser]@latest
 }
 
 user-install() {
