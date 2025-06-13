@@ -60,6 +60,7 @@ return {
           selection = {
             preselect = false,
           },
+          max_items = 200,
         },
       },
 

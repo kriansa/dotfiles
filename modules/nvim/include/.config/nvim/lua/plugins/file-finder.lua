@@ -4,7 +4,7 @@ return {
     'nvim-telescope/telescope.nvim',
     dependencies = {
       'nvim-lua/plenary.nvim',
-      'telescope-fzf-native.nvim',
+      'nvim-telescope/telescope-fzf-native.nvim',
     },
     config = function()
       -- Customize the output of the Telescope buffers
@@ -107,6 +107,11 @@ return {
               ["<C-c>"] = "close",
             },
           },
+          cache_picker = {
+            num_pickers = 10,
+          },
+          dynamic_preview_title = true,
+          results_title = false,
         },
         pickers = {
           buffers = {
