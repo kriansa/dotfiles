@@ -46,9 +46,7 @@ return {
 
       -- Don't enable on prompts
       enabled = function()
-        return not vim.list_contains({
-          'DressingInput', 'AvantePromptInput',
-          }, vim.bo.filetype)
+        return not vim.list_contains({ 'AvantePromptInput' }, vim.bo.filetype)
           and vim.bo.buftype ~= 'prompt'
           and vim.b.completion ~= false
       end,
