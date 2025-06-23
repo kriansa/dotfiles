@@ -67,13 +67,22 @@ HighlightWindows=false
 LayoutName=compact
 
 [Tiling]
-padding=4
+padding=8
+
+[Tiling][1020374b-1ad0-46c1-93fd-16edcba57d61][7bf91f8a-ce51-465a-b6b2-914ff98919b3]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
 
 [Tiling][4143c375-0b8a-5fa0-b98b-0da4a7d69606]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
 
+[Tiling][5bb9b44a-aeb9-44c3-a7f4-1bb73c09819e][7bf91f8a-ce51-465a-b6b2-914ff98919b3]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
 [Tiling][6efb30e3-416f-5e7f-85fc-cc8004bb77c1]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
+
+[Tiling][804d8c76-c41d-4c3a-9999-85d2ebb94631][7bf91f8a-ce51-465a-b6b2-914ff98919b3]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][92e842d7-5928-5c43-884a-4912e7cc82ed]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}

@@ -6,23 +6,13 @@ switch-to-activity-1755eaa4-3450-44e9-97de-fe453803621a=none,none,Switch to acti
 Switch keyboard layout to English (US)=none,none,Switch keyboard layout to English (US)
 Switch keyboard layout to English (US, alt. intl.)=none,none,Switch keyboard layout to English (US\\, alt. intl.)
 Switch keyboard layout to Iraqi=none,none,Switch keyboard layout to Iraqi
-Switch to Last-Used Keyboard Layout=none,Meta+Alt+L,Switch to Last-Used Keyboard Layout
-Switch to Next Keyboard Layout=none,Meta+Alt+K,Switch to Next Keyboard Layout
+Switch to Last-Used Keyboard Layout=,Meta+Alt+L,Switch to Last-Used Keyboard Layout
+Switch to Next Keyboard Layout=,Meta+Alt+K,Switch to Next Keyboard Layout
 _k_friendly_name=Keyboard Layout Switcher
 
 [kaccess]
 Toggle Screen Reader On and Off=none,Meta+Alt+S,Toggle Screen Reader On and Off
 _k_friendly_name=Accessibility
-
-[kcm_touchpad]
-Disable Touchpad=Touchpad Off,Touchpad Off,Disable Touchpad
-Enable Touchpad=Touchpad On,Touchpad On,Enable Touchpad
-Toggle Touchpad=Touchpad Toggle\tMeta+Ctrl+Zenkaku Hankaku,Touchpad Toggle\tTouchpad Toggle\tMeta+Ctrl+Touchpad Toggle\tMeta+Ctrl+Zenkaku Hankaku,Toggle Touchpad
-_k_friendly_name=Touchpad
-
-[khotkeys]
-_k_friendly_name=Custom Shortcuts Service
-{d03619b6-9b3c-48cc-9d9c-a2aadb485550}=none,none,Search
 
 [kmix]
 _k_friendly_name=Audio Volume
@@ -54,11 +44,11 @@ Cycle Overview=none,none,Cycle through Overview and Grid View
 Cycle Overview Opposite=none,none,Cycle through Grid View and Overview
 Decrease Opacity=none,,Decrease Opacity of Active Window by 5%
 Edit Tiles=Meta+Ctrl+T,Meta+T,Toggle Tiles Editor
-Expose=Ctrl+F9,Ctrl+F9,Toggle Present Windows (Current desktop)
-ExposeAll=Ctrl+F10\tLaunch (C),Ctrl+F10\tLaunch (C),Toggle Present Windows (All desktops)
-ExposeClass=Ctrl+F7,Ctrl+F7,Toggle Present Windows (Window class)
+Expose=Launch (A),Ctrl+F9,Toggle Present Windows (Current desktop)
+ExposeAll=Launch (B),Ctrl+F10\tLaunch (C),Toggle Present Windows (All desktops)
+ExposeClass=none,Ctrl+F7,Toggle Present Windows (Window class)
 ExposeClassCurrentDesktop=none,none,Toggle Present Windows (Window class on current desktop)
-Grid View=Meta+G,Meta+G,Toggle Grid View
+Grid View=none,Meta+G,Toggle Grid View
 Increase Opacity=none,,Increase Opacity of Active Window by 5%
 Invert Screen Colors=none,none,Invert Screen Colors
 Kill Window=Meta+Ctrl+Esc,Meta+Ctrl+Esc,Kill Window
@@ -130,16 +120,16 @@ Switch to Screen to the Right=none,,Switch to Screen to the Right
 Toggle=none,Meta+Ctrl+Alt+P,Toggle Show Paint
 Toggle Night Color=none,none,Suspend/Resume Night Light
 Toggle Window Raise/Lower=none,,Toggle Window Raise/Lower
-ToggleMouseClick=Meta+*,Meta+*,Toggle Mouse Click Effect
+ToggleMouseClick=none,Meta+*,Toggle Mouse Click Effect
 TrackMouse=none,none,Track mouse
-Walk Through Windows=Meta+Tab,Alt+Tab,Walk Through Windows
-Walk Through Windows (Reverse)=Meta+Shift+Tab,Alt+Shift+Tab,Walk Through Windows (Reverse)
-Walk Through Windows Alternative=none,,Walk Through Windows Alternative
-Walk Through Windows Alternative (Reverse)=none,,Walk Through Windows Alternative (Reverse)
-Walk Through Windows of Current Application=Meta+`,Alt+`,Walk Through Windows of Current Application
-Walk Through Windows of Current Application (Reverse)=Meta+~,Alt+~,Walk Through Windows of Current Application (Reverse)
-Walk Through Windows of Current Application Alternative=none,,Walk Through Windows of Current Application Alternative
-Walk Through Windows of Current Application Alternative (Reverse)=none,,Walk Through Windows of Current Application Alternative (Reverse)
+Walk Through Windows=Meta+Tab,Meta+Tab\tAlt+Tab,Walk Through Windows
+Walk Through Windows (Reverse)=Meta+Shift+Tab,Meta+Shift+Tab\tAlt+Shift+Tab,Walk Through Windows (Reverse)
+Walk Through Windows Alternative=none,none,Walk Through Windows Alternative
+Walk Through Windows Alternative (Reverse)=none,none,Walk Through Windows Alternative (Reverse)
+Walk Through Windows of Current Application=Meta+`,Meta+`\tAlt+`,Walk Through Windows of Current Application
+Walk Through Windows of Current Application (Reverse)=Meta+~,Meta+~\tAlt+~,Walk Through Windows of Current Application (Reverse)
+Walk Through Windows of Current Application Alternative=none,none,Walk Through Windows of Current Application Alternative
+Walk Through Windows of Current Application Alternative (Reverse)=none,none,Walk Through Windows of Current Application Alternative (Reverse)
 Window Above Other Windows=none,,Keep Window Above Others
 Window Below Other Windows=none,,Keep Window Below Others
 Window Close=Alt+F4\tMeta+Q,Alt+F4,Close Window
@@ -271,12 +261,12 @@ clipboard_action=none,Meta+Ctrl+X,Automatic Action Popup Menu
 cycle-panels=none,Meta+Alt+P,Move keyboard focus between panels
 cycleNextAction=none,,Next History Item
 cyclePrevAction=none,,Previous History Item
-edit_clipboard=none,none,Edit Contents…
+edit_clipboard=none,,Edit Contents…
 manage activities=none,Meta+Q,Show Activity Switcher
-next activity=Meta+A,none,Walk through activities
-previous activity=Meta+Shift+A,none,Walk through activities (Reverse)
+next activity=none,none,Walk through activities
+previous activity=none,none,Walk through activities (Reverse)
 repeat_action=none,,Manually Invoke Action on Current Clipboard
-show dashboard=Ctrl+F12,Ctrl+F12,Show Desktop
+show dashboard=none,Ctrl+F12,Show Desktop
 show-barcode=none,,Show Barcode…
 show-on-mouse-pos=none,Meta+V,Show Clipboard Items at Mouse Position
 stop current activity=none,Meta+S,Stop Current Activity
@@ -298,13 +288,16 @@ RectangularRegionScreenShot=Meta+$
 WindowUnderCursorScreenShot=none
 _launch=none
 
+[services][org.kde.touchpadshortcuts.desktop]
+ToggleTouchpad=Touchpad Toggle
+
 [wacomtablet]
-Map to fullscreen=Meta+Ctrl+F,Meta+Ctrl+F,Map to fullscreen
-Map to screen 1=Meta+Ctrl+1,Meta+Ctrl+1,Map to screen 1
-Map to screen 2=Meta+Ctrl+2,Meta+Ctrl+2,Map to screen 2
-Next Profile=Meta+Ctrl+N,Meta+Ctrl+N,Next profile
-Previous Profile=Meta+Ctrl+P,Meta+Ctrl+P,Previous Profile
-Toggle screen map selection=Meta+Ctrl+M,Meta+Ctrl+M,Toggle between all screens
-Toggle stylus mode=Meta+Ctrl+S,Meta+Ctrl+S,Toggle the Stylus Tool Relative/Absolute
+Map to fullscreen=none,Meta+Ctrl+F,Map to fullscreen
+Map to screen 1=none,Meta+Ctrl+1,Map to screen 1
+Map to screen 2=none,Meta+Ctrl+2,Map to screen 2
+Next Profile=none,Meta+Ctrl+N,Next profile
+Previous Profile=none,Meta+Ctrl+P,Previous Profile
+Toggle screen map selection=none,Meta+Ctrl+M,Toggle between all screens
+Toggle stylus mode=none,Meta+Ctrl+S,Toggle the Stylus Tool Relative/Absolute
 Toggle touch tool=none,Meta+Ctrl+T,Enable/Disable the Touch Tool
 _k_friendly_name=Wacom Tablet

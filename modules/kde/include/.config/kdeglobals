@@ -141,7 +141,7 @@ DirSelectDialog Size=868,591
 [General]
 AccentColor=0,0,0,0
 BrowserApplication=firefox.desktop
-ColorSchemeHash=3b0b7b7f6fa70c9f360b5a78837836d8971524f3
+ColorSchemeHash=0594cdbf8684a5ef175629572f86003b65badc3d
 LastUsedCustomAccentColor=146,110,228
 TerminalApplication=kwin-tmux-window
 TerminalService=tmux-window.desktop
@@ -191,7 +191,7 @@ MaximumRemoteSize=0
 [WM]
 activeBackground=227,229,231
 activeBlend=227,229,231
-activeFont=Roboto Condensed,13,-1,5,700,0,0,0,0,0,0,0,0,0,0,1,Bold
+activeFont=Roboto Condensed,13,-1,5,500,0,0,0,0,0,0,0,0,0,0,1,Medium
 activeForeground=35,38,41
 frame=61,174,233
 inactiveBackground=239,240,241
