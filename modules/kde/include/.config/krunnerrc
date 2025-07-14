@@ -1,7 +1,7 @@
 [General]
 FreeFloating=true
 RetainPriorSearch=false
-historyBehavior=Disabled
+historyBehavior=ImmediateCompletion
 
 [Plugins]
 appstreamEnabled=false

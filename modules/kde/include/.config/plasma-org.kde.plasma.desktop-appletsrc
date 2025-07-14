@@ -258,14 +258,17 @@ immutability=1
 plugin=org.kde.plasma.weather
 
 [Containments][3][Applets][8][Applets][120][Configuration]
-PreloadWeight=42
+PreloadWeight=47
 
-[Containments][3][Applets][8][Applets][13]
+[Containments][3][Applets][8][Applets][121]
 immutability=1
 plugin=org.kde.plasma.notifications
 
+[Containments][3][Applets][8][Applets][121][Configuration]
+PreloadWeight=55
+
 [Containments][3][Applets][8][Applets][13][Configuration]
-PreloadWeight=100
+PreloadWeight=42
 
 [Containments][3][Applets][8][Applets][14]
 immutability=1
@@ -329,7 +332,7 @@ immutability=1
 plugin=org.kde.plasma.mediacontroller
 
 [Containments][3][Applets][8][Applets][23][Configuration]
-PreloadWeight=0
+PreloadWeight=5
 
 [Containments][3][Applets][8][Applets][27]
 immutability=1
@@ -351,21 +354,21 @@ immutability=1
 plugin=org.kde.plasma.brightness
 
 [Containments][3][Applets][8][Applets][49][Configuration]
-PreloadWeight=0
+PreloadWeight=1
 
 [Containments][3][Applets][8][Applets][61]
 immutability=1
 plugin=org.kde.plasma.bluetooth
 
 [Containments][3][Applets][8][Applets][61][Configuration]
-PreloadWeight=17
+PreloadWeight=6
 
 [Containments][3][Applets][8][Applets][80]
 immutability=1
 plugin=org.kde.plasma.printmanager
 
 [Containments][3][Applets][8][Applets][80][Configuration]
-PreloadWeight=55
+PreloadWeight=60
 
 [Containments][3][Applets][8][ConfigDialog]
 DialogHeight=540
@@ -375,7 +378,7 @@ DialogWidth=720
 PreloadWeight=100
 
 [Containments][3][Applets][8][General]
-extraItems=org.kde.plasma.battery,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.manage-inputmethod,org.kde.plasma.mediacontroller,org.kde.plasma.notifications,org.kde.plasma.keyboardlayout,org.kde.plasma.bluetooth,org.kde.plasma.keyboardindicator,org.kde.kscreen,org.kde.plasma.networkmanagement,org.kde.plasma.volume,org.kde.plasma.brightness,org.kde.plasma.cameraindicator,org.kde.plasma.printmanager,org.kde.plasma.weather
+extraItems=org.kde.plasma.battery,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.manage-inputmethod,org.kde.plasma.mediacontroller,org.kde.plasma.keyboardlayout,org.kde.plasma.bluetooth,org.kde.plasma.keyboardindicator,org.kde.kscreen,org.kde.plasma.networkmanagement,org.kde.plasma.volume,org.kde.plasma.brightness,org.kde.plasma.cameraindicator,org.kde.plasma.printmanager,org.kde.plasma.weather,org.kde.plasma.notifications
 hiddenItems=chrome_status_icon_1
 knownItems=org.kde.plasma.battery,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.manage-inputmethod,org.kde.plasma.mediacontroller,org.kde.plasma.notifications,org.kde.plasma.keyboardlayout,org.kde.plasma.bluetooth,org.kde.plasma.keyboardindicator,org.kde.kscreen,org.kde.plasma.networkmanagement,org.kde.plasma.volume,org.kde.plasma.vault,org.kde.plasma.brightness,org.kde.plasma.cameraindicator,org.kde.plasma.printmanager,org.kde.plasma.weather
 
