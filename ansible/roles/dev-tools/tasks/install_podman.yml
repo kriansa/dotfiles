@@ -24,6 +24,14 @@
   become: true
   ansible.builtin.file: path=/etc/containers/nodocker state=touch modification_time=preserve access_time=preserve
 
+- name: set default registry to docker.io when unspecified
+  become: true
+  ansible.builtin.file:
+    path: /etc/containers/registries.conf.d/01-default-docker-registry.conf
+    content: |
+      # If not specified, the default is to use the Docker Hub registry
+      unqualified-search-registries = ["docker.io"]
+
 - name: enable podman.socket so we can use docker-compose
   become: true
   become_user: "{{ user_name }}"
