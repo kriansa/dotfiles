@@ -13,7 +13,7 @@ main() {
   else
     run "Update system packages" "sudo pacman -Syu"
     run "Update AUR packages" "pikaur -Sayu"
-    orphaned_packages=$(pacman -Qdtq)
+    orphaned_packages=$(pacman -Qdtq | xargs echo)
     [ -n "$orphaned_packages" ] && run "Remove orphaned packages" "sudo pacman -Rnsc $orphaned_packages"
   fi
 
