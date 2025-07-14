@@ -55,14 +55,11 @@ upgrade_node_packages() {
   # Always use the global nodejs
   export ASDF_NODEJS_VERSION; ASDF_NODEJS_VERSION=$(global_node_version)
 
-  # Update npm & yarn
-  npm install -g npm yarn
-
-  # Ensure we always link global packages to the same location
-  yarn config set prefix ~/.config/yarn/global
+  # Update npm
+  npm install -g npm
 
   while IFS= read -r package; do
-    yarn global add "$package"
+    npm install -g "$package"
   done < "$HOME/.dotfiles/modules/javascript/data/packages.txt"
 }
 
