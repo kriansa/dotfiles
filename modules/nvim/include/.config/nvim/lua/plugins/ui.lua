@@ -118,25 +118,6 @@ return {
         return ''
       end
 
-      -- This is sort of a workaround for the lack of extensions driven by "buftypes".
-      -- Traditionally, lualine allows creating an extension for a given filetype, so one can show a
-      -- different bar setup for specific filetypes. However, when on Terminal buffers, the filetype
-      -- is set to a blank string, and the buftype is the one that gets set to "terminal".
-      --
-      -- There's an open PR to add that feature.
-      -- See: https://github.com/nvim-lualine/lualine.nvim/pull/1125
-      --
-      -- The workaround is to create a section that checks for the buftype and then sets the the
-      -- output filename to a blank string.
-      local filename = function()
-        if vim.bo.buftype == 'terminal' then
-          return ""
-        end
-
-        local lualine_filename = require('lualine.components.filename')
-        return lualine_filename:new({ path = 1 }):update_status()
-      end
-
       function removeprefix(s, p)
         return (s:sub(0, #p) == p) and s:sub(#p+1) or s
       end
@@ -167,30 +148,35 @@ return {
         filetypes = {'oil'},
       }
 
-      -- A small extension to support avante.nvim
+      -- A small extension to support avante and codecompanion
       local avante_ext = {
         sections = {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
-          lualine_c = {},
+          lualine_y = { { require('mcphub.extensions.lualine') } },
           lualine_z = {'bo:filetype'},
         },
         inactive_sections = {
-          lualine_a = {},
-          lualine_b = {},
-          lualine_c = {},
-          lualine_x = {},
-          lualine_y = {},
           lualine_z = {'bo:filetype'},
         },
-        filetypes = {'Avante', 'AvanteSelectedFiles', 'AvanteInput'},
+        filetypes = {'Avante', 'AvanteSelectedFiles', 'AvanteInput', 'codecompanion'},
+      }
+
+      local terminal = {
+        sections = {
+          lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
+          lualine_x = {'location'},
+          lualine_y = {function() return "term" end},
+        },
+        inactive_sections = {
+          lualine_y = {function() return "term" end},
+        },
+        filetypes = {'snacks_terminal', 'nvim_terminal'},
       }
 
       require('lualine').setup({
         options = {
           icons_enabled = true,
           theme = 'auto',
-          component_separators = { left = '', right = ''},
-          section_separators = { left = '', right = ''},
           disabled_filetypes = {},
           always_divide_middle = true,
           path = 1,
@@ -198,7 +184,7 @@ return {
         sections = {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
           lualine_b = { 'branch', { 'diff', source = git_status } },
-          lualine_c = {filename},
+          lualine_c = {'filename'},
           lualine_x = {'location'}, -- or %c for only column
           lualine_y = {'copilot', 'bo:filetype', 'diagnostics'},
           lualine_z = {},
@@ -206,7 +192,7 @@ return {
         inactive_sections = {
           lualine_a = {},
           lualine_b = {},
-          lualine_c = {filename},
+          lualine_c = {'filename'},
           lualine_x = {'bo:filetype'},
           lualine_y = {},
           lualine_z = {},
@@ -226,7 +212,7 @@ return {
             section_separators = { left = '', right = ''},
           }},
         },
-        extensions = {'nvim-tree', 'quickfix', oil_ext, avante_ext},
+        extensions = {'nvim-tree', 'quickfix', oil_ext, avante_ext, terminal},
       })
 
       -- When using `tabline` option, lualine automatically sets `showtabline` to 2, but it isn't
@@ -249,5 +235,21 @@ return {
         }
       })
     end
+  },
+
+  {
+    "folke/snacks.nvim",
+    opts = {
+      picker = {
+        win = {
+          input = {
+            keys = {
+              -- Close the picker instead of going to normal mode
+              ["<Esc>"] = { "close", mode = { "n", "i" } },
+            },
+          },
+        },
+      },
+    },
   },
 }

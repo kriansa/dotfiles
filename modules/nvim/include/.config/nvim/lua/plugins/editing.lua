@@ -22,21 +22,16 @@ return {
 
   {
     'andymass/vim-matchup',
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
-      require('nvim-treesitter.configs').setup({
-        matchup = {
-          enable = true,
-          disable_virtual_text = true,
-        },
-      })
-
       vim.g.matchup_surround_enabled = 1
       vim.g.matchup_override_vimtex = 1
       vim.g.matchup_transmute_enabled = 1
       vim.g.matchup_matchparen_deferred = 1
       vim.g.matchup_matchparen_deferred_show_delay = 100
       vim.g.matchup_matchparen_offscreen = { method = "status_manual" }
+
+      -- Treesitter settings
+      vim.g.matchup_treesitter_disable_virtual_text = true
     end
   },
 
@@ -190,7 +185,7 @@ return {
   {
     'iamcco/markdown-preview.nvim',
     ft = "markdown",
-    build = 'cd app && yarn install',
+    build = 'cd app && npm install',
   },
 
   {

@@ -222,7 +222,7 @@ return {
   -- Main tree-view
   {
     'nvim-tree/nvim-tree.lua',
-    dependencies = { 'nvim-tree/nvim-web-devicons', 'MunifTanjim/nui.nvim' },
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
     event = "VeryLazy",
     config = function()
       -- Customize colors

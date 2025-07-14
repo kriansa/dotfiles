@@ -1,0 +1,31 @@
+{
+  "nativeMCPServers": [
+    
+  ],
+  "mcpServers": {
+    "playwright": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--init",
+        "--pull=always",
+        "mcr.microsoft.com/playwright/mcp"
+      ]
+    },
+    "fetch": {
+      "disabled": false,
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "mcp/fetch"
+      ],
+      "command": "docker",
+      "autoApprove": [
+        
+      ]
+    }
+  }
+}

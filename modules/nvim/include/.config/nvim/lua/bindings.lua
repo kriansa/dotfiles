@@ -292,6 +292,24 @@ mappings.gitsigns = function(bufnr)
   map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
 end
 
+-- Oil.nvim
+vim.keymap.set("n", "-", "<cmd>Oil<CR>", { desc = "Open parent directory" })
+mappings.oil = {
+  ["?"] = { "actions.show_help", mode = "n" },
+  ["<CR>"] = "actions.select",
+  ["<C-v>"] = { "actions.select", opts = { vertical = true } },
+  ["<C-s>"] = { "actions.select", opts = { horizontal = true } },
+  ["<C-t>"] = { "actions.select", opts = { tab = true } },
+  ["gp"] = "actions.preview",
+  ["gr"] = "actions.refresh",
+  ["-"] = { "actions.parent", mode = "n" },
+  ["_"] = { "actions.open_cwd", mode = "n" },
+  ["gs"] = { "actions.change_sort", mode = "n" },
+  ["gx"] = "actions.open_external",
+  ["q"] = { "actions.close", mode = "n" },
+}
+
+
 -- Telescope
 mappings.telescope_defaults = function()
   local actions = require("telescope.actions")
@@ -381,59 +399,47 @@ vim.keymap.set({'n', 'v'}, '<leader>lt', function()
   vim.cmd("LintToggle")
 end)
 
--- Toggle copilot (mnemonic: Copilot Toggle)
-vim.keymap.set({'n', 'v'}, '<leader>ct', function()
-  local cmd = require("copilot.command")
-  if require("copilot.client").is_disabled() then
-    cmd.enable()
-  else
-    cmd.disable()
-  end
-end)
+local ai_prefix = "<leader>u"
 
--- Aider (mnemonic: Code Aider)
-vim.api.nvim_set_keymap('n', "<Leader>ca", "<cmd>Aider toggle<CR>", { silent = true })
+-- Toggle copilot (mnemonic: Co[p]ilot)
+vim.keymap.set({'n', 'v'}, ai_prefix .. "p", "<cmd>CopilotToggle<CR>", { silent = true })
 
--- Oil.nvim
-vim.keymap.set("n", "-", "<cmd>Oil<CR>", { desc = "Open parent directory" })
-mappings.oil = {
-  ["?"] = { "actions.show_help", mode = "n" },
-  ["<CR>"] = "actions.select",
-  ["<C-v>"] = { "actions.select", opts = { vertical = true } },
-  ["<C-s>"] = { "actions.select", opts = { horizontal = true } },
-  ["<C-t>"] = { "actions.select", opts = { tab = true } },
-  ["gp"] = "actions.preview",
-  ["gr"] = "actions.refresh",
-  ["-"] = { "actions.parent", mode = "n" },
-  ["_"] = { "actions.open_cwd", mode = "n" },
-  ["gs"] = { "actions.change_sort", mode = "n" },
-  ["gx"] = "actions.open_external",
-  ["q"] = { "actions.close", mode = "n" },
+-- Aider (mnemonic: [a]ider)
+vim.keymap.set('n', ai_prefix .. "a", "<cmd>Aider toggle<CR>", { silent = true })
+
+-- CodeCompanion Chat (mnemonic: [C]hat)
+vim.keymap.set('n', ai_prefix .. "C", "<cmd>CodeCompanionChat<CR>", { silent = true })
+
+-- CodeCompanion Inline (mnemonic: [c]ompanion)
+vim.keymap.set({'n', 'v'}, ai_prefix .. "c", "<cmd>CodeCompanion<CR>", { silent = true })
+
+mappings.code_companion = {
+  accept = "ga",
+  reject = "gr",
 }
 
 -- avante.nvim
-local avante_prefix = "<leader>u"
 mappings.avante = {
-  ask = avante_prefix .. "a",
-  new_ask = avante_prefix .. "n",
-  edit = avante_prefix .. "e",
-  refresh = avante_prefix .. "r",
-  focus = avante_prefix .. "f",
-  stop = avante_prefix .. "S",
+  ask = ai_prefix .. "a",
+  new_ask = ai_prefix .. "n",
+  edit = ai_prefix .. "e",
+  refresh = ai_prefix .. "r",
+  focus = ai_prefix .. "f",
+  stop = ai_prefix .. "S",
   toggle = {
-    default = avante_prefix .. "t",
-    debug = avante_prefix .. "d",
-    hint = avante_prefix .. "h",
-    suggestion = avante_prefix .. "s",
-    repomap = avante_prefix .. "R",
+    default = ai_prefix .. "t",
+    debug = ai_prefix .. "d",
+    hint = ai_prefix .. "h",
+    suggestion = ai_prefix .. "s",
+    repomap = ai_prefix .. "R",
   },
   sidebar = {
     close_from_input = { normal = "q", insert = "<C-d>" },
   },
   files = {
-    add_current = avante_prefix .. "c", -- Add current buffer to selected files
-    add_all_buffers = avante_prefix .. "B", -- Add all buffer files to selected files
+    add_current = ai_prefix .. "c", -- Add current buffer to selected files
+    add_all_buffers = ai_prefix .. "B", -- Add all buffer files to selected files
   },
-  select_model = avante_prefix .. "?", -- Select model command
-  select_history = avante_prefix .. "h", -- Select history command
+  select_model = ai_prefix .. "?", -- Select model command
+  select_history = ai_prefix .. "h", -- Select history command
 }

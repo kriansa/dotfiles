@@ -21,6 +21,15 @@ return {
           end,
         },
       })
+
+      vim.api.nvim_create_user_command('CopilotToggle', function()
+        local cmd = require("copilot.command")
+        if require("copilot.client").is_disabled() then
+          cmd.enable()
+        else
+          cmd.disable()
+        end
+      end, { desc = "Toggle Github Copilot" })
     end,
   },
 
@@ -31,53 +40,109 @@ return {
     config = function()
       require("nvim_aider").setup({
         aider_cmd = "aider",
-        args = {"--architect", "--no-gitignore"},
+        args = {"--architect", "--no-gitignore", "--watch"},
+        picker_cfg = {
+          preset = "select",
+          layout = {
+            title = "",
+            border = "single",
+          },
+        },
       })
-
-      -- 1. Create mapping for normal mode
-      -- vim.api.nvim_set_keymap('n', mappings.aider.toggle, "<cmd>Aider toggle<CR>", { silent = true })
-
-      -- 2. From terminal on insert mode
-      -- vim.api.nvim_create_autocmd("FileType", {
-      --   pattern = "snacks_terminal",
-      --   callback = function()
-      --     vim.api.nvim_buf_set_keymap(0, "t", mappings.aider.toggle, "<cmd>Aider toggle<CR>", {noremap = true, desc = "Toggle Aider chat window"})
-      --   end
-      -- })
     end,
   },
 
   {
-    "yetone/avante.nvim",
+    "ravitemer/mcphub.nvim",
     event = "VeryLazy",
-    version = false, -- Never set this value to "*"! Never!
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    build = "npm install -g mcp-hub@latest",
+    config = function()
+      require("mcphub").setup({
+        -- auto_approve = true,
+      })
+    end
+  },
+
+  {
+    "olimorris/codecompanion.nvim",
+    cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionCmd", "CodeCompanionActions" },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
     opts = {
-      provider = "claude",
-      auto_suggestions_provider = "copilot",
-      providers = {
-        claude = {
-          api_key_name = "ANTHROPIC_API_KEY",
+      strategies = {
+        chat = {
+          adapter = "anthropic",
+        },
+        inline = {
+          adapter = "copilot",
+          keymaps = {
+            accept_change = {
+              modes = { n = mappings.code_companion.accept },
+              description = "Accept the suggested change",
+            },
+            reject_change = {
+              modes = { n = mappings.code_companion.reject },
+              description = "Reject the suggested change",
+            },
+          },
+        },
+        cmd = {
+          adapter = "copilot",
         },
       },
-      selector = {
-        provider = "telescope",
+      extensions = {
+        mcphub = {
+          callback = "mcphub.extensions.codecompanion",
+          opts = {
+            show_result_in_chat = true,  -- Show mcp tool results in chat
+            make_vars = true,            -- Convert resources to #variables
+            make_slash_commands = true,  -- Add prompts as /slash commands
+          }
+        }
       },
-      input = {
-        provider = "snacks",
+      display = {
+        action_palette = {
+          provider = "snacks",
+        },
       },
-      mappings = mappings.avante,
-    },
-    -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-    build = "make",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
-      --- The below dependencies are optional,
-      "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-      "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-      "zbirenbaum/copilot.lua", -- for providers='copilot'
-      "folke/snacks.nvim", -- for modern ui
     },
   },
+
+  -- {
+  --   "yetone/avante.nvim",
+  --   event = "VeryLazy",
+  --   version = false, -- Never set this value to "*"! Never!
+  --   opts = {
+  --     provider = "claude",
+  --     auto_suggestions_provider = "copilot",
+  --     providers = {
+  --       claude = {
+  --         api_key_name = "ANTHROPIC_API_KEY",
+  --       },
+  --     },
+  --     selector = {
+  --       provider = "telescope",
+  --     },
+  --     input = {
+  --       provider = "snacks",
+  --     },
+  --     mappings = mappings.avante,
+  --   },
+  --   -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+  --   build = "make",
+  --   dependencies = {
+  --     "nvim-lua/plenary.nvim",
+  --     "MunifTanjim/nui.nvim",
+  --     --- The below dependencies are optional,
+  --     "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
+  --     "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+  --     "zbirenbaum/copilot.lua", -- for providers='copilot'
+  --     "folke/snacks.nvim", -- for modern ui
+  --   },
+  -- },
 }
