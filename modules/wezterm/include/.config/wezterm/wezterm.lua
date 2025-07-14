@@ -5,7 +5,19 @@ local config = wezterm.config_builder()
 config.default_prog = { '/bin/sh', '-lc', 'tmux new-session -A' }
 config.term = "wezterm"
 local font = function(attributes)
-  return wezterm.font("Iosevka Fixed", attributes or {})
+  font = { family = "Iosevka Fixed" }
+  if attributes then
+    for k, v in pairs(attributes) do
+      font[k] = v
+    end
+  end
+
+  return wezterm.font_with_fallback({
+    font,
+    -- Explicitly set the fallback font to Nerd Font Symbols so it picks up the installed font
+    -- instead of the built in one, which may have different glyphs and sizes
+    "Symbols Nerd Font",
+  })
 end
 config.font = font()
 config.font_rules = {
@@ -21,7 +33,7 @@ config.font_rules = {
   { intensity = "Bold", italic = true, font = font({ weight = "Bold", style = "Oblique" }) },
 }
 config.cell_width = 0.9
-config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
+config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0', 'VSAB=9' }
 config.font_size = 17.0
 config.color_scheme = 'One Light (base16)'
 config.disable_default_mouse_bindings = true
