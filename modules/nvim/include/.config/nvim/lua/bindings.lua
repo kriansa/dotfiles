@@ -35,10 +35,6 @@ g.maplocalleader = [[ ]]
 -- Save a shift press for commands
 nnoremap(';', ':')
 
--- Save a shift press for commands
-nmap('j', 'gj')
-nmap('k', 'gk')
-
 -- Leader + o creates a blank line above
 nmap('<Leader>o', 'o<Esc>')
 nmap('<Leader>O', 'O<Esc>')
