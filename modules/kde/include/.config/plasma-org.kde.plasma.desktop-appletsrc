@@ -332,7 +332,7 @@ immutability=1
 plugin=org.kde.plasma.mediacontroller
 
 [Containments][3][Applets][8][Applets][23][Configuration]
-PreloadWeight=5
+PreloadWeight=0
 
 [Containments][3][Applets][8][Applets][27]
 immutability=1
@@ -354,7 +354,7 @@ immutability=1
 plugin=org.kde.plasma.brightness
 
 [Containments][3][Applets][8][Applets][49][Configuration]
-PreloadWeight=1
+PreloadWeight=0
 
 [Containments][3][Applets][8][Applets][61]
 immutability=1
