@@ -1,2 +1,3 @@
 complete --command c --no-files --description="Project dir" \
-  --arguments="(cd '$PROJECTS' && __fish_complete_directories '' '')"
+  --arguments="(complete --do-complete=\"'' $PROJECTS/\" | string replace '$PROJECTS/' '')" \
+  --condition="__fish_is_first_token"
