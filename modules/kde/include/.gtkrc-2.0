@@ -1,3 +1,5 @@
+gtk-cursor-blink-time=1000
+gtk-cursor-blink=1
 gtk-sound-theme-name="ocean"
 gtk-theme-name="Default"
 gtk-enable-animations=0
@@ -9,4 +11,3 @@ gtk-cursor-theme-size=30
 gtk-cursor-theme-name="Breeze_Light"
 gtk-icon-theme-name="breeze"
 gtk-font-name="Roboto Condensed,  12"
-
