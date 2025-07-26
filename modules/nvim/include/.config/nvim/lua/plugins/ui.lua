@@ -176,9 +176,8 @@ return {
         end
       }
 
-
-      -- A small extension to support avante and codecompanion
-      local avante_ext = {
+      -- A small extension to support AI chats
+      local ai_ext = {
         sections = {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
           lualine_y = { mcphub },
@@ -241,7 +240,7 @@ return {
             section_separators = { left = '', right = ''},
           }},
         },
-        extensions = {'nvim-tree', 'quickfix', oil_ext, avante_ext, terminal},
+        extensions = {'nvim-tree', 'quickfix', oil_ext, ai_ext, terminal},
       })
 
       -- When using `tabline` option, lualine automatically sets `showtabline` to 2, but it isn't

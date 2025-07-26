@@ -413,29 +413,3 @@ mappings.code_companion = {
   accept = "ga",
   reject = "gr",
 }
-
--- avante.nvim
-mappings.avante = {
-  ask = ai_prefix .. "a",
-  new_ask = ai_prefix .. "n",
-  edit = ai_prefix .. "e",
-  refresh = ai_prefix .. "r",
-  focus = ai_prefix .. "f",
-  stop = ai_prefix .. "S",
-  toggle = {
-    default = ai_prefix .. "t",
-    debug = ai_prefix .. "d",
-    hint = ai_prefix .. "h",
-    suggestion = ai_prefix .. "s",
-    repomap = ai_prefix .. "R",
-  },
-  sidebar = {
-    close_from_input = { normal = "q", insert = "<C-d>" },
-  },
-  files = {
-    add_current = ai_prefix .. "c", -- Add current buffer to selected files
-    add_all_buffers = ai_prefix .. "B", -- Add all buffer files to selected files
-  },
-  select_model = ai_prefix .. "?", -- Select model command
-  select_history = ai_prefix .. "h", -- Select history command
-}
