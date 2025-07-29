@@ -27,6 +27,9 @@ set --global hydro_color_prompt magenta
 set --global hydro_color_duration yellow
 set --global hydro_color_error red
 
+# Custom color
+set --global hydro_color_jobs cyan
+
 # Add navigational helpers
 # (these functions couldn't be in their dedicated files because they would have weird names)
 function ...
