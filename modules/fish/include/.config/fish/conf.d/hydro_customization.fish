@@ -28,7 +28,7 @@ end
 function _hydro_prompt_jobs --description "Sets the prompt segment for background jobs" --on-event fish_prompt
   set --local jobs (jobs -p)
   set --local njobs (count $jobs)
-  contains $_hydro_last_pid $jobs; and set njobs (math $njobs - 1)
+  contains "$_hydro_last_pid" $jobs; and set njobs (math $njobs - 1)
 
   if test $njobs -ge 1
     set --global _hydro_jobs "[$njobs] "
