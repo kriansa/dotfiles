@@ -11,7 +11,6 @@ modules = [
   "git",
   "ruby",
   "tmux",
-  "java",
   "nvim",
   "javascript",
   "asdf",
@@ -34,7 +33,7 @@ modules = [
   # { name = "emacs" }
 
   # Only for Work
-  { name = "homebrew", scopes = "work" },
+  { name = "macos", scopes = "work" },
   { name = "work", scopes = "work" },
   { name = "alacritty-mac", scopes = "work" }
 ]
