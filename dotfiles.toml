@@ -1,5 +1,7 @@
 modules = [
   "alacritty",
+  "wezterm",
+  "ghostty",
   "fish",
   "shell",
   "meta",
@@ -15,7 +17,6 @@ modules = [
   "javascript",
   "asdf",
   "golang",
-  "wezterm",
 
   # Only for my Home desktop
   { name = "linux", scopes = "desktop" },
@@ -27,13 +28,14 @@ modules = [
   { name = "zathura", scopes = "desktop" },
 
   # Incompatible with KDE
-  # { name = "gnome", scopes = "desktop" }
+  # { name = "gnome", scopes = "desktop" },
 
   # Disabled
-  # { name = "emacs" }
+  # { name = "emacs" },
 
   # Only for Work
   { name = "macos", scopes = "work" },
   { name = "work", scopes = "work" },
-  { name = "alacritty-mac", scopes = "work" }
+  { name = "alacritty-mac", scopes = "work" },
+  { name = "ghostty-mac", scopes = "work" },
 ]

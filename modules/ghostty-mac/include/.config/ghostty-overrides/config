@@ -1,0 +1,4 @@
+# MacOS specific settings
+font-size = 23
+adjust-cell-width = -1
+# macos-titlebar-style = "hidden"

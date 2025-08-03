@@ -1,0 +1,83 @@
+font-family = "Iosevka Term"
+font-size = 17
+adjust-cell-width = -1
+initial-command = "/bin/sh -lc 'tmux new-session -A'"
+confirm-close-surface = false
+
+# Theme (One Light base16)
+background = #fafafa
+foreground = #383a42
+cursor-color = #383a42
+cursor-text = #fafafa
+selection-background = #383a42
+selection-foreground = #fafafa
+
+palette = 0=#fafafa
+palette = 1=#ca1243
+palette = 2=#50a14f
+palette = 3=#c18401
+palette = 4=#4078f2
+palette = 5=#a626a4
+palette = 6=#0184bc
+palette = 7=#383a42
+
+palette =  8=#a0a1a7
+palette =  9=#ca1243
+palette = 10=#50a14f
+palette = 11=#c18401
+palette = 12=#4078f2
+palette = 13=#a626a4
+palette = 14=#0184bc
+palette = 15=#090a0b
+
+palette = 16=#d75f00
+palette = 17=#986801
+palette = 18=#f0f0f1
+palette = 19=#e5e5e6
+palette = 20=#696c77
+palette = 21=#202227
+
+# Reset all
+keybind = clear
+
+# Keybindings for tmux
+keybind = "super+t=text:\x1Ct"
+keybind = "super+d=text:\x1Cd"
+keybind = "super+shift+d=text:\x1CD"
+keybind = "super+shift+enter=text:\x1C\r"
+
+keybind = "super+shift+h=text:\x1CH"
+keybind = "super+shift+j=text:\x1CJ"
+keybind = "super+shift+k=text:\x1CK"
+keybind = "super+shift+l=text:\x1CL"
+
+keybind = "super+h=text:\x1Ch"
+keybind = "super+j=text:\x1Cj"
+keybind = "super+k=text:\x1Ck"
+keybind = "super+l=text:\x1Cl"
+
+keybind = "super+1=text:\x1C1"
+keybind = "super+2=text:\x1C2"
+keybind = "super+3=text:\x1C3"
+keybind = "super+4=text:\x1C4"
+keybind = "super+5=text:\x1C5"
+keybind = "super+6=text:\x1C6"
+keybind = "super+7=text:\x1C7"
+keybind = "super+8=text:\x1C8"
+keybind = "super+9=text:\x1C9"
+keybind = "super+0=text:\x1C0"
+
+keybind = "super+]=text:\x1C]"
+keybind = "super+[=text:\x1C["
+
+# Keybinds for default terminal behavior
+keybind = "super+shift+,=reload_config"
+keybind = "super+q=quit"
+keybind = "ctrl+shift+v=paste_from_clipboard"
+keybind = "super+v=paste_from_clipboard"
+keybind = "ctrl+plus=increase_font_size:1"
+keybind = "ctrl+minus=decrease_font_size:1"
+keybind = "ctrl+0=reset_font_size"
+
+# Load override settings
+config-file = ?../ghostty-overrides/config
