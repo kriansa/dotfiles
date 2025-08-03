@@ -32,15 +32,22 @@ config.font_rules = {
   { intensity = "Bold", italic = false, font = font({ weight = "Bold" }) },
   { intensity = "Bold", italic = true, font = font({ weight = "Bold", style = "Oblique" }) },
 }
+config.window_close_confirmation = 'NeverPrompt'
+config.window_decorations = "RESIZE"
 config.cell_width = 0.9
+if wezterm.target_triple == "aarch64-apple-darwin" then
+  config.font_size = 23.0
+else
+  config.font_size = 17.0
+end
 config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0', 'VSAB=9' }
-config.font_size = 17.0
 config.color_scheme = 'One Light (base16)'
 config.disable_default_mouse_bindings = true
 config.disable_default_quick_select_patterns = true
 config.enable_tab_bar = false
 config.enable_scroll_bar = false
 config.default_cursor_style = 'BlinkingBlock'
+config.audible_bell = 'Disabled'
 config.cursor_blink_ease_in = 'Constant'
 config.cursor_blink_ease_out = 'Constant'
 config.cursor_blink_rate = 500
@@ -52,10 +59,10 @@ config.window_padding = {
 }
 
 -- Only on nightly builds
--- config.window_content_alignment = {
---   horizontal = 'Center',
---   vertical = 'Center',
--- }
+config.window_content_alignment = {
+  horizontal = 'Center',
+  vertical = 'Center',
+}
 
 config.disable_default_key_bindings = true
 
@@ -94,17 +101,18 @@ config.keys = {
   { key = '[', mods = 'SUPER', action = pkey("[") },
 
   -- Default keybindings
-  { key = 'c', mods = 'SHIFT|CTRL', action = act.CopyTo 'Clipboard' },
-  { key = 'c', mods = 'SUPER', action = act.CopyTo 'Clipboard' },
-  { key = 'C', mods = 'CTRL', action = act.CopyTo 'Clipboard' },
-  { key = 'C', mods = 'SHIFT|CTRL', action = act.CopyTo 'Clipboard' },
-  { key = 'Insert', mods = 'SHIFT', action = act.PasteFrom 'PrimarySelection' },
-  { key = 'Insert', mods = 'CTRL', action = act.CopyTo 'PrimarySelection' },
+  { key = 'q', mods = 'SUPER', action = act.QuitApplication },
+  -- { key = 'c', mods = 'SHIFT|CTRL', action = act.CopyTo 'Clipboard' },
+  -- { key = 'c', mods = 'SUPER', action = act.CopyTo 'Clipboard' },
+  -- { key = 'C', mods = 'CTRL', action = act.CopyTo 'Clipboard' },
+  -- { key = 'C', mods = 'SHIFT|CTRL', action = act.CopyTo 'Clipboard' },
+  -- { key = 'Insert', mods = 'SHIFT', action = act.PasteFrom 'PrimarySelection' },
+  -- { key = 'Insert', mods = 'CTRL', action = act.CopyTo 'PrimarySelection' },
   { key = 'Copy', mods = 'NONE', action = act.CopyTo 'Clipboard' },
   { key = 'Paste', mods = 'NONE', action = act.PasteFrom 'Clipboard' },
 
-  { key = 'V', mods = 'CTRL', action = act.PasteFrom 'Clipboard' },
-  { key = 'V', mods = 'SHIFT|CTRL', action = act.PasteFrom 'Clipboard' },
+  -- { key = 'V', mods = 'CTRL', action = act.PasteFrom 'Clipboard' },
+  -- { key = 'V', mods = 'SHIFT|CTRL', action = act.PasteFrom 'Clipboard' },
   { key = 'v', mods = 'SHIFT|CTRL', action = act.PasteFrom 'Clipboard' },
   { key = 'v', mods = 'SUPER', action = act.PasteFrom 'Clipboard' },
 
