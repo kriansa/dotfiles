@@ -2,6 +2,7 @@ font-family = "Iosevka Term"
 font-size = 17
 font-feature = "-calt,-clig,-dlig,-liga,VSAB=9"
 adjust-cell-width = -1
+adjust-box-thickness = -1
 initial-command = "/bin/sh -lc 'tmux new-session -A'"
 confirm-close-surface = false
 
