@@ -13,9 +13,14 @@ main() {
       PATH="$(python3 -m site --user-base)/bin:$PATH"
     fi
 
-    # Install uv on system python (a package manager for Python)
-    pip3 install --user --no-warn-script-location --upgrade uv
-    uninstall_uv_pip=1
+    # Create a temporary venv to install uv
+    local temp_venv; temp_venv="$(mktemp -d)"
+    trap "rm -rf \"$temp_venv\"" EXIT
+    python3 -m venv "$temp_venv"
+    source "$temp_venv/bin/activate"
+
+    # Install uv (a package manager for Python)
+    pip3 install uv
   fi
 
   # Install/upgrade uv using `uv` itself
@@ -32,11 +37,6 @@ main() {
 
   # Then install Python 3.12-specific packages
   uv tool install --python 3.12 --with "aider-chat[browser]" "aider-chat"
-
-  if [[ $uninstall_uv_pip -eq 1 ]]; then
-    echo "Removing uv pip package"
-    pip3 uninstall --yes uv
-  fi
 }
 
 main "$@"
