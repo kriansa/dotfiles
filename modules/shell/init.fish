@@ -26,6 +26,7 @@ set --global hydro_color_git brblack
 set --global hydro_color_prompt magenta
 set --global hydro_color_duration yellow
 set --global hydro_color_error red
+set --global fish_prompt_pwd_dir_length 10
 
 # Custom color
 set --global hydro_color_jobs cyan
