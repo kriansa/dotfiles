@@ -20,7 +20,7 @@
       - texlive-core
 
       # Shell utils
-      - alacritty
+      - ghostty
       - fzf
       - bat
       - git-delta

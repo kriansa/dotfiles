@@ -4,8 +4,8 @@
 # finds for existing open terminal emulator windows. Then, it opens the program in a tmux window
 # (tab) so it fits better my work gymnastics.
 
-TERMINAL_DESKTOP_FILENAME="org.wezfurlong.wezterm" # find it on /usr/share/applications
-TERMINAL_COMMAND="wezterm"
+TERMINAL_DESKTOP_FILENAME="com.mitchellh.ghostty" # find it on /usr/share/applications
+TERMINAL_COMMAND="ghostty"
 
 main() {
 	trap 'cleanup' EXIT
