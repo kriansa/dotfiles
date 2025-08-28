@@ -146,7 +146,7 @@ mappings.nvim_tree = function(bufnr)
 
   local function toggle_expand()
     local max = vim.o.columns
-    api.tree.resize(current_treeview_size() == default_size and max or default_size)
+    api.tree.resize({ width = current_treeview_size() == default_size and max or default_size })
   end
 
   -- Open a file but resize the tree view to the default width if expanded
@@ -155,7 +155,7 @@ mappings.nvim_tree = function(bufnr)
       open_function(...)
 
       if current_treeview_size() ~= default_size then
-        api.tree.resize(default_size)
+        api.tree.resize({ width = default_size })
       end
     end
   end
