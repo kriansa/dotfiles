@@ -35,6 +35,9 @@ if type -q podman
   # and podman.
   set --global --export DOCKER_BUILDKIT 0
 
+  # Disable warning logs when using `podman compose`
+  set --global --export PODMAN_COMPOSE_WARNING_LOGS 0
+
   # On Podman Mac, `podman-mac-helper` will add a socket symlink to /var/run/docker.sock
   if ! test -S /var/run/docker.sock
     set --global --export DOCKER_HOST "unix://$XDG_RUNTIME_DIR/podman/podman.sock"
