@@ -133,8 +133,12 @@ vim.keymap.set({"x", "o"}, "Z", "<Plug>(leap-backward-till)", { silent = true, d
 nmap("\\", "<cmd>NvimTreeFindFileToggle<CR>")
 mappings.nvim_tree = function(bufnr)
   local api = require('nvim-tree.api')
-  local view = require('nvim-tree.core').get_explorer().view
   local default_size = 30
+
+  local function current_treeview_size()
+    local tree_id = api.tree.winid()
+    return vim.fn.winwidth(tree_id)
+  end
 
   local function opts(desc)
     return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
@@ -142,9 +146,7 @@ mappings.nvim_tree = function(bufnr)
 
   local function toggle_expand()
     local max = vim.o.columns
-    local current = view:get_width()
-
-    view:resize(current == default_size and max or default_size)
+    api.tree.resize(current_treeview_size() == default_size and max or default_size)
   end
 
   -- Open a file but resize the tree view to the default width if expanded
@@ -152,10 +154,8 @@ mappings.nvim_tree = function(bufnr)
     return function(...)
       open_function(...)
 
-      local current = view:get_width()
-
-      if current ~= default_size then
-        view:resize(default_size)
+      if current_treeview_size() ~= default_size then
+        api.tree.resize(default_size)
       end
     end
   end
