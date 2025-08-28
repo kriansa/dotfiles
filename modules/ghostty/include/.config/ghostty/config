@@ -5,6 +5,8 @@ adjust-cell-width = -1
 adjust-box-thickness = -1
 initial-command = "/bin/sh -lc 'tmux new-session -A'"
 confirm-close-surface = false
+quit-after-last-window-closed = true
+macos-option-as-alt = false
 
 # Theme (One Light base16)
 background = #fafafa
