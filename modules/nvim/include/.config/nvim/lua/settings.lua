@@ -79,6 +79,22 @@ vim.filetype.add({
     ['.*/roles/.*/handlers/.*%.ya?ml'] = "yaml.ansible",
     ['.*/roles/.*/meta/.*%.ya?ml'] = "yaml.ansible",
     ['.*/roles/.*/tasks/.*%.ya?ml'] = "yaml.ansible",
+
+    -- Fallback to match contents for files without extension
+    ['.*'] = {
+      function(path, bufnr)
+        local content = vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] or ''
+        if vim.regex([[^#!.*env -S uv run]]):match_str(content) ~= nil then
+          return 'python'
+        elseif
+          vim.regex([[^---]]):match_str(content) ~= nil or
+          vim.regex([[^apiVersion:]]):match_str(content) ~= nil
+        then
+          return 'yaml'
+        end
+      end,
+      { priority = -math.huge },
+    }
   },
 })
 
