@@ -197,6 +197,14 @@ return {
         heading = {
           icons = {},
         },
+        sign = {
+          enabled = false,
+        },
+        html = {
+          comment = {
+            conceal = false,
+          },
+        },
         code = {
           border = "thick",
         },
