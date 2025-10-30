@@ -13,22 +13,6 @@ end)
 
 screenWatcher:start()
 
--- Menu bar for copying MFA codes
-function copyOTP(name)
-  return function()
-    hs.execute(os.getenv("HOME") .. "/.dotfiles/modules/work/libexec/otp " .. name)
-    hs.alert.show("Copied!")
-  end
-end
-
-menubar = hs.menubar.new(true, "mfa")
-menubar:setTitle("MFA")
-  :setMenu({
-    { title = "Meli SSO", fn = copyOTP("ML/SSO") },
-    { title = "Google", fn = copyOTP("ML/Google") },
-    { title = "Github", fn = copyOTP("ML/Github") },
-  })
-
 -- Global shortcut for DeepL
 hs.hotkey.bind({"cmd"}, "Escape", function()
   local app_name = hs.application.frontmostApplication():title()

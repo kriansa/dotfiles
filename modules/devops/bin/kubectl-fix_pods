@@ -5,91 +5,26 @@ help() {
   echo "  You can use any option supported by kubectl, such as --context, --namespace, etc."
   echo
   echo "Usage:"
-  echo "  kubectl fix-pods [options]"
-}
-
-run() {
-  kubectl get "${KUBEOPTS[@]}" pods | grep -E "(Terminating|CrashLoopBackOff)" | awk '{ print $1 }' | \
-    xargs kubectl patch "${KUBEOPTS[@]}" pod -p '{"metadata":{"finalizers":null}}'
+  echo "  kubectl fix-pods [OPTIONS]"
 }
 
 main() {
   trap exit INT
-
   parse_args "$@"
 
-  if [[ "${OPTIONS[0]}" = "--help" ]]; then
-    help
-    exit 0
-  fi
-
-  KUBEOPTS=("${OPTIONS[@]}" -- "${ARGS[@]}")
-  set -- "${ARGS[@]}"
-
-  run "$@"
+  kubectl get "$@" pods | grep -E "(Terminating|CrashLoopBackOff)" | awk '{ print $1 }' | \
+    xargs kubectl patch "$@" pod -p '{"metadata":{"finalizers":null}}'
 }
 
 parse_args() {
-  ARGS=()
-  OPTIONS=()
-
-  local take_args="$1"; shift
-
   while [[ $# -gt 0 ]]; do
     case $1 in
-      --)
-        shift
-        ARGS+=("$@")
-        return 0
+      -h|--help)
+        help && exit
         ;;
-
-      --help)
-        OPTIONS=("--help")
-        return 0
-        ;;
-
-      --namespace|--context|--kubecontext|--kubeconfig)
-        if [[ -n "$2" ]] && ! [[ "$2" =~ ^- ]]; then
-          OPTIONS+=("$1 $2")
-          shift 2
-        else
-          echo "Error: $1 requires a value" >&2
-          return 1
-        fi
-        ;;
-
-      --*=*)
-        OPTIONS+=("$1")
-        shift
-        ;;
-
-      -*)
-        # Check for 'n' in any position and error if not at the end
-        if [[ $1 =~ n ]] && ! [[ $1 =~ n$ ]]; then
-          echo "Error: -n option requires a value and must be the last option in a group" >&2
-          return 1
-        elif [[ $1 =~ n$ ]]; then
-          if [[ -n "$2" ]]; then
-            OPTIONS+=("$1" "$2")
-            shift 2
-          else
-            echo "Error: -n requires a value" >&2
-            return 1
-          fi
-        else
-          OPTIONS+=("$1")
-          shift
-        fi
-        ;;
-
-      *)
-        ARGS+=("$1")
-        shift
-        ;;
+      *) shift
     esac
   done
-
-  set -- "${ARGS[@]}"
 }
 
 main "$@"
