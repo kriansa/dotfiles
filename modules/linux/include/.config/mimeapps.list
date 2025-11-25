@@ -52,7 +52,7 @@ text/tab-separated-values=libreoffice-calc.desktop;nvim.desktop;
 text/tcl=nvim.desktop;
 text/troff=nvim.desktop;
 x-scheme-handler/geo=google-maps-geo-handler.desktop;qwant-maps-geo-handler.desktop;
-x-scheme-handler/lmstudio=lm-studio.desktop;LM Studio.desktop;
+x-scheme-handler/lmstudio=lmstudio.desktop;LM Studio.desktop;lm-studio.desktop;
 x-scheme-handler/slack=slack.desktop;Slack.desktop;
 
 [Default Applications]
@@ -202,7 +202,7 @@ x-scheme-handler/geo=google-maps-geo-handler.desktop;
 x-scheme-handler/http=firefox.desktop
 x-scheme-handler/https=firefox.desktop
 x-scheme-handler/lens=OpenLens.desktop
-x-scheme-handler/lmstudio=lm-studio.desktop
+x-scheme-handler/lmstudio=lmstudio.desktop
 x-scheme-handler/postman=Postman.desktop
 x-scheme-handler/slack=slack.desktop
 x-scheme-handler/terminal=tmux-window.desktop;

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+GNUPGHOME=~/.local/share/pikaur/gnupg gpg "$@"
