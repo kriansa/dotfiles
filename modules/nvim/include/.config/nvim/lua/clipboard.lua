@@ -16,6 +16,14 @@
 vim.api.nvim_create_autocmd({"FocusLost", "VimLeave"}, {
   pattern = "*",
   callback = function()
+    -- Ensure this function is called at most once every 500ms
+    vim.uv.update_time()
+    local now = vim.uv.now()
+    if vim.g._last_unfocus_time and (now - vim.g._last_unfocus_time) < 500 then
+      return
+    end
+    vim.g._last_unfocus_time = now
+
     local current_yank = vim.fn.getreg(0)
     vim.g._is_focused = false
 
@@ -31,6 +39,14 @@ vim.api.nvim_create_autocmd({"FocusLost", "VimLeave"}, {
 vim.api.nvim_create_autocmd({ "FocusGained", "VimEnter" }, {
   pattern = "*",
   callback = function()
+    -- Ensure this function is called at most once every 500ms
+    vim.uv.update_time()
+    local now = vim.uv.now()
+    if vim.g._last_focus_time and (now - vim.g._last_focus_time) < 500 then
+      return
+    end
+    vim.g._last_focus_time = now
+
     vim.g._is_focused = true
 
     -- It may take a while before the + register reflects the contents of system clipboard, so we

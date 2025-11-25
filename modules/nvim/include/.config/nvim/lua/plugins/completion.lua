@@ -436,7 +436,7 @@ return {
             },
             addonSettings = {
               ["Ruby LSP Rails"] = {
-                ["enablePendingMigrationsPrompt"] = false,
+                enablePendingMigrationsPrompt = false,
               },
             },
             linters = {},

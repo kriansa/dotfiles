@@ -99,6 +99,7 @@ vim.filetype.add({
 })
 
 -- Settings
+o.termguicolors = true          -- Enable 24bit colors
 o.backspace = "indent,eol"      -- Enables backspace on indentation and end of lines
 o.hidden = true                 -- This allows buffers to be hidden if you've modified a buffer.
 o.number = true                 -- Display line numbers
