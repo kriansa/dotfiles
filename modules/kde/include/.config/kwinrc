@@ -1,9 +1,6 @@
 [$Version]
 update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-effect-to-js,kwin.upd:port-scale-effect-to-js,kwin.upd:port-dimscreen-effect-to-js,kwin.upd:auto-bordersize,kwin.upd:animation-speed,kwin.upd:desktop-grid-click-behavior,kwin.upd:no-swap-encourage,kwin.upd:make-translucency-effect-disabled-by-default,kwin.upd:remove-flip-switch-effect,kwin.upd:remove-cover-switch-effect,kwin.upd:remove-cubeslide-effect,kwin.upd:remove-xrender-backend,kwin.upd:enable-scale-effect-by-default,kwin.upd:overview-group-plugin-id,kwin.upd:animation-speed-cleanup,kwin.upd:replace-cascaded-zerocornered
 
-[Activities][LastVirtualDesktop]
-1755eaa4-3450-44e9-97de-fe453803621a=5bb9b44a-aeb9-44c3-a7f4-1bb73c09819e
-
 [Desktops]
 Id_1=1020374b-1ad0-46c1-93fd-16edcba57d61
 Id_2=804d8c76-c41d-4c3a-9999-85d2ebb94631
@@ -29,8 +26,6 @@ Meta=
 
 [NightColor]
 Active=true
-EveningBeginFixed=1900
-Mode=Times
 
 [Plugins]
 desktopchangeosdEnabled=false
@@ -54,14 +49,6 @@ zoomEnabled=false
 [Script-desktopchangeosd]
 PopupHideDelay=1200
 
-[SubSession: 77e9cee7-0a12-4003-8029-3f03dd3e8618]
-active=-1
-count=0
-
-[SubSession: fe86f874-174a-482d-bec3-d606c3a2bbc2]
-active=-1
-count=0
-
 [TabBox]
 HighlightWindows=false
 LayoutName=compact
@@ -73,7 +60,7 @@ padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][1020374b-1ad0-46c1-93fd-16edcba57d61][7bf91f8a-ce51-465a-b6b2-914ff98919b3]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5061046511627907},{"width":0.4938953488372093}]}
 
 [Tiling][4143c375-0b8a-5fa0-b98b-0da4a7d69606]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
@@ -95,6 +82,10 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 
 [Tiling][92e842d7-5928-5c43-884a-4912e7cc82ed]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Wayland]
+InputMethod[$e]=/usr/share/applications/fcitx5-wayland-launcher.desktop
+VirtualKeyboardEnabled=true
 
 [Windows]
 DelayFocusInterval=0

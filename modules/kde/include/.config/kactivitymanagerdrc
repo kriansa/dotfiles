@@ -6,5 +6,3 @@ org.kde.ActivityManager.ResourceScoringEnabled=false
 
 [main]
 currentActivity=1755eaa4-3450-44e9-97de-fe453803621a
-runningActivities=1755eaa4-3450-44e9-97de-fe453803621a
-stoppedActivities=

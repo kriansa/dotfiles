@@ -141,20 +141,19 @@ DirSelectDialog Size=868,591
 [General]
 AccentColor=0,0,0,0
 BrowserApplication=firefox.desktop
-ColorSchemeHash=0594cdbf8684a5ef175629572f86003b65badc3d
+ColorSchemeHash=9f63c7711a13123582e720791ea0f8c0172977d2
 LastUsedCustomAccentColor=146,110,228
 TerminalApplication=kwin-tmux-window
 TerminalService=tmux-window.desktop
 UseSystemBell=true
-XftAntialias=true
 XftHintStyle=hintslight
 XftSubPixel=rgb
 accentColorFromWallpaper=false
 fixed=Iosevka Term,11,-1,5,50,0,0,0,0,0
-font=Roboto Condensed,12,-1,5,50,0,0,0,0,0
-menuFont=Roboto Condensed,11,-1,5,50,0,0,0,0,0
+font=Roboto Condensed,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+menuFont=Roboto Condensed,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 smallestReadableFont=Roboto Condensed,9,-1,5,50,0,0,0,0,0
-toolBarFont=Roboto Condensed,11,-1,5,50,0,0,0,0,0
+toolBarFont=Roboto Condensed,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 
 [Icons]
 Theme=breeze
@@ -170,9 +169,6 @@ Allow Expansion=false
 Automatically select filename extension=true
 Breadcrumb Navigation=false
 Decoration position=2
-LocationCombo Completionmode=5
-PathCombo Completionmode=5
-Show Bookmarks=false
 Show Full Path=false
 Show Inline Previews=true
 Show Preview=false
