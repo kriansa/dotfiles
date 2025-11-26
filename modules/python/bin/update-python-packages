@@ -30,13 +30,10 @@ main() {
   while IFS= read -r package; do
     echo "Updating package $package"
     uv tool install --no-managed-python --upgrade "$package"
-  done < "$HOME/.dotfiles/modules/python/data/requirements.txt"
+  done < "$DOTFILES_PATH/modules/python/data/requirements.txt"
 
   # Update other packages not installed via requirements.txt
   uv tool upgrade --all
-
-  # Then install Python 3.12-specific packages
-  uv tool install --python 3.12 --with "aider-chat[browser]" "aider-chat"
 }
 
 main "$@"

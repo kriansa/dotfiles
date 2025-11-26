@@ -58,7 +58,7 @@ upgrade_ruby_packages() {
 
   while IFS= read -r package; do
     gem install "$package"
-  done < "$HOME/.dotfiles/modules/ruby/data/packages.txt"
+  done < "$DOTFILES_PATH/modules/ruby/data/packages.txt"
 
   # Remove older gem versions
   gem cleanup

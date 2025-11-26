@@ -6,6 +6,6 @@ trap exit INT
 while IFS= read -r package; do
   echo "Updating package $package"
   go install -a "$package"
-done < "$HOME/.dotfiles/modules/golang/data/go-packages.txt"
+done < "$DOTFILES_PATH/modules/golang/data/go-packages.txt"
 
 echo "Done."

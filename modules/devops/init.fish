@@ -1,5 +1,4 @@
 # Setup our helper aliases
-abbr --global --add dc docker-compose
 abbr --global --add k kubectl
 abbr --global --add kns kubens
 abbr --global --add kctx kubectx
@@ -27,8 +26,11 @@ set --global --export KUBECTL_NODE_SHELL_IMAGE nicolaka/netshoot
 set --global --export DOCKER_CLI_HINTS 0
 
 if type -q podman
+  abbr --global --add docker podman
   abbr --global --add d podman
   abbr --global --add p podman
+  abbr --global --add dc podman compose
+  abbr --global --add docker-compose podman compose
 
   # BuildKit is no compatible with using PODMAN_USERNS=keep-id
   # Disabling it is the compromise we make to ensure docker-compose is compatible with both docker
@@ -38,12 +40,21 @@ if type -q podman
   # Disable warning logs when using `podman compose`
   set --global --export PODMAN_COMPOSE_WARNING_LOGS 0
 
-  # On Podman Mac, `podman-mac-helper` will add a socket symlink to /var/run/docker.sock
+  # When running the binary docker-compose directly, you will need DOCKER_HOST to be set beforehand.
+  # However, when it's run through `podman compose`, then it will be directly assigned and you won't
+  # have to worry. In case you're running this binary directly, you have two options:
+  #   1. Set it manually. Useful when the path is static (like on Linux)
+  #   2. On Mac, run `sudo podman-mac-helper install` and it will create a symlink at
+  #   `/var/run/docker.sock` pointing to the dynamic one automatically everytime `podman machine
+  #   start` is run.
+  #
+  # The condition below would set this variable when needed.
   if ! test -S /var/run/docker.sock
     set --global --export DOCKER_HOST "unix://$XDG_RUNTIME_DIR/podman/podman.sock"
   end
 else
   abbr --global --add d docker
+  abbr --global --add dc docker-compose
 end
 
 set -x SSH_ASKPASS ssh-pass

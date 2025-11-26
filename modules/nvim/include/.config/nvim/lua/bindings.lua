@@ -24,6 +24,9 @@ end
 local function vnoremap(lhs, rhs, opts)
   return vmap(lhs, rhs, vim.tbl_extend("keep", opts or {}, { noremap = true }))
 end
+local function cnoremap(lhs, rhs, opts)
+  return vim.api.nvim_set_keymap('c', lhs, rhs, vim.tbl_extend("keep", opts or {}, { noremap = true }))
+end
 
 -- Declare all global variables in Lua that are needed for other plugins to work
 mappings = {}
@@ -88,6 +91,10 @@ tnoremap('<ESC><ESC>', '<C-\\><C-n>')
 
 -- Exit insert mode by mistyping C-[
 inoremap("<C-]>", "<ESC>")
+
+-- Command mode: M-Left/Right to jump words
+cnoremap('<M-Left>', '<S-Left>')
+cnoremap('<M-Right>', '<S-Right>')
 
 --
 -- Plugin-related bindings
@@ -183,6 +190,7 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
   vim.keymap.set('n', 'R', api.tree.reload, opts('Refresh'))
   vim.keymap.set('n', 'A', toggle_expand, opts('Toggle tree view size'))
+  vim.keymap.set('n', 'E', api.node.open.toggle_group_empty, opts('Toggle grouping empty directories'))
 
   -- Manipulation
   vim.keymap.set('n', 'a', api.fs.create, opts('Create'))
@@ -399,9 +407,6 @@ local ai_prefix = "<leader>u"
 
 -- Toggle copilot (mnemonic: Co[p]ilot)
 vim.keymap.set({'n', 'v'}, ai_prefix .. "p", "<cmd>CopilotToggle<CR>", { silent = true })
-
--- Aider (mnemonic: [a]ider)
-vim.keymap.set('n', ai_prefix .. "a", "<cmd>Aider toggle<CR>", { silent = true })
 
 -- CodeCompanion Chat (mnemonic: [C]hat)
 vim.keymap.set('n', ai_prefix .. "C", "<cmd>CodeCompanionChat<CR>", { silent = true })

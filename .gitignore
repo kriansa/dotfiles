@@ -5,8 +5,3 @@ __pycache__
 # Ignore the scopes and state for the dotfiles, as those should be machine-dependent
 .dotup-scopes
 dotstate.db
-
-# Ignore aider-related files
-.aider.tags.*
-.aider.chat.*
-.aider.input.*

@@ -60,7 +60,7 @@ upgrade_node_packages() {
 
   while IFS= read -r package; do
     npm install -g "$package"
-  done < "$HOME/.dotfiles/modules/javascript/data/packages.txt"
+  done < "$DOTFILES_PATH/modules/javascript/data/packages.txt"
 }
 
 main

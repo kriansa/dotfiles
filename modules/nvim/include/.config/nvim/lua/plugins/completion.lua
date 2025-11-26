@@ -351,13 +351,14 @@ return {
         },
       })
 
-      local util = require 'lspconfig.util'
+      local util = require('lspconfig.util')
 
       -- Setup each available language server
       local server_configs = {
         ts_ls = {},
         vuels = {},
         gopls = {},
+        kotlin_lsp = {},
 
         pylsp = {
           settings = {

@@ -99,7 +99,7 @@ vim.filetype.add({
 })
 
 -- Settings
-o.termguicolors = true          -- Enable 24bit colors
+o.termguicolors = true          -- Enable 24-bit RGB colors
 o.backspace = "indent,eol"      -- Enables backspace on indentation and end of lines
 o.hidden = true                 -- This allows buffers to be hidden if you've modified a buffer.
 o.number = true                 -- Display line numbers
@@ -122,7 +122,7 @@ o.foldenable = false            -- Disable folding
 o.showcmd = false               -- Disable showing the command you're typing at the bottom
 o.signcolumn = "yes"            -- Always show the sign column
 o.list = true                   -- Show hidden chars
-o.listchars = "tab:▸ ,eol:¬,space:·,trail:+" -- chars to be displayed
+o.listchars = "tab:▸ ,eol:¬,space:·,trail:+" -- Representation of invisible chars
 o.showbreak = "↪"               -- char to be displayed on wraped lines
 o.updatetime = 250              -- Time to trigger CursorHold
 o.startofline = true            -- Move the cursor to the start of the line after screen movements

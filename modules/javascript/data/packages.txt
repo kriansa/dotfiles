@@ -8,4 +8,5 @@ eslint-plugin-vue
 eslint-plugin-react
 vls
 @anthropic-ai/claude-code
-mcp-hub
+@openai/codex
+pnpm

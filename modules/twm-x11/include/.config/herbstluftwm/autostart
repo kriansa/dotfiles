@@ -76,7 +76,7 @@ hc keybind $Mod-Shift-t set_attr clients.focus.floating toggle  # [t]iling toggl
 hc keybind $Mod-Shift-f fullscreen toggle                       # [f]ullscreen toggle
 hc keybind $Mod-Shift-p pseudotile toggle                       # [p]seudotile toggle
 hc keybind $Mod-Shift-b set_attr clients.focus.decorated toggle # [b]orders toggle
-hc keybind $Mod-Shift-Return spawn "$HOME/.dotfiles/modules/twm-x11/libexec/hlwm-toggle-monitor-layout" max
+hc keybind $Mod-Shift-Return spawn "$DOTFILES_PATH/modules/twm-x11/libexec/hlwm-toggle-monitor-layout" max
 # hc keybind $Mod-Shift-m set_attr clients.focus.minimized true
 # hc keybind $Mod-Control-m jumpto last-minimized
 
@@ -133,7 +133,7 @@ hc keybind XF86Launch1 spawn spotify
 hc keybind XF86Calculator spawn qalculate-gtk
 
 # K3 multimedia keys
-hc keybind XF86_LaunchB spawn $HOME/.dotfiles/modules/twm-x11/libexec/hlwm-toggle-monitor-layout grid
+hc keybind XF86_LaunchB spawn $DOTFILES_PATH/modules/twm-x11/libexec/hlwm-toggle-monitor-layout grid
 
 # ======================================================
 # theme

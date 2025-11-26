@@ -224,7 +224,7 @@ bindsym XF86Launch1 exec spotify
 bindsym XF86Calculator exec qalculate-gtk
 
 # K3 multimedia keys
-bindsym XF86LaunchB exec $HOME/.dotfiles/modules/twm/libexec/hlwm-toggle-monitor-layout grid
+bindsym XF86LaunchB exec $DOTFILES_PATH/modules/twm/libexec/hlwm-toggle-monitor-layout grid
 
 #
 # Status Bar:

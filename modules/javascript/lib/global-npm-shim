@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# This is a shim for a nodejs executable that should always be executed by the nodejs version defined as
+# the global one.
+#
+# It's important so that we don't need to keep installing global gems on every nodejs version that we
+# have on our system.
+
+binary=$(basename "$0")
+
+export ASDF_NODEJS_VERSION; ASDF_NODEJS_VERSION=$(grep '^nodejs .*' ~/.tool-versions | awk '{ print $2 }')
+status=$?
+
+if [ $status -ne 0 ]; then
+  echo "Please set the global nodejs version using 'asdf set --home nodejs <version>'" && exit 1
+fi
+
+shim_path="$(asdf which "$binary")"
+exec "$shim_path" "$@"

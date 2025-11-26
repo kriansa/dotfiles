@@ -4,5 +4,5 @@
 
 case "$(uname)" in
   Linux) exec gio trash "$@" ;;
-  Darwin) exec /opt/homebrew/bin/trash "$@" ;;
+  Darwin) exec /usr/bin/trash "$@" ;;
 esac

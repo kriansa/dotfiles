@@ -1,6 +1,4 @@
 modules = [
-  "alacritty",
-  "wezterm",
   "ghostty",
   "fish",
   "shell",
@@ -9,33 +7,34 @@ modules = [
   "python",
   "borgmatic",
   "devops",
-  "vlc",
   "git",
   "ruby",
   "tmux",
   "nvim",
   "javascript",
   "asdf",
-  "golang",
+  "gnupg",
+  "ai",
 
   # Only for my Home desktop
   { name = "linux", scopes = "desktop" },
-  { name = "alacritty-linux", scopes = "desktop" },
-  { name = "gnupg", scopes = "desktop" },
   { name = "psi-notify", scopes = "desktop" },
   { name = "fontconfig", scopes = "desktop" },
   { name = "kde", scopes = "desktop" },
   { name = "zathura", scopes = "desktop" },
-
-  # Incompatible with KDE
-  # { name = "gnome", scopes = "desktop" },
-
-  # Disabled
-  # { name = "emacs" },
+  { name = "golang", scopes = "desktop" },
+  { name = "vlc", scopes = "desktop" },
 
   # Only for Work
   { name = "macos", scopes = "work" },
   { name = "work", scopes = "work" },
-  { name = "alacritty-mac", scopes = "work" },
   { name = "ghostty-mac", scopes = "work" },
+
+  # Disabled
+  # { name = "gnome", scopes = "desktop" },
+  # { name = "emacs" },
+  # { name = "alacritty" },
+  # { name = "alacritty-linux", scopes = "desktop" },
+  # { name = "alacritty-mac", scopes = "work" },
+  # { name = "wezterm" },
 ]

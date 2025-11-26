@@ -13,7 +13,8 @@ from pathlib import Path
 from typing import Any
 
 if sys.version_info.major == 3 and sys.version_info.minor < 11:
-    from pip._vendor import tomli as tomllib
+    # pylint: disable-next=import-error
+    from pip._vendor import tomli as tomllib # type: ignore
 else:
     import tomllib
 
@@ -357,7 +358,7 @@ class Stower:
 
     @staticmethod
     def paths_denylist() -> list[str]:
-        """This is a list of paths that shouldn't never be linked, only their child nodes"""
+        """This is a list of paths that shouldn't ever be linked, only their child nodes"""
         return [
             ".local/share",  # XDG_DATA_HOME
             ".config",  # XDG_CONFIG_HOME
@@ -369,6 +370,7 @@ class Stower:
             ".config/pulse",  # PulseAudio
             ".config/systemd/user",  # SystemD user units
             ".local/share/applications",  # Desktop entries
+            ".claude",  # Claude CLI metadata
         ]
 
     @staticmethod

@@ -29,6 +29,18 @@ run() {
   local command=$*
   local len=$(( ${#desc} + 2 ))
 
+  # Read the command name out of the command string. If it starts with sudo, then use the next
+  # space-separated token instead.
+  local command_name=$(echo "$command" | awk '{print $1}')
+  if [[ "$command_name" == "sudo" ]]; then
+    command_name=$(echo "$command" | awk '{print $2}')
+  fi
+
+  # Test if the command exists, and if not, simply returns empty
+  if ! command -v "$command_name" &> /dev/null; then
+    return
+  fi
+
   echo
   printf -- "-%.0s" $(seq 1 $len)
   echo

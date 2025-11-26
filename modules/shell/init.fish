@@ -48,6 +48,3 @@ set --global --export BAT_THEME OneHalfLight
 
 # Disable cowsay for ansible
 set --global --export ANSIBLE_NOCOWS 1
-
-# Load secrets.env if present
-test -r ~/.local/state/secrets.env && source ~/.local/state/secrets.env
