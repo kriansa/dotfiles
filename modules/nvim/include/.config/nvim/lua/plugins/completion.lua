@@ -358,7 +358,6 @@ return {
         ts_ls = {},
         vuels = {},
         gopls = {},
-        kotlin_lsp = {},
 
         pylsp = {
           settings = {
