@@ -1,0 +1,6 @@
+[Desktop Entry]
+Exec=/home/dpereira/.bin/tmp-force-gtk-fonts
+Icon=application-x-shellscript
+Name=tmp-force-gtk-fonts
+Type=Application
+X-KDE-AutostartScript=true

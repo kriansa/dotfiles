@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+sleep 5
+
+gsettings set org.gnome.desktop.interface font-name 'Roboto Condensed, 12'
+gsettings set org.gnome.desktop.interface document-font-name 'Roboto Condensed, 12'
+gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Term, 11'
+
+gsettings set org.gnome.desktop.interface font-rendering 'manual'
+gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
+gsettings set org.gnome.desktop.interface font-hinting 'slight'
+gsettings set org.gnome.desktop.interface font-rgba-order 'rgb'

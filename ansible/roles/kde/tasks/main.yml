@@ -14,7 +14,6 @@
       - dolphin
       - partitionmanager
       - phonon-qt6-vlc
-      - wl-clipboard
 
       # Remote access
       - krdc
@@ -31,6 +30,13 @@
 
       # Frontend for pinentry
       - pinentry
+
+- name: install packages from AUR
+  become: true
+  become_user: "{{ user_name }}"
+  aur:
+    name:
+      - wl-clipboard-rs
 
 - name: create systemd kde service unit for single-user
   become: true
