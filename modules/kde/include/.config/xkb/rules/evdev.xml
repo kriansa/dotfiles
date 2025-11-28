@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xkbConfigRegistry SYSTEM "xkb.dtd">
+<xkbConfigRegistry version="1.1">
+  <!-- Override the layout name used by fcitx -->
+  <!-- Using name == shortDescription will make the variant show a shorter name -->
+  <!-- See: https://github.com/fcitx/fcitx5/blob/master/src/im/keyboard/keyboard.cpp#L257-L303 -->
+  <layoutList>
+    <layout>
+      <configItem>
+        <name>us</name>
+        <!-- Keyboard indicator for English layouts -->
+        <shortDescription>en</shortDescription>
+        <description>English (US)</description>
+        <countryList>
+          <iso3166Id>US</iso3166Id>
+        </countryList>
+        <languageList>
+          <iso639Id>eng</iso639Id>
+        </languageList>
+      </configItem>
+      <variantList>
+        <variant>
+          <configItem>
+            <name>alt-intl</name>
+            <shortDescription>alt-intl</shortDescription>
+            <description>English (US, alt. intl.)</description>
+          </configItem>
+        </variant>
+      </variantList>
+    </layout>
+  </layoutList>
+</xkbConfigRegistry>

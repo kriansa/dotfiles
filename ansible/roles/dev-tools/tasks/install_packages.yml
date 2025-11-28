@@ -25,6 +25,7 @@
       - bat
       - git-delta
       - fd
+      - yazi
       - eza
       - vivid
       - ripgrep
@@ -39,8 +40,8 @@
       # Python dev
       - python
       - python-pip
+      - python-uv
       - python-poetry
-      - python-cookiecutter
 
       # Java dev
       - jdk-openjdk

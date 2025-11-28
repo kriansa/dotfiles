@@ -24,6 +24,7 @@ modules = [
   { name = "zathura", scopes = "desktop" },
   { name = "golang", scopes = "desktop" },
   { name = "vlc", scopes = "desktop" },
+  { name = "yazi", scopes = "desktop" },
 
   # Only for Work
   { name = "macos", scopes = "work" },
