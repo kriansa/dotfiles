@@ -131,6 +131,7 @@ o.writeany = true               -- Allow writing to any file with no need for "!
 o.confirm = true                -- Ask for confirmation when closing unsaved buffers
 o.pumheight = 6                 -- Maximum number of items in the popup menu
 o.completeopt = "menuone,noinsert,noselect"
+o.clipboard = "unnamedplus"     -- With wl-clipboard-rs, we can use this finally
 
 -- Customize the cursor for all modes and force them all to blink
 o.guicursor = "n-v-sm-t:block" ..

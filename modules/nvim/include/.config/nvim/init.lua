@@ -3,7 +3,6 @@ vim.loader.enable()
 
 -- Load files on `lua` folder
 require('settings')
-require('clipboard')
 require('bindings')
 require('custom_plugins')
 
