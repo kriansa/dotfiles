@@ -58,9 +58,6 @@ nnoremap("<Leader>q", "<cmd>wincmd q<CR>", { silent = true })
 -- Quit using Q
 nmap('Q', '<cmd>wqa<CR>')
 
--- Save with C-S
-nmap('<C-S>', '<cmd>w<CR>')
-
 -- Stay in visual mode while indenting
 vmap("<", "<gv")
 vmap(">", ">gv")
