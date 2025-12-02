@@ -1,7 +1,4 @@
 return {
-  -- Automatically set shiftwidt and expandtab
-  { 'tpope/vim-sleuth' },
-
   -- Add file manipulation commands
   { 'tpope/vim-eunuch' },
 
@@ -9,31 +6,16 @@ return {
   { "tpope/vim-obsession" },
 
   -- Window management
-  { 'mhinz/vim-sayonara' },
   { 'simeji/winresizer' },
   { 'troydm/zoomwintab.vim' },
+
+  -- bigfile adds a new filetype bigfile to Neovim that triggers when the file is larger than the
+  -- configured size. This automatically prevents things like LSP and Treesitter attaching to the
+  -- buffer.
   {
-    "folke/zen-mode.nvim",
-    config = function()
-      require("zen-mode").setup({
-        window = {
-          options = {
-            number = false,
-            list = false,
-          },
-        },
-        plugins = {
-          gitsigns = { enabled = true },
-          tmux = { enabled = false },
-        },
-        -- Disable indent-blankline.nvim
-        on_open = function()
-          require("ibl").update({ enabled = false })
-        end,
-        on_close = function()
-          require("ibl").update({ enabled = true })
-        end,
-      })
-    end
+    "folke/snacks.nvim",
+    opts = {
+      bigfile = {},
+    }
   },
 }

@@ -235,20 +235,4 @@ return {
       })
     end
   },
-
-  {
-    "folke/snacks.nvim",
-    opts = {
-      picker = {
-        win = {
-          input = {
-            keys = {
-              -- Close the picker instead of going to normal mode
-              ["<Esc>"] = { "close", mode = { "n", "i" } },
-            },
-          },
-        },
-      },
-    },
-  },
 }

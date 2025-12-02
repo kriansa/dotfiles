@@ -97,9 +97,6 @@ cnoremap('<M-Right>', '<S-Right>')
 -- Plugin-related bindings
 --
 
--- Use CTRL-S to save
--- nnoremap('<C-s>', '<cmd>write<CR>')
-
 -- Closes current buffer with <Leader>w
 nnoremap("<Leader>w", "<cmd>Close<CR>", { silent = true })
 
@@ -118,7 +115,6 @@ nmap("<leader>pr", "<cmd>Lazy restore<CR>", { silent = true })
 
 -- Toggles zoom between the current buffer
 nnoremap("<Leader>tt", "<cmd>ZoomWinTabToggle<CR>", { silent = true })
-nnoremap("<Leader>tz", "<cmd>ZenMode<CR>", { silent = true })
 
 -- Winresizer starts with <Leader>+e
 g.winresizer_start_key = '<Leader>e'
@@ -128,8 +124,8 @@ nmap("<leader>gs", "<cmd>Neogit<CR>", { silent = true })
 nmap("<leader>gS", "<cmd>tab Git<CR>", { silent = true })
 
 -- Leap
-vim.keymap.set({"n", "x", "o"}, "s", "<Plug>(leap-forward-to)", { silent = true, desc = "Leap forward to" })
-vim.keymap.set({"n", "x", "o"}, "S", "<Plug>(leap-backward-to)", { silent = true, desc = "Leap backward to" })
+vim.keymap.set({"n", "x", "o"}, "s", "<Plug>(leap-forward)", { silent = true, desc = "Leap forward to" })
+vim.keymap.set({"n", "x", "o"}, "S", "<Plug>(leap-backward)", { silent = true, desc = "Leap backward to" })
 vim.keymap.set({"x", "o"}, "z", "<Plug>(leap-forward-till)", { silent = true, desc = "Leap forward till" })
 vim.keymap.set({"x", "o"}, "Z", "<Plug>(leap-backward-till)", { silent = true, desc = "Leap backward till" })
 
@@ -204,26 +200,6 @@ mappings.nvim_tree = function(bufnr)
   vim.keymap.set('n', 'M', api.marks.toggle, opts('Toggle mark'))
 end
 
--- Gitgutter
-mappings.gitgutter = function()
-  local function map(mode, l, r, opts)
-    vim.keymap.set(mode, l, r, opts or {})
-  end
-
-  -- Navigation
-  map('n', '[c', "<Plug>(GitGutterPrevHunk)", {silent=true, desc="Previous diff"})
-  map('n', ']c', "<Plug>(GitGutterNextHunk)", {silent=true, desc="Next diff"})
-
-  -- Text objects
-  map({'o', 'x'}, 'ic', "<Plug>(GitGutterTextObjectInnerPending)", {noremap=true, silent=true, desc="Inner diff"})
-  map({'o', 'x'}, 'ac', "<Plug>(GitGutterTextObjectOuterPending)", {noremap=true, silent=true, desc="Around diff"})
-
-  -- Operations
-  map('n', '<Leader>hs', "<Plug>(GitGutterStageHunk)", {silent=true, desc="Stage hunk"})
-  map('n', '<Leader>hu', "<Plug>(GitGutterUndoHunk)", {silent=true, desc="Undo hunk"})
-  map('n', '<Leader>hp', "<Plug>(GitGutterPreviewHunk)", {silent=true, desc="Preview hunk"})
-end
-
 -- Mini diff
 mappings.minidiff = {
   -- Apply hunks inside a visual/operator region
@@ -252,47 +228,6 @@ mappings.git_blame = function()
   map('n', '<Leader>gb', "<cmd>GitBlameToggle<CR>", {silent=true, desc="Toggle git blame"})
 end
 
--- Gitsigns
-mappings.gitsigns = function(bufnr)
-  local gs = package.loaded.gitsigns
-
-  local function map(mode, l, r, opts)
-    opts = opts or {}
-    opts.buffer = bufnr
-    vim.keymap.set(mode, l, r, opts)
-  end
-
-  -- Navigation
-  map('n', ']c', function()
-    if vim.wo.diff then return ']c' end
-    vim.schedule(function() gs.next_hunk() end)
-    return '<Ignore>'
-  end, {expr=true})
-
-  map('n', '[c', function()
-    if vim.wo.diff then return '[c' end
-    vim.schedule(function() gs.prev_hunk() end)
-    return '<Ignore>'
-  end, {expr=true})
-
-  -- Actions
-  map('n', '<leader>hs', gs.stage_hunk)
-  map('n', '<leader>hu', gs.reset_hunk)
-  map('v', '<leader>hs', function() gs.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
-  map('v', '<leader>hu', function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
-  map('n', '<leader>hp', gs.preview_hunk)
-
-  -- This has very similar behavior as `hp` above
-  map('n', '<leader>gb', gs.toggle_current_line_blame)
-  map('n', '<leader>gB', function() gs.blame_line{full=true} end)
-
-  map('n', '<leader>gd', gs.diffthis)
-  map('n', '<leader>gD', function() gs.diffthis('~') end)
-
-  -- Text object
-  map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
-end
-
 -- Oil.nvim
 vim.keymap.set("n", "-", "<cmd>Oil<CR>", { desc = "Open parent directory" })
 mappings.oil = {
@@ -310,65 +245,31 @@ mappings.oil = {
   ["q"] = { "actions.close", mode = "n" },
 }
 
+-- Snacks
+mappings.snacks_general = {
+  -- Close the picker instead of going to normal mode
+  ["<Esc>"] = { "close", mode = { "n", "i" } },
 
--- Telescope
-mappings.telescope_defaults = function()
-  local actions = require("telescope.actions")
-  local actions_set = require("telescope.actions.set")
-  local transform_mod = require('telescope.actions.mt').transform_mod
-  local custom_actions = transform_mod({
-    open_qflist = function()
-      vim.cmd("QFOpen")
-    end,
-
-    move_multiple_selection_next = function(prompt_bufnr)
-      actions_set.shift_selection(prompt_bufnr, 5)
-    end,
-
-    move_multiple_selection_previous = function(prompt_bufnr)
-      actions_set.shift_selection(prompt_bufnr, -5)
-    end,
-  })
-
-  return {
-    -- History
-    ["<Down>"] = "cycle_history_next",
-    ["<Up>"] = "cycle_history_prev",
-
-    -- Movement
-    ["<C-j>"] = "move_selection_next",
-    ["<C-k>"] = "move_selection_previous",
-    ["<C-n>"] = "move_selection_next",
-    ["<C-p>"] = "move_selection_previous",
-    ["<C-d>"] = custom_actions.move_multiple_selection_next,
-    ["<C-u>"] = custom_actions.move_multiple_selection_previous,
-
-    -- Opening
-    ["<CR>"] = "select_default",
-    ["<C-v>"] = "select_vertical",
-    ["<C-s>"] = "select_horizontal",
-
-    -- Basic
-    ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
-    ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
-    ["<ESC>"] = "close",
-    ["<C-c>"] = "close",
-    ["<C-_>"] = "which_key", -- equivalent to C-/
-    ["<C-w>"] = { "<c-s-w>", type = "command" },
-    ["<C-q>"] = actions.smart_send_to_qflist + custom_actions.open_qflist,
-  }
-end
-
-mappings.telescope_buffers = {
-  ["<C-d>"] = "delete_buffer",
+  ["<C-f>"] = { "toggle_follow", mode = { "i", "n" } },
+  ["<C-h>"] = { "toggle_ignored", mode = { "i", "n" } },
+  ["<C-r>"] = { "toggle_regex", mode = { "i", "n" } },
+  ["<C-l>"] = { "toggle_live", mode = { "i", "n" } },
+  ["<C-_>"] = { "toggle_help_input", mode = { "i", "n" } }, -- Equivalent to C-?
 }
 
--- Telescope
+mappings.snacks_buffers = {
+  ["<C-d>"] = { "delete_buffer", mode = { "i", "n" }, desc = "Delete buffer" },
+  ["<Tab>"] = false,
+  ["<S-Tab>"] = false,
+}
+
+-- File finder
 nmap('<Leader><Leader>', '<cmd>lua require("custom_plugins.better-file-finder").find_buffers()<CR>')
 nmap('<C-p>', '<cmd>lua require("custom_plugins.better-file-finder").find_files()<CR>')
 nmap('<Leader>a', '<cmd>lua require("custom_plugins.better-file-finder").live_grep()<CR>')
 nmap('<Leader>s', '<cmd>lua require("custom_plugins.better-file-finder").live_grep_current_word()<CR>')
 vmap('<Leader>s', '<cmd>lua require("custom_plugins.better-file-finder").live_grep_current_selection()<CR>')
+nmap('<C-s>', '<cmd>lua require("custom_plugins.better-file-finder").find_lines()<CR>')
 
 -- Vim diagnostics
 -- See `:help vim.lsp.*` for documentation on any of the below functions

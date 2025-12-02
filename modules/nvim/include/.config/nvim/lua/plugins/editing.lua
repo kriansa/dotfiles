@@ -6,19 +6,17 @@ return {
       require("nvim-surround").setup()
     end
   },
-  { 'tpope/vim-repeat' },
+
+  -- Allow repeating supported plugin maps with "."
+  -- { 'tpope/vim-repeat' },
+  -- Automatically set shiftwidt and expandtab
+  -- { 'tpope/vim-sleuth' },
 
   -- Use gS and gJ to break and join multiline statements
   { 'AndrewRadev/splitjoin.vim' },
 
   -- Move to two-character search patterns
-  {
-    'ggandor/flit.nvim',
-    dependencies = { "ggandor/leap.nvim" },
-    config = function()
-      require('flit').setup()
-    end,
-  },
+  { "ggandor/leap.nvim" },
 
   {
     'andymass/vim-matchup',
@@ -128,7 +126,6 @@ return {
     end
   },
 
-  -- This needs setup to work along with nvim-cmp
   {
     "windwp/nvim-autopairs",
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
@@ -157,29 +154,17 @@ return {
     end
   },
 
-  -- Indentation lines
+  -- Indent guides
   {
-    "lukas-reineke/indent-blankline.nvim",
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
-    config = function()
-      require("ibl").setup({
+    "folke/snacks.nvim",
+    opts = {
+      indent = {
         enabled = true,
-        whitespace = {
-          highlight = { 'Whitespace' }
-        },
-        exclude = {
-          filetypes = { 'fugitive', 'git' },
-        },
-        indent = {
-          char = "│",
-          smart_indent_cap = false,
-        },
-        scope = {
+        animate = {
           enabled = false,
-          show_end = true,
         },
-      })
-    end
+      },
+    }
   },
 
   -- Markdown

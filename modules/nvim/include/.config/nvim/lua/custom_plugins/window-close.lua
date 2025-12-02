@@ -21,7 +21,7 @@ function M.close()
   if should_close_split() then
     vim.cmd("bd")
   else
-    vim.cmd("Sayonara!")
+    Snacks.bufdelete.delete()
   end
 end
 

@@ -32,34 +32,35 @@ function get_search_dirs()
   return dirs_values
 end
 
+function M.find_lines()
+  Snacks.picker.lines()
+end
+
 function M.find_buffers()
-  require("telescope.builtin").buffers()
+  Snacks.picker.buffers()
 end
 
 function M.find_files()
-  require("telescope.builtin").find_files({ search_dirs = get_search_dirs() })
+  Snacks.picker.files({ dirs = get_search_dirs() })
 end
 
 function M.live_grep()
-  require("telescope.builtin").live_grep({ search_dirs = get_search_dirs() })
+  Snacks.picker.grep({ dirs = get_search_dirs() })
 end
 
 function M.live_grep_current_word()
-  require("telescope.builtin").live_grep({
-    default_text=vim.fn.expand("<cword>"),
-    search_dirs = get_search_dirs(),
-  })
+  Snacks.picker.grep({ dirs = get_search_dirs(), search = vim.fn.expand("<cword>"), regex = false })
 end
 
 function M.live_grep_current_selection()
-  vim.cmd('noau normal! "vy"')
+  vim.cmd('noau silent! normal! "vy"')
   local selection = vim.fn.getreg('v'):gsub("^%s*(.-)%s*$", "%1")
   vim.fn.setreg('v', {})
 
-  require("telescope.builtin").live_grep({
-    default_text=selection,
-    search_dirs = get_search_dirs(),
-  })
+  -- If the selection contains multiple lines, we only take the first line
+  selection = selection:match("([^\n]+)")
+
+  Snacks.picker.grep({ dirs = get_search_dirs(), search = selection, regex = false })
 end
 
 

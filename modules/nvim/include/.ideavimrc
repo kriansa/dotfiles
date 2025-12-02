@@ -18,14 +18,51 @@ set incsearch
 " Use intelliJ join for S-J
 set ideajoin
 
+" Enable highlight search results
+set hlsearch
+
+set smartcase
+set ignorecase
+
+let mapleader = "\<SPACE>"
+
 " Don't use Ex mode, use Q for formatting.
 map Q <nop>
 
 map grd <Action>(GotoDeclaration)
+map gri <Action>(GotoImplementation)
 
 map Y y$
+nmap <Leader>o o<Esc>
+nmap <Leader>O O<Esc>
 
-let g:highlightedyank_highlight_duration = "100"
+" Stay in visual mode while indenting
+vmap < <gv
+vmap > >gv
+
+nmap \ <Action>(ActivateProjectToolWindow)
+
+" Select last pasted text
+nmap <Leader>v `[v`]
+
+" Use CTRL-h,j,k,l to move between splits
+nmap <C-h> <C-w>h<CR>
+nmap <C-j> <C-w>j<CR>
+nmap <C-k> <C-w>k<CR>
+nmap <C-l> <C-w>l<CR>
+
+nmap <Leader>q <Action>(CloseEditor)
+
+" Use ]t and [t for tab navigation
+nmap ]t <Action>(NextTab)
+nmap [t <Action>(PreviousTab)
+
+" Git status
+nmap <Leader>gs <Action>(Git)
+
+let g:highlightedyank_highlight_duration = "80"
+let g:highlightedyank_highlight_foreground_color = "rgba(0, 0, 0, 255)"
+let g:highlightedyank_highlight_color = "rgba(166, 210, 255, 255)"
 
 " --- Enable IdeaVim plugins https://jb.gg/ideavim-plugins
 set which-key
