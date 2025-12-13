@@ -33,8 +33,6 @@ return {
         date_format = "%r",
         message_when_not_committed = "  -- Uncommited --",
       })
-
-      mappings.git_blame()
     end
   },
 

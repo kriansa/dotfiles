@@ -219,14 +219,8 @@ mappings.minidiff = {
   goto_last = ']C',
 }
 
-mappings.git_blame = function()
-  local function map(mode, l, r, opts)
-    vim.keymap.set(mode, l, r, opts or {})
-  end
-
-  -- Navigation
-  map('n', '<Leader>gb', "<cmd>GitBlameToggle<CR>", {silent=true, desc="Toggle git blame"})
-end
+-- Git blame
+nmap('<Leader>gb', "<cmd>GitBlameToggle<CR>", {silent=true, desc="Toggle git blame"})
 
 -- Oil.nvim
 vim.keymap.set("n", "-", "<cmd>Oil<CR>", { desc = "Open parent directory" })
