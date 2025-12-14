@@ -40,6 +40,9 @@ nmap <Leader>O O<Esc>
 vmap < <gv
 vmap > >gv
 
+" Shift + J join lines. Shift + K should split lines
+nnoremap <S-K> i<CR><ESC>
+
 nmap \ <Action>(ActivateProjectToolWindow)
 
 " Select last pasted text
@@ -56,6 +59,10 @@ nmap <Leader>q <Action>(CloseEditor)
 " Use ]t and [t for tab navigation
 nmap ]t <Action>(NextTab)
 nmap [t <Action>(PreviousTab)
+
+" Navigate between diffs
+nmap ]c <Action>(VcsShowNextChangeMarker)
+nmap [c <Action>(VcsShowPrevChangeMarker)
 
 " Git status
 nmap <Leader>gs <Action>(Git)
