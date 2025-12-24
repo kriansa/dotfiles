@@ -4,10 +4,14 @@ font-feature = "-calt,-clig,-dlig,-liga,VSAB=9"
 adjust-cell-width = -1
 adjust-box-thickness = -1
 initial-command = "/bin/sh -lc 'tmux new-session -A'"
-confirm-close-surface = false
 quit-after-last-window-closed = true
 macos-option-as-alt = false
 mouse-scroll-multiplier = 1
+
+# Reduce noise
+confirm-close-surface = false
+app-notifications = false
+resize-overlay = never
 
 # Theme (One Light base16)
 background = #fafafa
