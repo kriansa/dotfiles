@@ -64,6 +64,11 @@ vim.api.nvim_create_autocmd({ "TermOpen", "WinEnter" }, {
 vim.filetype.add({
   extension = {
     jbuilder = "ruby",
+    kube = "systemd",
+    pod = "systemd",
+    container = "systemd",
+    volume = "systemd",
+    network = "systemd",
   },
   filename = {
     Dangerfile = "ruby",
