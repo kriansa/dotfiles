@@ -2,19 +2,23 @@
 root = true
 
 [*]
+charset = utf-8
 end_of_line = lf
 insert_final_newline = true
-charset = utf-8
-indent_style = space
-indent_size = 2
 max_line_length = 100
 trim_trailing_whitespace = true
 
-[*.py]
-indent_size = 4
-
-[*.{sh,go}]
-indent_style = tab
-
-[Makefile]
-indent_style = tab
+# IMPORTANT: Avoid explicitly setting `indent_style` and `indent_size` for `*`.
+#
+# EditorConfig doesn't support per-language settings - it only matches files by patterns/extensions.
+# This means we can't apply different indent rules based on detected language (e.g., Python's 4
+# spaces vs JavaScript's 2 spaces vs Go's tabs). If we set global defaults here, we override
+# language-specific preferences, and files without extensions will never pick up the right settings.
+#
+# WORKAROUND: Instead, we set indentation per-filetype in Neovim's ftplugin files using the
+# `vim.fn.set_indent()` function (see modules/nvim/include/.config/nvim/lua/settings.lua). This
+# allows proper per-language control regardless of file extension.
+#
+# A discussion for native language-based EditorConfig support exists but is currently stalled due to
+# complexity around language standardization and implementation burden on plugin maintainers.
+# See: https://github.com/editorconfig/editorconfig/issues/404

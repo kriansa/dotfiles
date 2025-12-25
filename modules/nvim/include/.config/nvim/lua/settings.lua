@@ -163,6 +163,48 @@ o.tabstop = 2               -- Size of the tabs by default
 o.smarttab = true           -- Insert tabs on the start of a line according to shiftwidth, not tabstop
 o.shiftround = true         -- Use multiple of shiftwidth when indenting with '<' and '>'
 
+--- Sets buffer-local indentation options for the current buffer.
+---
+--- This function provides a way to configure per-language indentation settings in
+--- ftplugin files, working around EditorConfig's limitation of not supporting
+--- language-based configuration (only file extension patterns). Since EditorConfig
+--- cannot apply different indent rules based on detected language, this allows
+--- explicit per-filetype control, which is especially important for files without
+--- extensions that won't inherit proper settings.
+---
+--- See: https://github.com/editorconfig/editorconfig/issues/404
+---
+---@param opts table Options for indentation
+---@param opts.style? "tab"|"space" Sets 'expandtab' option. If "tab" and no size is set, also sets 'shiftwidth' and 'softtabstop' to 0
+---@param opts.size? number|"tab" Size of a single indent. Sets 'shiftwidth', 'softtabstop', and 'tabstop' options
+---
+---@usage
+--- -- In ftplugin/python.lua
+--- vim.fn.set_indent({ style = "space", size = 4 })
+---
+--- -- In ftplugin/go.lua
+--- vim.fn.set_indent({ style = "tab" })
+vim.fn.set_indent = function(opts)
+  local size = opts.size
+  local style = opts.style
+
+  if style then
+    assert(style == 'tab' or style == 'space', 'indent_style must be either "tab" or "space"')
+    vim.bo.expandtab = style == 'space'
+    if style == 'tab' and not size then
+      vim.bo.shiftwidth = 0
+      vim.bo.softtabstop = 0
+    end
+  end
+
+  if size then
+    local n = assert(tonumber(size), 'indent_size must be a number')
+    vim.bo.tabstop = n
+    vim.bo.shiftwidth = n
+    vim.bo.softtabstop = -1
+  end
+end
+
 o.complete:append("kspell") -- Use spell completion when spell check is enabled
 
 -- Search
