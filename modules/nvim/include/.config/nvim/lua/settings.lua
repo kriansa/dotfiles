@@ -9,6 +9,9 @@ g.loaded_ruby_provider = 0
 g.loaded_perl_provider = 0
 g.loaded_node_provider = 0
 
+-- Skip loading mapings from ftplugins
+g.no_plugin_maps = 1
+
 -- Disable some built-in plugins we don't want
 g.loaded_man = 1
 g.loaded_matchit = 1
@@ -123,7 +126,6 @@ o.autoread = true               -- Enable auto-read of files edited outside vim
 o.synmaxcol = 300               -- Limit syntax highlighting for long lines
 o.colorcolumn = "+1"            -- Set a width to show a column after texwidth
 o.foldenable = false            -- Disable folding
--- o.lazyredraw = true             -- Do not redraw screen in the middle of a macro.
 o.showcmd = false               -- Disable showing the command you're typing at the bottom
 o.signcolumn = "yes"            -- Always show the sign column
 o.list = true                   -- Show hidden chars

@@ -45,6 +45,10 @@ nmap('<Leader>O', 'O<Esc>')
 -- Select last yanked text
 nnoremap('<Leader>v', '`[v`]')
 
+-- Use j and k in wrapped text
+nnoremap('j', 'gj')
+nnoremap('k', 'gk')
+
 -- Make n always search forward and N backward
 nnoremap("n", "'Nn'[v:searchforward]", { expr = true })
 nnoremap("N", "'nN'[v:searchforward]", { expr = true })
@@ -268,7 +272,7 @@ nmap('<C-s>', '<cmd>lua require("custom_plugins.better-file-finder").find_lines(
 -- Vim diagnostics
 -- See `:help vim.lsp.*` for documentation on any of the below functions
 -- ]d and [d navigates between diagnostic entries
-vim.keymap.set('n', '<leader>dq', vim.diagnostic.setloclist)
+vim.keymap.set('n', '<Leader>dq', vim.diagnostic.setloclist)
 
 mappings.lsp = function(bufnr)
   -- See `:help vim.lsp.*` for documentation on any of the below functions
@@ -285,17 +289,17 @@ mappings.lsp = function(bufnr)
 end
 
 -- Conform to format code (mnemonic: Linter Format)
-vim.keymap.set({'n', 'v'}, '<leader>lf', function()
+vim.keymap.set({'n', 'v'}, '<Leader>lf', function()
   require("conform").format({ async = true })
   vim.notify("Code formatted")
 end)
 
 -- Toggle linting (mnemonic: Linter Toggle)
-vim.keymap.set({'n', 'v'}, '<leader>lt', function()
+vim.keymap.set({'n', 'v'}, '<Leader>lt', function()
   vim.cmd("LintToggle")
 end)
 
-local ai_prefix = "<leader>u"
+local ai_prefix = "<Leader>u"
 
 -- Toggle copilot (mnemonic: Co[p]ilot)
 vim.keymap.set({'n', 'v'}, ai_prefix .. "p", "<cmd>CopilotToggle<CR>", { silent = true })
