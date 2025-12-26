@@ -75,6 +75,7 @@ vim.filetype.add({
   },
   filename = {
     Dangerfile = "ruby",
+    Caddyfile = "caddy",
     [".env"] = "sh",
     [".nycrc"] = "javascript",
   },
@@ -95,7 +96,7 @@ vim.filetype.add({
         if vim.regex([[^#!.*env -S uv run]]):match_str(content) ~= nil then
           return 'python'
         elseif
-          vim.regex([[^---]]):match_str(content) ~= nil or
+          vim.regex([[^---$]]):match_str(content) ~= nil or
           vim.regex([[^apiVersion:]]):match_str(content) ~= nil
         then
           return 'yaml'

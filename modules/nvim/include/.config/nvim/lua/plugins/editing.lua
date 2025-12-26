@@ -47,7 +47,7 @@ return {
     config = function()
       require('nvim-treesitter.configs').setup({
         ensure_installed = {
-          "awk", "bash", "c", "comment", "cpp", "css", "csv", "diff", "dockerfile", "fish",
+          "awk", "bash", "c", "caddy", "comment", "cpp", "css", "csv", "diff", "dockerfile", "fish",
           "git_config", "git_rebase", "gitattributes", "gitcommit", "gitignore", "go", "gomod",
           "gosum", "graphql", "hcl", "html", "ini", "java", "javascript", "jq", "json", "jsonc",
           "json5", "kotlin", "latex", "lua", "luadoc", "make", "markdown", "markdown_inline",
