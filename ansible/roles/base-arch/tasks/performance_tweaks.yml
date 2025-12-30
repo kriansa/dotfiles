@@ -18,20 +18,6 @@
       # Disables the watchdog present on AMD Ryzen chipsets
       blacklist sp5100_tco
 
-- name: create /etc/modules-load.d directory
-  become: true
-  ansible.builtin.file:
-    dest: /etc/modules.load.d
-    state: directory
-
-- name: load kyber to use as the default scheduler for nvme/ssds
-  become: true
-  ansible.builtin.copy:
-    dest: /etc/modules.load.d/01-nvme-scheduler.conf
-    content: |
-      # Load kyber scheduler for using it with NVME/SSD
-      kyber-iosched
-
 # See: https://github.com/pop-os/default-settings/pull/149
 # See: https://www.phoronix.com/forums/forum/software/general-linux-open-source/1334042-linux-5-19-looking-real-good-on-the-hp-dev-one-xanmod-liquorix-also-tested
 - name: use kyber as the default scheduler for nvme/ssds
@@ -43,9 +29,9 @@
       ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
       ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="mmcblk?", ATTR{queue/scheduler}="bfq"
 
-      # Kyber is recommended for faster storage such as NVME and SATA SSDs.
-      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="nvme?n?", ATTR{queue/scheduler}="kyber"
-      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="sd?", ATTR{queue/scheduler}="kyber"
+      # None is recommended for faster storage such as NVME and SATA SSDs.
+      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="nvme?n?", ATTR{queue/scheduler}="none"
+      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="sd?", ATTR{queue/scheduler}="none"
 
 # See: https://www.apalrd.net/posts/2023/network_realtek8156
 - name: use correct realtek driver for RTL8156 chip
@@ -53,3 +39,21 @@
   ansible.builtin.copy:
     src: 50-usb-realtek-net.rules
     dest: /etc/udev/rules.d/50-usb-realtek-net.rules
+
+- name: create systemd directory for overrides
+  become: true
+  ansible.builtin.file:
+    state: directory
+    mode: "0755"
+    dest: /etc/systemd/system.conf.d
+
+- name: set lower default timeouts for systemd
+  become: true
+  notify: reload systemd
+  ansible.builtin.copy:
+    dest: /etc/systemd/system.conf.d/10-timeouts.conf
+    mode: "0644"
+    content: |
+      [Manager]
+      DefaultTimeoutStartSec=15s
+      DefaultTimeoutStopSec=15s
