@@ -64,6 +64,8 @@ nmap [t <Action>(PreviousTab)
 nmap ]c <Action>(VcsShowNextChangeMarker)
 nmap [c <Action>(VcsShowPrevChangeMarker)
 
+nmap <Leader>yf <Action>(CopyPathFromRepositoryRootProvider)
+
 " Git status
 nmap <Leader>gs <Action>(Git)
 
