@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+#
+# Usage: beautify-graphql [input]
+# Description: converts literal \n to actual newlines for GraphQL queries
+#
+# Examples:
+#   echo 'query {\n  user {\n    name\n  }\n}' | beautify-graphql
+#   beautify-graphql 'query {\n  user {\n    name\n  }\n}'
+#   pbpaste | beautify-graphql | pbcopy
+
+if [ $# -gt 0 ]; then
+  echo "$*" | sed "s/\\\n/\\n/g"
+else
+  sed "s/\\\n/\\n/g"
+fi

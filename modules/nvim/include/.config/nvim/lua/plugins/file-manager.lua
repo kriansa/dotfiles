@@ -258,10 +258,6 @@ return {
         on_attach = mappings.nvim_tree,
         filters = {
           git_ignored = false,
-          custom = {
-            -- Sync this value with the one on .rgignore
-            "^.git$"
-          },
         },
         renderer = {
           root_folder_label = false,
