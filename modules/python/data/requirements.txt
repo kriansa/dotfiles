@@ -1,12 +1,5 @@
-python-lsp-server
-pylint
+ruff
 mypy
-isort
-black
 ansible-lint
-python-lsp-server
-pydocstyle
-sqlite-utils
-datasette
 beancount
 fava

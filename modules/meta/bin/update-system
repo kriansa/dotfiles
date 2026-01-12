@@ -31,7 +31,7 @@ run() {
 
   # Read the command name out of the command string. If it starts with sudo, then use the next
   # space-separated token instead.
-  local command_name=$(echo "$command" | awk '{print $1}')
+  local command_name; command_name=$(echo "$command" | awk '{print $1}')
   if [[ "$command_name" == "sudo" ]]; then
     command_name=$(echo "$command" | awk '{print $2}')
   fi

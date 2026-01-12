@@ -358,19 +358,7 @@ return {
         ts_ls = {},
         vuels = {},
         gopls = {},
-
-        pylsp = {
-          settings = {
-            pylsp = {
-              plugins = {
-                black = { enabled = false },
-                pylint = { enabled = false },
-                yapf = { enabled = false },
-                autopep8 = { enabled = false },
-              },
-            },
-          },
-        },
+        ruff = {},
 
         ruby_lsp = {
           -- Ruby LSP works by creating a new Gemfile that extends from the project's Gemfile and

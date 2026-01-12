@@ -130,7 +130,7 @@ function M.setup_linters()
   require('lint').linters_by_ft = {
     ruby = {"standardrb_or_rubocop", "reek"},
     markdown = {"vale"},
-    python = {"pylint", "mypy"},
+    python = {"ruff", "mypy"},
 
     ["yaml.ansible"] = {"ansible_lint"},
 

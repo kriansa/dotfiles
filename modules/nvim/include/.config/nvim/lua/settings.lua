@@ -75,6 +75,7 @@ vim.filetype.add({
   },
   filename = {
     Dangerfile = "ruby",
+    Brewfile = "ruby",
     Caddyfile = "caddy",
     [".env"] = "sh",
     [".nycrc"] = "javascript",
