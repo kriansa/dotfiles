@@ -60,6 +60,7 @@
 
       # Golang dev
       - go
+      - golangci-lint
 
 - name: install development packages (AUR)
   become: true
