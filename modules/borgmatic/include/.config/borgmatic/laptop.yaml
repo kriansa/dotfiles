@@ -9,11 +9,23 @@
     # user: myuser
 
 # List of source directories and files to back up. Globs and tildes
-# are expanded. Do not backslash spaces in path names.
+# are expanded. Do not backslash spaces in path names. Be aware that
+# by default, Borg treats missing source directories as warnings
+# rather than errors. If you'd like to change that behavior, see
+# https://torsion.org/borgmatic/how-to/customize-warnings-and-errors/
+# or the "source_directories_must_exist" option.
 source_directories:
     - /home
     - /etc
+    # This is where the basepath for borgmatic state files is set, and
+    # it must be present within the backup archives. Remember to set all
+    # the configs below to be subdirectories of this path.
+    # See: user_state_directory, borg_config_directory, borg_cache_directory
     - /var/lib/borg
+
+# If true, then source directories (and root pattern paths) must
+# exist. If they don't, an error is raised. Defaults to false.
+# source_directories_must_exist: true
 
 # A required list of local or remote repositories with paths and
 # optional labels (which can be used with the --repository flag to
@@ -22,11 +34,36 @@ source_directories:
 # output of "borg help placeholders" for details. See ssh_command for
 # SSH options like identity file or port. If systemd service is used,
 # then add local repository paths in the systemd service file to the
-# ReadWritePaths list. Prior to borgmatic 1.7.10, repositories was a
-# list of plain path strings.
+# ReadWritePaths list.
 repositories:
+    # The local path or Borg URL of the repository.
     - path: /mnt/Backup/Laptop
-      label: server
+
+      # An optional label for the repository, used in logging
+      # and to make selecting the repository easier on the
+      # command-line.
+      # label: backupserver
+
+      # The encryption mode with which to create the repository,
+      # only used for the repo-create action. To see the
+      # available encryption modes, run "borg init --help" with
+      # Borg 1 or "borg repo-create --help" with Borg 2.
+      # encryption: repokey-blake2
+
+      # Whether the repository should be created append-only,
+      # only used for the repo-create action. Defaults to false.
+      # append_only: true
+
+      # The storage quota with which to create the repository,
+      # only used for the repo-create action. Defaults to no
+      # quota.
+      # storage_quota: 5G
+
+      # Whether any missing parent directories of the repository
+      # path should be created, only used for the repo-create
+      # action. Defaults to false. (This option is supported
+      # for Borg 1.x only.)
+      # make_parent_directories: true
 
 # Working directory to use when running actions, useful for backing up
 # using relative source directory paths. Does not currently apply to
@@ -58,11 +95,11 @@ one_file_system: true
 # used when backing up special devices such as /dev/zero. Defaults to
 # false. But when a database hook is used, the setting here is ignored
 # and read_special is considered true.
-# read_special: false
+# read_special: true
 
 # Record filesystem flags (e.g. NODUMP, IMMUTABLE) in archive.
 # Defaults to true.
-# flags: true
+# flags: false
 
 # Mode in which to operate the files cache. See
 # http://borgbackup.readthedocs.io/en/stable/usage/create.html for
@@ -76,9 +113,13 @@ one_file_system: true
 # remote_path: borg1
 
 # Any paths matching these patterns are included/excluded from
-# backups. Globs are expanded. (Tildes are not.) See the output of
-# "borg help patterns" for more details. Quote any value if it
-# contains leading punctuation, so it parses correctly.
+# backups. Recursion root patterns ("R ...") are effectively the same
+# as "source_directories"; they tell Borg which paths to backup
+# (modulo any excludes). Globs are expanded. (Tildes are not.) See
+# the output of "borg help patterns" for more details. Quote any value
+# if it contains leading punctuation, so it parses correctly. Also use
+# leading slashes in absolute paths, or data source hooks may be
+# unable to rewrite patterns as needed.
 # patterns:
     # - R /
     # - '- /home/*/.cache'
@@ -120,7 +161,8 @@ exclude_patterns:
 # omitted from backups.
 # keep_exclude_tags: true
 
-# Exclude files with the NODUMP flag. Defaults to false.
+# Exclude files with the NODUMP flag. Defaults to false. (This option
+# is supported for Borg 1.x only.)
 # exclude_nodump: true
 
 # Deprecated. Only used for locating database dumps and bootstrap
@@ -132,7 +174,7 @@ exclude_patterns:
 # Path for storing temporary runtime data like streaming database
 # dumps and bootstrap metadata. borgmatic automatically creates and
 # uses a "borgmatic" subdirectory here. Defaults to $XDG_RUNTIME_DIR
-# or or $TMPDIR or $TEMP or /run/user/$UID.
+# or $TMPDIR or $TEMP or /run/user/$UID.
 # user_runtime_directory: /run/user/1001
 
 # Path for storing borgmatic state files like records of when checks
@@ -142,10 +184,6 @@ exclude_patterns:
 # Defaults to $XDG_STATE_HOME or ~/.local/state.
 user_state_directory: /var/lib/borg
 
-# If true, then source directories (and root pattern paths) must
-# exist. If they don't, an error is raised. Defaults to false.
-# source_directories_must_exist: true
-
 # The standard output of this command is used to unlock the encryption
 # key. Only use on repositories that were initialized with
 # passcommand/repokey/keyfile encryption. Note that if both
@@ -153,14 +191,14 @@ user_state_directory: /var/lib/borg
 # encryption_passphrase takes precedence. This can also be used to
 # access encrypted systemd service credentials. Defaults to not set.
 # For more details, see:
-# https://torsion.org/borgmatic/docs/how-to/provide-your-passwords/
+# https://torsion.org/borgmatic/how-to/provide-your-passwords/
 # encryption_passcommand: secret-tool lookup borg-repository repo-name
 
 # Passphrase to unlock the encryption key with. Only use on
 # repositories that were initialized with passphrase/repokey/keyfile
 # encryption. Quote the value if it contains punctuation, so it parses
 # correctly. And backslash any quote or backslash literals as well.
-# Defaults to not set.
+# Defaults to not set. Supports the "{credential ...}" syntax.
 # encryption_passphrase: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 
 # Number of seconds between each checkpoint during a long-running
@@ -186,6 +224,19 @@ user_state_directory: /var/lib/borg
 # http://borgbackup.readthedocs.io/en/stable/usage/create.html for
 # details. Defaults to "lz4".
 # compression: lz4
+
+# Mode for recompressing data chunks according to MODE.
+# Possible modes are:
+#  * "if-different": Recompress if the current compression
+# is with a different compression algorithm.
+#  * "always": Recompress even if the current compression
+# is with the same compression algorithm. Use this to change
+# the compression level.
+#  * "never": Do not recompress. Use this option to explicitly
+# prevent recompression.
+# See https://borgbackup.readthedocs.io/en/stable/usage/recreate.html
+# for details. Defaults to "never".
+# recompress: if-different
 
 # Remote network upload rate limit in kiBytes/second. Defaults to
 # unlimited.
@@ -225,16 +276,25 @@ borg_config_directory: /var/lib/borg/config
 # $borg_base_directory/.cache/borg
 borg_cache_directory: /var/lib/borg/cache
 
+# Enables or disables the use of chunks.archive.d for faster cache
+# resyncs in Borg. If true, value is set to "yes" (default) else
+# it's set to "no", reducing disk usage but slowing resyncs.
+# use_chunks_archive: true
+
 # Maximum time to live (ttl) for entries in the Borg files cache.
 # borg_files_cache_ttl: 20
 
 # Path for Borg security and encryption nonce files. Defaults to
-# $borg_base_directory/.config/borg/security
+# $borg_config_directory/security
 # borg_security_directory: /path/to/base/config/security
 
 # Path for Borg encryption key files. Defaults to
-# $borg_base_directory/.config/borg/keys
+# $borg_config_directory/keys
 # borg_keys_directory: /path/to/base/config/keys
+
+# Path for the Borg repository key file, for use with a repository
+# created with "keyfile" encryption.
+# borg_key_file: /path/to/base/config/keyfile
 
 # A list of Borg exit codes that should be elevated to errors or
 # squashed to warnings as indicated. By default, Borg error exit codes
@@ -242,9 +302,11 @@ borg_cache_directory: /var/lib/borg/cache
 # 100+) are treated as warnings. Exit codes other than 1 and 2 are
 # only present in Borg 1.4.0+.
 # borg_exit_codes:
-    # - code: 13
-      # treat_as: warning
+    # The exit code for an existing Borg warning or error.
     # - code: 100
+
+      # Whether to consider the exit code as an error or as a
+      # warning in borgmatic.
       # treat_as: error
 
 # Umask used for when executing Borg or calling hooks. Defaults to
@@ -273,16 +335,42 @@ borg_cache_directory: /var/lib/borg/cache
 # the match_archives value from archive_name_format.
 # match_archives: sh:{hostname}-*
 
+# Borg format for the files listing of the "list" action. Corresponds
+# to the "--format" flag. Defaults to "{mode} {user:6} {group:6}
+# {size:8} {mtime} {path}{extra}{NL}". With "--json", the form of the
+# format is ignored, but the keys used in it are added to the JSON
+# output. See
+# https://borgbackup.readthedocs.io/en/stable/usage/list.html for
+# details.
+# file_list_format: '{path}{extra}{NL}'
+
+# Borg format for the archives listing of the "repo-list" action.
+# Corresponds to the "--format" flag. Defaults to "{archive:<36}
+# {time} [{id}]{NL}". With "--json", the form of the format is
+# ignored, but the keys used in it are added to the JSON output. See
+# https://borgbackup.readthedocs.io/en/stable/usage/list.html for
+# details.
+# archive_list_format: '{archive}{NL}'
+
 # Bypass Borg error about a repository that has been moved. Defaults
-# to not bypassing.
+# to false.
 # relocated_repo_access_is_ok: true
 
 # Bypass Borg error about a previously unknown unencrypted repository.
-# Defaults to not bypassing.
+# Defaults to false.
 unknown_unencrypted_repo_access_is_ok: true
 
+# When set true, display debugging information that includes
+# passphrases used and passphrase related environment variables set.
+# Defaults to false.
+# debug_passphrase: true
+
+# When set true, always shows passphrase and its hex UTF-8 byte
+# sequence. Defaults to false.
+# display_passphrase: true
+
 # Bypass Borg confirmation about check with repair option. Defaults to
-# an interactive prompt from Borg.
+# false and an interactive prompt from Borg.
 # check_i_know_what_i_am_doing: true
 
 # Additional options to pass directly to particular Borg commands,
@@ -291,20 +379,77 @@ unknown_unencrypted_repo_access_is_ok: true
 # options. Running borgmatic with "--verbosity 2" shows the exact Borg
 # command-line invocation.
 # extra_borg_options:
-    # Extra command-line options to pass to "borg init".
-    # init: --extra-option
+    # Extra command-line options to pass to "borg break-lock".
+    # break_lock: --extra-option
 
-    # Extra command-line options to pass to "borg create".
-    # create: --extra-option
-
-    # Extra command-line options to pass to "borg prune".
-    # prune: --extra-option
+    # Extra command-line options to pass to "borg check".
+    # check: --extra-option
 
     # Extra command-line options to pass to "borg compact".
     # compact: --extra-option
 
-    # Extra command-line options to pass to "borg check".
-    # check: --extra-option
+    # Extra command-line options to pass to "borg create".
+    # create: --extra-option
+
+    # Extra command-line options to pass to "borg delete".
+    # delete: --extra-option
+
+    # Extra command-line options to pass to "borg export-tar".
+    # export_tar: --extra-option
+
+    # Extra command-line options to pass to "borg extract".
+    # extract: --extra-option
+
+    # Extra command-line options to pass to "borg key export".
+    # key_export: --extra-option
+
+    # Extra command-line options to pass to "borg key import".
+    # key_import: --extra-option
+
+    # Extra command-line options to pass to "borg key
+    # change-passphrase".
+    # key_change_passphrase: --extra-option
+
+    # Extra command-line options to pass to "borg info".
+    # info: --extra-option
+
+    # Deprecated. Use "repo_create" instead. Extra command-line
+    # options to pass to "borg init" / "borg repo-create".
+    # init: --extra-option
+
+    # Extra command-line options to pass to "borg list".
+    # list: --extra-option
+
+    # Extra command-line options to pass to "borg mount".
+    # mount: --extra-option
+
+    # Extra command-line options to pass to "borg prune".
+    # prune: --extra-option
+
+    # Extra command-line options to pass to "borg recreate".
+    # recreate: --extra-option
+
+    # Extra command-line options to pass to "borg rename".
+    # rename: --extra-option
+
+    # Extra command-line options to pass to "borg init" / "borg
+    # repo-create".
+    # repo_create: --extra-option
+
+    # Extra command-line options to pass to "borg repo-delete".
+    # repo_delete: --extra-option
+
+    # Extra command-line options to pass to "borg repo-info".
+    # repo_info: --extra-option
+
+    # Extra command-line options to pass to "borg repo-list".
+    # repo_list: --extra-option
+
+    # Extra command-line options to pass to "borg transfer".
+    # transfer: --extra-option
+
+    # Extra command-line options to pass to "borg umount".
+    # umount: --extra-option
 
 # Keep all archives within this time interval. See "skip_actions" for
 # disabling pruning altogether.
@@ -320,10 +465,10 @@ unknown_unencrypted_repo_access_is_ok: true
 # keep_hourly: 24
 
 # Number of daily archives to keep.
-keep_daily: 14
+keep_daily: 7
 
 # Number of weekly archives to keep.
-# keep_weekly: 4
+keep_weekly: 4
 
 # Number of monthly archives to keep.
 # keep_monthly: 6
@@ -331,12 +476,22 @@ keep_daily: 14
 # Number of yearly archives to keep.
 # keep_yearly: 1
 
+# Number of quarterly archives to keep (13 week strategy).
+# keep_13weekly: 13
+
+# Number of quarterly archives to keep (3 month strategy).
+# keep_3monthly: 3
+
 # Deprecated. When pruning or checking archives, only consider archive
 # names starting with this prefix. Borg placeholders can be used. See
 # the output of "borg help placeholders" for details. If a prefix is
 # not specified, borgmatic defaults to matching archives based on the
 # archive_name_format (see above).
 # prefix: sourcehostname
+
+# Minimum saved space percentage threshold for compacting a segment,
+# defaults to 10.
+# compact_threshold: 20
 
 # List of one or more consistency checks to run on a periodic basis
 # (if "frequency" is set) or every time borgmatic runs checks (if
@@ -356,7 +511,7 @@ keep_daily: 14
     # most recent archive.
     #  * See "skip_actions" for disabling checks
     # altogether.
-    # - name: spot
+    # - name: repository
 
       # How frequently to run this type of consistency
       # check (as a best effort). The value is a number
@@ -377,6 +532,15 @@ keep_daily: 14
       # only_run_on:
           # - Saturday
           # - Sunday
+
+      # How many seconds to check the repository before
+      # interrupting the check. Useful for splitting a
+      # long-running repository check into multiple
+      # partial checks. Defaults to no interruption. Only
+      # applies to the "repository" check, does not check
+      # the repository index and is not compatible with
+      # the "--repair" flag.
+      # max_duration: 3600
 
       # The percentage delta between the source
       # directories file count and the most recent backup
@@ -411,15 +575,6 @@ keep_daily: 14
       # succeed. Only valid for the "spot" check.
       # xxh64sum_command: /usr/local/bin/xxh64sum
 
-      # How many seconds to check the repository before
-      # interrupting the check. Useful for splitting a
-      # long-running repository check into multiple
-      # partial checks. Defaults to no interruption. Only
-      # applies to the "repository" check, does not check
-      # the repository index, and is not compatible with a
-      # simultaneous "archives" check or "--repair" flag.
-      # max_duration: 3600
-
 # Paths or labels for a subset of the configured "repositories" (see
 # above) on which to run consistency checks. Handy in case some of
 # your repositories are very large, and so running consistency checks
@@ -432,9 +587,61 @@ keep_daily: 14
 # to the "archives" check. Defaults to checking all archives.
 check_last: 1
 
-# Apply color to console output. Can be overridden with --no-color
-# command-line flag. Defaults to true.
+# Apply color to console output. Defaults to true.
 # color: false
+
+# Display verbose output to the console: -2 (disabled), -1 (errors
+# only), 0 (warnings and responses to actions, the default), 1 (info
+# about steps borgmatic is taking), or 2 (debug).
+# verbosity: 2
+
+# Log verbose output to syslog: -2 (disabled, the default), -1 (errors
+# only), 0 (warnings and responses to actions), 1 (info about steps
+# borgmatic is taking), or 2 (debug).
+# syslog_verbosity: 2
+
+# Log verbose output to file: -2 (disabled), -1 (errors only), 0
+# (warnings and responses to actions), 1 (info about steps borgmatic
+# is taking, the default), or 2 (debug).
+# log_file_verbosity: 2
+
+# Write log messages to the file at this path.
+# log_file: /var/log/borgmatic/logfile.txt
+
+# Python format string used for log messages written to the log file.
+# See https://docs.python.org/3/library/logging.html (and specifically
+# the LogRecord attributes with "{}-formatting") for details.
+# log_file_format: '[{asctime}] {levelname}: {prefix}{message}'
+
+# When a monitoring integration supporting logging is configured, log
+# verbose output to it: -2 (disabled), -1 (errors only), 0 (warnings
+# and responses to actions), 1 (info about steps borgmatic is taking,
+# the default), or 2 (debug).
+# monitoring_verbosity: 2
+
+# Write Borg log messages and console output as one JSON object per
+# log line instead of formatted text. Defaults to false.
+# log_json: true
+
+# Display progress as each file or archive is processed when running
+# supported actions. Corresponds to the "--progress" flag on those
+# actions. Defaults to false.
+# progress: true
+
+# Display statistics for an archive when running supported actions.
+# Corresponds to the "--stats" flag on those actions. Defaults to
+# false.
+# statistics: true
+
+# Display details for each file or archive as it is processed when
+# running supported actions. Corresponds to the "--list" flag on those
+# actions. Defaults to false.
+# list_details: true
+
+# Whether to apply default actions (create, prune, compact and check)
+# when no arguments are supplied to the borgmatic command. If set to
+# false, borgmatic displays the help message instead.
+# default_actions: true
 
 # List of one or more actions to skip running for this configuration
 # file, even if specified on the command-line (explicitly or
@@ -444,86 +651,164 @@ check_last: 1
 # skip_actions:
     # - compact
 
-# List of one or more shell commands or scripts to execute before all
-# the actions for each repository.
-before_actions:
-    - test -d /mnt/Backup || mkdir /mnt/Backup
-    - mountpoint -q /mnt/Backup || mount nas.lan.cx:/mnt/pool1/Daniel/Backups /mnt/Backup
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute before all the actions for each
+# repository.
+# before_actions:
+    # - echo Starting actions.
 
-# List of one or more shell commands or scripts to execute before
-# creating a backup, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute before creating a backup, run once
+# per repository.
 # before_backup:
     # - echo Starting a backup.
 
-# List of one or more shell commands or scripts to execute before
-# pruning, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute before pruning, run once per
+# repository.
 # before_prune:
     # - echo Starting pruning.
 
-# List of one or more shell commands or scripts to execute before
-# compaction, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute before compaction, run once per
+# repository.
 # before_compact:
     # - echo Starting compaction.
 
-# List of one or more shell commands or scripts to execute before
-# consistency checks, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute before consistency checks, run once
+# per repository.
 # before_check:
     # - echo Starting checks.
 
-# List of one or more shell commands or scripts to execute before
-# extracting a backup, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute before extracting a backup, run once
+# per repository.
 # before_extract:
     # - echo Starting extracting.
 
-# List of one or more shell commands or scripts to execute after
-# creating a backup, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute after creating a backup, run once per
+# repository.
 # after_backup:
     # - echo Finished a backup.
 
-# List of one or more shell commands or scripts to execute after
-# compaction, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute after compaction, run once per
+# repository.
 # after_compact:
     # - echo Finished compaction.
 
-# List of one or more shell commands or scripts to execute after
-# pruning, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute after pruning, run once per
+# repository.
 # after_prune:
     # - echo Finished pruning.
 
-# List of one or more shell commands or scripts to execute after
-# consistency checks, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute after consistency checks, run once
+# per repository.
 # after_check:
     # - echo Finished checks.
 
-# List of one or more shell commands or scripts to execute after
-# extracting a backup, run once per repository.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute after extracting a backup, run once
+# per repository.
 # after_extract:
     # - echo Finished extracting.
 
-# List of one or more shell commands or scripts to execute after all
-# actions for each repository.
-after_actions:
-    - systemd-run --no-block /bin/sh -c 'sleep 5; findmnt --type fuse --source borgfs &>/dev/null || ( mountpoint -q /mnt/Backup && umount /mnt/Backup && rmdir /mnt/Backup )'
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute after all actions for each
+# repository.
+# after_actions:
+    # - echo Finished actions.
 
-# List of one or more shell commands or scripts to execute when an
-# exception occurs during a "create", "prune", "compact", or "check"
-# action or an associated before/after hook.
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute when an exception occurs during a
+# "create", "prune", "compact", or "check" action or an associated
+# before/after hook.
 # on_error:
     # - echo Error during create/prune/compact/check.
 
-# List of one or more shell commands or scripts to execute before
-# running all actions (if one of them is "create"). These are
-# collected from all configuration files and then run once before all
-# of them (prior to all actions).
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute before running all actions (if one of
+# them is "create"). These are collected from all configuration files
+# and then run once before all of them (prior to all actions).
 # before_everything:
     # - echo Starting actions.
 
-# List of one or more shell commands or scripts to execute after
-# running all actions (if one of them is "create"). These are
-# collected from all configuration files and then run once after all
-# of them (after any action).
+# Deprecated. Use "commands:" instead. List of one or more shell
+# commands or scripts to execute after running all actions (if one of
+# them is "create"). These are collected from all configuration files
+# and then run once after all of them (after any action).
 # after_everything:
     # - echo Completed actions.
+
+# List of one or more command hooks to execute, triggered at
+# particular points during borgmatic's execution. For each command
+# hook, specify one of "before" or "after", not both.
+commands:
+    # Name for the point in borgmatic's execution that
+    # the commands should be run before (required if
+    # "after" isn't set):
+    #  * "action" runs before each action for each
+    # repository.
+    #  * "repository" runs before all actions for each
+    # repository.
+    #  * "configuration" runs before all actions and
+    # repositories in the current configuration file.
+    #  * "everything" runs before all configuration
+    # files.
+    # - before: action
+
+      # Name for the point in borgmatic's execution that
+      # the commands should be run after (required if
+      # "before" isn't set):
+      #  * "action" runs after each action for each
+      # repository.
+      #  * "repository" runs after all actions for each
+      # repository.
+      #  * "configuration" runs after all actions and
+      # repositories in the current configuration file.
+      #  * "everything" runs after all configuration
+      # files.
+      #  * "error" runs after an error occurs.
+      # after: action
+
+      # Only trigger the hook when borgmatic is run with
+      # particular actions listed here. Defaults to
+      # running for all actions.
+      # when:
+          # - create
+          # - prune
+          # - compact
+          # - check
+
+      # List of one or more shell commands or scripts to
+      # run when this command hook is triggered. Required.
+      # run:
+          # - echo Doing stuff.
+
+      # Only trigger the hook if borgmatic encounters one
+      # of the states (execution results) listed here,
+      # where:
+      #  * "finish": No errors occurred.
+      #  * "fail": An error occurred.
+      # This state is evaluated only for the scope of the
+      # configured "action", "repository", etc., rather
+      # than for the entire borgmatic run. Only available
+      # for "after" hooks. Defaults to running the hook
+      # for all states.
+      # states:
+          # - finish
+
+    - before: action
+      run:
+          - test -d /mnt/Backup || mkdir /mnt/Backup
+          - mountpoint -q /mnt/Backup || mount nas.lan.cx:/mnt/pool1/Daniel/Backups /mnt/Backup
+    - after: action
+      run:
+          - systemd-run --no-block /bin/sh -c 'sleep 5; findmnt --type fuse --source borgfs &>/dev/null || ( mountpoint -q /mnt/Backup && umount /mnt/Backup && rmdir /mnt/Backup )'
 
 # Support for the "borgmatic bootstrap" action, used to extract
 # borgmatic configuration files from a backup archive.
@@ -550,6 +835,17 @@ after_actions:
     # dump and restore streaming.
     # - name: users
 
+      # Label to identify the database dump in the backup.
+      # label: my_backup_label
+
+      # Container name/id to connect to. When specified the
+      # hostname is ignored. Requires docker/podman CLI.
+      # container: debian_stable
+
+      # Container name/id to restore to. Defaults to the
+      # "container" option.
+      # restore_container: restore_container
+
       # Database hostname to connect to. Defaults to connecting
       # via local Unix socket.
       # hostname: database.example.org
@@ -567,21 +863,25 @@ after_actions:
       # Username with which to connect to the database. Defaults
       # to the username of the current user. You probably want
       # to specify the "postgres" superuser here when the
-      # database name is "all".
+      # database name is "all". Supports the "{credential ...}"
+      # syntax.
       # username: dbuser
 
       # Username with which to restore the database. Defaults to
-      # the "username" option.
+      # the "username" option. Supports the "{credential ...}"
+      # syntax.
       # restore_username: dbuser
 
       # Password with which to connect to the database. Omitting
       # a password will only work if PostgreSQL is configured to
       # trust the configured username without a password or you
-      # create a ~/.pgpass file.
+      # create a ~/.pgpass file. Supports the "{credential ...}"
+      # syntax.
       # password: trustsome1
 
       # Password with which to connect to the restore database.
-      # Defaults to the "password" option.
+      # Defaults to the "password" option. Supports the
+      # "{credential ...}" syntax.
       # restore_password: trustsome1
 
       # Do not output commands to set ownership of objects to
@@ -604,6 +904,16 @@ after_actions:
       # more about formats.
       # format: directory
 
+      # Database dump compression level (integer) or method
+      # ("gzip", "lz4", "zstd", or "none") and optional
+      # colon-separated detail. Defaults to moderate "gzip" for
+      # "custom" and "directory" formats and no compression for
+      # the "plain" format. Compression is not supported for the
+      # "tar" format. Be aware that Borg does its own
+      # compression as well, so you may not need it in both
+      # places.
+      # compression: none
+
       # SSL mode to use to connect to the database server. One
       # of "disable", "allow", "prefer", "require", "verify-ca"
       # or "verify-full". Defaults to "disable".
@@ -625,11 +935,11 @@ after_actions:
       # Command to use instead of "pg_dump" or "pg_dumpall".
       # This can be used to run a specific pg_dump version
       # (e.g., one inside a running container). If you run it
-      # from within a container, make sure to mount your
-      # host's ".borgmatic" folder into the container using
-      # the same directory structure. Defaults to "pg_dump"
-      # for single database dump or "pg_dumpall" to dump all
-      # databases.
+      # from within a container, make sure to mount the path in
+      # the "user_runtime_directory" option from the host into
+      # the container at the same location. Defaults to
+      # "pg_dump" for single database dump or "pg_dumpall" to
+      # dump all databases.
       # pg_dump_command: docker exec my_pg_container pg_dump
 
       # Command to use instead of "pg_restore". This can be used
@@ -675,6 +985,22 @@ after_actions:
     # above) to support dump and restore streaming.
     # - name: users
 
+      # Database names to skip when dumping "all" databases.
+      # Ignored when the database name is not "all".
+      # skip_names:
+          # - cache
+
+      # Label to identify the database dump in the backup.
+      # label: my_backup_label
+
+      # Container name/id to connect to. When specified the
+      # hostname is ignored. Requires docker/podman CLI.
+      # container: debian_stable
+
+      # Container name/id to restore to. Defaults to the
+      # "container" option.
+      # restore_container: restore_container
+
       # Database hostname to connect to. Defaults to connecting
       # via local Unix socket.
       # hostname: database.example.org
@@ -689,35 +1015,76 @@ after_actions:
       # Port to restore to. Defaults to the "port" option.
       # restore_port: 5433
 
+      # Path of a Unix socket to connect to instead of a remote
+      # hostname. Ignored when "hostname" is set and not
+      # "localhost". Defaults to "/run/mysqld/mysqld.sock".
+      # socket_path: database.example.org
+
+      # Path of a Unix socket to connect to instead of a remote
+      # hostname. Ignored when "hostname" is set and not
+      # "localhost". Defaults to the "socket_path" option.
+      # restore_socket_path: database.example.org
+
       # Username with which to connect to the database. Defaults
-      # to the username of the current user.
+      # to the username of the current user. Supports the
+      # "{credential ...}" syntax.
       # username: dbuser
 
       # Username with which to restore the database. Defaults to
-      # the "username" option.
+      # the "username" option. Supports the "{credential ...}"
+      # syntax.
       # restore_username: dbuser
 
       # Password with which to connect to the database. Omitting
       # a password will only work if MariaDB is configured to
       # trust the configured username without a password.
+      # Supports the "{credential ...}" syntax.
       # password: trustsome1
 
-      # Command to use instead of "mariadb-dump". This can be
-      # used to run a specific mariadb_dump version (e.g., one
-      # inside a running container). If you run it from within
-      # a container, make sure to mount your host's
-      # ".borgmatic" folder into the container using the same
-      # directory structure. Defaults to "mariadb-dump".
+      # Password with which to connect to the restore database.
+      # Defaults to the "password" option. Supports the
+      # "{credential ...}" syntax.
+      # restore_password: trustsome1
+
+      # How to transmit database passwords from borgmatic to the
+      # MariaDB client, one of:
+      #  * "pipe": Securely transmit passwords via anonymous
+      #    pipe. Only works if the database client is on the
+      #    same host as borgmatic. (The server can be
+      #    somewhere else.) This is the default value.
+      #  * "environment": Transmit passwords via environment
+      #    variable. Potentially less secure than a pipe, but
+      #    necessary when the database client is elsewhere, e.g.
+      #    when "mariadb_dump_command" is configured to "exec"
+      #    into a container and run a client there.
+      # password_transport:
+
+      # Whether to TLS-encrypt data transmitted between the
+      # client and server. The default varies based on the
+      # MariaDB version.
+      # tls: false
+
+      # Whether to TLS-encrypt data transmitted between the
+      # client and restore server. The default varies based on
+      # the MariaDB version.
+      # restore_tls: false
+
+      # Command to use instead of "mariadb-dump". But set any
+      # additional command-line flags in "options", not here.
+      # This command can be used to run a specific mariadb_dump
+      # version (e.g., one inside a running container). If you
+      # run it from within a container, make sure to mount the
+      # path in the "user_runtime_directory" option from the
+      # host into the container at the same location. Defaults
+      # to "mariadb-dump".
       # mariadb_dump_command: docker exec mariadb_container mariadb-dump
 
-      # Command to run instead of "mariadb". This can be used to
+      # Command to run instead of "mariadb". But set any
+      # additional command-line flags in "list_options" or
+      # "restore_options", not here. This command can be used to
       # run a specific mariadb version (e.g., one inside a
       # running container). Defaults to "mariadb".
       # mariadb_command: docker exec mariadb_container mariadb
-
-      # Password with which to connect to the restore database.
-      # Defaults to the "password" option.
-      # restore_password: trustsome1
 
       # Database dump output format. Currently only "sql" is
       # supported. Defaults to "sql" for a single database. Or,
@@ -763,6 +1130,22 @@ after_actions:
     # above) to support dump and restore streaming.
     # - name: users
 
+      # Database names to skip when dumping "all" databases.
+      # Ignored when the database name is not "all".
+      # skip_names:
+          # - cache
+
+      # Label to identify the database dump in the backup.
+      # label: my_backup_label
+
+      # Container name/id to connect to. When specified the
+      # hostname is ignored. Requires docker/podman CLI.
+      # container: debian_stable
+
+      # Container name/id to restore to. Defaults to the
+      # "container" option.
+      # restore_container: restore_container
+
       # Database hostname to connect to. Defaults to connecting
       # via local Unix socket.
       # hostname: database.example.org
@@ -777,32 +1160,73 @@ after_actions:
       # Port to restore to. Defaults to the "port" option.
       # restore_port: 5433
 
+      # Path of a Unix socket to connect to instead of a remote
+      # hostname. Ignored when "hostname" is set and not
+      # "localhost". Defaults to "/run/mysqld/mysqld.sock".
+      # socket_path: database.example.org
+
+      # Path of a Unix socket to connect to instead of a remote
+      # hostname. Ignored when "hostname" is set and not
+      # "localhost". Defaults to the "socket_path" option.
+      # restore_socket_path: database.example.org
+
       # Username with which to connect to the database. Defaults
-      # to the username of the current user.
+      # to the username of the current user. Supports the
+      # "{credential ...}" syntax.
       # username: dbuser
 
       # Username with which to restore the database. Defaults to
-      # the "username" option.
+      # the "username" option. Supports the "{credential ...}"
+      # syntax.
       # restore_username: dbuser
 
       # Password with which to connect to the database. Omitting
       # a password will only work if MySQL is configured to
       # trust the configured username without a password.
+      # Supports the "{credential ...}" syntax.
       # password: trustsome1
 
       # Password with which to connect to the restore database.
-      # Defaults to the "password" option.
+      # Defaults to the "password" option. Supports the
+      # "{credential ...}" syntax.
       # restore_password: trustsome1
 
-      # Command to use instead of "mysqldump". This can be
-      # used to run a specific mysql_dump version (e.g., one
-      # inside a running container). If you run it from within
-      # a container, make sure to mount your host's
-      # ".borgmatic" folder into the container using the same
-      # directory structure. Defaults to "mysqldump".
+      # How to transmit database passwords from borgmatic to the
+      # MySQL client, one of:
+      #  * "pipe": Securely transmit passwords via anonymous
+      #    pipe. Only works if the database client is on the
+      #    same host as borgmatic. (The server can be
+      #    somewhere else.) This is the default value.
+      #  * "environment": Transmit passwords via environment
+      #    variable. Potentially less secure than a pipe, but
+      #    necessary when the database client is elsewhere, e.g.
+      #    when "mysql_dump_command" is configured to "exec"
+      #    into a container and run a client there.
+      # password_transport:
+
+      # Whether to TLS-encrypt data transmitted between the
+      # client and server. The default varies based on the
+      # MySQL installation.
+      # tls: false
+
+      # Whether to TLS-encrypt data transmitted between the
+      # client and restore server. The default varies based on
+      # the MySQL installation.
+      # restore_tls: false
+
+      # Command to use instead of "mysqldump". But set any
+      # additional command-line flags in "options", not here.
+      # This command can be used to run a specific mysql_dump
+      # version (e.g., one inside a running container). If you
+      # run it from within a container, make sure to mount the
+      # path in the "user_runtime_directory" option from the
+      # host into the container at the same location. Defaults
+      # to "mysqldump".
       # mysql_dump_command: docker exec mysql_container mysqldump
 
-      # Command to run instead of "mysql". This can be used to
+      # Command to run instead of "mysql". But set any
+      # additional command-line flags in "list_options" or
+      # "restore_options", not here. This command can be used to
       # run a specific mysql version (e.g., one inside a running
       # container). Defaults to "mysql".
       # mysql_command: docker exec mysql_container mysql
@@ -838,6 +1262,11 @@ after_actions:
       # documentation for details.
       # restore_options: --defaults-extra-file=my.cnf
 
+# List of one or more SQLite databases to dump before creating a
+# backup, run once per configuration file. The database dumps are
+# added to your source directories at runtime and streamed directly to
+# Borg. Requires the sqlite3 command. See https://sqlite.org/cli.html
+# for details.
 # sqlite_databases:
     # This is used to tag the database dump file with a name.
     # It is not the path to the database file itself. The name
@@ -851,9 +1280,26 @@ after_actions:
       # streaming.
       # path: /var/lib/sqlite/users.db
 
+      # Label to identify the database dump in the backup.
+      # label: my_backup_label
+
       # Path to the SQLite database file to restore to. Defaults
       # to the "path" option.
       # restore_path: /var/lib/sqlite/users.db
+
+      # Command to use instead of "sqlite3". This can be used to
+      # run a specific sqlite3 version (e.g., one inside a
+      # running container). If you run it from within a
+      # container, make sure to mount the path in the
+      # "user_runtime_directory" option from the host into the
+      # container at the same location. Defaults to "sqlite3".
+      # sqlite_command: docker exec sqlite_container sqlite3
+
+      # Command to run when restoring a database instead
+      # of "sqlite3". This can be used to run a specific
+      # sqlite3 version (e.g., one inside a running container).
+      # Defaults to "sqlite3".
+      # sqlite_restore_command: docker exec sqlite_container sqlite3
 
 # List of one or more MongoDB databases to dump before creating a
 # backup, run once per configuration file. The database dumps are
@@ -867,6 +1313,17 @@ after_actions:
     # database hook implicitly enables read_special (see
     # above) to support dump and restore streaming.
     # - name: users
+
+      # Label to identify the database dump in the backup.
+      # label: my_backup_label
+
+      # Container name/id to connect to. When specified the
+      # hostname is ignored. Requires docker/podman CLI.
+      # container: debian_stable
+
+      # Container name/id to restore to. Defaults to the
+      # "container" option.
+      # restore_container: restore_container
 
       # Database hostname to connect to. Defaults to connecting
       # to localhost.
@@ -883,19 +1340,23 @@ after_actions:
       # restore_port: 5433
 
       # Username with which to connect to the database. Skip it
-      # if no authentication is needed.
+      # if no authentication is needed. Supports the
+      # "{credential ...}" syntax.
       # username: dbuser
 
       # Username with which to restore the database. Defaults to
-      # the "username" option.
+      # the "username" option. Supports the "{credential ...}"
+      # syntax.
       # restore_username: dbuser
 
       # Password with which to connect to the database. Skip it
-      # if no authentication is needed.
+      # if no authentication is needed. Supports the
+      # "{credential ...}" syntax.
       # password: trustsome1
 
       # Password with which to connect to the restore database.
-      # Defaults to the "password" option.
+      # Defaults to the "password" option. Supports the
+      # "{credential ...}" syntax.
       # restore_password: trustsome1
 
       # Authentication database where the specified username
@@ -920,6 +1381,21 @@ after_actions:
       # See mongorestore documentation for details.
       # restore_options: --restoreDbUsersAndRoles
 
+      # Command to use instead of "mongodump". This can be used
+      # to run a specific mongodump version (e.g., one inside a
+      # running container). If you run it from within a
+      # container, make sure to mount the path in the
+      # "user_runtime_directory" option from the host into the
+      # container at the same location.  Defaults to
+      # "mongodump".
+      # mongodump_command: docker exec mongodb_container mongodump
+
+      # Command to run when restoring a database instead of
+      # "mongorestore". This can be used to run a specific
+      # mongorestore version (e.g., one inside a running
+      # container). Defaults to "mongorestore".
+      # mongorestore_command: docker exec mongodb_container mongorestore
+
 # ntfy:
     # The topic to publish to. See https://ntfy.sh/docs/publish/
     # for details.
@@ -928,14 +1404,16 @@ after_actions:
     # The address of your self-hosted ntfy.sh instance.
     # server: https://ntfy.your-domain.com
 
-    # The username used for authentication.
+    # The username used for authentication. Supports the
+    # "{credential ...}" syntax.
     # username: testuser
 
-    # The password used for authentication.
+    # The password used for authentication. Supports the
+    # "{credential ...}" syntax.
     # password: fakepassword
 
     # An ntfy access token to authenticate with instead of
-    # username/password.
+    # username/password. Supports the "{credential ...}" syntax.
     # access_token: tk_AgQdq7mVBoFD37zQVN29RhuMzNIz2
 
     # start:
@@ -943,26 +1421,26 @@ after_actions:
         # title: Ping!
 
         # The message body to publish.
-        # message: Your backups have failed.
+        # message: Your backups have started.
 
         # The priority to set.
-        # priority: urgent
+        # priority: min
 
         # Tags to attach to the message.
-        # tags: incoming_envelope
+        # tags: borgmatic
 
     # finish:
         # The title of the message.
         # title: Ping!
 
         # The message body to publish.
-        # message: Your backups have failed.
+        # message: Your backups have finished.
 
         # The priority to set.
-        # priority: urgent
+        # priority: min
 
         # Tags to attach to the message.
-        # tags: incoming_envelope
+        # tags: borgmatic,+1
 
     # fail:
         # The title of the message.
@@ -972,10 +1450,10 @@ after_actions:
         # message: Your backups have failed.
 
         # The priority to set.
-        # priority: urgent
+        # priority: max
 
         # Tags to attach to the message.
-        # tags: incoming_envelope
+        # tags: borgmatic,-1,skull
 
     # List of one or more monitoring states to ping for: "start",
     # "finish", and/or "fail". Defaults to pinging for failure
@@ -985,12 +1463,14 @@ after_actions:
         # - finish
 
 # pushover:
-    # Your application's API token.
+    # Your application's API token. Supports the "{credential
+    # ...}" syntax.
     # token: 7ms6TXHpTokTou2P6x4SodDeentHRa
 
     # Your user/group key (or that of your target user), viewable
     # when logged into your dashboard: often referred to as
     # USER_KEY in Pushover documentation and code examples.
+    # Supports the "{credential ...}" syntax.
     # user: hwRwoWsXMBWwgrSecfa9EfPey55WSN
 
     # start:
@@ -1019,7 +1499,7 @@ after_actions:
         # device: pixel8
 
         # Set to True to enable HTML parsing of the message.
-        # Set to False for plain text.
+        # Set to false for plain text.
         # html: true
 
         # The name of a supported sound to override your
@@ -1070,7 +1550,7 @@ after_actions:
         # device: pixel8
 
         # Set to True to enable HTML parsing of the message.
-        # Set to False for plain text.
+        # Set to false for plain text.
         # html: true
 
         # The name of a supported sound to override your
@@ -1121,7 +1601,7 @@ after_actions:
         # device: pixel8
 
         # Set to True to enable HTML parsing of the message.
-        # Set to False for plain text.
+        # Set to false for plain text.
         # html: true
 
         # The name of a supported sound to override your
@@ -1166,19 +1646,20 @@ after_actions:
     # "itemid" is not set.
     # key: borg.status
 
-    # The address of your Zabbix instance.
+    # The API endpoint URL of your Zabbix instance, usually ending
+    # with "/api_jsonrpc.php". Required.
     # server: https://zabbix.your-domain.com
 
     # The username used for authentication. Not needed if using
-    # an API key.
+    # an API key. Supports the "{credential ...}" syntax.
     # username: testuser
 
     # The password used for authentication. Not needed if using
-    # an API key.
+    # an API key. Supports the "{credential ...}" syntax.
     # password: fakepassword
 
-    # The API key used for authentication. Not needed if using
-    # an username/password.
+    # The API key used for authentication. Not needed if using an
+    # username/password. Supports the "{credential ...}" syntax.
     # api_key: fakekey
 
     # start:
@@ -1206,12 +1687,14 @@ after_actions:
     # services and their configuration can be found at
     # https://github.com/caronc/apprise/wiki.
     # services:
-        # - url: kodi://user@hostname
-          # label: kodi
-        # - url: line://Token@User
-          # label: line
+        # URL of this Apprise service.
+        # - url: gotify://hostname/token
 
-    # Send borgmatic logs to Apprise services as part the
+          # Label used in borgmatic logs for this Apprise
+          # service.
+          # label: gotify
+
+    # Send borgmatic logs to Apprise services as part of the
     # "finish", "fail", and "log" states. Defaults to true.
     # send_logs: false
 
@@ -1275,7 +1758,7 @@ after_actions:
     # true.
     # verify_tls: false
 
-    # Send borgmatic logs to Healthchecks as part the "finish",
+    # Send borgmatic logs to Healthchecks as part of the "finish",
     # "fail", and "log" states. Defaults to true.
     # send_logs: false
 
@@ -1313,6 +1796,10 @@ after_actions:
         # - finish
         # - fail
 
+    # Verify the TLS certificate of the push URL host. Defaults to
+    # true.
+    # verify_tls: false
+
 # Configuration for a monitoring integration with Cronitor. Create an
 # account at https://cronitor.io if you'd like to use this service.
 # See borgmatic monitoring documentation for details.
@@ -1325,9 +1812,13 @@ after_actions:
 # account at https://www.pagerduty.com if you'd like to use this
 # service. See borgmatic monitoring documentation for details.
 # pagerduty:
-    # PagerDuty integration key used to notify PagerDuty
-    # when a backup errors.
+    # PagerDuty integration key used to notify PagerDuty when a
+    # backup errors. Supports the "{credential ...}" syntax.
     # integration_key: a177cad45bd374409f78906a810a3074
+
+    # Send borgmatic logs to PagerDuty when a backup errors.
+    # Defaults to true.
+    # send_logs: false
 
 # Configuration for a monitoring integration with Cronhub. Create an
 # account at https://cronhub.io if you'd like to use this service. See
@@ -1371,6 +1862,10 @@ after_actions:
     # construct a cron URL.
     # monitor_slug: mymonitor
 
+    # Sentry monitor environment used in the call to Sentry. If
+    # not set, the Sentry default is used.
+    # environment: production
+
     # List of one or more monitoring states to ping for: "start",
     # "finish", and/or "fail". Defaults to pinging for all states.
     # states:
@@ -1393,7 +1888,8 @@ after_actions:
     # Command to use instead of "btrfs".
     # btrfs_command: /usr/local/bin/btrfs
 
-    # Command to use instead of "findmnt".
+    # Deprecated and unused. Was the command to use instead of
+    # "findmnt".
     # findmnt_command: /usr/local/bin/findmnt
 
 # Configuration for integration with Linux LVM (Logical Volume
@@ -1424,3 +1920,40 @@ after_actions:
 
     # Command to use instead of "umount".
     # umount_command: /usr/local/bin/umount
+
+# Configuration for integration with systemd credentials.
+# systemd:
+    # Command to use instead of "systemd-creds". Only used as a
+    # fallback when borgmatic is run outside of a systemd service.
+    # systemd_creds_command: /usr/local/bin/systemd-creds
+
+    # Directory containing encrypted credentials for
+    # "systemd-creds" to use instead of
+    # "/etc/credstore.encrypted".
+    # encrypted_credentials_directory: /path/to/credstore.encrypted
+
+# Configuration for integration with Docker or Podman secrets.
+# container:
+    # Secrets directory to use instead of "/run/secrets".
+    # secrets_directory: /path/to/secrets
+
+# Configuration for integration with the KeePassXC password manager.
+# keepassxc:
+    # Command to use instead of "keepassxc-cli".
+    # keepassxc_cli_command: /usr/local/bin/keepassxc-cli
+
+    # Whether keepassxc-cli should prompt the user for a password.
+    # Disabling this is only really useful if you're unlocking
+    # your KeePassXC database with a key file instead of a
+    # password. Defaults to true.
+    # ask_for_password: false
+
+    # Path to a key file for unlocking the KeePassXC database.
+    # key_file: /path/to/keyfile
+
+    # YubiKey slot and optional serial number used to access the
+    # KeePassXC database. The format is "<slot[:serial]>", where:
+    #  * <slot> is the YubiKey slot number (e.g., `1` or `2`).
+    #  * <serial> (optional) is the YubiKey's serial number (e.g.,
+    #    `7370001`).
+    # yubikey: 1:7370001
