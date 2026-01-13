@@ -29,7 +29,6 @@ Active=true
 
 [Plugins]
 desktopchangeosdEnabled=false
-diminactiveEnabled=true
 dimscreenEnabled=true
 fadeEnabled=true
 fadingpopupsEnabled=false
@@ -51,16 +50,15 @@ PopupHideDelay=1200
 
 [TabBox]
 HighlightWindows=false
-LayoutName=compact
 
 [Tiling]
-padding=4
+padding=10
 
 [Tiling][1020374b-1ad0-46c1-93fd-16edcba57d61][]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][1020374b-1ad0-46c1-93fd-16edcba57d61][7bf91f8a-ce51-465a-b6b2-914ff98919b3]
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5061046511627907},{"width":0.4938953488372093}]}
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.4979651162790698},{"width":0.5020348837209302}]}
 
 [Tiling][4143c375-0b8a-5fa0-b98b-0da4a7d69606]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.5},{"width":0.5}]}
@@ -88,17 +86,18 @@ InputMethod[$e]=/usr/share/applications/fcitx5-wayland-launcher.desktop
 VirtualKeyboardEnabled=true
 
 [Windows]
+CenterSnapZone=10
 DelayFocusInterval=0
 ElectricBorderDelay=50
+ElectricBorderTiling=false
 FocusPolicy=FocusFollowsMouse
+NextFocusPrefersMouse=true
 
 [Xwayland]
 Scale=1
 XwaylandEavesdrops=Combinations
 
 [org.kde.kdecoration2]
-BorderSize=None
-BorderSizeAuto=false
 ButtonsOnLeft=F
 ButtonsOnRight=X
 library=org.kde.breeze

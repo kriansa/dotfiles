@@ -47,8 +47,8 @@ plugin=org.kde.plasma.digitalclock
 
 [Containments][3][Applets][119][Configuration]
 PreloadWeight=100
-popupHeight=451
-popupWidth=810
+popupHeight=458
+popupWidth=818
 
 [Containments][3][Applets][119][Configuration][Appearance]
 autoFontAndSize=false
@@ -268,7 +268,7 @@ immutability=1
 plugin=org.kde.plasma.notifications
 
 [Containments][3][Applets][8][Applets][121][Configuration]
-PreloadWeight=55
+PreloadWeight=60
 
 [Containments][3][Applets][8][Applets][122][Configuration]
 PreloadWeight=42
@@ -295,7 +295,7 @@ immutability=1
 plugin=org.kde.plasma.battery
 
 [Containments][3][Applets][8][Applets][17][Configuration]
-PreloadWeight=0
+PreloadWeight=10
 
 [Containments][3][Applets][8][Applets][18]
 immutability=1
@@ -332,6 +332,9 @@ plugin=org.kde.plasma.networkmanagement
 [Containments][3][Applets][8][Applets][22][Configuration]
 PreloadWeight=100
 
+[Containments][3][Applets][8][Applets][22][Configuration][General]
+currentDetailsTab=details
+
 [Containments][3][Applets][8][Applets][23]
 immutability=1
 plugin=org.kde.plasma.mediacontroller
@@ -359,14 +362,14 @@ immutability=1
 plugin=org.kde.plasma.brightness
 
 [Containments][3][Applets][8][Applets][49][Configuration]
-PreloadWeight=5
+PreloadWeight=90
 
 [Containments][3][Applets][8][Applets][61]
 immutability=1
 plugin=org.kde.plasma.bluetooth
 
 [Containments][3][Applets][8][Applets][61][Configuration]
-PreloadWeight=31
+PreloadWeight=100
 
 [Containments][3][Applets][8][Applets][80]
 immutability=1
@@ -412,8 +415,8 @@ chartFace=org.kde.ksysguard.textonly
 cpu/all/usage=61,174,233
 
 [Containments][46][ConfigDialog]
-DialogHeight=540
-DialogWidth=720
+DialogHeight=876
+DialogWidth=1073
 
 [Containments][46][General]
 ToolBoxButtonState=topcenter

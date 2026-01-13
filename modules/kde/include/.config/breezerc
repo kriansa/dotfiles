@@ -1,3 +1,6 @@
 [Common]
 ShadowSize=ShadowSmall
 ShadowStrength=51
+
+[Windeco]
+DrawBorderOnMaximizedWindows=true

@@ -27,8 +27,18 @@ noborderrule=3
 position=0,40
 size=1720,1400
 windowrole=browser
-wmclass=spotify Spotify
+wmclass=spotify spotify
 wmclasscomplete=true
+wmclassmatch=1
+
+[32fe6b93-3059-4088-a084-9d78197d4fd2]
+Description=Window settings for Firefox PiP
+above=true
+aboverule=3
+title=Picture-in-Picture
+titlematch=1
+types=1
+wmclass=firefox
 wmclassmatch=1
 
 [4]
@@ -40,5 +50,5 @@ wmclass=discord
 wmclassmatch=1
 
 [General]
-count=3
-rules=4,2,1
+count=4
+rules=32fe6b93-3059-4088-a084-9d78197d4fd2,4,2,1

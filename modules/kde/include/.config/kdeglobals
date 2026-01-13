@@ -135,17 +135,16 @@ ForegroundNormal=35,38,41
 ForegroundPositive=39,174,96
 ForegroundVisited=155,89,182
 
-[DirSelect Dialog]
-DirSelectDialog Size=868,591
-
 [General]
 AccentColor=0,0,0,0
 BrowserApplication=firefox.desktop
+ColorScheme=BreezeLight
 ColorSchemeHash=9f63c7711a13123582e720791ea0f8c0172977d2
-LastUsedCustomAccentColor=146,110,228
+LastUsedCustomAccentColor=233,100,58
 TerminalApplication=kwin-tmux-window
 TerminalService=tmux-window.desktop
 UseSystemBell=true
+XftAntialias=true
 XftHintStyle=hintslight
 XftSubPixel=rgb
 accentColorFromWallpaper=false
@@ -160,6 +159,7 @@ Theme=breeze
 
 [KDE]
 AnimationDurationFactor=0
+DndBehavior=MoveIfSameDevice
 ShowDeleteCommand=false
 SingleClick=false
 widgetStyle=Breeze
