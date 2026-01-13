@@ -357,8 +357,21 @@ return {
       local server_configs = {
         ts_ls = {},
         vuels = {},
-        gopls = {},
         ruff = {},
+        gopls = {
+          settings = {
+            -- Gopls doesn't support dynamic workspace folders, so we need to force it to build
+            -- the current package using the combination of tags for it to be effective, if the
+            -- current file is in a package that has build tags.
+            --
+            -- golangci-lint for instance supports config files on parent dirs, so we can set
+            -- build flags at the package level
+            -- See: https://github.com/golang/go/issues/65757
+            gopls = {
+              buildFlags = { "-tags=integration" },
+            },
+          },
+        },
 
         ruby_lsp = {
           -- Ruby LSP works by creating a new Gemfile that extends from the project's Gemfile and
