@@ -120,7 +120,7 @@ return {
           ["handlebars"] = { "prettier" },
 
           ["go"] = { "goimports", "gofmt" },
-          ["python"] = { "isort", "black" },
+          ["python"] = { "ruff" },
 
           -- This encapsulates `ruby_linter_command` to wrap the result around a table
           ["ruby"] = function() return { ruby_linter_command() } end,
@@ -240,11 +240,8 @@ return {
         end,
       }
 
-      require('lint').linters.vale.ignore_exitcode = true
-
       require('lint').linters_by_ft = {
         ruby = {"standardrb_or_rubocop", "reek"},
-        markdown = {"vale"},
         python = {"pylint", "mypy"},
 
         ["yaml.ansible"] = {"ansible_lint"},

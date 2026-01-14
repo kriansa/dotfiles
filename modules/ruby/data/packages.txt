@@ -1,6 +1,4 @@
-bundler-audit
 reek
-brakeman
 standard
 standard-rails
 rubocop-rspec

@@ -4,6 +4,7 @@
 # dotup - Update your existing configurations based on the dotfiles settings.
 
 from __future__ import annotations
+import filecmp
 import os
 import sqlite3
 import sys
@@ -51,10 +52,16 @@ class CLI:
         )
         parser.add_argument(
             "command",
-            choices=["load", "unload"],
+            choices=["load", "unload", "is-enabled"],
             default="load",
             nargs="?",
             help="action to run. (default: %(default)s)",
+        )
+        parser.add_argument(
+            "module",
+            nargs="?",
+            default=None,
+            help="module name (for is-enabled command)",
         )
 
         try:
@@ -64,6 +71,11 @@ class CLI:
                 Stower().load(scopes=args.scopes)
             elif args.command == "unload":
                 Stower().unload()
+            elif args.command == "is-enabled":
+                if not args.module:
+                    Term.error(RuntimeError("is-enabled requires a module name"))
+                    sys.exit(2)
+                sys.exit(Stower().is_enabled(args.module))
 
         # pylint: disable=broad-exception-caught
         except Exception as err:
@@ -189,6 +201,15 @@ class Stower:
         self._load_state()
         self._clear_links()
         Term.status("Configuration unloaded")
+
+    def is_enabled(self, module_name: str) -> int:
+        """Check if a module is enabled. Returns 0 if enabled, 1 if not."""
+        self._load_settings(scopes=None)
+        if module_name in self.settings["modules"]:
+            print("yes")
+            return 0
+        print("no")
+        return 1
 
     def load(self, scopes: list[str] | None = None):
         """With all settings loaded, this will setup all enabled modules"""
@@ -377,6 +398,7 @@ class Stower:
         """This is a list of paths that should be hardlinked instead of symlinked"""
         return [
             ".local/share/applications/*.desktop",  # Desktop entries
+            ".config/mimeapps.list", # List of desktop apps
         ]
 
     @staticmethod
@@ -419,7 +441,11 @@ class Stower:
                     self.state.add_link(destination)
                     return
 
-                raise RuntimeError(f"Path {sym_to} already exists!")
+                # If the existing file has the same content, remove it and proceed with linking
+                if filecmp.cmp(sym_from, sym_to, shallow=False):
+                    os.remove(sym_to)
+                else:
+                    raise RuntimeError(f"Path {sym_to} already exists!")
 
             os.makedirs(os.path.dirname(sym_to), exist_ok=True)
             if should_be_hardlinked:

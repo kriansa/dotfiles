@@ -8,7 +8,6 @@ modules = [
   "borgmatic",
   "devops",
   "git",
-  "ruby",
   "tmux",
   "nvim",
   "javascript",
@@ -25,6 +24,7 @@ modules = [
   { name = "golang", scopes = "desktop" },
   { name = "vlc", scopes = "desktop" },
   { name = "yazi", scopes = "desktop" },
+  { name = "ruby", scopes = "desktop" },
 
   # Only for Work
   { name = "macos", scopes = "work" },

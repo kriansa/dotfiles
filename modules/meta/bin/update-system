@@ -17,10 +17,10 @@ main() {
     [ -n "$orphaned_packages" ] && run "Remove orphaned packages" "sudo pacman -Rnsc $orphaned_packages"
   fi
 
-  run "Update Ruby and its global packages" "update-ruby"
   run "Update Node and its global packages" "update-node"
   run "Update Python global packages" "update-python-packages"
-  run "Update Golang global packages" "update-go-packages"
+  is-enabled ruby && run "Update Ruby and its global packages" "update-ruby"
+  is-enabled golang && run "Update Golang global packages" "update-go-packages"
   run "Updating fish completions" "fish -c fish_update_completions"
 }
 
@@ -58,6 +58,10 @@ run() {
   else
     echo -e "Command \`\033[2m$command\033[0m\` finished in \033[1m$(show-time)\033[0m"
   fi
+}
+
+is-enabled() {
+	"$DOTFILES_PATH/bin/dotup" is-enabled "$1" &>/dev/null
 }
 
 show-time() {

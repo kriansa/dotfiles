@@ -1,3 +1,4 @@
+pnpm
 prettier
 prettier-eslint
 typescript
@@ -8,6 +9,4 @@ eslint-plugin-vue
 eslint-plugin-react
 vls
 @anthropic-ai/claude-code
-@openai/codex
 opencode-ai
-pnpm

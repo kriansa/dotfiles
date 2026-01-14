@@ -54,6 +54,8 @@ text/troff=nvim.desktop;
 x-scheme-handler/geo=google-maps-geo-handler.desktop;qwant-maps-geo-handler.desktop;
 x-scheme-handler/lmstudio=lmstudio.desktop;LM Studio.desktop;lm-studio.desktop;
 x-scheme-handler/slack=slack.desktop;Slack.desktop;
+x-scheme-handler/postman=Postman.desktop;
+x-scheme-handler/bruno=bruno.desktop;
 
 [Default Applications]
 application/json=nvim.desktop;
@@ -206,6 +208,7 @@ x-scheme-handler/lmstudio=lmstudio.desktop
 x-scheme-handler/postman=Postman.desktop
 x-scheme-handler/slack=slack.desktop
 x-scheme-handler/terminal=tmux-window.desktop;
+x-scheme-handler/bruno=bruno.desktop
 
 [Removed Associations]
 text/cache-manifest=libreoffice-writer.desktop;

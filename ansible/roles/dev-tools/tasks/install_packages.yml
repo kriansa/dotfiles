@@ -70,12 +70,9 @@
       - asdf-vm
       - ansible-bundler
       - heroku-cli-bin
-      - postman-bin
+      - bruno-bin
 
       # Kubernetes
       - openlens-bin
       - krew
       - kubecolor
-
-      # Prose linter
-      - vale
