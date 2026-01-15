@@ -3,27 +3,6 @@ hs.hotkey.bind({"alt", "ctrl"}, "R", function()
   hs.reload()
 end)
 
-screenWatcher = hs.caffeinate.watcher.new(function(event)
-  if event == hs.caffeinate.watcher.screensDidLock then
-    os.execute("/opt/homebrew/bin/blueutil --power 0")
-  elseif event == hs.caffeinate.watcher.screensDidUnlock then
-    os.execute("/opt/homebrew/bin/blueutil --power 1")
-  end
-end)
-
-screenWatcher:start()
-
--- Global shortcut for DeepL
-hs.hotkey.bind({"cmd"}, "Escape", function()
-  local app_name = hs.application.frontmostApplication():title()
-
-  if app_name == "DeepL" then
-    hs.eventtap.keyStroke({"cmd"}, "q")
-  else
-    hs.application.open("DeepL")
-  end
-end)
-
 -- No window animations
 hs.window.animationDuration = 0
 
@@ -52,7 +31,7 @@ end)
 
 -- Move window to the left
 hs.hotkey.bind({"cmd", "shift"}, "Left", function()
-  local win = hs.window.focusedWindow()
+  local win = hs.window.frontmostWindow()
   local f = win:frame()
   local screen = win:screen()
   local max = screen:frame()
@@ -66,7 +45,7 @@ end)
 
 -- Move window to the right
 hs.hotkey.bind({"cmd", "shift"}, "Right", function()
-  local win = hs.window.focusedWindow()
+  local win = hs.window.frontmostWindow()
   local f = win:frame()
   local screen = win:screen()
   local max = screen:frame()
