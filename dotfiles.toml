@@ -34,8 +34,4 @@ modules = [
   # Disabled
   # { name = "gnome", scopes = "desktop" },
   # { name = "emacs" },
-  # { name = "alacritty" },
-  # { name = "alacritty-linux", scopes = "desktop" },
-  # { name = "alacritty-mac", scopes = "work" },
-  # { name = "wezterm" },
 ]
