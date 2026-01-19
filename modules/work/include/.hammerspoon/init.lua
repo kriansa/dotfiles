@@ -3,6 +3,9 @@ hs.hotkey.bind({"alt", "ctrl"}, "R", function()
   hs.reload()
 end)
 
+-- Enable IPC
+require("hs.ipc")
+
 -- No window animations
 hs.window.animationDuration = 0
 
