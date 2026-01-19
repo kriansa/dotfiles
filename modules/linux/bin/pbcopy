@@ -6,7 +6,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   exec /usr/bin/pbcopy "$@"
 else
   if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-    exec wl-copy "$@"
+    exec wl-copy --type text/plain "$@"
   else
     exec xclip -in -selection clipboard "$@"
   fi
