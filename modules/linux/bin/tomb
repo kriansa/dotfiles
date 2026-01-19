@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+help() {
+	cat <<EOF
+	Usage: tomb <command>
+
+	Commands:
+	create  Create a new encrypted volume
+	open    Open and mount the encrypted volume
+	close   Unmount and close the encrypted volume
+
+	Environment variables:
+	TOMB_IMAGE  Path to the encrypted image (default: ~/Documents/secrets.img)
+	TOMB_MOUNT  Mount point (default: ~/Documents/Secrets)
+	TOMB_NAME   Mapper name (default: secrets)
+	TOMB_SIZE   Size for new volumes (default: 100M)
+	TOMB_SUDO   Privilege escalation command (default: sudo)
+EOF
+	exit 1
+}
+
+main() {
+	set -euo pipefail
+
+	# Configuration with defaults
+	TOMB_IMAGE="${TOMB_IMAGE:-$HOME/Documents/secrets.img}"
+	TOMB_MOUNT="${TOMB_MOUNT:-$HOME/Documents/Secrets}"
+	TOMB_NAME="${TOMB_NAME:-secrets}"
+	TOMB_SIZE="${TOMB_SIZE:-100M}"
+	TOMB_SUDO="${TOMB_SUDO:-sudo}"
+
+	case "${1:-}" in
+		create) tomb_create ;;
+		open) tomb_open ;;
+		close) tomb_close ;;
+		*) help ;;
+	esac
+}
+
+tomb_create() {
+	if [[ -e "$TOMB_IMAGE" ]]; then
+		echo "Error: $TOMB_IMAGE already exists" >&2
+		exit 1
+	fi
+
+	echo "Creating encrypted volume at $TOMB_IMAGE..."
+	fallocate -l "$TOMB_SIZE" "$TOMB_IMAGE"
+	$TOMB_SUDO cryptsetup luksFormat "$TOMB_IMAGE"
+	$TOMB_SUDO cryptsetup open "$TOMB_IMAGE" "$TOMB_NAME"
+	$TOMB_SUDO mkfs -t ext4 "/dev/mapper/$TOMB_NAME"
+
+	mkdir -p "$TOMB_MOUNT"
+	$TOMB_SUDO mount "/dev/mapper/$TOMB_NAME" "$TOMB_MOUNT"
+	$TOMB_SUDO chown -R "$(id -un):$(id -gn)" "$TOMB_MOUNT"
+	$TOMB_SUDO umount "$TOMB_MOUNT"
+	$TOMB_SUDO cryptsetup close "$TOMB_NAME"
+
+	echo "Encrypted volume created successfully."
+}
+
+tomb_open() {
+	$TOMB_SUDO cryptsetup open "$TOMB_IMAGE" "$TOMB_NAME"
+	mkdir -p "$TOMB_MOUNT"
+	$TOMB_SUDO mount "/dev/mapper/$TOMB_NAME" "$TOMB_MOUNT"
+	echo "Mounted at $TOMB_MOUNT"
+}
+
+tomb_close() {
+	if lsof "$TOMB_MOUNT" >/dev/null 2>&1; then
+		echo "Error: There are open files in $TOMB_MOUNT" >&2
+		lsof "$TOMB_MOUNT" >&2
+		exit 1
+	fi
+
+	$TOMB_SUDO umount "$TOMB_MOUNT"
+	$TOMB_SUDO cryptsetup close "$TOMB_NAME"
+	echo "Volume closed."
+}
+
+main "$@"
