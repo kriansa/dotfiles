@@ -12,6 +12,7 @@ mouse-scroll-multiplier = 1
 confirm-close-surface = false
 app-notifications = false
 resize-overlay = never
+bell-features = no-attention,no-title
 
 # Theme (One Light base16)
 background = #fafafa
@@ -80,13 +81,12 @@ keybind = "super+]=text:\x1C]"
 keybind = "super+[=text:\x1C["
 
 # Keybinds for default terminal behavior
-keybind = "super+shift+,=reload_config"
-keybind = "super+q=quit"
-keybind = "ctrl+shift+v=paste_from_clipboard"
-keybind = "super+v=paste_from_clipboard"
 keybind = "ctrl+plus=increase_font_size:1"
 keybind = "ctrl+minus=decrease_font_size:1"
 keybind = "ctrl+0=reset_font_size"
+# Linux-only
+keybind = "ctrl+shift+,=reload_config"
+keybind = "ctrl+shift+v=paste_from_clipboard"
 
 # Load override settings
 config-file = ?../ghostty-overrides/config

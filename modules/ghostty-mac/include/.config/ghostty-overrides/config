@@ -1,4 +1,12 @@
 # MacOS specific settings
 font-size = 23
 adjust-cell-width = -1
-# macos-titlebar-style = "hidden"
+
+# Unbind keys that should be Linux-only
+keybind = "ctrl+shift+,=unbind"
+keybind = "ctrl+shift+v=unbind"
+
+# Keybinds for default terminal behavior
+keybind = "super+shift+,=reload_config"
+keybind = "super+v=paste_from_clipboard"
+keybind = "super+q=quit"
