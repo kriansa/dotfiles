@@ -1,0 +1,12 @@
+# vim: ft=gitconfig
+[user]
+  name = Daniel Pereira
+  email = daniel@garajau.com.br
+  signingkey = BC277BE09E8A6F1059C3911B3E7884756312F945
+
+# For dotfiles, we don't want to sign commits or tags in order to avoid exposing settings from work
+# overrides when I need to commit from work computer.
+[commit]
+  gpgsign = false
+[tag]
+  gpgSign = false

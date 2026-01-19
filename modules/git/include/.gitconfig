@@ -27,6 +27,9 @@
   pager = delta
 [commit]
   template = ~/.gitmessage
+  gpgsign = true
+[tag]
+  gpgSign = true
 [push]
   default = current
   followTags = true
@@ -58,18 +61,17 @@
   navigate = true    # use n and N to move between diff sections
   line-numbers = true
 
-  # delta detects terminal colors automatically; set one of these to disable auto-detection
-  # dark = true
-  # light = true
-
 [merge]
   conflictstyle = diff3
 
 [diff]
   colorMoved = default
 
-; Include static configuration work-related, such as different profile and authentication
+; Include work-related overrides, such as different profile and authentication
+[include]
+  path = ~/.gitconfig-overrides
+
 ; This must be added as last entry so it can take precedence and override attributes
 ; The trailing slash is required
-[includeIf "gitdir:~/Projects/"]
-  path = ~/.gitconfig-work
+[includeIf "gitdir:~/.dotfiles/"]
+  path = ~/.gitconfig-dotfiles
