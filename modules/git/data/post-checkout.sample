@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# Keep here all your setup commands that should be run.
+setup() { :
+	# link .claude/settings.local.json
+	# npm install
+}
+
+# Copies a file or directory from the old path to the new path
+#
+# Usage:
+#   copy <file_or_dir>
+copy() {
+	local file_or_dir=$1
+	echo "Copying $file_or_dir"
+	cp -a "$old_path/$file_or_dir" "$new_path/$file_or_dir"
+}
+
+# Creates a symbolic link from the old path to the new path
+#
+# Usage:
+#  link <file_or_dir>
+link() {
+	local file_or_dir=$1
+	echo "Linking $file_or_dir"
+	ln -sf "$old_path/$file_or_dir" "$new_path/$file_or_dir"
+}
+
+# Run the setup only for new worktrees
+test "$1" != "0000000000000000000000000000000000000000" && return
+old_path="$(cd "$(git rev-parse --absolute-git-dir)/../../.." && pwd)"
+new_path="$(pwd)"
+declare -f setup &>/dev/null && setup

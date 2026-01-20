@@ -7,7 +7,6 @@
   cm = commit
   rs = reset
   st = status
-  wt = worktree
   wip = stash --include-untracked
   unwip = stash pop
   graph = log --graph --pretty=format:'%C(auto)%h%Creset%C(auto)%d%Creset %s %C(magenta bold)(%cr)%Creset %C(cyan)<%aN>%Creset'

@@ -1,0 +1,344 @@
+#!/usr/bin/env bash
+#
+# Opinionated wrapper around `git worktree`
+#
+# Creates worktrees as siblings to the main worktree with sanitized branch names.
+# Example: repo at /var/myrepo, branch feature/foo -> /var/myrepo-feature-foo
+#
+# Usage: git wt [add|rm|list] [OPTIONS] [BRANCH]
+
+# Constants
+POST_CHECKOUT_TEMPLATE=~/.dotfiles/modules/git/data/post-checkout.sample
+
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BOLD='\033[1m'
+RESET='\033[0m'
+
+# Helper functions
+
+error() {
+	echo -e "${RED}error:${RESET} $*" >&2
+	exit 1
+}
+
+sanity-check() {
+	if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+		error "not a git repository"
+	fi
+}
+
+get-main-worktree() {
+	git worktree list --porcelain | head -1 | sed 's/^worktree //'
+}
+
+get-git-dir() {
+	git rev-parse --git-dir 2> /dev/null
+}
+
+sanitize-branch-name() {
+	echo "$1" | tr '/' '-'
+}
+
+get-worktree-path() {
+	local branch="$1"
+	local main_worktree
+	main_worktree=$(get-main-worktree)
+	local parent_dir
+	parent_dir=$(dirname "$main_worktree")
+	local repo_name
+	repo_name=$(basename "$main_worktree")
+	local sanitized
+	sanitized=$(sanitize-branch-name "$branch")
+
+	echo "${parent_dir}/${repo_name}-${sanitized}"
+}
+
+branch-has-worktree() {
+	local branch="$1"
+	git worktree list --porcelain | grep -q "^branch refs/heads/${branch}$"
+}
+
+worktree-exists-at-path() {
+	local path="$1"
+	git worktree list --porcelain | grep -q "^worktree ${path}$"
+}
+
+is-first-worktree() {
+	local count
+	count=$(git worktree list --porcelain | grep -c "^worktree ")
+	[ "$count" -eq 1 ]
+}
+
+relative-path() {
+	local path="$1"
+	python3 -c "import os; print(os.path.relpath('$path'))"
+}
+
+edit-with-editor() {
+	local file="$1"
+	local git_core_editor text_editor
+
+	git_core_editor=$(git config --get core.editor)
+	text_editor="${GIT_EDITOR:-${git_core_editor:-${VISUAL:-${EDITOR:-vi}}}}"
+	$text_editor "$file"
+}
+
+maybe-setup-hook() {
+	local git_dir
+	git_dir=$(get-git-dir)
+	local hook_path="${git_dir}/hooks/post-checkout"
+
+	# Only prompt on first worktree creation
+	if ! is-first-worktree; then
+		return
+	fi
+
+	# Hook already exists
+	if [ -f "$hook_path" ]; then
+		return
+	fi
+
+	# Template doesn't exist
+	if [ ! -f "$POST_CHECKOUT_TEMPLATE" ]; then
+		return
+	fi
+
+	echo -n "No post-checkout hook found. Create one from template? [y/N] "
+	read -r response
+	if [[ ! "$response" =~ ^[Yy]$ ]]; then
+		return
+	fi
+
+	mkdir -p "${git_dir}/hooks"
+	cp "$POST_CHECKOUT_TEMPLATE" "$hook_path"
+	chmod +x "$hook_path"
+	echo -e "${GREEN}✓${RESET} Created post-checkout hook"
+
+	echo -n "Edit hook before continuing? [y/N] "
+	read -r response
+	if [[ "$response" =~ ^[Yy]$ ]]; then
+		edit-with-editor "$hook_path" || true
+	fi
+}
+
+# Help functions
+
+show-main-help() {
+	cat <<-EOF
+	Usage: git wt <command> [OPTIONS] [ARGS]
+
+	Commands:
+	  add, new, create    Create a new worktree
+	  rm, remove, delete  Remove a worktree
+	  list, ls            List worktrees (default)
+
+	Run 'git wt <command> -h' for command-specific help.
+	EOF
+}
+
+show-add-help() {
+	cat <<-EOF
+	Usage: git wt add [-b] <branch>
+
+	Create a new worktree for the given branch.
+
+	Options:
+	  -b    Create a new branch
+
+	The worktree is created as a sibling to the main worktree with the branch
+	name sanitized (slashes replaced with dashes).
+
+	Example:
+	  git wt add feature/foo      # checkout existing branch
+	  git wt add -b feature/bar   # create and checkout new branch
+	EOF
+}
+
+show-rm-help() {
+	cat <<-EOF
+	Usage: git wt rm <branch>
+
+	Remove the worktree for the given branch.
+
+	After removing the worktree, you'll be prompted to delete the branch.
+
+	Example:
+	  git wt rm feature/foo
+	EOF
+}
+
+show-list-help() {
+	cat <<-EOF
+	Usage: git wt list
+
+	List all worktrees.
+	EOF
+}
+
+# Commands
+
+cmd-add() {
+	local create_branch=false
+	local branch=""
+
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			-b)
+				create_branch=true
+				shift
+				;;
+			-h|--help)
+				show-add-help
+				exit 0
+				;;
+			-*)
+				error "unknown option: $1"
+				;;
+			*)
+				branch="$1"
+				shift
+				;;
+		esac
+	done
+
+	if [ -z "$branch" ]; then
+		show-add-help
+		exit 1
+	fi
+
+	local worktree_path
+	worktree_path=$(get-worktree-path "$branch")
+
+	# Check if branch already has a worktree
+	if branch-has-worktree "$branch"; then
+		error "branch '$branch' already has a worktree"
+	fi
+
+	# Check if path already exists
+	if [ -e "$worktree_path" ]; then
+		error "path already exists: $worktree_path"
+	fi
+
+	# Setup hook on first worktree
+	maybe-setup-hook
+
+	# Create the worktree
+	# Argument order differs: -b <branch> <path> vs <path> <branch>
+	if [ "$create_branch" = true ]; then
+		git worktree add -b "$branch" "$worktree_path" || exit 1
+	else
+		git worktree add "$worktree_path" "$branch" || exit 1
+	fi
+
+	local rel_path
+	rel_path=$(relative-path "$worktree_path")
+	echo -e "${GREEN}✓${RESET} Worktree created at ${BOLD}${rel_path}${RESET}"
+}
+
+cmd-rm() {
+	local branch=""
+
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			-h|--help)
+				show-rm-help
+				exit 0
+				;;
+			-*)
+				error "unknown option: $1"
+				;;
+			*)
+				branch="$1"
+				shift
+				;;
+		esac
+	done
+
+	if [ -z "$branch" ]; then
+		show-rm-help
+		exit 1
+	fi
+
+	local worktree_path
+	worktree_path=$(get-worktree-path "$branch")
+
+	# Check worktree exists
+	if ! worktree-exists-at-path "$worktree_path"; then
+		error "no worktree found at: $worktree_path"
+	fi
+
+	# Remove the worktree
+	if ! git worktree remove "$worktree_path"; then
+		exit 1
+	fi
+
+	local rel_path
+	rel_path=$(relative-path "$worktree_path")
+	echo -e "${GREEN}✓${RESET} Worktree removed: ${BOLD}${rel_path}${RESET}"
+
+	# Prompt to delete branch
+	echo -n "Delete branch '$branch'? [y/N] "
+	read -r response
+	if [[ ! "$response" =~ ^[Yy]$ ]]; then
+		return
+	fi
+
+	if git branch -d "$branch" 2>/dev/null; then
+		echo -e "${GREEN}✓${RESET} Branch deleted: ${BOLD}${branch}${RESET}"
+	else
+		echo -n "Branch not fully merged. Force delete? [y/N] "
+		read -r response
+		if [[ "$response" =~ ^[Yy]$ ]]; then
+			git branch -D "$branch"
+			echo -e "${GREEN}✓${RESET} Branch force deleted: ${BOLD}${branch}${RESET}"
+		fi
+	fi
+}
+
+cmd-list() {
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			-h|--help)
+				show-list-help
+				exit 0
+				;;
+			*)
+				shift
+				;;
+		esac
+	done
+
+	git worktree list
+}
+
+# Entry point
+
+main() {
+	sanity-check
+
+	local cmd="${1:-list}"
+	shift 2>/dev/null || true
+
+	case "$cmd" in
+		add|new|create)
+			cmd-add "$@"
+			;;
+		rm|remove|delete|del)
+			cmd-rm "$@"
+			;;
+		list|ls)
+			cmd-list "$@"
+			;;
+		-h|--help)
+			show-main-help
+			exit 0
+			;;
+		*)
+			error "unknown command: $cmd"
+			;;
+	esac
+}
+
+main "$@"
