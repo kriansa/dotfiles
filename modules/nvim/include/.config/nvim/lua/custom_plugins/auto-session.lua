@@ -1,8 +1,16 @@
--- Path, relative to the project where `session.vim` will be located at.
--- Typically we want that inside `.git` metadata directory so that it doesn't get versioned.
-local metadir = ".git"
-local metafile = metadir .. "/session.vim"
-local shadafile = metadir .. "/session.shada"
+-- Session files are stored inside the git directory so they don't get versioned.
+local metafile = "session.vim"
+local shadafile = "session.shada"
+
+-- Returns the absolute path to the git directory, or nil if not in a git repo.
+-- This handles both regular repos (where .git is a directory) and worktrees (where .git is a file).
+local function get_git_dir(cwd)
+  local result = vim.fn.system("git -C " .. vim.fn.shellescape(cwd) .. " rev-parse --absolute-git-dir 2>/dev/null")
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+  return vim.trim(result)
+end
 
 function load_shada(path)
   vim.opt.shadafile = path
@@ -21,14 +29,15 @@ function load_session()
     return load_default_shada()
   end
 
-  local metadir_path = path_arg .. "/" .. metadir
-  local metafile_path = path_arg .. "/" .. metafile
-  local shadafile_path = path_arg .. "/" .. shadafile
+  local git_dir = get_git_dir(path_arg)
 
-  -- If we don't have the metadir, then we can't save the session there
-  if vim.fn.isdirectory(metadir_path) == 0 then
+  -- If we're not in a git repo, we can't save the session there
+  if git_dir == nil then
     return load_default_shada()
   end
+
+  local metafile_path = git_dir .. "/" .. metafile
+  local shadafile_path = git_dir .. "/" .. shadafile
 
   -- If we're loading a path that doesn't have a session yet, create it
   if vim.fn.filereadable(metafile_path) == 0 then
@@ -53,13 +62,16 @@ function load_session()
 end
 
 function save_session()
-  local meta_dir = vim.fn.getcwd() .. "/" .. metadir
+  local cwd = vim.fn.getcwd()
+  local git_dir = get_git_dir(cwd)
 
-  if vim.fn.isdirectory(meta_dir) == 1 then
+  if git_dir ~= nil then
+    local shadafile_path = git_dir .. "/" .. shadafile
+    local metafile_path = git_dir .. "/" .. metafile
     load_shada(shadafile_path)
-    vim.cmd("Obsession " .. metafile)
+    vim.cmd("Obsession " .. metafile_path)
   else
-    print("This directory doesn't have the folder '" .. meta_dir .. "'")
+    print("Not in a git repository")
   end
 end
 
