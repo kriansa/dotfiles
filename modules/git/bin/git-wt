@@ -43,14 +43,10 @@ sanitize-branch-name() {
 
 get-worktree-path() {
 	local branch="$1"
-	local main_worktree
-	main_worktree=$(get-main-worktree)
-	local parent_dir
-	parent_dir=$(dirname "$main_worktree")
-	local repo_name
-	repo_name=$(basename "$main_worktree")
-	local sanitized
-	sanitized=$(sanitize-branch-name "$branch")
+	local main_worktree; main_worktree=$(get-main-worktree)
+	local parent_dir; parent_dir=$(dirname "$main_worktree")
+	local repo_name; repo_name=$(basename "$main_worktree")
+	local sanitized; sanitized=$(sanitize-branch-name "$branch")
 
 	echo "${parent_dir}/${repo_name}-${sanitized}"
 }
@@ -66,8 +62,7 @@ worktree-exists-at-path() {
 }
 
 is-first-worktree() {
-	local count
-	count=$(git worktree list --porcelain | grep -c "^worktree ")
+	local count; count=$(git worktree list --porcelain | grep -c "^worktree ")
 	[ "$count" -eq 1 ]
 }
 
