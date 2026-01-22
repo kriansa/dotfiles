@@ -29,6 +29,7 @@ brew "vivid"
 
 cask "1password"
 cask "bruno"
+cask "claude-code"
 cask "corretto@21"
 cask "dbeaver-community"
 cask "font-iosevka"
