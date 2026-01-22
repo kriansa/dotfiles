@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-# Keep here all your setup commands that should be run.
+# Keep here all your setup commands that should be run on every new worktree
+# You can use any command, or the built-in functions: `copy`, `link` and `run`
 setup() { :
 	# link .claude/settings.local.json
-	# npm install
+	# run npm install
 }
 
 # Copies a file or directory from the old path to the new path
@@ -12,7 +13,7 @@ setup() { :
 #   copy <file_or_dir>
 copy() {
 	local file_or_dir=$1
-	echo "Copying $file_or_dir"
+	echo -e "\033[0;36mCopying\033[0m $file_or_dir"
 	cp -a "$old_path/$file_or_dir" "$new_path/$file_or_dir"
 }
 
@@ -22,12 +23,22 @@ copy() {
 #  link <file_or_dir>
 link() {
 	local file_or_dir=$1
-	echo "Linking $file_or_dir"
+	echo -e "\033[0;35mLinking\033[0m $file_or_dir"
 	ln -sf "$old_path/$file_or_dir" "$new_path/$file_or_dir"
 }
 
-# Run the setup only for new worktrees
-test "$1" != "0000000000000000000000000000000000000000" && return
+# Runs a command in the new worktree directory
+#
+# Usage:
+#   run <command>
+run() {
+	echo -e "\033[0;32mRunning\033[0m $*"
+	"$@"
+}
+
+# Entry point: ensure this is a new worktree checkout and execute the `setup`
+test "$1" != "0000000000000000000000000000000000000000" && exit
 old_path="$(cd "$(git rev-parse --absolute-git-dir)/../../.." && pwd)"
 new_path="$(pwd)"
+echo -e "\033[1mSetting up the new worktree\033[0m"
 declare -f setup &>/dev/null && setup
