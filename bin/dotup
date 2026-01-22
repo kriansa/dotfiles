@@ -381,9 +381,10 @@ class Stower:
         """This is a list of paths that shouldn't ever be linked, only their child nodes"""
         return [
             ".local/share",  # XDG_DATA_HOME
-            ".config",  # XDG_CONFIG_HOME
             ".local/state",  # XDG_STATE_HOME
+            ".config",  # XDG_CONFIG_HOME
             ".cache",  # XDG_CACHE_HOME
+            ".local/bin",  # Binary files
             ".gnupg",  # GnuPG metadata
             ".config/vlc",  # VLC metadata
             ".config/gtk-3.0",  # GTK3 settings

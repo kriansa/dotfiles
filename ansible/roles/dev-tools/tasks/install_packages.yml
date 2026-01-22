@@ -72,6 +72,9 @@
       - heroku-cli-bin
       - bruno-bin
 
+      # AI
+      - claude-code
+
       # Kubernetes
       - openlens-bin
       - krew

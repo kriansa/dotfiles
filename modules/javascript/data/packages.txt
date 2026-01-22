@@ -8,5 +8,4 @@ eslint-config-prettier
 eslint-plugin-vue
 eslint-plugin-react
 vls
-@anthropic-ai/claude-code
 opencode-ai

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# Claude Code wrapper script
+#
+# Claude Code expects to be installed at ~/.local/bin as per their setup docs:
+# https://code.claude.com/docs/en/setup
+#
+# Most distros install it elsewhere (e.g., /usr/bin). Running from there works
+# fine, but Claude Code displays a warning on startup about not being in the
+# expected location. This wrapper lives at ~/.local/bin/claude to satisfy that
+# check, then forwards to the real binary.
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Find the next claude binary in PATH (skip our directory)
+IFS=':' read -ra path_dirs <<< "$PATH"
+for dir in "${path_dirs[@]}"; do
+  if [[ "$dir" != "$script_dir" && -x "$dir/claude" ]]; then
+    exec "$dir/claude" "$@"
+  fi
+done
+
+echo "Error: No claude binary found in PATH" >&2
+exit 1
