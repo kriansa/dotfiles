@@ -16,6 +16,8 @@ set --global --export FZF_DEFAULT_OPTS "\
 
 #  Configure fzf.fish
 set --global fzf_fd_opts --hidden --exclude=.git
+set --global fzf_preview_dir_cmd eza --all --color=always
+set --global fzf_diff_highlighter delta --paging=never --width=20
 
 # Configure theme (Hydro)
 set --global hydro_multiline true
