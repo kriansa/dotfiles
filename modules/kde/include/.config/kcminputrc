@@ -3,7 +3,7 @@ update_info=delete_cursor_old_default_size.upd:DeleteCursorOldDefaultSize,kcminp
 
 [Keyboard]
 RepeatDelay=350
-RepeatRate=35
+RepeatRate=50
 
 [Libinput][5426][132][Razer Razer DeathAdder V2]
 PointerAcceleration=-0.400

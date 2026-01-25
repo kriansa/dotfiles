@@ -268,7 +268,7 @@ immutability=1
 plugin=org.kde.plasma.notifications
 
 [Containments][3][Applets][8][Applets][121][Configuration]
-PreloadWeight=60
+PreloadWeight=100
 
 [Containments][3][Applets][8][Applets][122][Configuration]
 PreloadWeight=42
@@ -295,7 +295,7 @@ immutability=1
 plugin=org.kde.plasma.battery
 
 [Containments][3][Applets][8][Applets][17][Configuration]
-PreloadWeight=10
+PreloadWeight=2
 
 [Containments][3][Applets][8][Applets][18]
 immutability=1
@@ -362,7 +362,7 @@ immutability=1
 plugin=org.kde.plasma.brightness
 
 [Containments][3][Applets][8][Applets][49][Configuration]
-PreloadWeight=90
+PreloadWeight=100
 
 [Containments][3][Applets][8][Applets][61]
 immutability=1
@@ -426,8 +426,7 @@ positions={"3440x1440":[]}
 url=file:///home/dpereira/Downloads
 
 [Containments][46][Wallpaper][org.kde.image][General]
-Image=/usr/share/wallpapers/Nexus/
-PreviewImage=/usr/share/wallpapers/Nexus/
+Image=file:///usr/share/wallpapers/PastelHills/
 SlidePaths=/usr/share/wallpapers/
 
 [Containments][46][Wallpaper][org.kde.potd][General]

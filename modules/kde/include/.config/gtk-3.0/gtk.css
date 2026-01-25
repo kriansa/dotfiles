@@ -1,0 +1,10 @@
+/** Required by Plasma */
+@import 'colors.css';
+
+/**
+ * Match border shadow to how I configured for Breeze KDE theme
+ * See: https://github.com/akiraux/Akira/issues/395
+ */
+window decoration, dialog decoration, messagedialog decoration {
+  box-shadow: 0 0 2px gray;
+}
