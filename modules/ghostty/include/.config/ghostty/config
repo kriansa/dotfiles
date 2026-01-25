@@ -7,6 +7,7 @@ initial-command = "/bin/sh -lc 'tmux new-session -A'"
 quit-after-last-window-closed = true
 macos-option-as-alt = false
 mouse-scroll-multiplier = 1
+auto-update = off
 
 # Reduce noise
 confirm-close-surface = false
