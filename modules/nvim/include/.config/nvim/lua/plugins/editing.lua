@@ -16,7 +16,7 @@ return {
   { 'AndrewRadev/splitjoin.vim' },
 
   -- Move to two-character search patterns
-  { "ggandor/leap.nvim" },
+  { "https://codeberg.org/andyg/leap.nvim" },
 
   {
     'andymass/vim-matchup',
