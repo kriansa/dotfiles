@@ -71,6 +71,12 @@ relative-path() {
 	python3 -c "import os; print(os.path.relpath('$path'))"
 }
 
+path-in-use() {
+	local path="$1"
+	# Check if any process has files open in the directory or uses it as cwd
+	lsof +D "$path" >/dev/null 2>&1
+}
+
 edit-with-editor() {
 	local file="$1"
 	local git_core_editor text_editor
@@ -153,14 +159,18 @@ show-add-help() {
 
 show-rm-help() {
 	cat <<-EOF
-	Usage: git wt rm <branch>
+	Usage: git wt rm [-f] <branch>
 
 	Remove the worktree for the given branch.
+
+	Options:
+	  -f, --force    Skip the in-use check (processes with open files or cwd)
 
 	After removing the worktree, you'll be prompted to delete the branch.
 
 	Example:
 	  git wt rm feature/foo
+	  git wt rm -f feature/foo   # skip in-use check
 	EOF
 }
 
@@ -234,12 +244,17 @@ cmd-add() {
 
 cmd-rm() {
 	local branch=""
+	local force=false
 
 	while [ $# -gt 0 ]; do
 		case "$1" in
 			-h|--help)
 				show-rm-help
 				exit 0
+				;;
+			-f|--force)
+				force=true
+				shift
 				;;
 			-*)
 				error "unknown option: $1"
@@ -262,6 +277,11 @@ cmd-rm() {
 	# Check worktree exists
 	if ! worktree-exists-at-path "$worktree_path"; then
 		error "no worktree found at: $worktree_path"
+	fi
+
+	# Check if worktree is in use
+	if [ "$force" = false ] && path-in-use "$worktree_path"; then
+		error "worktree is in use (open files or active shell sessions)"
 	fi
 
 	# Remove the worktree
