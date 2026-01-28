@@ -289,9 +289,7 @@ cmd-rm() {
 		exit 1
 	fi
 
-	local rel_path
-	rel_path=$(relative-path "$worktree_path")
-	echo -e "${GREEN}✓${RESET} Worktree removed: ${BOLD}${rel_path}${RESET}"
+	echo -e "Deleted worktree ${BOLD}$(basename "$worktree_path")${RESET}"
 
 	# Prompt to delete branch
 	echo -n "Delete branch '$branch'? [y/N] "
@@ -300,16 +298,7 @@ cmd-rm() {
 		return
 	fi
 
-	if git branch -d "$branch" 2>/dev/null; then
-		echo -e "${GREEN}✓${RESET} Branch deleted: ${BOLD}${branch}${RESET}"
-	else
-		echo -n "Branch not fully merged. Force delete? [y/N] "
-		read -r response
-		if [[ "$response" =~ ^[Yy]$ ]]; then
-			git branch -D "$branch"
-			echo -e "${GREEN}✓${RESET} Branch force deleted: ${BOLD}${branch}${RESET}"
-		fi
-	fi
+	git branch -D "$branch"
 }
 
 cmd-list() {
