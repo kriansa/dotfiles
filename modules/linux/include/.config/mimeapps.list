@@ -56,6 +56,14 @@ x-scheme-handler/lmstudio=lmstudio.desktop;LM Studio.desktop;lm-studio.desktop;
 x-scheme-handler/slack=slack.desktop;Slack.desktop;
 x-scheme-handler/postman=Postman.desktop;
 x-scheme-handler/bruno=bruno.desktop;
+x-scheme-handler/http=firefox.desktop;
+x-scheme-handler/https=firefox.desktop;
+x-scheme-handler/chrome=firefox.desktop;
+application/x-extension-htm=firefox.desktop;
+application/x-extension-html=firefox.desktop;
+application/x-extension-shtml=firefox.desktop;
+application/x-extension-xhtml=firefox.desktop;
+application/x-extension-xht=firefox.desktop;
 
 [Default Applications]
 application/json=nvim.desktop;
@@ -147,7 +155,7 @@ text/css=nvim.desktop;
 text/csv=libreoffice-calc.desktop;
 text/csv-schema=nvim.desktop;
 text/enriched=nvim.desktop;
-text/html=firefox.desktop;
+text/html=firefox.desktop
 text/htmlh=nvim.desktop;
 text/javascript=nvim.desktop;
 text/julia=nvim.desktop;
@@ -209,6 +217,12 @@ x-scheme-handler/postman=Postman.desktop
 x-scheme-handler/slack=slack.desktop
 x-scheme-handler/terminal=tmux-window.desktop;
 x-scheme-handler/bruno=bruno.desktop
+x-scheme-handler/chrome=firefox.desktop
+application/x-extension-htm=firefox.desktop
+application/x-extension-html=firefox.desktop
+application/x-extension-shtml=firefox.desktop
+application/x-extension-xhtml=firefox.desktop
+application/x-extension-xht=firefox.desktop
 
 [Removed Associations]
 text/cache-manifest=libreoffice-writer.desktop;
