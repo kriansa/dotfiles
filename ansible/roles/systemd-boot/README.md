@@ -44,6 +44,14 @@ partition. Here's the steps in order to do that:
    boot up with Arch install media, mount the boot volume, chroot into /mnt and install
    `systemd-boot` by running `bootctl install`.
 
+## In case diskpart is not recognizing the partitions
+
+Remember to check if the partitions have the correct flags to it.
+- **EFI Partition:** boot, esp, no_automont
+- **Microsoft reserved partition:** msftres, no_automont
+- **Windows partition:** msftdata, no_automont
+- **Recovery partition:** hidden, diag, no_automont
+
 ## Links
 
 [Arch Wiki - Systemd-boot](https://wiki.archlinux.org/index.php/systemd-boot)

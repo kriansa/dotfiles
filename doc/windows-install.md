@@ -31,4 +31,4 @@
 
 # Troubleshooting
 
-* [Fixing boot partition](ansible/roles/systemd-boot/README.md)
+* [Fixing boot partition](../ansible/roles/systemd-boot/README.md)
