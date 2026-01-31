@@ -2,6 +2,7 @@
   "permissions": {
     "defaultMode": "plan"
   },
+  "preferredNotifChannel": "terminal_bell",
   "hooks": {
     "Notification": [
       {
