@@ -164,13 +164,14 @@ show-rm-help() {
 	Remove the worktree for the given branch.
 
 	Options:
-	  -f, --force    Skip the in-use check (processes with open files or cwd)
+	  -f, --force    Force removal: skip in-use check, force git worktree remove,
+	                 and delete leftover directory with rm -rf
 
 	After removing the worktree, you'll be prompted to delete the branch.
 
 	Example:
 	  git wt rm feature/foo
-	  git wt rm -f feature/foo   # skip in-use check
+	  git wt rm -f feature/foo   # force removal and cleanup
 	EOF
 }
 
@@ -285,8 +286,21 @@ cmd-rm() {
 	fi
 
 	# Remove the worktree
-	if ! git worktree remove "$worktree_path"; then
-		exit 1
+	if [ "$force" = true ]; then
+		git worktree remove --force "$worktree_path" 2>/dev/null || true
+	else
+		if ! git worktree remove "$worktree_path"; then
+			exit 1
+		fi
+	fi
+
+	# Check if path still exists after removal
+	if [ -d "$worktree_path" ]; then
+		if [ "$force" = true ]; then
+			rm -rf "$worktree_path"
+		else
+			echo -e "${RED}warning:${RESET} worktree path still exists: $worktree_path" >&2
+		fi
 	fi
 
 	echo -e "Deleted worktree ${BOLD}$(basename "$worktree_path")${RESET}"

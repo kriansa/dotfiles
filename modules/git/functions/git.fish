@@ -42,9 +42,11 @@ function _git_wt_rm
 
   # Extract branch (first non-flag argument) - flags pass through unchanged
   set -l branch
+  set -l branch_in_args false
   for arg in $argv
     if not string match -q -- '-*' $arg
       set branch $arg
+      set branch_in_args true
       break
     end
   end
@@ -91,16 +93,16 @@ function _git_wt_rm
 
   # Run the actual rm command - pass all original args, add branch if it was inferred
   set -l rm_status
-  if test (count $argv) -eq 0
-    command git wt rm $branch
+  if test "$branch_in_args" = true
+    command git wt rm $argv
     set rm_status $status
   else
-    command git wt rm $argv
+    command git wt rm $argv $branch
     set rm_status $status
   end
 
-  # If rm failed and worktree still exists, cd back
-  if test $rm_status -ne 0 -a "$did_cd" = true -a -d "$target_wt"
+  # If worktree still exists after rm attempt, cd back
+  if test "$did_cd" = true -a -d "$target_wt"
     cd $target_wt
   end
 
