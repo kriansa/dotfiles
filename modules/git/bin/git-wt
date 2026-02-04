@@ -74,7 +74,9 @@ relative-path() {
 path-in-use() {
 	local path="$1"
 	# Check if any process has files open in the directory or uses it as cwd
-	lsof +D "$path" >/dev/null 2>&1
+	# Note: lsof exit code is unreliable (returns 1 on permission issues even when
+	# files are found), so we check for output instead
+	[ -n "$(lsof +D "$path" 2>/dev/null)" ]
 }
 
 edit-with-editor() {
