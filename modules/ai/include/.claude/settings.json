@@ -19,5 +19,6 @@
     "type": "command",
     "command": "~/.claude/statusline-command.sh"
   },
+  "preferredNotifChannel": "terminal_bell",
   "enabledPlugins": {}
 }
