@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Remove itself from $PATH and call claude
+SELF=$(cd "$(dirname "$0")" && pwd)
+PATH=${PATH//"$SELF:"/}
+exec claude --allow-dangerously-skip-permissions "$@"

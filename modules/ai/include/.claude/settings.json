@@ -2,7 +2,6 @@
   "permissions": {
     "defaultMode": "plan"
   },
-  "preferredNotifChannel": "terminal_bell",
   "hooks": {
     "Notification": [
       {
@@ -20,5 +19,7 @@
     "type": "command",
     "command": "~/.claude/statusline-command.sh"
   },
-  "enabledPlugins": {}
+  "enabledPlugins": {},
+  "preferredNotifChannel": "terminal_bell",
+  "skipDangerousModePermissionPrompt": true
 }
