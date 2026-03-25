@@ -38,6 +38,7 @@ complete -c git-wt -n '__fish_git_wt_using_subcommand add new create' -a "(__fis
 
 # rm subcommand
 complete -c git-wt -n '__fish_git_wt_using_subcommand rm remove delete del' -s f -l force -d "Force removal"
+complete -c git-wt -n '__fish_git_wt_using_subcommand rm remove delete del' -s F -l force-all -d "Force removal + delete branch without prompting"
 complete -c git-wt -n '__fish_git_wt_using_subcommand rm remove delete del' -s h -l help -d "Show help"
 complete -c git-wt -n '__fish_git_wt_using_subcommand rm remove delete del' -a "(__fish_git_wt_branches)"
 

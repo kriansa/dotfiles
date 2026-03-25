@@ -3,7 +3,7 @@
 # Opinionated wrapper around `git worktree`
 #
 # Creates worktrees as siblings to the main worktree with sanitized branch names.
-# Example: repo at /var/myrepo, branch feature/foo -> /var/myrepo-feature-foo
+# Example: repo at /var/myrepo, branch feature/foo -> /var/myrepo--feature-foo
 #
 # Usage: git wt [add|rm|list] [OPTIONS] [BRANCH]
 
@@ -48,7 +48,7 @@ get-worktree-path() {
 	local repo_name; repo_name=$(basename "$main_worktree")
 	local sanitized; sanitized=$(sanitize-branch-name "$branch")
 
-	echo "${parent_dir}/${repo_name}-${sanitized}"
+	echo "${parent_dir}/${repo_name}--${sanitized}"
 }
 
 branch-has-worktree() {
@@ -161,19 +161,21 @@ show-add-help() {
 
 show-rm-help() {
 	cat <<-EOF
-	Usage: git wt rm [-f] <branch>
+	Usage: git wt rm [-f|-F] <branch>
 
 	Remove the worktree for the given branch.
 
 	Options:
-	  -f, --force    Force removal: skip in-use check, force git worktree remove,
-	                 and delete leftover directory with rm -rf
+	  -f, --force      Force removal: skip in-use check, force git worktree remove,
+	                   and delete leftover directory with rm -rf
+	  -F, --force-all  Like -f, but also delete the branch without prompting
 
 	After removing the worktree, you'll be prompted to delete the branch.
 
 	Example:
 	  git wt rm feature/foo
 	  git wt rm -f feature/foo   # force removal and cleanup
+	  git wt rm -F feature/foo   # force removal + delete branch
 	EOF
 }
 
@@ -248,6 +250,7 @@ cmd-add() {
 cmd-rm() {
 	local branch=""
 	local force=false
+	local force_all=false
 
 	while [ $# -gt 0 ]; do
 		case "$1" in
@@ -257,6 +260,11 @@ cmd-rm() {
 				;;
 			-f|--force)
 				force=true
+				shift
+				;;
+			-F|--force-all)
+				force=true
+				force_all=true
 				shift
 				;;
 			-*)
@@ -307,14 +315,17 @@ cmd-rm() {
 
 	echo -e "Deleted worktree ${BOLD}$(basename "$worktree_path")${RESET}"
 
-	# Prompt to delete branch
-	echo -n "Delete branch '$branch'? [y/N] "
-	read -r response
-	if [[ ! "$response" =~ ^[Yy]$ ]]; then
-		return
+	# Delete branch
+	if [ "$force_all" = true ]; then
+		git branch -D "$branch"
+	else
+		echo -n "Delete branch '$branch'? [y/N] "
+		read -r response
+		if [[ ! "$response" =~ ^[Yy]$ ]]; then
+			return
+		fi
+		git branch -D "$branch"
 	fi
-
-	git branch -D "$branch"
 }
 
 cmd-list() {

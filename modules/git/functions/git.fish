@@ -40,14 +40,16 @@ function _git_wt_rm
   set -l main_wt (git worktree list --porcelain | head -1 | sed 's/^worktree //')
   set -l current_wt (git rev-parse --show-toplevel)
 
-  # Extract branch (first non-flag argument) - flags pass through unchanged
+  # Extract branch (first non-flag argument) and detect -F flag
   set -l branch
   set -l branch_in_args false
+  set -l force_all false
   for arg in $argv
-    if not string match -q -- '-*' $arg
+    if string match -q -- "-F" "$arg"; or string match -q -- "--force-all" "$arg"
+      set force_all true
+    else if not string match -q -- '-*' $arg
       set branch $arg
       set branch_in_args true
-      break
     end
   end
 
@@ -62,16 +64,15 @@ function _git_wt_rm
       return 1
     end
 
-    # Get branch for current worktree from porcelain output
-    set branch (git worktree list --porcelain | awk -v wt="$current_wt" '
-    /^worktree / { current = substr($0, 10) }
-    /^branch / && current == wt { print substr($0, 19) }
-    ')
+    # Get branch for current worktree
+    set branch (git branch --show-current)
 
-    # Prompt user
-    read -P "Delete worktree for branch '$branch'? [y/N] " -l response
-    if not string match -qi 'y' $response
-      return 0
+    # Prompt user (skip with -F)
+    if test "$force_all" = false
+      read -P "Delete worktree for branch '$branch'? [y/N] " -l response
+      if not string match -qi 'y' $response
+        return 0
+      end
     end
 
     # We're in the target, cd to main
