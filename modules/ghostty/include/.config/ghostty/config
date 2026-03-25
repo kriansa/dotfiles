@@ -63,7 +63,7 @@ keybind = "super+shift+j=text:\x1CJ"
 keybind = "super+shift+k=text:\x1CK"
 keybind = "super+shift+l=text:\x1CL"
 
-keybind = "super+h=text:\x1Ch"
+keybind = "unconsumed:super+h=text:\x1Ch"
 keybind = "super+j=text:\x1Cj"
 keybind = "super+k=text:\x1Ck"
 keybind = "super+l=text:\x1Cl"
@@ -83,7 +83,7 @@ keybind = "super+]=text:\x1C]"
 keybind = "super+[=text:\x1C["
 
 # Keybinds for default terminal behavior
-keybind = "ctrl+plus=increase_font_size:1"
+keybind = "ctrl+equal=increase_font_size:1"
 keybind = "ctrl+minus=decrease_font_size:1"
 keybind = "ctrl+0=reset_font_size"
 # Linux-only
