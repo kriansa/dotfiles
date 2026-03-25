@@ -3,6 +3,16 @@
 " You can find a list of commands here: https://jb.gg/h38q75
 " Find more examples here: https://jb.gg/share-ideavimrc
 
+" --- Enable IdeaVim plugins https://jb.gg/ideavim-plugins
+set which-key
+set surround
+set highlightedyank
+set matchit
+set commentary
+set vim-paragraph-motion
+set sneak
+set anyobject
+set NERDTree
 
 "" -- Suggested options --
 " Show a few lines of context around the cursor. Note that this makes the
@@ -43,7 +53,7 @@ vmap > >gv
 " Shift + J join lines. Shift + K should split lines
 nnoremap <S-K> i<CR><ESC>
 
-nmap \ <Action>(ActivateProjectToolWindow)
+nmap \ :NERDTreeToggle<CR>
 
 " Select last pasted text
 nmap <Leader>v `[v`]
@@ -67,21 +77,11 @@ nmap [c <Action>(VcsShowPrevChangeMarker)
 nmap <Leader>yf <Action>(CopyPathFromRepositoryRootProvider)
 
 " Git status
-nmap <Leader>gs <Action>(Git)
+nmap <Leader>gs <Action>(Git.Commit.Stage)
 
 let g:highlightedyank_highlight_duration = "80"
 let g:highlightedyank_highlight_foreground_color = "rgba(0, 0, 0, 255)"
 let g:highlightedyank_highlight_color = "rgba(166, 210, 255, 255)"
-
-" --- Enable IdeaVim plugins https://jb.gg/ideavim-plugins
-set which-key
-set surround
-set highlightedyank
-set matchit
-set commentary
-set vim-paragraph-motion
-set sneak
-set anyobject
 
 "" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
 "" Map \r to the Reformat Code action
