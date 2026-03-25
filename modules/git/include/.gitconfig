@@ -23,7 +23,6 @@
 [core]
   attributesfile = ~/.gitattributes
   autocrlf = input
-  pager = delta
 [commit]
   template = ~/.gitmessage
   gpgsign = true
@@ -52,18 +51,14 @@
 [diff "sqlite"]
   textconv = echo .dump | sqlite3
 
-;; Use delta as git diff tool
-[interactive]
-  diffFilter = delta --color-only
-
-[delta]
-  navigate = true    # use n and N to move between diff sections
-  line-numbers = true
-
 [merge]
   conflictstyle = diff3
 
+[pager]
+  difftool = true
+
 [diff]
+  external = difft
   colorMoved = default
 
 ; Include work-related overrides, such as different profile and authentication
