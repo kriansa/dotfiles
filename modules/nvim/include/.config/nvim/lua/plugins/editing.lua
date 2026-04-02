@@ -43,22 +43,17 @@ return {
 
   {
     'nvim-treesitter/nvim-treesitter',
+    branch = "main",
+    lazy = false,
     build = ':TSUpdate',
     config = function()
-      require('nvim-treesitter.configs').setup({
-        ensure_installed = {
+      require('nvim-treesitter').install({
           "awk", "bash", "c", "caddy", "comment", "cpp", "css", "csv", "diff", "dockerfile", "fish",
           "git_config", "git_rebase", "gitattributes", "gitcommit", "gitignore", "go", "gomod",
-          "gosum", "graphql", "hcl", "html", "ini", "java", "javascript", "jq", "json", "jsonc",
-          "json5", "kotlin", "latex", "lua", "luadoc", "make", "markdown", "markdown_inline",
-          "passwd", "pem", "php", "promql", "python", "query", "ruby", "rbs", "regex", "rust",
-          "scss", "sql", "toml", "tsx", "terraform", "typescript", "vim", "vimdoc", "vue", "yaml",
-          "xml",
-        },
-        highlight = { enable = true, additional_vim_regex_highlighting = false },
-        indent = { enable = true },
-        incremental_selection = { enable = true },
-        textobjects = { enable = true },
+          "gosum", "graphql", "hcl", "html", "ini", "java", "javascript", "jq", "json", "json5",
+          "kotlin", "latex", "lua", "luadoc", "make", "markdown", "markdown_inline", "passwd",
+          "pem", "php", "promql", "python", "query", "ruby", "rbs", "regex", "rust", "scss", "sql",
+          "toml", "tsx", "terraform", "typescript", "vim", "vimdoc", "vue", "yaml", "xml",
       })
     end
   },
@@ -67,47 +62,22 @@ return {
   -- This has integration with LSP: https://github.com/nvim-treesitter/nvim-treesitter-textobjects#textobjects-lsp-interop
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    init = function()
+      -- Disable entire built-in ftplugin mappings to avoid conflicts.
+      -- See https://github.com/neovim/neovim/tree/master/runtime/ftplugin for built-in ftplugins.
+      vim.g.no_plugin_maps = true
+    end,
     config = function()
-      require('nvim-treesitter.configs').setup({
-        textobjects = {
-          move = {
-            enable = true,
-            set_jumps = true,
-            goto_next_start = {
-              ["]m"] = "@function.outer",
-              ["]]"] = "@class.outer",
-            },
-            goto_next_end = {
-              ["]M"] = "@function.outer",
-              ["]["] = "@class.outer",
-            },
-            goto_previous_start = {
-              ["[m"] = "@function.outer",
-              ["[["] = "@class.outer",
-            },
-            goto_previous_end = {
-              ["[M"] = "@function.outer",
-              ["[]"] = "@class.outer",
-            },
-          },
-
-          select = {
-            enable = true,
-
-            -- Automatically jump forward to textobj, similar to targets.vim
-            lookahead = true,
-
-            keymaps = {
-              -- You can use the capture groups defined in textobjects.scm
-              ["am"] = "@function.outer",
-              ["im"] = "@function.inner",
-              ["ac"] = "@class.outer",
-              ["ic"] = "@class.inner",
-              ["ap"] = "@parameter.outer",
-              ["ip"] = "@parameter.inner",
-            },
-          },
+      require('nvim-treesitter-textobjects').setup({
+        select = {
+          -- Automatically jump forward to textobj, similar to targets.vim
+          lookahead = true,
+        },
+        move = {
+          -- whether to set jumps in the jumplist
+          set_jumps = true,
         },
       })
     end
@@ -118,12 +88,6 @@ return {
   {
     'RRethy/nvim-treesitter-endwise',
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
-    event = "InsertEnter",
-    config = function()
-      require('nvim-treesitter.configs').setup {
-        endwise = { enable = true },
-      }
-    end
   },
 
   {
