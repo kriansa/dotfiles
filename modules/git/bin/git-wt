@@ -234,12 +234,45 @@ cmd-add() {
 	# Setup hook on first worktree
 	maybe-setup-hook
 
+	# Temporarily override core.hooksPath to default if it's set to something custom
+	local git_dir default_hooks_path current_hooks_path needs_hooks_override=false
+	git_dir=$(get-git-dir)
+	default_hooks_path="${git_dir}/hooks"
+	current_hooks_path=$(git config core.hooksPath 2>/dev/null || true)
+
+	if [ -n "$current_hooks_path" ] && [ "$current_hooks_path" != "$default_hooks_path" ]; then
+		needs_hooks_override=true
+	fi
+
+	local original_local_hooks_path had_local_hooks_path=false
+	if [ "$needs_hooks_override" = true ]; then
+		if git config --local core.hooksPath &>/dev/null; then
+			had_local_hooks_path=true
+			original_local_hooks_path=$(git config --local core.hooksPath)
+		fi
+		git config --local core.hooksPath "$default_hooks_path"
+	fi
+
 	# Create the worktree
 	# Argument order differs: -b <branch> <path> vs <path> <branch>
+	local add_result=0
 	if [ "$create_branch" = true ]; then
-		git worktree add -b "$branch" "$worktree_path" || exit 1
+		git worktree add -b "$branch" "$worktree_path" || add_result=$?
 	else
-		git worktree add "$worktree_path" "$branch" || exit 1
+		git worktree add "$worktree_path" "$branch" || add_result=$?
+	fi
+
+	# Restore original core.hooksPath
+	if [ "$needs_hooks_override" = true ]; then
+		if [ "$had_local_hooks_path" = true ]; then
+			git config --local core.hooksPath "$original_local_hooks_path"
+		else
+			git config --local --unset core.hooksPath 2>/dev/null || true
+		fi
+	fi
+
+	if [ "$add_result" -ne 0 ]; then
+		exit "$add_result"
 	fi
 
 	local rel_path
