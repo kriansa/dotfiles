@@ -80,10 +80,6 @@
       # Password managers
       - 1password
 
-      # Beancount
-      - beancount
-      - fava
-
       # DDC
       - ddccontrol
       - ddccontrol-db-git
