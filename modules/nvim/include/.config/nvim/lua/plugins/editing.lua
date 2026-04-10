@@ -47,13 +47,32 @@ return {
     lazy = false,
     build = ':TSUpdate',
     config = function()
-      require('nvim-treesitter').install({
+      local parsers = {
           "awk", "bash", "c", "caddy", "comment", "cpp", "css", "csv", "diff", "dockerfile", "fish",
           "git_config", "git_rebase", "gitattributes", "gitcommit", "gitignore", "go", "gomod",
           "gosum", "graphql", "hcl", "html", "ini", "java", "javascript", "jq", "json", "json5",
           "kotlin", "latex", "lua", "luadoc", "make", "markdown", "markdown_inline", "passwd",
           "pem", "php", "promql", "python", "query", "ruby", "rbs", "regex", "rust", "scss", "sql",
           "toml", "tsx", "terraform", "typescript", "vim", "vimdoc", "vue", "yaml", "xml",
+      }
+
+      -- Make sure we have these parsers installed beforehand
+      require('nvim-treesitter').install(parsers)
+
+      -- Then enable syntax highlighting for these parsers
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { "*" },
+        callback = function(args)
+          local ft = vim.bo[args.buf].filetype
+          local lang = vim.treesitter.language.get_lang(ft)
+
+          if vim.treesitter.language.add(lang) then
+            vim.treesitter.start(args.buf, lang)
+            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+            vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+            vim.wo[0][0].foldmethod = "expr"
+          end
+        end,
       })
     end
   },
