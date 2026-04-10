@@ -3,7 +3,7 @@
 # Opinionated wrapper around `git worktree`
 #
 # Creates worktrees as siblings to the main worktree with sanitized branch names.
-# Example: repo at /var/myrepo, branch feature/foo -> /var/myrepo--feature-foo
+# Example: repo at /var/myrepo, branch feature/foo -> /var/myrepo+feature-foo
 #
 # Usage: git wt [add|rm|list] [OPTIONS] [BRANCH]
 
@@ -48,7 +48,22 @@ get-worktree-path() {
 	local repo_name; repo_name=$(basename "$main_worktree")
 	local sanitized; sanitized=$(sanitize-branch-name "$branch")
 
-	echo "${parent_dir}/${repo_name}--${sanitized}"
+	echo "${parent_dir}/${repo_name}+${sanitized}"
+}
+
+get-worktree-path-for-branch() {
+	local branch="$1"
+	local target="branch refs/heads/${branch}"
+	local path=""
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^worktree\ (.+)$ ]]; then
+			path="${BASH_REMATCH[1]}"
+		elif [[ "$line" == "$target" ]]; then
+			echo "$path"
+			return 0
+		fi
+	done < <(git worktree list --porcelain)
+	return 1
 }
 
 branch-has-worktree() {
@@ -316,11 +331,10 @@ cmd-rm() {
 	fi
 
 	local worktree_path
-	worktree_path=$(get-worktree-path "$branch")
+	worktree_path=$(get-worktree-path-for-branch "$branch")
 
-	# Check worktree exists
-	if ! worktree-exists-at-path "$worktree_path"; then
-		error "no worktree found at: $worktree_path"
+	if [ -z "$worktree_path" ]; then
+		error "no worktree found for branch: $branch"
 	fi
 
 	# Check if worktree is in use
