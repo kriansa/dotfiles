@@ -25,5 +25,8 @@
   "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true,
   "preferredNotifChannel": "terminal_bell",
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "sandbox": {
+    "mode": "auto-allow"
+  }
 }
