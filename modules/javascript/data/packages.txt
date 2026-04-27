@@ -9,3 +9,4 @@ eslint-plugin-vue
 eslint-plugin-react
 vls
 opencode-ai
+@bytebase/dbhub@latest

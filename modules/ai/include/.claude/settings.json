@@ -19,9 +19,6 @@
     "type": "command",
     "command": "~/.claude/statusline-command.sh"
   },
-  "enabledPlugins": {
-    "kotlin-lsp@claude-plugins-official": true
-  },
   "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true,
   "preferredNotifChannel": "terminal_bell",
