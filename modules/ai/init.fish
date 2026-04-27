@@ -1,7 +1,3 @@
-# Avoid flicker from claude code
-# See: https://github.com/anthropics/claude-code/issues/1913
-set --global --export ENABLE_INCREMENTAL_TUI true
-
 # Disable auto updater, /bug command, error reporting and telemetry
 set --global --export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC 1
 
