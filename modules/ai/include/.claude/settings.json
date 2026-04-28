@@ -19,11 +19,12 @@
     "type": "command",
     "command": "~/.claude/statusline-command.sh"
   },
-  "voiceEnabled": true,
-  "skipDangerousModePermissionPrompt": true,
-  "preferredNotifChannel": "terminal_bell",
-  "effortLevel": "high",
   "sandbox": {
     "mode": "auto-allow"
-  }
+  },
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true,
+  "preferredNotifChannel": "terminal_bell",
+  "voiceEnabled": true,
+  "theme": "light"
 }
