@@ -308,17 +308,6 @@ local ai_prefix = "<Leader>u"
 -- Toggle copilot (mnemonic: Co[p]ilot)
 vim.keymap.set({'n', 'v'}, ai_prefix .. "p", "<cmd>CopilotToggle<CR>", { silent = true })
 
--- CodeCompanion Chat (mnemonic: [C]hat)
-vim.keymap.set('n', ai_prefix .. "C", "<cmd>CodeCompanionChat<CR>", { silent = true })
-
--- CodeCompanion Inline (mnemonic: [c]ompanion)
-vim.keymap.set({'n', 'v'}, ai_prefix .. "c", "<cmd>CodeCompanion<CR>", { silent = true })
-
-mappings.code_companion = {
-  accept = "ga",
-  reject = "gr",
-}
-
 -- Text objects
 vim.keymap.set({ "n", "x", "o" }, "]m", function()
   require("nvim-treesitter-textobjects.move").goto_next_start("@function.outer", "textobjects")

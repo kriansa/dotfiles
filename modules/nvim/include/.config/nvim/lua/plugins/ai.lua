@@ -30,43 +30,9 @@ return {
           cmd.disable()
         end
       end, { desc = "Toggle Github Copilot" })
-    end,
-  },
 
-  {
-    "olimorris/codecompanion.nvim",
-    cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionCmd", "CodeCompanionActions" },
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    opts = {
-      strategies = {
-        chat = {
-          adapter = "anthropic",
-        },
-        inline = {
-          adapter = "copilot",
-          keymaps = {
-            accept_change = {
-              modes = { n = mappings.code_companion.accept },
-              description = "Accept the suggested change",
-            },
-            reject_change = {
-              modes = { n = mappings.code_companion.reject },
-              description = "Reject the suggested change",
-            },
-          },
-        },
-        cmd = {
-          adapter = "copilot",
-        },
-      },
-      display = {
-        action_palette = {
-          provider = "snacks",
-        },
-      },
-    },
-  },
+      -- Start disabled
+      require("copilot.command").disable()
+    end,
+  }
 }

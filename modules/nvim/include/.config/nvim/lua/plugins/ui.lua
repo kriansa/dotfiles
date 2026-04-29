@@ -172,6 +172,17 @@ return {
         filetypes = {'snacks_terminal', 'nvim_terminal'},
       }
 
+      copilot_section = {
+        'copilot',
+        symbols = {
+          status = {
+            icons = {
+              unknown = " ",
+            },
+          },
+        },
+      }
+
       require('lualine').setup({
         options = {
           icons_enabled = true,
@@ -185,7 +196,7 @@ return {
           lualine_b = { 'branch', { 'diff', source = git_status } },
           lualine_c = {'filename'},
           lualine_x = {'location'}, -- or %c for only column
-          lualine_y = {'copilot', 'bo:filetype', 'diagnostics'},
+          lualine_y = {copilot_section, 'bo:filetype', 'diagnostics'},
           lualine_z = {},
         },
         inactive_sections = {
