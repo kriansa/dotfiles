@@ -72,6 +72,8 @@ vim.filetype.add({
     container = "systemd",
     volume = "systemd",
     network = "systemd",
+    image = "systemd",
+    alloy = "hcl",
   },
   filename = {
     Dangerfile = "ruby",
