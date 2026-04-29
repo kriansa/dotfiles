@@ -1,8 +1,8 @@
 # vim ft=conf
-font-family = "Iosevka Term"
+font-family = "Iosevka Fixed"
 font-size = 17
 font-feature = "-calt,-clig,-dlig,-liga,VSAB=9"
-adjust-cell-width = -1
+adjust-cell-width = 0
 adjust-box-thickness = -1
 initial-command = "/bin/sh -lc 'tmux new-session -A'"
 quit-after-last-window-closed = true
@@ -93,6 +93,9 @@ keybind = "ctrl+shift+v=paste_from_clipboard"
 # Send exactly same character for C-[ and Esc
 # That helps with tmux that doesn't pick up C-[ as Esc on command-prompts
 keybind = "ctrl+[=text:\x1b"
+
+# Send the correct form of Ctrl+Shift+E when extended-keys is enabled in Tmux
+keybind = "ctrl+shift+e=text:\x1b[101:69;6u"
 
 # Load override settings
 config-file = ?../ghostty-overrides/config
