@@ -12,7 +12,7 @@
     install_amd_drivers: true
     install_nvidia_drivers: false
     enable_bluetooth: true
-    cpu_brand: amd
+    cpu_brand: intel
 
   roles:
     - role: 1-common-handlers

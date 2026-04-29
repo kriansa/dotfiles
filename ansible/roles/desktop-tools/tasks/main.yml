@@ -2,3 +2,4 @@
 - import_tasks: setup_audio.yml
 - import_tasks: install.yml
 - import_tasks: setup_network_drive.yml
+- import_tasks: setup_additional_drive.yml

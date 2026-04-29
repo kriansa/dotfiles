@@ -1,0 +1,14 @@
+---
+- name: create base path to be mounted on
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.file: path={{ home_path }}/SecondDrive state=directory mode=0755
+
+- name: add media fstab entry
+  become: true
+  notify: mount drives from fstab
+  ansible.builtin.blockinfile:
+    path: /etc/fstab
+    marker: "# Enable second drive ({mark})"
+    block: |
+      UUID=1C1E55F81E55CC00	{{ home_path }}/SecondDrive	ntfs3	rw,relatime,uid={{ user_name }},gid={{ user_name }},acl,iocharset=utf8,prealloc	0	0
