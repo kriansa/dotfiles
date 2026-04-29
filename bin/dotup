@@ -390,6 +390,7 @@ class Stower:
             ".config/gtk-3.0",  # GTK3 settings
             ".config/pulse",  # PulseAudio
             ".config/systemd/user",  # SystemD user units
+            ".config/autostart",  # Autostart desktop entries
             ".local/share/applications",  # Desktop entries
             ".claude",  # Claude CLI metadata
         ]
