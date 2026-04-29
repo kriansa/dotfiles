@@ -23,8 +23,9 @@
     "mode": "auto-allow"
   },
   "effortLevel": "high",
+  "tui": "default",
   "skipDangerousModePermissionPrompt": true,
+  "theme": "light",
   "preferredNotifChannel": "terminal_bell",
-  "voiceEnabled": true,
-  "theme": "light"
+  "voiceEnabled": true
 }
