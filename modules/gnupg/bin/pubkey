@@ -7,7 +7,7 @@
 # Globals
 #   GPG_MAIN_KEY - The main GPG key ID
 
-key_description=$(gpg -K "$GPG_MAIN_KEY" | grep uid | sed 's/.*\] //g')
+key_description=$(gpg -K "$GPG_MAIN_KEY" | grep uid | head -1 | sed 's/.*\] //g')
 
 public_key=$(gpg --export-ssh-key $GPG_MAIN_KEY | \
   sed "s/openpgp:.*/$key_description/")
