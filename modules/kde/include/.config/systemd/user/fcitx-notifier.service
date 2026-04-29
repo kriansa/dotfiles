@@ -1,0 +1,11 @@
+[Unit]
+Description=Fcitx5 input method tray icon and notifications
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.dotfiles/modules/kde/libexec/fcitx-notifier --flags
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

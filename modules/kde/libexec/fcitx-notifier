@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+import argparse
+import configparser
+import logging
+import os
+import signal
+import sys
+
+import dbus
+import dbus.mainloop.glib
+from gi.repository import GLib
+
+from PyQt6.QtWidgets import QApplication, QSystemTrayIcon
+from PyQt6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
+from PyQt6.QtCore import Qt, QRect, QRectF, QTimer
+from PyQt6.QtSvg import QSvgRenderer
+
+log = logging.getLogger(__name__)
+
+CIRCLE_FLAGS_DIR = "/usr/share/circle-flags-svg"
+
+# Label map: fcitx5 IM name -> {icon, notification, flag}
+LABEL_MAP = {
+    "keyboard-us": {
+        "icon":  "US",
+        "notif": "English (US)",
+        "flag":  "us",
+    },
+    "keyboard-us-alt-intl": {
+        "icon":  "BR",
+        "notif": "International",
+        "flag":  "br",
+    },
+}
+
+ICON_SIZE = 48
+ICON_CONTENT_PCT = 80  # icon content size as % of ICON_SIZE (controls padding)
+FONT_SIZE_PCT = 90     # font size as % of content area
+
+
+def get_kde_font_family():
+    try:
+        cfg = configparser.ConfigParser()
+        cfg.read(os.path.expanduser("~/.config/kdeglobals"))
+        return cfg.get("General", "font").split(",")[0].strip()
+    except Exception:
+        return ""
+
+
+def content_rect():
+    size = int(ICON_SIZE * ICON_CONTENT_PCT / 100)
+    offset = (ICON_SIZE - size) // 2
+    return QRect(offset, offset, size, size)
+
+
+def make_text_icon(text):
+    pixmap = QPixmap(ICON_SIZE, ICON_SIZE)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    font = QFont(get_kde_font_family())
+    font.setPixelSize(int(ICON_SIZE * ICON_CONTENT_PCT / 100 * FONT_SIZE_PCT / 100))
+    painter = QPainter(pixmap)
+    painter.setFont(font)
+    painter.setPen(QColor(0, 0, 0, 255))
+    painter.drawText(content_rect(), Qt.AlignmentFlag.AlignCenter, text)
+    painter.end()
+    return QIcon(pixmap)
+
+
+def make_flag_icon(flag_code):
+    path = os.path.join(CIRCLE_FLAGS_DIR, f"{flag_code}.svg")
+    pixmap = QPixmap(ICON_SIZE, ICON_SIZE)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    renderer = QSvgRenderer(path)
+    painter = QPainter(pixmap)
+    renderer.render(painter, QRectF(content_rect()))
+    painter.end()
+    return QIcon(pixmap)
+
+
+def make_icon(entry, use_flags):
+    if use_flags:
+        return make_flag_icon(entry["flag"])
+    return make_text_icon(entry["icon"])
+
+
+def setup_fcitx(bus):
+    frontend = bus.get_object("org.fcitx.Fcitx5", "/org/freedesktop/portal/inputmethod")
+    fcitx_iface = dbus.Interface(frontend, "org.fcitx.Fcitx.InputMethod1")
+    ic_path, _ = fcitx_iface.CreateInputContext([
+        ("program", "im-monitor"),
+        ("display", "x11:"),
+    ])
+    log.debug("Input context: %s", ic_path)
+
+    ic = bus.get_object("org.fcitx.Fcitx5", ic_path)
+    ic_iface = dbus.Interface(ic, "org.fcitx.Fcitx.InputContext1")
+    ic_iface.FocusIn()
+
+    ctrl = bus.get_object("org.fcitx.Fcitx5", "/controller")
+    ctrl_iface = dbus.Interface(ctrl, "org.fcitx.Fcitx.Controller1")
+    startup_name = str(ctrl_iface.CurrentInputMethod())
+
+    return ic_path, ic_iface, startup_name
+
+
+def make_tooltip(layout):
+    return f"Keyboard Layout\n{layout}"
+
+
+def setup_tray(startup_name, use_flags):
+    entry = LABEL_MAP.get(startup_name, {"icon": startup_name, "notif": startup_name, "flag": startup_name})
+    tray = QSystemTrayIcon()
+    tray.setIcon(make_icon(entry, use_flags))
+    tray.setToolTip(make_tooltip(entry["notif"]))
+    tray.show()
+    return tray
+
+
+def setup_glib_pump():
+    ctx = GLib.MainContext.default()
+    pump = QTimer()
+    pump.timeout.connect(lambda: ctx.iteration(False))
+    pump.start(10)
+    return pump  # keep reference alive
+
+
+def setup_im_monitor(bus, ic_path, tray, use_flags):
+    osd = bus.get_object("org.kde.plasmashell", "/org/kde/osdService")
+    osd_iface = dbus.Interface(osd, "org.kde.osdService")
+
+    _seen_startup = False
+
+    def on_current_im(name, label, icon, *args):
+        nonlocal _seen_startup
+        if not _seen_startup:
+            _seen_startup = True
+            return
+        entry = LABEL_MAP.get(label, {"icon": label, "notif": label, "flag": label})
+        log.debug("IM changed: %s -> %s", name, entry["icon"])
+        tray.setIcon(make_icon(entry, use_flags))
+        tray.setToolTip(make_tooltip(entry["notif"]))
+        osd_iface.showText("keyboard-layout", entry["notif"])
+
+    bus.add_signal_receiver(
+        on_current_im,
+        signal_name="CurrentIM",
+        dbus_interface="org.fcitx.Fcitx.InputContext1",
+        path=ic_path,
+    )
+
+    tray.activated.connect(lambda reason:
+        os.system("fcitx5-remote -t") if reason == QSystemTrayIcon.ActivationReason.Trigger else None)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="fcitx5 tray notifier")
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument("--flags", action="store_true", help="Show country flag icons instead of text")
+    args = parser.parse_args()
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.WARNING,
+        format="%(levelname)s %(name)s: %(message)s",
+    )
+
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    bus = dbus.SessionBus()
+
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(False)
+    log.debug("Font: %s (%dpx)", get_kde_font_family() or "default", int(ICON_SIZE * FONT_SIZE_PCT / 100))
+    log.debug("Flags mode: %s", args.flags)
+
+    ic_path, ic_iface, startup_name = setup_fcitx(bus)
+    tray = setup_tray(startup_name, args.flags)
+    _pump = setup_glib_pump()
+    setup_im_monitor(bus, ic_path, tray, args.flags)
+
+    def cleanup(*_):
+        log.debug("Cleaning up")
+        try:
+            ic_iface.DestroyIC()
+        except Exception as e:
+            log.debug("DestroyIC failed: %s", e)
+        app.quit()
+
+    signal.signal(signal.SIGINT, cleanup)
+    signal.signal(signal.SIGTERM, cleanup)
+
+    log.debug("Monitoring IM changes")
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
