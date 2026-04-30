@@ -14,6 +14,7 @@ return {
 
   {
     "f-person/git-blame.nvim",
+    branch = "main",
     cmd = {
       "GitBlameToggle",
       "GitBlameEnable",
