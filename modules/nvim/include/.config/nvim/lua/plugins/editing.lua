@@ -35,10 +35,8 @@ return {
 
   -- Commenter
   {
-    'numToStr/Comment.nvim',
-    config = function()
-      require('Comment').setup()
-    end
+    'folke/ts-comments.nvim',
+    event = "VeryLazy",
   },
 
   {
