@@ -55,11 +55,11 @@ upgrade_node_packages() {
   # Always use the global nodejs
   export ASDF_NODEJS_VERSION; ASDF_NODEJS_VERSION=$(global_node_version)
 
-  # Update npm
-  npm install -g npm
+  # Update pnpm
+  npm install -g pnpm@latest || { echo "Failed to install pnpm"; exit 1; }
 
   while IFS= read -r package; do
-    npm install -g "$package"
+    pnpm install -g "$package"
   done < "$DOTFILES_PATH/modules/javascript/data/packages.txt"
 }
 

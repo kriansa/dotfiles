@@ -1,4 +1,3 @@
-pnpm
 prettier
 prettier-eslint
 typescript
