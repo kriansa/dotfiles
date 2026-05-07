@@ -391,6 +391,7 @@ class Stower:
             ".config/pulse",  # PulseAudio
             ".config/systemd/user",  # SystemD user units
             ".config/autostart",  # Autostart desktop entries
+            ".config/pipewire/pipewire.conf.d", # Pipewire config
             ".local/share/applications",  # Desktop entries
             ".claude",  # Claude CLI metadata
         ]
