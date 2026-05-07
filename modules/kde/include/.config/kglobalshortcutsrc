@@ -241,6 +241,10 @@ seekforwardmedia=Media Fast Forward,Media Fast Forward,Media playback seek forwa
 seekforwardmedialong=,,Media playback seek forward 30s
 stopmedia=Media Stop,Media Stop,Stop media playback
 
+[org.chromium.Chromium]
+71D04BB893AB902190E2CD5188DBD5DC-=,none,Electron shortcut\s
+_k_friendly_name=org.chromium.Chromium
+
 [org_kde_powerdevil]
 Decrease Keyboard Brightness=Keyboard Brightness Down,Keyboard Brightness Down,Decrease Keyboard Brightness
 Decrease Screen Brightness=Monitor Brightness Down,Monitor Brightness Down,Decrease Screen Brightness
