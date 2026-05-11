@@ -181,10 +181,9 @@ return {
 
   -- CSS/HTML
   {
-    'norcalli/nvim-colorizer.lua',
-    ft = { 'css', 'javascript', 'vim', 'html', 'vue', 'jsx', 'tsx' },
+    'brenoprata10/nvim-highlight-colors',
     config = function()
-      require('colorizer').setup({'css', 'javascript', 'vim', 'html', 'vue', 'jsx', 'tsx'})
+      require('nvim-highlight-colors').setup()
     end
   },
 }
