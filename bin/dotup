@@ -394,6 +394,7 @@ class Stower:
             ".config/pipewire/pipewire.conf.d", # Pipewire config
             ".local/share/applications",  # Desktop entries
             ".claude",  # Claude CLI metadata
+            ".claude/skills",  # Claude skills (multiple modules may contribute)
         ]
 
     @staticmethod
