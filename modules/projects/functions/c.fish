@@ -13,7 +13,7 @@ function c --description="Quickly jumps into a project's directory"
 
       # If current dir is not the main worktree, use main worktree's basename with asterisk
       if test "$current_dir" != "$main_worktree"
-        set window_name (basename $main_worktree)"*"
+        set window_name (basename $main_worktree)"+"
       end
     end
 
