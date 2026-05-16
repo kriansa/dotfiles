@@ -50,9 +50,6 @@
       # Scheduler
       - ananicy-cpp
 
-      # GPU-accelerated console (replaces getty/agetty)
-      - kmscon
-
       # Pipewire noise suppression (rnnoise)
       - noise-suppression-for-voice
 
@@ -123,29 +120,3 @@
 - name: start and enable ananicy-cpp at boot time
   become: true
   ansible.builtin.systemd: name=ananicy-cpp enabled=yes state=started
-
-- name: create kmscon config directory
-  become: true
-  ansible.builtin.file:
-    path: /etc/kmscon
-    state: directory
-    mode: '0755'
-
-- name: deploy kmscon configuration
-  become: true
-  ansible.builtin.copy:
-    src: kmscon.conf
-    dest: /etc/kmscon/kmscon.conf
-    mode: '0644'
-
-- name: disable getty service
-  become: true
-  ansible.builtin.systemd:
-    name: getty@.service
-    enabled: false
-
-- name: enable kmsconvt service
-  become: true
-  ansible.builtin.systemd:
-    name: kmsconvt@.service
-    enabled: true

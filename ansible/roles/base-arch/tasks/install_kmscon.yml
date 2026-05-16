@@ -1,0 +1,33 @@
+---
+# GPU-accelerated console (replaces getty/agetty)
+- name: install kmscon
+  become: true
+  community.general.pacman:
+    state: present
+    name: kmscon
+
+- name: create kmscon config directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/kmscon
+    state: directory
+    mode: '0755'
+
+- name: deploy kmscon configuration
+  become: true
+  ansible.builtin.copy:
+    src: kmscon.conf
+    dest: /etc/kmscon/kmscon.conf
+    mode: '0644'
+
+- name: disable getty service
+  become: true
+  ansible.builtin.systemd:
+    name: getty@.service
+    enabled: false
+
+- name: enable kmsconvt service
+  become: true
+  ansible.builtin.systemd:
+    name: kmsconvt@.service
+    enabled: true
