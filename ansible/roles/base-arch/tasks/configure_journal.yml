@@ -10,4 +10,4 @@
     dest: /etc/systemd/journald.conf.d/01-limit-space.conf
     content: |
       [Journal]
-      SystemMaxUse=50M
+      SystemMaxUse=1G
