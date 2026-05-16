@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+#
+# tmux-nest — open a tmux session nested inside the current tmux pane.
+#
+# The nested session runs on its own tmux server (`tmux -L <socket>`) so its
+# bindings and sessions are isolated from the outer. The outer's tmux.conf
+# recognizes nested panes via the @nest-host pane option (set below) and
+# routes most root-table keys (C-\, C-l, S-PageUp, …) to the inner tmux. See
+# the "tmux-nest integration" block in tmux.conf for the full picture.
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+tmux-nest — open a nested tmux session in the current pane.
+
+Usage: tmux-nest [--path DIR] [--new-window] [session-name]
+       tmux-nest --help
+
+Options:
+  --path DIR     Starting directory for the inner session. If omitted, the
+                 inner inherits the pane's current directory.
+  --new-window   Prompt for a name (if not provided), then open a new outer
+                 window running tmux-nest there. Used by the Super+Shift+T
+                 popup binding; safe to call from a shell too.
+  -h, --help     Show this help and exit.
+
+Argument:
+  session-name   Name for the nested session. If omitted, prompt for it
+                 interactively via shell `read`.
+EOF
+}
+
+# --- Argument parsing -------------------------------------------------------
+
+session_path=""
+new_window=0
+session_name=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --path)
+      [[ $# -lt 2 ]] && { echo "tmux-nest: --path requires an argument" >&2; exit 2; }
+      session_path="$2"
+      shift 2
+      ;;
+    --path=*)
+      session_path="${1#--path=}"
+      shift
+      ;;
+    --new-window)
+      new_window=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "tmux-nest: unknown option '$1'" >&2
+      usage >&2
+      exit 2
+      ;;
+    *)
+      if [[ -z "$session_name" ]]; then
+        session_name="$1"
+        shift
+      else
+        echo "tmux-nest: unexpected argument '$1'" >&2
+        exit 2
+      fi
+      ;;
+  esac
+done
+
+# --- --new-window mode ------------------------------------------------------
+# When invoked from the Super+Shift+T popup (or any caller that wants the
+# nested session to open in a fresh outer window), prompt for the name here
+# — we have a TTY in the popup's shell — and then exec into a new outer
+# window running tmux-nest with the captured name. The popup closes when
+# this process exits; the new window picks up the real work.
+
+if [[ $new_window -eq 1 ]]; then
+  if [[ -z "$session_name" ]]; then
+    read -rp "Nested session name: " session_name
+    [[ -z "$session_name" ]] && exit 0
+  fi
+  if [[ -n "$session_path" ]]; then
+    exec tmux new-window tmux-nest --path "$session_path" "$session_name"
+  else
+    exec tmux new-window tmux-nest "$session_name"
+  fi
+fi
+
+# --- Interactive prompt fallback --------------------------------------------
+# Bare invocation from a shell — ask for the name now.
+
+if [[ -z "$session_name" ]]; then
+  read -rp "Nested session name: " session_name
+  if [[ -z "$session_name" ]]; then
+    echo "Cancelled" >&2
+    exit 0
+  fi
+fi
+
+# --- Sanitize ---------------------------------------------------------------
+# The user-facing name can contain anything (spaces, punctuation, emoji), but
+# two downstream consumers can't:
+#   1. The tmux socket (-L) becomes a file at /tmp/tmux-<uid>/<name>, so it
+#      must be filesystem-safe.
+#   2. tmux session names disallow ':' and '.'.
+# Strategy: keep [A-Za-z0-9_-], replace everything else with '_'. The user
+# still sees the original name (window title + @nest-host value); the safe
+# form is used only as the socket/session identifier.
+
+safe_name=$(printf '%s' "$session_name" | sed 's/[^A-Za-z0-9_-]/_/g')
+if [[ -z "$safe_name" ]]; then
+  echo "tmux-nest: session name '$session_name' has no usable characters" >&2
+  exit 1
+fi
+
+# --- Outer pane setup -------------------------------------------------------
+# Mark this outer pane as a nest host (drives tmux.conf's key routing and
+# tab-fade) and rename the outer window so it's identifiable in the tab list.
+# Save the original window name so cleanup can restore it.
+
+original_window_name=$(tmux display-message -p '#{window_name}')
+
+tmux set-option -p @nest-host "$session_name"
+tmux set-option @active-is-nested "$session_name"
+tmux rename-window "$session_name"
+
+# --- Cleanup ----------------------------------------------------------------
+# Whatever exit path we take (detach, kill-session, error, signal), restore
+# the outer pane's state and close the pane that hosted us.
+
+cleanup() {
+  tmux set-option -p -u @nest-host 2>/dev/null || true
+  tmux set-option -u @active-is-nested 2>/dev/null || true
+  tmux rename-window "$original_window_name" 2>/dev/null || true
+  tmux set-window-option automatic-rename on 2>/dev/null || true
+  tmux kill-pane 2>/dev/null || true
+}
+trap cleanup EXIT
+
+# --- Launch inner -----------------------------------------------------------
+# 1. Ensure the inner session exists on its own server (detached). If it
+#    already exists from a previous run, the create fails silently and we
+#    just reattach.
+# 2. Mark the inner server with @nest-inner so its tmux.conf hooks enable
+#    the bell-action focus handling.
+# 3. Attach in the foreground; this blocks until detach or session kill,
+#    after which `cleanup` runs via the EXIT trap.
+
+new_session_args=(new-session -d -s "$safe_name")
+[[ -n "$session_path" ]] && new_session_args+=(-c "$session_path")
+
+TMUX="" tmux -L "$safe_name" "${new_session_args[@]}" 2>/dev/null || true
+TMUX="" tmux -L "$safe_name" set-option -s @nest-inner 1
+TMUX="" tmux -L "$safe_name" attach-session -t "$safe_name"
