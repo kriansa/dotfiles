@@ -27,7 +27,20 @@ export ANSIBLE_NOCOWS=1
 
 # On localhost, we need to use a local connection
 if test "${host}" = "localhost"; then
-  extra_params=("--connection=local")
+  # FIDO2/U2F hardware token authentication workaround for Ansible.
+  # When using FIDO2-protected sudo, Ansible hangs waiting for interactive
+  # token prompt. The workaround is to provide a dummy password via
+  # ansible_become_pass, which satisfies Ansible's password check while
+  # allowing sudo to proceed to FIDO2 interactive authentication.
+  #
+  # See: https://github.com/ansible/ansible/issues/86102
+  #
+  # Without this dummy password, Ansible fails immediately with:
+  #   "sudo: a password is required"
+  #
+  # With the dummy password, Ansible passes it to sudo, which then
+  # proceeds to FIDO2 authentication (waiting for token touch).
+  extra_params=("--connection=local" "-e" "ansible_become_pass=dummy")
 else
   extra_params=("--ssh-extra-args" "-o ForwardAgent=yes")
 fi
