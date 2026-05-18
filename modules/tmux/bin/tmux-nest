@@ -108,20 +108,21 @@ if [[ -z "$session_name" ]]; then
 fi
 
 # --- Sanitize ---------------------------------------------------------------
-# The user-facing name can contain anything (spaces, punctuation, emoji), but
-# two downstream consumers can't:
-#   1. The tmux socket (-L) becomes a file at /tmp/tmux-<uid>/<name>, so it
-#      must be filesystem-safe.
-#   2. tmux session names disallow ':' and '.'.
-# Strategy: keep [A-Za-z0-9_-], replace everything else with '_'. The user
-# still sees the original name (window title + @nest-host value); the safe
-# form is used only as the socket/session identifier.
+# Two levels of sanitization:
+#   1. socket name (-L): becomes a file at /tmp/tmux-<uid>/<name>, so must
+#      be filesystem-safe — strip everything outside [A-Za-z0-9_-].
+#   2. session name (-s/-t): tmux uses ':' and '.' as target separators
+#      (session:window.pane), so it rejects names containing them; spaces,
+#      other punctuation, and emoji are fine.
+# Only the two structural chars get replaced in the user-visible name.
 
 safe_name=$(printf '%s' "$session_name" | sed 's/[^A-Za-z0-9_-]/_/g')
 if [[ -z "$safe_name" ]]; then
   echo "tmux-nest: session name '$session_name' has no usable characters" >&2
   exit 1
 fi
+session_name=${session_name//:/_}
+session_name=${session_name//./_}
 
 # --- Outer pane setup -------------------------------------------------------
 # Mark this outer pane as a nest host (drives tmux.conf's key routing and
@@ -156,9 +157,9 @@ trap cleanup EXIT
 # 3. Attach in the foreground; this blocks until detach or session kill,
 #    after which `cleanup` runs via the EXIT trap.
 
-new_session_args=(new-session -d -s "$safe_name")
+new_session_args=(new-session -d -s "$session_name")
 [[ -n "$session_path" ]] && new_session_args+=(-c "$session_path")
 
 TMUX="" tmux -L "$safe_name" "${new_session_args[@]}" 2>/dev/null || true
 TMUX="" tmux -L "$safe_name" set-option -s @nest-inner 1
-TMUX="" tmux -L "$safe_name" attach-session -t "$safe_name"
+TMUX="" tmux -L "$safe_name" attach-session -t "$session_name"
