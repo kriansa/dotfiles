@@ -57,9 +57,16 @@ return {
   },
 
   {
+    "folke/snacks.nvim",
+    cmd = "GitBrowse",
+    config = function()
+      vim.api.nvim_create_user_command("GitBrowse", Snacks.gitbrowse.open, {})
+    end,
+  },
+
+  {
     "NeogitOrg/neogit",
     dependencies = {
-      "nvim-lua/plenary.nvim",
       "sindrets/diffview.nvim",
       "folke/snacks.nvim",
     },
@@ -68,7 +75,7 @@ return {
       local neogit = require("neogit")
       neogit.setup({
         auto_refresh = false,
-        disable_commit_confirmation = true,
+        -- Start the commit message on normal mode
         disable_insert_on_commit = true,
         integrations = {
           snacks = true,
@@ -86,8 +93,6 @@ return {
           vim.opt_local.list = true
         end,
       })
-
-      vim.api.nvim_create_user_command("GitBrowse", Snacks.gitbrowse.open, {})
     end,
   },
 }
