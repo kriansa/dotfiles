@@ -11,4 +11,4 @@
     path: /etc/fstab
     marker: "# Enable second drive ({mark})"
     block: |
-      UUID=1C1E55F81E55CC00	{{ home_path }}/SecondDrive	ntfs3	rw,relatime,uid={{ user_name }},gid={{ user_name }},acl,iocharset=utf8,prealloc	0	0
+      UUID=12db19d7-bb38-43dc-b211-c88b5192a647	{{ home_path }}/SecondDrive	xfs	rw,relatime,inode64,logbsize=32k,noquota	0	0
