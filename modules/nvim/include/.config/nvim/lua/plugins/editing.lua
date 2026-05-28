@@ -98,7 +98,6 @@ return {
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
     branch = "main",
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     init = function()
       -- Disable entire built-in ftplugin mappings to avoid conflicts.
       -- See https://github.com/neovim/neovim/tree/master/runtime/ftplugin for built-in ftplugins.
@@ -122,12 +121,10 @@ return {
   -- See: https://github.com/nvim-treesitter/nvim-treesitter/issues/703
   {
     'RRethy/nvim-treesitter-endwise',
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
   },
 
   {
     "windwp/nvim-autopairs",
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     event = "InsertEnter",
     config = function()
       require('nvim-autopairs').setup({
@@ -140,7 +137,6 @@ return {
   -- Endwise for html, auto-close html tags
   {
     "windwp/nvim-ts-autotag",
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
       require('nvim-ts-autotag').setup({
         opts = {
@@ -175,7 +171,6 @@ return {
 
   {
     'MeanderingProgrammer/markdown.nvim',
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
       require('render-markdown').setup({
         file_types = { "markdown", "Avante" },
