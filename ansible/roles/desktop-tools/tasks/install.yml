@@ -41,7 +41,6 @@
       - adobe-source-sans-fonts
       - ttf-croscore
       - noto-fonts-cjk
-      - ttf-joypixels
       - ttf-nerd-fonts-symbols
 
       # Printer drivers
@@ -95,13 +94,18 @@
       - zoom
       - discord
 
-      # Yed
-      - yed
-
       # Fonts
+      - apple-fonts
+      - otf-bebas-neue-git
       - ttf-symbola
-      - ttf-gelasio-ib
+      - ttf-gelasio
+      - ttf-joypixels
       - ttf-comic-neue
+
+      # Misc
+      - circle-flags
+      - claude-code
+      - ventoy-bin
 
       # psi-notify
       - psi-notify

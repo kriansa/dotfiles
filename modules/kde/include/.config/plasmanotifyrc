@@ -10,9 +10,6 @@ Seen=true
 [Applications][slack]
 Seen=true
 
-[DoNotDisturb]
-NotificationSoundsMuted=true
-
 [Notifications]
 PopupPosition=TopCenter
 PopupTimeout=3000
