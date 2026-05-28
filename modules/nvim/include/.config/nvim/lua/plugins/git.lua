@@ -57,14 +57,6 @@ return {
   },
 
   {
-    "folke/snacks.nvim",
-    cmd = "GitBrowse",
-    config = function()
-      vim.api.nvim_create_user_command("GitBrowse", Snacks.gitbrowse.open, {})
-    end,
-  },
-
-  {
     "NeogitOrg/neogit",
     dependencies = {
       "sindrets/diffview.nvim",
@@ -93,6 +85,8 @@ return {
           vim.opt_local.list = true
         end,
       })
+
+      vim.api.nvim_create_user_command("GitBrowse", Snacks.gitbrowse.open, {})
     end,
   },
 }
