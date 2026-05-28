@@ -243,6 +243,7 @@ stopmedia=Media Stop,Media Stop,Stop media playback
 
 [org.chromium.Chromium]
 71D04BB893AB902190E2CD5188DBD5DC-=,none,Electron shortcut\s
+738FD988BF7403F3BA486D73F1E250DC-Ctrl+0=,none,Electron shortcut Ctrl+0
 _k_friendly_name=org.chromium.Chromium
 
 [org_kde_powerdevil]
@@ -301,9 +302,7 @@ _launch=Search\tMeta+Space
 
 [services][org.kde.spectacle.desktop]
 ActiveWindowScreenShot=none
-CurrentMonitorScreenShot=
 FullScreenScreenShot=Meta+#
-OpenWithoutScreenshot=
 RecordRegion=none
 RecordScreen=none
 RecordWindow=none

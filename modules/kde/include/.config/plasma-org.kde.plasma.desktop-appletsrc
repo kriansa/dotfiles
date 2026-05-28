@@ -161,6 +161,7 @@ popupWidth=560
 [Containments][3][Applets][56][Configuration][Appearance]
 chartFace=org.kde.ksysguard.linechart
 title=Network speed
+updateRateLimit=1000
 
 [Containments][3][Applets][56][Configuration][ConfigDialog]
 DialogHeight=660
