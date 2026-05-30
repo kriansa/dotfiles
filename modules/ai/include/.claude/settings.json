@@ -33,7 +33,7 @@
   "sandbox": {
     "mode": "auto-allow"
   },
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "tui": "default",
   "skipDangerousModePermissionPrompt": true,
   "theme": "light",
