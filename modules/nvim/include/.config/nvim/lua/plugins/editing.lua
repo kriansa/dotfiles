@@ -45,6 +45,9 @@ return {
       require("arborist").setup({
         update_cadence = "weekly",
         install_popular = false,
+        ignore = {
+          "tmux" -- Hangs during compilation
+        },
         ensure_installed = {
           "awk", "bash", "c", "caddy", "comment", "cpp", "css", "csv", "diff", "dockerfile", "fish",
           "git_config", "git_rebase", "gitattributes", "gitcommit", "gitignore", "go", "gomod",
