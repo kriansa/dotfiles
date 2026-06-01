@@ -5,7 +5,6 @@ modules = [
   "projects",
   "gnupg",
   "nvim",
-  "yazi",
 
   # Dev-related
   "ai",
@@ -20,6 +19,7 @@ modules = [
 
   # Only for UI
   { name = "ghostty", scopes = ["personal", "work"] },
+  { name = "yazi", scopes = ["personal", "work"] },
 
   # Only for Linux
   { name = "linux", scopes = "linux" },
