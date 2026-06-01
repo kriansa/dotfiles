@@ -1,30 +1,36 @@
 modules = [
-  "ghostty",
   "fish",
   "shell",
   "meta",
   "projects",
-  "python",
-  "borgmatic",
-  "devops",
-  "git",
-  "tmux",
-  "nvim",
-  "javascript",
-  "asdf",
   "gnupg",
+  "nvim",
+  "yazi",
+
+  # Dev-related
   "ai",
+  "git",
+  "devops",
+  "tmux",
+  "asdf",
+  "python",
+  "javascript",
+  { name = "ruby", scopes = "devextra" },
+  { name = "golang", scopes = "devextra" },
+
+  # Only for UI
+  { name = "ghostty", scopes = ["personal", "work"] },
+
+  # Only for Linux
+  { name = "linux", scopes = "linux" },
 
   # Only for my Home desktop
-  { name = "linux", scopes = "desktop" },
-  { name = "psi-notify", scopes = "desktop" },
-  { name = "fontconfig", scopes = "desktop" },
-  { name = "kde", scopes = "desktop" },
-  { name = "zathura", scopes = "desktop" },
-  { name = "golang", scopes = "desktop" },
-  { name = "vlc", scopes = "desktop" },
-  { name = "yazi", scopes = "desktop" },
-  { name = "ruby", scopes = "desktop" },
+  { name = "borgmatic", scopes = "personal" },
+  { name = "psi-notify", scopes = "personal" },
+  { name = "fontconfig", scopes = "personal" },
+  { name = "kde", scopes = "personal" },
+  { name = "zathura", scopes = "personal" },
+  { name = "vlc", scopes = "personal" },
 
   # Only for Work
   { name = "macos", scopes = "work" },

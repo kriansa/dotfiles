@@ -162,18 +162,11 @@ return {
     }
   },
 
-  -- Markdown
-  {
-    'iamcco/markdown-preview.nvim',
-    ft = "markdown",
-    build = 'cd app && npm install',
-  },
-
   {
     'MeanderingProgrammer/markdown.nvim',
     config = function()
       require('render-markdown').setup({
-        file_types = { "markdown", "Avante" },
+        file_types = { "markdown" },
         heading = {
           icons = {},
         },

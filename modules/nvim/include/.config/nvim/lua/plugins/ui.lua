@@ -148,18 +148,6 @@ return {
         filetypes = {'oil'},
       }
 
-      -- A small extension to support AI chats
-      local ai_ext = {
-        sections = {
-          lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
-          lualine_z = {'bo:filetype'},
-        },
-        inactive_sections = {
-          lualine_z = {'bo:filetype'},
-        },
-        filetypes = {'Avante', 'AvanteSelectedFiles', 'AvanteInput', 'codecompanion'},
-      }
-
       local terminal = {
         sections = {
           lualine_a = { { 'mode', fmt = mode_map }, zoomwin_icon },
@@ -222,7 +210,7 @@ return {
             section_separators = { left = '', right = ''},
           }},
         },
-        extensions = {'nvim-tree', 'quickfix', oil_ext, ai_ext, terminal},
+        extensions = {'nvim-tree', 'quickfix', oil_ext, terminal},
       })
 
       -- When using `tabline` option, lualine automatically sets `showtabline` to 2, but it isn't
