@@ -99,15 +99,24 @@ fi
 
 # --- Name prompt ------------------------------------------------------------
 # Prompt for a session name into the global `session_name`, returning non-zero
-# if the user cancels. Unlike a plain `read`, this reads raw keystrokes so a
-# lone Esc cancels immediately (used to dismiss the Super+Shift+T popup) while
-# Enter accepts and Backspace edits. An Esc that's actually the start of an
-# escape sequence (arrow keys, …) is swallowed instead of treated as a cancel,
-# by peeking for trailing bytes within a short timeout. Falls back to plain
-# `read` when stdin isn't a TTY (e.g. piped input).
+# if the user cancels. Uses bash's readline (`read -e`) for full line editing —
+# Backspace, Ctrl-W (word), Ctrl-U (line), Ctrl-A/E, Alt-f/Alt-b word motion,
+# and Ctrl-Left/Right (bound below) — none of which a plain `read` provides.
+#
+# readline has no built-in "Esc cancels", so we bind a bare Esc to a macro that
+# jumps to end, kills the line, types a sentinel and accepts; the caller treats
+# that sentinel as a cancel (used to dismiss the Super+Shift+T popup). A short
+# keyseq-timeout lets readline tell a lone Esc from the start of an escape
+# sequence (arrows, …). These binds are local to this short-lived process, so
+# they don't touch the user's interactive shell. Falls back to plain `read`
+# when stdin isn't a TTY (e.g. piped input).
+#
+# Ctrl-Left/Right emit a terminal-dependent sequence; the binds cover the two
+# common encodings. If they don't move by word in some terminal, Alt-f/Alt-b
+# always do.
 prompt_session_name() {
-  local prompt="Nested session name: "
-  local reply="" char rest stty_saved
+  local prompt="Nested session name: " reply=""
+  local sentinel="__tmux_nest_cancelled__"
 
   if [[ ! -t 0 ]]; then
     IFS= read -rp "$prompt" reply || return 1
@@ -115,38 +124,15 @@ prompt_session_name() {
     return 0
   fi
 
-  stty_saved=$(stty -g)
-  stty -echo -icanon min 1 time 0
-  printf '%s' "$prompt"
+  bind 'set keyseq-timeout 50'             2>/dev/null  # snappy lone-Esc detection
+  bind "\"\e\": \"\C-e\C-u${sentinel}\r\"" 2>/dev/null  # Esc -> sentinel + accept
+  bind '"\e[1;5C": forward-word'           2>/dev/null  # Ctrl-Right
+  bind '"\e[1;5D": backward-word'          2>/dev/null  # Ctrl-Left
+  bind '"\e[5C": forward-word'             2>/dev/null  # Ctrl-Right (alt encoding)
+  bind '"\e[5D": backward-word'            2>/dev/null  # Ctrl-Left  (alt encoding)
 
-  while IFS= read -rsn1 char; do
-    case "$char" in
-      $'\e')
-        # Lone Esc cancels; if more bytes follow quickly it was a sequence.
-        IFS= read -rsn8 -t 0.05 rest || true
-        [[ -n "$rest" ]] && continue
-        stty "$stty_saved"; printf '\n'
-        return 1
-        ;;
-      ''|$'\n'|$'\r')  # Enter (or EOF) accepts
-        break
-        ;;
-      $'\x7f'|$'\b')   # Backspace erases the last char
-        if [[ -n "$reply" ]]; then
-          reply=${reply%?}
-          printf '\b \b'
-        fi
-        ;;
-      *)               # Ignore other control chars; echo everything else
-        if [[ "$char" != [[:cntrl:]] ]]; then
-          reply+="$char"
-          printf '%s' "$char"
-        fi
-        ;;
-    esac
-  done
-
-  stty "$stty_saved"; printf '\n'
+  IFS= read -erp "$prompt" reply || return 1
+  [[ "$reply" == "$sentinel" ]] && return 1
   session_name="$reply"
   return 0
 }
