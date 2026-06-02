@@ -14,8 +14,8 @@ usage() {
   cat <<'EOF'
 tmux-nest — open a nested tmux session in the current pane.
 
-Usage: tmux-nest [--path DIR] [--new-window] [session-name]
-       tmux-nest --ssh HOST [--new-window] [session-name]
+Usage: tmux-nest [--path DIR] [session-name]
+       tmux-nest --ssh HOST [session-name]
        tmux-nest --help
 
 Options:
@@ -24,9 +24,6 @@ Options:
   --ssh HOST     SSH into HOST and attach to (or create) a tmux session there
                  instead of spawning a local inner server. Incompatible with
                  --path.
-  --new-window   Prompt for a name (if not provided), then open a new outer
-                 window running tmux-nest there. Used by the Super+Shift+T
-                 popup binding; safe to call from a shell too.
   -h, --help     Show this help and exit.
 
 Argument:
@@ -39,8 +36,8 @@ EOF
 # --- Argument parsing -------------------------------------------------------
 
 session_path=""
-new_window=0
 session_name=""
+name_given=0
 ssh_host=""
 
 while [[ $# -gt 0 ]]; do
@@ -63,10 +60,6 @@ while [[ $# -gt 0 ]]; do
       ssh_host="${1#--ssh=}"
       shift
       ;;
-    --new-window)
-      new_window=1
-      shift
-      ;;
     -h|--help)
       usage
       exit 0
@@ -81,8 +74,9 @@ while [[ $# -gt 0 ]]; do
       exit 2
       ;;
     *)
-      if [[ -z "$session_name" ]]; then
+      if [[ $name_given -eq 0 ]]; then
         session_name="$1"
+        name_given=1
         shift
       else
         echo "tmux-nest: unexpected argument '$1'" >&2
@@ -97,77 +91,22 @@ if [[ -n "$ssh_host" && -n "$session_path" ]]; then
   exit 2
 fi
 
-# --- Name prompt ------------------------------------------------------------
-# Prompt for a session name into the global `session_name`, returning non-zero
-# if the user cancels. Uses bash's readline (`read -e`) for full line editing —
-# Backspace, Ctrl-W (word), Ctrl-U (line), Ctrl-A/E, Alt-f/Alt-b word motion,
-# and Ctrl-Left/Right (bound below) — none of which a plain `read` provides.
-#
-# readline has no built-in "Esc cancels", so we bind a bare Esc to a macro that
-# jumps to end, kills the line, types a sentinel and accepts; the caller treats
-# that sentinel as a cancel (used to dismiss the Super+Shift+T popup). A short
-# keyseq-timeout lets readline tell a lone Esc from the start of an escape
-# sequence (arrows, …). These binds are local to this short-lived process, so
-# they don't touch the user's interactive shell. Falls back to plain `read`
-# when stdin isn't a TTY (e.g. piped input).
-#
-# Ctrl-Left/Right emit a terminal-dependent sequence; the binds cover the two
-# common encodings. If they don't move by word in some terminal, Alt-f/Alt-b
-# always do.
-prompt_session_name() {
-  local prompt="Nested session name: " reply=""
-  local sentinel="__tmux_nest_cancelled__"
-
-  if [[ ! -t 0 ]]; then
-    IFS= read -rp "$prompt" reply || return 1
-    session_name="$reply"
-    return 0
-  fi
-
-  bind 'set keyseq-timeout 50'             2>/dev/null  # snappy lone-Esc detection
-  bind "\"\e\": \"\C-e\C-u${sentinel}\r\"" 2>/dev/null  # Esc -> sentinel + accept
-  bind '"\e[1;5C": forward-word'           2>/dev/null  # Ctrl-Right
-  bind '"\e[1;5D": backward-word'          2>/dev/null  # Ctrl-Left
-  bind '"\e[5C": forward-word'             2>/dev/null  # Ctrl-Right (alt encoding)
-  bind '"\e[5D": backward-word'            2>/dev/null  # Ctrl-Left  (alt encoding)
-
-  IFS= read -erp "$prompt" reply || return 1
-  [[ "$reply" == "$sentinel" ]] && return 1
-  session_name="$reply"
-  return 0
-}
-
-# --- --new-window mode ------------------------------------------------------
-# When invoked from the Super+Shift+T popup (or any caller that wants the
-# nested session to open in a fresh outer window), prompt for the name here
-# — we have a TTY in the popup's shell — and then exec into a new outer
-# window running tmux-nest with the captured name. The popup closes when
-# this process exits; the new window picks up the real work.
-
-if [[ $new_window -eq 1 ]]; then
-  if [[ -z "$session_name" ]]; then
-    prompt_session_name || exit 0
-    [[ -z "$session_name" ]] && exit 0
-  fi
-  nest_args=(tmux-nest)
-  [[ -n "$ssh_host" ]]    && nest_args+=(--ssh "$ssh_host")
-  [[ -n "$session_path" ]] && nest_args+=(--path "$session_path")
-  nest_args+=("$session_name")
-  exec tmux new-window "${nest_args[@]}"
-fi
-
-# --- Interactive prompt fallback --------------------------------------------
-# Bare invocation from a shell — ask for the name now.
+# --- Resolve session name ---------------------------------------------------
+# The name can arrive three ways: as a positional argument (the Super+Shift+T
+# binding captures it via tmux's own command-prompt — which handles Esc, Ctrl-W
+# and Ctrl-U natively — and passes it in), defaulted from --ssh, or not at all
+# (a bare interactive run, so we prompt). An explicitly empty positional means
+# the user submitted a blank command-prompt, which we treat as a cancel. A
+# plain `read` keeps the bare-run prompt portable (works on macOS bash 3.2).
 
 if [[ -z "$session_name" ]]; then
-  if [[ -n "$ssh_host" ]]; then
+  if [[ $name_given -eq 1 ]]; then
+    exit 0                                   # blank command-prompt -> cancel
+  elif [[ -n "$ssh_host" ]]; then
     session_name="$ssh_host"
   else
-    prompt_session_name || { echo "Cancelled" >&2; exit 0; }
-    if [[ -z "$session_name" ]]; then
-      echo "Cancelled" >&2
-      exit 0
-    fi
+    read -rp "Nested session name: " session_name || { echo "Cancelled" >&2; exit 0; }
+    [[ -n "$session_name" ]] || { echo "Cancelled" >&2; exit 0; }
   fi
 fi
 
@@ -213,30 +152,30 @@ cleanup() {
 trap cleanup EXIT
 
 # --- Launch inner -----------------------------------------------------------
-# Both branches follow the same shape: ensure the inner session exists
-# (detached; create fails silently if it already does), then attach in the
-# foreground — which blocks until detach or session kill, after which
-# `cleanup` runs via the EXIT trap. Both also run the inner on its OWN tmux
-# server (a dedicated `-L` socket), isolated from any default server, so the
-# options we set below never leak and need no cleanup. They differ only in how
-# bells are handled.
+# Both branches ensure the inner session exists (detached; create fails
+# silently if it already does), then attach in the foreground — which blocks
+# until detach or session kill, after which `cleanup` runs via the EXIT trap.
+# They differ in where the inner runs and how bells are handled.
 #
-# Local: mark the inner server with @nest-inner so its tmux.conf focus hooks
-# switch bell-action dynamically (other while visible, any while hidden),
-# letting the outer ring the nested tab only when it isn't already showing it.
+# Local: run the inner on its OWN tmux server (a dedicated `-L` socket),
+# isolated from any default server, and mark it with @nest-inner so its
+# tmux.conf focus hooks switch bell-action dynamically (other while visible,
+# any while hidden) — so the outer rings the nested tab only when it isn't
+# already showing it.
 #
-# SSH: that focus mechanism relies on focus events reaching the inner reliably,
+# SSH: that focus mechanism needs focus events to reach the inner reliably,
 # which they don't through SSH — so a bell in the inner's *current* window
-# never propagates while bell-action is stuck at `other`. Instead we force
-# bell-action `any` so every inner bell propagates. Because the remote runs on
-# a dedicated socket, that setting affects nothing else and never needs
-# resetting; the fresh socket also has no @nest-inner, so the focus hooks are
-# no-ops without any unsetting. safe_name is already shell-safe (sanitized to
-# [A-Za-z0-9_-]); only the session target needs quoting for the remote shell.
+# never propagates while bell-action is `other`. So we just force bell-action
+# `any`. SSH nests attach to the remote's DEFAULT tmux server (no `-L`); by
+# request we set `bell-action any` there and leave it in place (no reset).
+# Nothing sets @nest-inner on the default server (local nesting only ever sets
+# it on its own `-L` socket), so the focus hooks stay no-ops and `any` sticks.
+# The socket is implicit; only the session target needs quoting for the remote
+# shell.
 
 if [[ -n "$ssh_host" ]]; then
   session_q=$(printf '%q' "$session_name")
-  ssh "$ssh_host" -t "tmux -L $safe_name new-session -d -s $session_q 2>/dev/null; tmux -L $safe_name set-option -g bell-action any; tmux -L $safe_name attach-session -t $session_q"
+  ssh "$ssh_host" -t "tmux new-session -d -s $session_q 2>/dev/null; tmux set-option -g bell-action any; tmux attach-session -t $session_q"
 else
   new_session_args=(new-session -d -s "$session_name")
   [[ -n "$session_path" ]] && new_session_args+=(-c "$session_path")
