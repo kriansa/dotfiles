@@ -4,3 +4,9 @@
   ansible.builtin.systemd:
     name: systemd-resolved
     state: restarted
+
+- name: reload NetworkManager
+  become: true
+  ansible.builtin.systemd:
+    name: NetworkManager
+    state: reloaded

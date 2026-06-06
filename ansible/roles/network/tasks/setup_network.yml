@@ -3,6 +3,14 @@
   become: true
   ansible.builtin.file: path=/etc/NetworkManager/system-connections mode=0700 state=directory
 
+- name: use a reliable connectivity-check endpoint (avoid false CONNECTED_SITE flapping)
+  become: true
+  ansible.builtin.copy:
+    src: files/20-connectivity.conf
+    dest: /etc/NetworkManager/conf.d/20-connectivity.conf
+    mode: "0644"
+  notify: reload NetworkManager
+
 - name: enable/disable wpa_supplicant
   become: true
   ansible.builtin.systemd:
