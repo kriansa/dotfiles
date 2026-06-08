@@ -1,0 +1,35 @@
+#!/bin/sh
+# NetworkManager dispatcher: if a DHCPv4 lease advertises an NTP server, point
+# systemd-timesyncd at it; otherwise revert to whatever the system already has
+# configured. NM's internal DHCP client does not feed DHCP NTP to timesyncd
+# itself, so without this timesyncd only ever uses its FallbackNTP.
+#
+# The drop-in lives in /run (ephemeral, re-derived per network, cleared on
+# reboot). Only NTP= is set; FallbackNTP (public pool) is left intact.
+
+action="$2"
+dropin="/run/systemd/timesyncd.conf.d/10-nm-dhcp.conf"
+
+case "$action" in
+  up|dhcp4-change) ;;
+  *) exit 0 ;;
+esac
+
+if [ -n "$DHCP4_NTP_SERVERS" ]; then
+  # DHCP advertised an NTP server (option 42, space-separated): use it.
+  new="[Time]
+NTP=$DHCP4_NTP_SERVERS"
+  # Skip the restart on lease renewals when nothing changed.
+  [ -r "$dropin" ] && [ "$(cat "$dropin")" = "$new" ] && exit 0
+  mkdir -p "$(dirname "$dropin")"
+  printf '%s\n' "$new" > "$dropin"
+elif [ -n "$DHCP4_IP_ADDRESS" ] || [ -n "$DHCP4_DHCP_SERVER_IDENTIFIER" ]; then
+  # A real DHCPv4 connection that offered no NTP server: revert to system.
+  [ -e "$dropin" ] || exit 0
+  rm -f "$dropin"
+else
+  # Non-DHCP event (e.g. the WireGuard VPN): leave everything untouched.
+  exit 0
+fi
+
+systemctl restart systemd-timesyncd.service

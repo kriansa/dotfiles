@@ -1,3 +1,4 @@
 ---
 - import_tasks: setup_network.yml
 - import_tasks: use_systemd_resolved.yml
+- import_tasks: setup_timesyncd.yml

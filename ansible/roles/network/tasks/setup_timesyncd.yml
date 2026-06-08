@@ -1,0 +1,9 @@
+---
+- name: feed DHCP NTP server to systemd-timesyncd via NM dispatcher
+  become: true
+  ansible.builtin.copy:
+    src: files/50-timesyncd-dhcp-ntp
+    dest: /etc/NetworkManager/dispatcher.d/50-timesyncd-dhcp-ntp
+    owner: root
+    group: root
+    mode: "0755"
