@@ -17,6 +17,11 @@ function c --description="Quickly jumps into a project's directory"
       end
     end
 
-    tmux rename-window $window_name
+    # Only rename the window when it's the sole pane — don't clobber a
+    # deliberately-named multi-pane window.
+    set -l pane_count (tmux display-message -p '#{window_panes}' 2>/dev/null)
+    if test "$pane_count" = 1
+      tmux rename-window $window_name
+    end
   end
 end
