@@ -135,8 +135,8 @@ if [[ -z "$session_name" ]]; then
   elif [[ -n "$ssh_host" ]]; then
     session_name="$ssh_host"
   else
-    read -rp "Nested session name: " session_name || { echo "Cancelled" >&2; exit 0; }
-    [[ -n "$session_name" ]] || { echo "Cancelled" >&2; exit 0; }
+    echo "You need to specify a session name!" >&2
+    exit 0
   fi
 fi
 
@@ -162,8 +162,6 @@ session_name=${session_name//./_}
 # tab-fade) and rename the outer window so it's identifiable in the tab list.
 # Save the original window name so cleanup can restore it.
 
-original_window_name=$(tmux display-message -p '#{window_name}')
-
 tmux set-option -p @nest-host "$session_name"
 tmux set-option @active-is-nested "$session_name"
 tmux rename-window "$session_name"
@@ -175,9 +173,6 @@ tmux rename-window "$session_name"
 cleanup() {
   tmux set-option -p -u @nest-host 2>/dev/null || true
   tmux set-option -u @active-is-nested 2>/dev/null || true
-  tmux rename-window "$original_window_name" 2>/dev/null || true
-  tmux set-window-option automatic-rename on 2>/dev/null || true
-  tmux kill-pane 2>/dev/null || true
 }
 trap cleanup EXIT
 
@@ -207,7 +202,7 @@ if [[ -n "$ssh_host" ]]; then
   session_q=$(printf '%q' "$session_name")
   ssh "$ssh_host" -t "tmux new-session -d -s $session_q 2>/dev/null; tmux set-option -g bell-action any; tmux attach-session -t $session_q"
 else
-  new_session_args=(new-session -d -s "$session_name")
+  new_session_args=(new-session -A -d -s "$session_name")
   [[ -n "$session_path" ]] && new_session_args+=(-c "$session_path")
 
   # Start the inner server from a clean baseline: the OUTER tmux server's global
