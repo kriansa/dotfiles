@@ -33,8 +33,9 @@ Argument:
 EOF
 }
 
-# Orchestrate one nested-session launch: parse args, hand off if we're already
-# nested, resolve and sanitize the name, prime the outer pane, then attach.
+# Orchestrate one nested-session launch: parse args, refuse over SSH, hand off
+# if we're already nested, resolve and sanitize the name, prime the outer pane,
+# then attach.
 main() {
   # Snapshot argv before parse-args consumes it; a nested invocation replays it
   # verbatim on the parent tmux (see maybe-handoff-if-nested).
@@ -46,6 +47,7 @@ main() {
   ssh_host=""
 
   parse-args "$@"
+  refuse-if-ssh
   maybe-handoff-if-nested
   validate-session-name
   sanitize-names
@@ -111,6 +113,18 @@ parse-args() {
   fi
 }
 
+# Nesting only makes sense on the machine hosting the OUTER tmux. Over SSH we're
+# already a hop deep (local outer -> SSH nest -> here), so nesting again would
+# stack a third tmux. tmux's default update-environment carries SSH_CONNECTION
+# into every window the keybinding opens, so its presence reliably means we're
+# being viewed over SSH.
+refuse-if-ssh() {
+  if [[ -n "${SSH_CONNECTION:-}" ]]; then
+    echo "tmux-nest: refusing to nest inside an SSH session" >&2
+    exit 1
+  fi
+}
+
 # A nested (inner) server is marked with the @nest-inner server option on its
 # socket; when we're attached to one, $TMUX points at it so a bare tmux talks
 # to the inner. Nesting at this point would stack a THIRD tmux on a third socket.
@@ -147,7 +161,7 @@ validate-session-name() {
     session_name="$ssh_host"
   else
     echo "You need to specify a session name!" >&2
-    exit 0
+    exit 1
   fi
 }
 
