@@ -35,6 +35,10 @@ EOF
 
 # --- Argument parsing -------------------------------------------------------
 
+# Snapshot argv before the parse loop consumes it; a nested invocation replays
+# it verbatim on the parent tmux (see "Hand off if already nested" below).
+original_args=("$@")
+
 session_path=""
 session_name=""
 name_given=0
@@ -89,6 +93,32 @@ done
 if [[ -n "$ssh_host" && -n "$session_path" ]]; then
   echo "tmux-nest: --ssh and --path are incompatible" >&2
   exit 2
+fi
+
+# --- Hand off if already nested ---------------------------------------------
+# A nested (inner) server is flagged with the @nest-inner server option on its
+# socket; when we're attached to one, $TMUX points at it so a bare tmux talks
+# to the inner. Nesting here would stack a THIRD tmux on a third socket.
+# Instead, replay this invocation on the OUTER tmux so the session opens as a
+# sibling nest one level up, not a third level down. This setup only ever runs
+# one tmux server — the default — as the outer, so clearing $TMUX (it points at
+# the inner's -L socket here) routes a bare tmux to the default server, i.e. the
+# outer. (--help already exited during parsing, so it never reaches here.)
+if [[ -n "${TMUX:-}" ]] &&
+   [[ "$(tmux show-options -sv @nest-inner 2>/dev/null || true)" == "1" ]]; then
+  # Rebuild the command, single-quoting each argument so spaces survive the
+  # outer shell's word-splitting. Replaying argv verbatim preserves tmux-nest's
+  # own semantics: no positional -> the outer prompts; an empty '' -> the outer
+  # cancels — exactly as a direct run would.
+  forward="tmux-nest"
+  if [[ ${#original_args[@]} -gt 0 ]]; then
+    for arg in "${original_args[@]}"; do
+      forward="$forward '$arg'"
+    done
+  fi
+
+  TMUX="" tmux new-window "$forward"
+  exit 0
 fi
 
 # --- Resolve session name ---------------------------------------------------
@@ -180,7 +210,33 @@ else
   new_session_args=(new-session -d -s "$session_name")
   [[ -n "$session_path" ]] && new_session_args+=(-c "$session_path")
 
-  TMUX="" tmux -L "$safe_name" "${new_session_args[@]}" 2>/dev/null || true
+  # Start the inner server from a clean baseline: the OUTER tmux server's global
+  # environment (`tmux show-environment -g`), not the launching pane's shell env.
+  # A tmux server snapshots the environment of whatever command first spawns it
+  # (the new-session below) and hands that frozen copy to every pane it ever
+  # creates. The launching pane has piled its own process vars on top of the
+  # server baseline (CLAUDE_CODE_*, OLDPWD, editor/tool vars, …); reading the env
+  # back from the outer server gives the same baseline the outer itself runs with
+  # — minus that per-pane cruft — and stops nesting-within-nesting from
+  # compounding it. We read GLOBAL scope because the session scope omits PATH,
+  # HOME and other essentials. Removal markers (`-NAME`) and TMUX/TMUX_PANE are
+  # skipped so the inner starts unaware it's nested. If show-environment yields
+  # nothing (not in a session, or it errored), fall back to the old behavior
+  # rather than spawning a server with an empty environment.
+  nest_env=()
+  while IFS= read -r line; do
+    case "$line" in
+      -*|TMUX=*|TMUX_PANE=*) ;;            # removal + nesting markers: skip
+      *=*) nest_env+=("$line") ;;
+    esac
+  done < <(tmux show-environment -g 2>/dev/null)
+
+  if [[ ${#nest_env[@]} -gt 0 ]]; then
+    env -i "${nest_env[@]}" tmux -L "$safe_name" "${new_session_args[@]}" 2>/dev/null || true
+  else
+    TMUX="" tmux -L "$safe_name" "${new_session_args[@]}" 2>/dev/null || true
+  fi
+
   TMUX="" tmux -L "$safe_name" set-option -s @nest-inner 1
   TMUX="" tmux -L "$safe_name" attach-session -t "$session_name"
 fi
