@@ -25,6 +25,17 @@ The new worktree is created as a **sibling** to the main worktree, with slashes 
 | `~/code/myrepo` | `feature/foo` | `~/code/myrepo+feature-foo` |
 | `~/code/myrepo` | `bugfix` | `~/code/myrepo+bugfix` |
 
+**After creating, switch the *session* into the new worktree** so follow-on work runs there — don't use a Bash `cd` (it moves only Claude's shell, not the session). Use the `EnterWorktree` harness tool with the worktree's **`path`** (never `name` — `name` would create a *separate* `.claude/worktrees/` worktree instead of entering the one `git wt` just made):
+
+1. Resolve the new worktree's absolute path (use the branch name; for `-b`, that's the new branch):
+
+   ```bash
+   git worktree list --porcelain | awk -v b="refs/heads/<branch>" '/^worktree / { p = substr($0, 10) } $0 == "branch " b { print p; exit }'
+   ```
+
+2. If the session is **already inside another worktree**, `ExitWorktree({action: "keep"})` first to return to the main worktree — switching straight into a sibling worktree via `path` is rejected while you're in one.
+3. `EnterWorktree({path: "<that-path>"})`. This moves the session *and* the Bash tool's cwd into the worktree (interactive fish does the same cd on its own). If it's still rejected, fall back to telling the user to run `/cd <that-path>`.
+
 ### Remove a worktree — `git wt rm`
 
 ```bash
@@ -36,6 +47,14 @@ git wt rm              # remove the current worktree (refuses if you're in main)
 
 Aliases: `rm`, `remove`, `delete`, `del`.
 
+**If the session is currently inside the worktree being removed, step out first** — its directory is about to be deleted. Don't stop to ask; call `ExitWorktree({action: "keep"})` to return the session to the main worktree (the worktree stays on disk for `git wt rm` to delete). Use `keep`, never `remove` — `git wt rm` owns the deletion and its safety checks.
+
+1. Resolve the target worktree's path with the awk query above. For the no-arg form, the target is the current worktree (`git rev-parse --show-toplevel`, branch from `git branch --show-current`) — always pass the branch explicitly to `git wt rm` (see Quirk 2).
+2. If `git rev-parse --show-toplevel` equals the target path, `ExitWorktree({action: "keep"})`.
+3. Run `git wt rm <branch>`.
+
+If `ExitWorktree` reports no active worktree session (you entered the worktree some other way — e.g. launched Claude inside it), it's a no-op and you'll still be in the path; `git wt rm` then refuses via its in-use check, so ask the user to move out (`/cd <main-worktree-path>`) and retry.
+
 ### List worktrees — `git wt list`
 
 ```bash
@@ -46,20 +65,13 @@ Delegates to `git worktree list`.
 
 ## Quirks Claude must respect
 
-1. **Auto-cd is fish-only.** The user's interactive fish shell wraps `git wt add` and `git wt rm` to `cd` automatically. Claude's Bash tool runs bash, so when *you* invoke `git wt add`, you stay in the original directory. If subsequent steps must run in the new worktree, `cd` explicitly:
-
-   ```bash
-   git wt add feature/foo
-   cd "$(git worktree list --porcelain | awk '/^worktree / { p=$2 } /^branch refs\/heads\/feature\/foo$/ { print p; exit }')"
-   ```
-
-   Or, since the path is deterministic, compute it: `<dirname-of-main>/<basename-of-main>+<branch-with-/-as->`.
+1. **Move the session with `EnterWorktree`/`ExitWorktree`, not Bash `cd`.** The user's interactive fish shell auto-cds on `git wt add`/`git wt rm`; Claude's Bash tool runs bash and doesn't — and a Bash `cd` moves only Claude's shell, not the session (the user's view, `CLAUDE.md`, `/resume`). Use the harness worktree tools: `EnterWorktree({path})` after `git wt add` (see "Create a worktree"), and `ExitWorktree({action: "keep"})` before removing the worktree you're in (see "Remove a worktree"). They're deferred tools — if not already available, load them first with `ToolSearch("select:EnterWorktree,ExitWorktree")`.
 
 2. **`git wt rm` without a branch argument targets the current worktree.** Convenient interactively, dangerous in scripts. **Always pass the branch explicitly** when invoking from tools.
 
 3. **First worktree creation prompts on stdin** to install a post-checkout hook. If you're running non-interactively and want to skip that prompt, install the hook (or an empty placeholder) at `.git/hooks/post-checkout` before calling `git wt add`. See "Post-checkout hook" below.
 
-4. **In-use check uses `lsof +D <path>`.** If a tmux pane, editor, or shell has the worktree open, `git wt rm` refuses. Use `-f` only after confirming nothing important is open. If the user is currently *in* the worktree being removed, the fish wrapper handles the cd-out — but Claude should still pass `-f` cautiously.
+4. **In-use check uses `lsof +D <path>`.** If a tmux pane, editor, or shell has the worktree open, `git wt rm` refuses. Use `-f` only after confirming nothing important is open. If the session is currently *in* the worktree being removed, step out with `ExitWorktree({action: "keep"})` before removing (see "Remove a worktree") — don't reach for `-f` just to get past your own shell.
 
 5. **The `core.hooksPath` override is automatic.** `git wt add` temporarily resets `core.hooksPath` to the default so the post-checkout hook fires even in repos with custom hook paths. Don't fight this.
 
