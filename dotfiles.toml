@@ -14,15 +14,16 @@ modules = [
   "asdf",
   "python",
   "javascript",
-  { name = "ruby", scopes = "devextra" },
-  { name = "golang", scopes = "devextra" },
+  { name = "ruby", scopes = ["personal", "devbox"] },
+  { name = "golang", scopes = ["personal", "devbox"] },
+  { name = "git-ssh-sign", scopes = ["personal", "devbox"] },
 
   # Only for UI
   { name = "ghostty", scopes = ["personal", "work"] },
   { name = "yazi", scopes = ["personal", "work"] },
 
   # Only for Linux
-  { name = "linux", scopes = "linux" },
+  { name = "linux", scopes = "personal" },
 
   # Only for my Home desktop
   { name = "borgmatic", scopes = "personal" },
