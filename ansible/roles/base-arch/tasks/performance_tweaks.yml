@@ -41,6 +41,14 @@
     src: 50-usb-realtek-net.rules
     dest: /etc/udev/rules.d/50-usb-realtek-net.rules
 
+- name: enforce coredump cleanup to 3d (from default of 2w)
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/tmpfiles.d/coredump.conf
+    content: |
+      # Override coredump cleanup age from 2w (systemd default) to 3d
+      e /var/lib/systemd/coredump - - - 3d
+
 - name: create systemd directory for overrides
   become: true
   ansible.builtin.file:
