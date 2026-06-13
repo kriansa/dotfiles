@@ -29,9 +29,10 @@
       ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
       ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="mmcblk?", ATTR{queue/scheduler}="bfq"
 
-      # None is recommended for faster storage such as NVME and SATA SSDs.
-      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="nvme?n?", ATTR{queue/scheduler}="none"
-      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="sd?", ATTR{queue/scheduler}="none"
+      # Kyber is recommended for faster storage such as NVME and SATA SSDs.
+      # See: https://github.com/CachyOS/CachyOS-Settings/pull/220
+      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="nvme?n?", ATTR{queue/scheduler}="kyber"
+      ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="sd?", ATTR{queue/scheduler}="kyber"
 
 # See: https://www.apalrd.net/posts/2023/network_realtek8156
 - name: use correct realtek driver for RTL8156 chip
