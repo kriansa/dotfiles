@@ -86,4 +86,17 @@ hs.hotkey.bind({"cmd", "shift"}, "Right", function()
   win:setFrame(f)
 end)
 
+-- Block Apple Music from auto-launching (e.g. the AirPods button when nothing is playing).
+-- The Bluetooth play/pause command is dispatched by macOS's mediaremoted daemon, not the
+-- CGEvent stream, so hs.eventtap can't see or swallow it. Instead, watch for Music
+-- launching and force-quit it (the same mechanism noTunes uses).
+musicBlocker = hs.application.watcher.new(function(_, event, app)
+  local launching = event == hs.application.watcher.launching
+  local launched = event == hs.application.watcher.launched
+  if (launching or launched) and app and app:bundleID() == "com.apple.Music" then
+    app:kill9()
+  end
+end)
+musicBlocker:start()
+
 hs.alert.show("Loaded")
