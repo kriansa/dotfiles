@@ -23,7 +23,7 @@ modules = [
   { name = "yazi", scopes = ["personal", "work"] },
 
   # Only for Linux
-  { name = "linux", scopes = "personal" },
+  { name = "linux", scopes = ["personal", "devbox"] },
 
   # Only for my Home desktop
   { name = "borgmatic", scopes = "personal" },
