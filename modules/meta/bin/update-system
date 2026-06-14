@@ -11,10 +11,23 @@ main() {
     run "Update homebrew packages" "brew upgrade"
     run "Update casks" "brew upgrade --cask --greedy"
   else
-    run "Update system packages" "sudo pacman -Syu"
-    run "Update AUR packages" "pikaur -Sayu"
-    orphaned_packages=$(pacman -Qdtq | xargs echo)
-    [ -n "$orphaned_packages" ] && run "Remove orphaned packages" "sudo pacman -Rnsc $orphaned_packages"
+    distro=$(source /etc/os-release 2>/dev/null; echo "$ID")
+    case "$distro" in
+      fedora)
+        run "Update system packages" "sudo dnf upgrade"
+        run "Remove unused dependencies" "sudo dnf autoremove"
+        ;;
+      arch)
+        run "Update system packages" "sudo pacman -Syu"
+        run "Update AUR packages" "pikaur -Sayu"
+        orphaned_packages=$(pacman -Qdtq | xargs echo)
+        [ -n "$orphaned_packages" ] && run "Remove orphaned packages" "sudo pacman -Rnsc $orphaned_packages"
+        ;;
+      *)
+        echo -e "\033[0;31mUnsupported distribution: ${distro:-unknown}\033[0m" >&2
+        exit 1
+        ;;
+    esac
   fi
 
   run "Update Node and its global packages" "update-node"
