@@ -1,13 +1,48 @@
 #!/usr/bin/env bash
 #
-# Small shim to add cross-platform support for pbcopy/pbpaste
+# Small shim to add cross-platform support for pbcopy/pbpaste.
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
+# Over an SSH session xclip/wl-paste cannot reach the local clipboard, so
+# query it via the OSC 52 terminal escape instead, mirroring Neovim's
+# osc52 provider (which keys off $SSH_TTY too).
+osc52_paste() {
+  local tty=/dev/tty old reply data
+  [[ -r $tty && -w $tty ]] || return 1
+  exec 3<>"$tty" || return 1
+  old=$(stty -g <&3 2>/dev/null) || { exec 3>&-; return 1; }
+
+  # Restore the terminal even if we are interrupted while in raw mode.
+  trap 'stty "$old" <&3 2>/dev/null' INT TERM
+  stty raw -echo <&3
+
+  # Ask the terminal for the clipboard ("c") contents.
+  printf '\033]52;c;?\a' >&3
+
+  # Reply is: ESC ] 52 ; c ; <base64> (BEL | ST). Delimit on BEL and let
+  # the timeout bail out if the reply uses ST or never arrives (read
+  # keeps whatever it got so far on timeout).
+  IFS= read -r -d $'\a' -t "${PBPASTE_OSC52_TIMEOUT:-1}" reply <&3
+
+  stty "$old" <&3 2>/dev/null
+  trap - INT TERM
+  exec 3>&-
+
+  # Payload is everything after the last ';'; drop a trailing ST (ESC '\').
+  data=${reply##*;}
+  data=${data%%$'\033'*}
+  [[ -n $data ]] || return 1
+
+  # GNU base64 uses -d; BSD/macOS base64 accepts -d or -D.
+  base64 -d <<<"$data" 2>/dev/null || base64 -D <<<"$data" 2>/dev/null
+}
+
+if [[ -n "$SSH_TTY" || -n "$SSH_CONNECTION" ]]; then
+  osc52_paste
+elif [[ "$OSTYPE" == "darwin"* ]]; then
   exec /usr/bin/pbpaste "$@"
+elif [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+  exec wl-paste "$@"
 else
-  if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-    exec wl-paste "$@"
-  else
-    exec xclip -out -selection clipboard "$@"
-  fi
+  echo "No pasting mechanism found" >&2
+  exit 1
 fi

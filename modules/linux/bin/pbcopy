@@ -1,13 +1,24 @@
 #!/usr/bin/env bash
 #
-# Small shim to add cross-platform support for pbcopy/pbpaste
+# Small shim to add cross-platform support for pbcopy/pbpaste.
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  exec /usr/bin/pbcopy "$@"
-else
-  if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-    exec wl-copy --type text/plain "$@"
-  else
-    exec xclip -in -selection clipboard "$@"
+# Over an SSH session xclip/wl-copy cannot reach the local clipboard, so
+# copy via the OSC 52 terminal escape instead -- the terminal (or tmux,
+# with set-clipboard on) forwards it to the local machine's clipboard.
+# This mirrors Neovim's osc52 provider, which keys off $SSH_TTY too.
+if [[ -n "$SSH_TTY" || -n "$SSH_CONNECTION" ]]; then
+  # stdin -> base64 (single line) -> OSC 52 set-clipboard ("c").
+  # Note: terminals/tmux cap the payload size, so very large copies may
+  # be truncated by the terminal.
+  payload=$(base64 | tr -d '\n')
+  if ! printf '\033]52;c;%s\a' "$payload" 2>/dev/null >/dev/tty; then
+    printf '\033]52;c;%s\a' "$payload"
   fi
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  exec /usr/bin/pbcopy "$@"
+elif [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+  exec wl-copy --type text/plain "$@"
+else
+  echo "No copying mechanism found" >&2
+  exit 1
 fi
