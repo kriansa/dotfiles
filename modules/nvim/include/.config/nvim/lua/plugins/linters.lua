@@ -176,7 +176,11 @@ return {
   {
     "stevearc/conform.nvim",
     config = function()
-      vim.o.formatexpr = "v:lua.require('conform').formatexpr({'timeout_ms':2000})"
+      -- Deliberately NOT pointing `formatexpr` at conform. Doing so makes
+      -- gq/gqq run the code formatter instead of wrapping text, and in
+      -- filetypes that have a formatter (markdown, go, python, ...) prose and
+      -- comments never reflow. Leave gq to Vim's built-in wrapping; run
+      -- conform explicitly via <Leader>lf (see bindings.lua).
 
       require("conform").setup({
         formatters_by_ft = {
