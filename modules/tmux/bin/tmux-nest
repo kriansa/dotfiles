@@ -183,26 +183,24 @@ sanitize-names() {
 }
 
 # Mark this outer pane as a nest host (drives tmux.conf's key routing and tab
-# styling) and rename the outer window so it's identifiable in the tab list.
-# Register the EXIT trap here, paired with the state cleanup tears down.
+# styling) and rename the outer window so it's identifiable in the tab list. The
+# explicit @active-is-nested set primes the tab fade immediately; setting a pane
+# option doesn't fire the mirror hooks that normally maintain it.
+#
+# No teardown needed - and deliberately no EXIT trap, which a SIGKILL or a killed
+# parent window would skip anyway. @nest-host is a pane option, so it dies with
+# the pane when this process exits (detach, kill, or window close). @active-is-nested
+# is re-derived from the focused pane's @nest-host by tmux.conf's mirror hooks on
+# the next focus change, so it reverts on its own once the nest pane is gone.
 setup-outer-pane() {
   tmux set-option -p @nest-host "$session_name"
   tmux set-option @active-is-nested "$session_name"
   tmux rename-window "$session_name"
-
-  trap cleanup EXIT
-}
-
-# Whatever exit path we take (detach, kill-session, error, signal), drop the
-# nest-host markers so tmux.conf's key routing and tab styling revert.
-cleanup() {
-  tmux set-option -p -u @nest-host 2>/dev/null || true
-  tmux set-option -u @active-is-nested 2>/dev/null || true
 }
 
 # Ensure the inner session exists, then attach in the foreground - which blocks
-# until detach or session kill, after which `cleanup` runs via the EXIT trap.
-# The two branches differ in where the inner runs and how bells are handled.
+# until detach or session kill, after which this process exits and its pane
+# closes. The two branches differ in where the inner runs and how bells are handled.
 launch-inner() {
   if [[ -n "$ssh_host" ]]; then
     launch-inner-ssh
@@ -222,7 +220,7 @@ launch-inner() {
 launch-inner-ssh() {
   local session_q
   session_q=$(printf '%q' "$session_name")
-  ssh "$ssh_host" -t "tmux new-session -A -d -s $session_q 2>/dev/null; tmux set-option -g bell-action any; tmux attach-session -t $session_q"
+  exec ssh "$ssh_host" -t "tmux new-session -A -d -s $session_q 2>/dev/null; tmux set-option -g bell-action any; tmux attach-session -t $session_q"
 }
 
 # Local: run the inner on its OWN tmux server (a dedicated `-L` socket), isolated
