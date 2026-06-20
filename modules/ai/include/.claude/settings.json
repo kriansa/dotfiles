@@ -1,9 +1,24 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "effortLevel": "xhigh",
+  "tui": "default",
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "light",
+  "preferredNotifChannel": "terminal_bell",
+  "voiceEnabled": true,
   "attribution": {
     "commit": ""
   },
   "permissions": {
-    "defaultMode": "plan"
+    "defaultMode": "auto"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline-command"
+  },
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
   },
   "hooks": {
     "Notification": [
@@ -12,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/notify.sh"
+            "command": "~/.claude/hooks/notify"
           }
         ]
       }
@@ -28,18 +43,5 @@
         ]
       }
     ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline-command.sh"
-  },
-  "sandbox": {
-    "mode": "auto-allow"
-  },
-  "effortLevel": "xhigh",
-  "tui": "default",
-  "skipDangerousModePermissionPrompt": true,
-  "theme": "light",
-  "preferredNotifChannel": "terminal_bell",
-  "voiceEnabled": true
+  }
 }

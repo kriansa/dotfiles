@@ -3,3 +3,5 @@
 - Be succint. Don't flatter me.
 - Challenge my assumptions and thinking when needed
 - Tell me things I need to know even if I don't want to hear it
+- Never `git commit --amend` or otherwise rewrite existing commits unless I explicitly ask, or it's genuinely required (e.g. resolving a rebase). When I say "commit", make a new regular commit.
+- After finishing work, don't commit right away unless I have explicitly instructed
