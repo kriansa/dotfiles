@@ -1,0 +1,353 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
+"""Convert markdown on stdin to Slack rich text and put it on the clipboard.
+
+Pasting into Slack then preserves bold/italic/strike/code/links/lists/quotes/
+code blocks. Pure standard library on purpose: no third-party packages are
+fetched at runtime, so there is no supply-chain surface (the reason this exists
+instead of `npx @slackfmt/cli`).
+
+How Slack consumes it: the clipboard carries a custom `org.chromium.web-custom-data`
+flavor holding a Chromium "Pickle" blob whose single entry is `slack/texty` ->
+a Quill Delta JSON document. That is the channel Slack's Electron app reads; no
+HTML is involved. macOS also gets the raw markdown as plain text.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import struct
+import sys
+from collections.abc import Sequence
+from typing import Any
+
+CUSTOM_TYPE = "org.chromium.web-custom-data"
+SLACK_MIME = "slack/texty"
+PLAINTEXT_TYPE = "public.utf8-plain-text"
+
+# Inline spans, tried left-to-right at each position. `**`/`__`/`~~` precede the
+# single-char emphasis so they win the shared opening character. `\S(?:.*?\S)?`
+# forces non-space edges (avoids matching "a * b") and a non-empty body.
+_INLINE = re.compile(
+    r"(?P<code>`+)(?P<code_inner>.+?)(?P=code)"
+    r"|\[(?P<link_text>[^\]]*)\]\((?P<link_url>[^)\s]*)\)"
+    r"|\*\*(?P<bold1>\S(?:.*?\S)?)\*\*"
+    r"|__(?P<bold2>\S(?:.*?\S)?)__"
+    r"|~~(?P<strike>\S(?:.*?\S)?)~~"
+    r"|\*(?P<italic1>\S(?:.*?\S)?)\*"
+    r"|(?<![A-Za-z0-9_])_(?P<italic2>\S(?:.*?\S)?)_(?![A-Za-z0-9_])"
+)
+_HEADING = re.compile(r"^#{1,6}\s+(.*?)\s*#*\s*$")
+_BLOCKQUOTE = re.compile(r"^>\s?(.*)$")
+_BULLET = re.compile(r"^(\s*)[-*+]\s+(.*)$")
+_ORDERED = re.compile(r"^(\s*)\d+[.)]\s+(.*)$")
+_FENCE = re.compile(r"^\s*(```+|~~~+)")
+
+# A Quill Delta op and its (optional) attribute map. Attribute values are mixed
+# (bool/str/int), so Any keeps the converter readable without a TypedDict.
+Attrs = dict[str, Any]
+Op = dict[str, Any]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        prog="slackfmt",
+        description="Convert markdown on stdin to Slack rich text on the clipboard.",
+    )
+    parser.add_argument(
+        "--stdout",
+        action="store_true",
+        help="print the Quill Delta JSON instead of copying to the clipboard",
+    )
+    args = parser.parse_args()
+
+    if sys.stdin.isatty():
+        parser.print_help(sys.stderr)
+        return 0
+
+    md = sys.stdin.read()
+    if not md.strip():
+        parser.print_help(sys.stderr)
+        return 1
+
+    delta_json = to_delta_json(md)
+    if args.stdout:
+        sys.stdout.write(delta_json + "\n")
+        return 0
+
+    write_clipboard(md, delta_json)
+    print("Copied to clipboard!", file=sys.stderr)
+    return 0
+
+
+# --------------------------------------------------------------------------- #
+# Markdown -> Quill Delta
+#
+# Quill's model: inline attributes ride on the text insert; block/line
+# attributes ride on the trailing "\n" insert. A blank source line becomes one
+# plain "\n" (a block gap) which compaction folds into neighbouring text.
+# --------------------------------------------------------------------------- #
+
+
+def _text_op(text: str, attrs: Attrs) -> Op:
+    op: Op = {"insert": text}
+    if attrs:
+        op["attributes"] = dict(attrs)
+    return op
+
+
+def parse_inline(text: str, attrs: Attrs) -> list[Op]:
+    """Turn one line of markdown into inline-attributed text ops."""
+    ops: list[Op] = []
+    pos = 0
+    for m in _INLINE.finditer(text):
+        if m.start() > pos:
+            ops.append(_text_op(text[pos : m.start()], attrs))
+        if m.group("code") is not None:
+            ops.append(_text_op(m.group("code_inner"), {**attrs, "code": True}))
+        elif m.group("link_text") is not None:
+            ops += parse_inline(m.group("link_text"), {**attrs, "link": m.group("link_url")})
+        elif m.group("bold1") is not None:
+            ops += parse_inline(m.group("bold1"), {**attrs, "bold": True})
+        elif m.group("bold2") is not None:
+            ops += parse_inline(m.group("bold2"), {**attrs, "bold": True})
+        elif m.group("strike") is not None:
+            ops += parse_inline(m.group("strike"), {**attrs, "strike": True})
+        elif m.group("italic1") is not None:
+            ops += parse_inline(m.group("italic1"), {**attrs, "italic": True})
+        elif m.group("italic2") is not None:
+            ops += parse_inline(m.group("italic2"), {**attrs, "italic": True})
+        pos = m.end()
+    if pos < len(text):
+        ops.append(_text_op(text[pos:], attrs))
+    return ops
+
+
+def compact_ops(ops: list[Op]) -> list[Op]:
+    """Merge adjacent inserts with identical attributes; drop empties."""
+    out: list[Op] = []
+    for op in ops:
+        if not op["insert"]:
+            continue
+        if out and out[-1].get("attributes") == op.get("attributes"):
+            out[-1]["insert"] += op["insert"]
+        else:
+            out.append(dict(op))
+    return out
+
+
+def markdown_to_delta(md: str) -> list[Op]:
+    lines = md.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    ops: list[Op] = []
+    blank_pending = False
+    i = 0
+
+    while i < len(lines):
+        line = lines[i]
+
+        if line.strip() == "":
+            blank_pending = True
+            i += 1
+            continue
+
+        # One plain newline for any run of blank lines separating two blocks.
+        if blank_pending and ops:
+            ops.append({"insert": "\n"})
+        blank_pending = False
+
+        fence = _FENCE.match(line)
+        if fence:
+            marker = fence.group(1)[0]  # ` or ~
+            i += 1
+            while i < len(lines) and not lines[i].lstrip().startswith(marker * 3):
+                ops.append(_text_op(lines[i], {}))
+                ops.append({"insert": "\n", "attributes": {"code-block": True}})
+                i += 1
+            i += 1  # consume the closing fence (or run off the end)
+            continue
+
+        heading = _HEADING.match(line)
+        if heading:
+            ops += parse_inline(heading.group(1), {"bold": True})
+            ops.append({"insert": "\n"})
+            i += 1
+            continue
+
+        quote = _BLOCKQUOTE.match(line)
+        if quote:
+            ops += parse_inline(quote.group(1), {})
+            ops.append({"insert": "\n", "attributes": {"blockquote": True}})
+            i += 1
+            continue
+
+        list_match = _BULLET.match(line)
+        ordered = False
+        if list_match is None:
+            list_match = _ORDERED.match(line)
+            ordered = True
+        if list_match is not None:
+            indent_spaces = list_match.group(1)
+            content = list_match.group(2)
+            attrs: Attrs = {"list": "ordered" if ordered else "bullet"}
+            depth = len(indent_spaces) // 2
+            if depth:
+                attrs["indent"] = depth
+            ops += parse_inline(content, {})
+            ops.append({"insert": "\n", "attributes": attrs})
+            i += 1
+            continue
+
+        ops += parse_inline(line, {})
+        ops.append({"insert": "\n"})
+        i += 1
+
+    return compact_ops(ops)
+
+
+def to_delta_json(md: str) -> str:
+    # JS JSON.stringify formatting (compact, lowercase booleans, raw unicode) so
+    # the payload matches what Slack's web client produces.
+    return json.dumps({"ops": markdown_to_delta(md)}, ensure_ascii=False, separators=(",", ":"))
+
+
+# --------------------------------------------------------------------------- #
+# Chromium "Pickle" encoding for org.chromium.web-custom-data
+# --------------------------------------------------------------------------- #
+
+
+def _pickle_string(buf: bytearray, s: str) -> None:
+    encoded = s.encode("utf-16-le")
+    # Length is in UTF-16 code units, not bytes or codepoints (astral chars = 2).
+    buf += struct.pack("<I", len(encoded) // 2)
+    buf += encoded
+    buf += b"\x00" * ((4 - (len(encoded) % 4)) % 4)  # pad to 4-byte boundary
+
+
+def encode_pickle(mime: str, value: str) -> bytes:
+    payload = bytearray()
+    payload += struct.pack("<I", 1)  # one entry: mime -> value
+    _pickle_string(payload, mime)
+    _pickle_string(payload, value)
+    return struct.pack("<I", len(payload)) + bytes(payload)
+
+
+# --------------------------------------------------------------------------- #
+# Clipboard backends (stdlib only)
+# --------------------------------------------------------------------------- #
+
+
+def _copy_macos(plain: str, custom: bytes) -> None:
+    """Write plain text + the custom flavor to NSPasteboard via the ObjC runtime.
+
+    Uses ctypes against libobjc/AppKit rather than PyObjC to stay dependency
+    free. pbcopy cannot set arbitrary pasteboard types, which Slack requires.
+    """
+    import ctypes
+    import ctypes.util
+
+    objc = ctypes.CDLL(ctypes.util.find_library("objc"))
+    ctypes.CDLL(ctypes.util.find_library("AppKit"))  # registers NSPasteboard
+
+    objc.objc_getClass.restype = ctypes.c_void_p
+    objc.objc_getClass.argtypes = [ctypes.c_char_p]
+    objc.sel_registerName.restype = ctypes.c_void_p
+    objc.sel_registerName.argtypes = [ctypes.c_char_p]
+
+    def send(
+        restype: Any,
+        receiver: Any,
+        selector: bytes,
+        argtypes: Sequence[Any] = (),
+        *args: Any,
+    ) -> Any:
+        objc.objc_msgSend.restype = restype
+        objc.objc_msgSend.argtypes = [ctypes.c_void_p, ctypes.c_void_p, *argtypes]
+        return objc.objc_msgSend(receiver, objc.sel_registerName(selector), *args)
+
+    ns_string = objc.objc_getClass(b"NSString")
+    ns_data = objc.objc_getClass(b"NSData")
+    ns_pasteboard = objc.objc_getClass(b"NSPasteboard")
+
+    def nsstr(s: str) -> Any:
+        return send(
+            ctypes.c_void_p,
+            ns_string,
+            b"stringWithUTF8String:",
+            [ctypes.c_char_p],
+            s.encode("utf-8"),
+        )
+
+    def nsdata(data: bytes) -> Any:
+        return send(
+            ctypes.c_void_p,
+            ns_data,
+            b"dataWithBytes:length:",
+            [ctypes.c_char_p, ctypes.c_size_t],
+            data,
+            len(data),
+        )
+
+    pb = send(ctypes.c_void_p, ns_pasteboard, b"generalPasteboard")
+    if not pb:
+        raise RuntimeError("could not get the general NSPasteboard")
+    send(ctypes.c_long, pb, b"clearContents")
+    ok_text = send(
+        ctypes.c_bool,
+        pb,
+        b"setString:forType:",
+        [ctypes.c_void_p, ctypes.c_void_p],
+        nsstr(plain),
+        nsstr(PLAINTEXT_TYPE),
+    )
+    ok_custom = send(
+        ctypes.c_bool,
+        pb,
+        b"setData:forType:",
+        [ctypes.c_void_p, ctypes.c_void_p],
+        nsdata(custom),
+        nsstr(CUSTOM_TYPE),
+    )
+    if not (ok_text and ok_custom):
+        raise RuntimeError("NSPasteboard rejected the write")
+
+
+def _copy_linux(plain: str, custom: bytes) -> None:
+    """Publish the Slack custom flavor via wl-copy (Wayland) or xclip (X11).
+
+    Note: both tools own the selection per invocation and can't cleanly offer a
+    second arbitrary flavor, so only org.chromium.web-custom-data (what Slack
+    reads) is published here; a coexisting plain-text flavor is not guaranteed.
+    """
+    import shutil
+    import subprocess
+
+    use_wayland = bool(os.environ.get("WAYLAND_DISPLAY")) and shutil.which("wl-copy") is not None
+    if use_wayland:
+        cmd = ["wl-copy", "--type", CUSTOM_TYPE]
+    elif shutil.which("xclip"):
+        cmd = ["xclip", "-selection", "clipboard", "-t", CUSTOM_TYPE]
+    elif shutil.which("wl-copy"):
+        cmd = ["wl-copy", "--type", CUSTOM_TYPE]
+    else:
+        raise RuntimeError("no clipboard tool found; install wl-clipboard or xclip")
+    subprocess.run(cmd, input=custom, check=True)
+
+
+def write_clipboard(plain: str, delta_json: str) -> None:
+    custom = encode_pickle(SLACK_MIME, delta_json)
+    if sys.platform == "darwin":
+        _copy_macos(plain, custom)
+    elif sys.platform.startswith("linux"):
+        _copy_linux(plain, custom)
+    else:
+        raise RuntimeError(f"unsupported platform: {sys.platform}")
+
+
+if __name__ == "__main__":
+    sys.exit(main())
