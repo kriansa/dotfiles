@@ -1,0 +1,857 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.14"
+# dependencies = []
+# ///
+"""Save a tmux session to a JSON snapshot and rebuild it later.
+
+`save` records every window/pane of a session — layout, working directories,
+zoom/synchronize state, and (for apps with a handler) how to relaunch what was
+running. `restore` recreates the session from that snapshot on the target server.
+
+Relaunch is pluggable: one AppHandler per app owns detection, state capture, and
+relaunch; adding an app is a one-line edit to `restore_handlers`. Stdlib only,
+on purpose — no third-party runtime dependencies.
+"""
+
+import argparse
+import datetime as dt
+import json
+import logging
+import os
+import shlex
+import subprocess
+import sys
+from collections.abc import Callable
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Self
+
+log = logging.getLogger("tmux-snap")
+
+SCHEMA_VERSION = 1
+
+
+# The relaunch registry — the main extension point. To support a new program, add an
+# AppHandler here, or just its command name as a string for a plain relaunch. (Handler
+# classes are defined further below.)
+def restore_handlers() -> list["AppHandler | str"]:
+    return [
+        ClaudeHandler(),
+        "nvim",
+        "vim",
+        "btop",
+        "htop",
+    ]
+
+
+class TmuxSnapError(Exception):
+    """An expected, user-facing failure"""
+
+
+# --------------------------------------------------------------------------- #
+# CLI
+# --------------------------------------------------------------------------- #
+
+
+class Cli:
+    """Command-line layer: argument parsing, logging setup, and subcommand dispatch."""
+
+    @staticmethod
+    def main(argv: list[str] | None = None) -> int:
+        args = Cli.build_parser().parse_args(argv)
+        Cli.configure_logging(verbose=args.verbose)
+        tmux = Tmux.from_args(socket_name=args.socket_name, socket_path=args.socket_path)
+        store = SnapshotStore(Cli.default_snapshot_dir())
+        try:
+            return args.run(args, tmux, store)
+        except TmuxSnapError as error:
+            log.error("%s", error)
+            return 1
+
+    @staticmethod
+    def build_parser() -> argparse.ArgumentParser:
+        parser = argparse.ArgumentParser(
+            prog="tmux-snap", description="Save and restore tmux sessions."
+        )
+        parser.add_argument("-v", "--verbose", action="store_true", help="enable debug logging")
+        sockets = parser.add_mutually_exclusive_group()
+        sockets.add_argument(
+            "-L", dest="socket_name", metavar="NAME", help="tmux socket name (like tmux -L)"
+        )
+        sockets.add_argument(
+            "-S", dest="socket_path", metavar="PATH", help="tmux socket path (like tmux -S)"
+        )
+        subcommands = parser.add_subparsers(dest="command", required=True)
+
+        save = subcommands.add_parser("save", help="snapshot a session to JSON")
+        save.add_argument("name", nargs="?", help="snapshot name (default: source session name)")
+        save.add_argument("--session", metavar="SRC", help="source session when detached")
+        save.set_defaults(run=Cli.cmd_save)
+
+        restore = subcommands.add_parser("restore", help="rebuild a session from a snapshot")
+        restore.add_argument("name")
+        restore.add_argument(
+            "--no-attach", action="store_true", help="build detached; don't attach/switch"
+        )
+        restore.add_argument(
+            "--replace", action="store_true", help="kill an existing session of that name"
+        )
+        restore.set_defaults(run=Cli.cmd_restore)
+
+        subcommands.add_parser("list", help="list saved snapshots").set_defaults(run=Cli.cmd_list)
+
+        destroy = subcommands.add_parser("destroy", help="delete a saved snapshot")
+        destroy.add_argument("name")
+        destroy.set_defaults(run=Cli.cmd_destroy)
+        return parser
+
+    @staticmethod
+    def configure_logging(*, verbose: bool) -> None:
+        log.handlers.clear()
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setFormatter(logging.Formatter("tmux-snap: %(message)s"))
+        log.addHandler(handler)
+        log.setLevel(logging.DEBUG if verbose else logging.INFO)
+
+    @staticmethod
+    def cmd_save(args: argparse.Namespace, tmux: "Tmux", store: "SnapshotStore") -> int:
+        session_name = Cli._resolve_source_session(args, tmux)
+        snapshot = Cli._make_snapshotter(tmux).capture(session_name)
+        print(store.save(snapshot, args.name or session_name))  # the path is the data output
+        return 0
+
+    @staticmethod
+    def cmd_restore(args: argparse.Namespace, tmux: "Tmux", store: "SnapshotStore") -> int:
+        snapshot = store.load(args.name)
+        Cli._make_snapshotter(tmux).build(snapshot, name=args.name, replace=args.replace)
+        Cli._attach(tmux, args.name, no_attach=args.no_attach)
+        return 0
+
+    @staticmethod
+    def cmd_list(args: argparse.Namespace, tmux: "Tmux", store: "SnapshotStore") -> int:
+        entries = store.entries()
+        if not entries:
+            log.info("no snapshots in %s", store.directory)
+            return 0
+        for entry in entries:
+            print(entry.describe())  # rows are the data output
+        return 0
+
+    @staticmethod
+    def cmd_destroy(args: argparse.Namespace, tmux: "Tmux", store: "SnapshotStore") -> int:
+        log.info("removed %s", store.destroy(args.name))
+        return 0
+
+    @staticmethod
+    def _resolve_source_session(args: argparse.Namespace, tmux: "Tmux") -> str:
+        if args.session:
+            return args.session
+        if "TMUX" in os.environ and not (args.socket_name or args.socket_path):
+            return tmux.display_message("#{session_name}")
+        raise TmuxSnapError("not attached to a tmux session; pass --session SRC")
+
+    @staticmethod
+    def _make_snapshotter(tmux: "Tmux") -> "Snapshotter":
+        return Snapshotter(tmux, HandlerRegistry(restore_handlers()), ProcessTree.from_system)
+
+    @staticmethod
+    def _attach(tmux: "Tmux", name: str, *, no_attach: bool) -> None:
+        inside = "TMUX" in os.environ
+        same_server = tmux.from_tmux_env or not tmux.socket_args
+        if not no_attach and inside and same_server:
+            tmux.switch_client(name)
+        elif not no_attach and not inside:
+            tmux.attach_session(name)
+        elif inside and same_server:
+            log.info("restored %r (detached); switch with: tmux switch-client -t %s", name, name)
+        else:
+            socket = (" ".join(tmux.socket_args) + " ") if tmux.socket_args else ""
+            log.info("restored %r (detached); attach with: tmux %sattach -t %s", name, socket, name)
+
+    @staticmethod
+    def default_snapshot_dir() -> Path:
+        base = os.environ.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
+        return Path(base) / "tmux-snapshots"
+
+
+# --------------------------------------------------------------------------- #
+# Snapshot data model
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class RestoreAction:
+    """How to bring one pane back: which handler, and the state it captured."""
+
+    handler_id: str
+    state: dict[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"handler": self.handler_id, "state": self.state}
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(handler_id=data["handler"], state=data.get("state", {}))
+
+
+@dataclass(slots=True)
+class Pane:
+    index: int
+    is_active: bool
+    cwd: str
+    shell_pid: int  # informational
+    current_command: str  # informational (tmux pane_current_command)
+    restore: RestoreAction | None  # None => leave a plain shell
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "index": self.index,
+            "active": self.is_active,
+            "cwd": self.cwd,
+            "shell_pid": self.shell_pid,
+            "current_command": self.current_command,
+            "restore": self.restore.to_dict() if self.restore else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        action = data.get("restore")
+        return cls(
+            index=data["index"],
+            is_active=data["active"],
+            cwd=data["cwd"],
+            shell_pid=data.get("shell_pid", 0),
+            current_command=data.get("current_command", ""),
+            restore=RestoreAction.from_dict(action) if action else None,
+        )
+
+
+@dataclass(slots=True)
+class Window:
+    index: int
+    name: str
+    is_active: bool
+    layout: str
+    is_zoomed: bool
+    is_synchronized: bool
+    panes: list[Pane]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "index": self.index,
+            "name": self.name,
+            "active": self.is_active,
+            "layout": self.layout,
+            "zoomed": self.is_zoomed,
+            "synchronized": self.is_synchronized,
+            "panes": [pane.to_dict() for pane in self.panes],
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            index=data["index"],
+            name=data["name"],
+            is_active=data["active"],
+            layout=data["layout"],
+            is_zoomed=data.get("zoomed", False),
+            is_synchronized=data.get("synchronized", False),
+            panes=[Pane.from_dict(pane) for pane in data["panes"]],
+        )
+
+
+@dataclass(slots=True)
+class Snapshot:
+    schema_version: int
+    saved_at: str
+    session_name: str
+    active_window_index: int
+    windows: list[Window]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "saved_at": self.saved_at,
+            "session": {"name": self.session_name, "active_window_index": self.active_window_index},
+            "windows": [window.to_dict() for window in self.windows],
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        if data.get("schema_version") != SCHEMA_VERSION:
+            raise TmuxSnapError(f"unsupported schema_version {data.get('schema_version')!r}")
+        session = data.get("session", {})
+        return cls(
+            schema_version=data["schema_version"],
+            saved_at=data.get("saved_at", ""),
+            session_name=session.get("name", ""),
+            active_window_index=session.get("active_window_index", 0),
+            windows=[Window.from_dict(window) for window in data.get("windows", [])],
+        )
+
+
+# --------------------------------------------------------------------------- #
+# Process tree (find the real foreground program behind a pane's shell)
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class ForegroundProcess:
+    pid: int | None  # None for a bare shell
+    command: str  # basename of the foreground command
+    argv: list[str]
+
+
+class ProcessTree:
+    def __init__(self, children: dict[int, list[int]], commands: dict[int, str]) -> None:
+        self._children = children
+        self._commands = commands
+
+    @classmethod
+    def from_system(cls) -> Self:
+        result = subprocess.run(
+            ["ps", "-axo", "pid=,ppid=,command="], text=True, capture_output=True
+        )
+        return cls.from_ps_output(result.stdout)
+
+    @classmethod
+    def from_ps_output(cls, output: str) -> Self:
+        children: dict[int, list[int]] = {}
+        commands: dict[int, str] = {}
+        for line in output.splitlines():
+            parts = line.split(maxsplit=2)
+            if len(parts) < 2:
+                continue
+            pid, parent_pid = int(parts[0]), int(parts[1])
+            children.setdefault(parent_pid, []).append(pid)
+            commands[pid] = parts[2] if len(parts) == 3 else ""
+        return cls(children, commands)
+
+    def foreground(self, shell_pid: int) -> ForegroundProcess:
+        """Descend from a pane's shell to its deepest child — the foreground program."""
+        current, deepest, seen = shell_pid, None, set()
+        while self._children.get(current):
+            child = max(self._children[current])  # deepest, newest-pid child ≈ foreground
+            if child in seen:  # cycle guard (shouldn't happen)
+                break
+            seen.add(child)
+            deepest, current = child, child
+        if deepest is None:
+            return ForegroundProcess(
+                None, self._command_basename(self._commands.get(shell_pid, "")), []
+            )
+        raw = self._commands.get(deepest, "")
+        try:
+            argv = shlex.split(raw)
+        except ValueError:
+            argv = raw.split()
+        command = self._command_basename(argv[0]) if argv else ""
+        return ForegroundProcess(deepest, command, argv)
+
+    @staticmethod
+    def _command_basename(arg0: str) -> str:
+        """Basename of a command's argv[0], with a login shell's leading '-' stripped."""
+        if not arg0:
+            return ""
+        return os.path.basename(arg0.split(" ", 1)[0]).removeprefix("-")
+
+
+# --------------------------------------------------------------------------- #
+# Claude session registry (internal, undocumented — kept defensive)
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class ClaudeSession:
+    session_id: str | None
+    name: str | None
+
+
+class ClaudeRegistry:
+    def __init__(self, sessions_dir: Path | None = None) -> None:
+        self._dir = sessions_dir or self.default_claude_sessions_dir()
+
+    @staticmethod
+    def default_claude_sessions_dir() -> Path:
+        return Path.home() / ".claude" / "sessions"
+
+    def lookup(self, foreground_pid: int | None, cwd: str) -> ClaudeSession:
+        """sessionId for a running claude: by pid first, else newest registry matching cwd."""
+        try:
+            if foreground_pid is not None:
+                by_pid = self._read(self._dir / f"{foreground_pid}.json")
+                if by_pid and by_pid.get("sessionId"):
+                    return ClaudeSession(by_pid["sessionId"], by_pid.get("name"))
+            newest = self._newest_matching_cwd(cwd)
+            if newest is not None:
+                return ClaudeSession(newest["sessionId"], newest.get("name"))
+        except OSError:
+            pass
+        return ClaudeSession(None, None)
+
+    def _newest_matching_cwd(self, cwd: str) -> dict[str, Any] | None:
+        best_mtime, best = -1.0, None
+        for path in self._dir.glob("*.json"):
+            data = self._read(path)
+            if data and data.get("cwd") == cwd and data.get("sessionId"):
+                mtime = path.stat().st_mtime
+                if mtime > best_mtime:
+                    best_mtime, best = mtime, data
+        return best
+
+    @staticmethod
+    def _read(path: Path) -> dict[str, Any] | None:
+        try:
+            return json.loads(path.read_text())
+        except (OSError, ValueError):
+            return None
+
+
+# --------------------------------------------------------------------------- #
+# Handlers: detect (save) + capture state (save) + relaunch (restore).
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class PaneContext:
+    foreground_pid: int | None
+    cwd: str
+    command: str
+    argv: list[str]
+
+
+class AppHandler:
+    id: str = ""
+
+    def matches(self, command: str, argv: list[str]) -> bool:
+        return command == self.id
+
+    def capture(self, context: PaneContext) -> dict[str, Any] | None:
+        return {}  # {} => relaunch bare; None => leave a plain shell
+
+    def build_command(self, state: dict[str, Any]) -> str:
+        return self.id
+
+    def restore(self, tmux: "Tmux", target: str, state: dict[str, Any]) -> None:
+        tmux.send_keys(target, self.build_command(state))
+
+
+class CommandHandler(AppHandler):
+    """Relaunch a fixed bare command (the app's own name)."""
+
+    def __init__(self, app_id: str) -> None:
+        self.id = app_id
+
+
+class ClaudeHandler(AppHandler):
+    id = "claude"
+
+    # Flags worth re-applying on resume. --resume/--continue are replaced, and
+    # --allow-dangerously-skip-permissions is deliberately dropped (don't silently
+    # re-enable a permissions bypass across a restore).
+    CLAUDE_KEEP_FLAGS = frozenset({"--effort", "--model"})
+
+    def __init__(self, registry: ClaudeRegistry | None = None) -> None:
+        self._registry = registry or ClaudeRegistry()
+
+    def capture(self, context: PaneContext) -> dict[str, Any]:
+        session = self._registry.lookup(context.foreground_pid, context.cwd)
+        return {
+            "session_id": session.session_id,
+            "name": session.name,
+            "flags": self.preserved_claude_flags(context.argv),
+        }
+
+    def build_command(self, state: dict[str, Any]) -> str:
+        command = "claude"
+        if state.get("session_id"):
+            command += f" --resume {state['session_id']}"
+        elif state.get("name"):
+            command += f" --resume {shlex.quote(state['name'])}"
+        return " ".join([command, *state.get("flags", [])]).strip()
+
+    @staticmethod
+    def preserved_claude_flags(argv: list[str]) -> list[str]:
+        kept: list[str] = []
+        index = 1
+        while index < len(argv):
+            token = argv[index]
+            if token.split("=", 1)[0] in ClaudeHandler.CLAUDE_KEEP_FLAGS:
+                kept.append(token)
+                if "=" not in token and index + 1 < len(argv):
+                    kept.append(argv[index + 1])
+                    index += 1
+            index += 1
+        return kept
+
+
+class HandlerRegistry:
+    def __init__(self, handlers: list[AppHandler | str]) -> None:
+        # A bare string is shorthand for a CommandHandler that relaunches that command.
+        resolved = [CommandHandler(h) if isinstance(h, str) else h for h in handlers]
+        self._handlers = resolved
+        self._by_id = {handler.id: handler for handler in resolved}
+
+    def match(self, command: str, argv: list[str]) -> AppHandler | None:
+        return next((h for h in self._handlers if h.matches(command, argv)), None)
+
+    def by_id(self, handler_id: str) -> AppHandler | None:
+        return self._by_id.get(handler_id)
+
+
+# --------------------------------------------------------------------------- #
+# tmux client (the single place that shells out to tmux)
+# --------------------------------------------------------------------------- #
+
+
+class Tmux:
+    # tmux -F field delimiter — ASCII unit separator, absent from paths and names.
+    FIELD_SEPARATOR = "\x1f"
+    WINDOW_FORMAT = FIELD_SEPARATOR.join(
+        [
+            "#{window_index}",
+            "#{window_name}",
+            "#{window_active}",
+            "#{window_layout}",
+            "#{window_zoomed_flag}",
+        ]
+    )
+    PANE_FORMAT = FIELD_SEPARATOR.join(
+        [
+            "#{pane_index}",
+            "#{pane_active}",
+            "#{pane_synchronized}",
+            "#{pane_current_path}",
+            "#{pane_current_command}",
+            "#{pane_pid}",
+        ]
+    )
+
+    def __init__(self, socket_args: list[str], *, from_tmux_env: bool = False) -> None:
+        self.socket_args = socket_args
+        self.from_tmux_env = from_tmux_env
+
+    @classmethod
+    def from_args(cls, *, socket_name: str | None, socket_path: str | None) -> Self:
+        if socket_name:
+            return cls(["-L", socket_name])
+        if socket_path:
+            return cls(["-S", socket_path])
+        tmux_env = os.environ.get("TMUX")
+        if tmux_env:  # operate on the server we're launched inside
+            return cls(["-S", tmux_env.split(",", 1)[0]], from_tmux_env=True)
+        return cls([])
+
+    def _run(self, args: list[str], *, capture: bool = True) -> str:
+        completed = subprocess.run(
+            ["tmux", *self.socket_args, *args], text=True, capture_output=capture
+        )
+        if completed.returncode != 0:
+            detail = (completed.stderr or "").strip() if capture else ""
+            raise TmuxSnapError(f"`tmux {' '.join(args)}` failed: {detail}")
+        return completed.stdout if capture else ""
+
+    def _ok(self, args: list[str]) -> bool:
+        return (
+            subprocess.run(["tmux", *self.socket_args, *args], capture_output=True).returncode == 0
+        )
+
+    def display_message(self, fmt: str) -> str:
+        return self._run(["display-message", "-p", fmt]).strip()
+
+    def has_session(self, name: str) -> bool:
+        return self._ok(["has-session", "-t", f"={name}"])
+
+    def list_windows(self, session: str) -> list[str]:
+        return self._run(["list-windows", "-t", session, "-F", self.WINDOW_FORMAT]).splitlines()
+
+    def list_panes(self, window_target: str) -> list[str]:
+        return self._run(["list-panes", "-t", window_target, "-F", self.PANE_FORMAT]).splitlines()
+
+    def pane_indexes(self, window_target: str) -> list[int]:
+        rows = self._run(["list-panes", "-t", window_target, "-F", "#{pane_index}"]).splitlines()
+        return [int(row) for row in rows]
+
+    def new_session(self, name: str, window_name: str, cwd: str) -> int:
+        args = [
+            "new-session",
+            "-d",
+            "-P",
+            "-F",
+            "#{window_index}",
+            "-s",
+            name,
+            "-n",
+            window_name,
+            "-c",
+            cwd,
+        ]
+        return int(self._run(args).strip())
+
+    def new_window(self, session: str, window_name: str, cwd: str) -> int:
+        args = [
+            "new-window",
+            "-t",
+            session,
+            "-P",
+            "-F",
+            "#{window_index}",
+            "-n",
+            window_name,
+            "-c",
+            cwd,
+        ]
+        return int(self._run(args).strip())
+
+    def split_window(self, window_target: str, cwd: str) -> None:
+        self._run(["split-window", "-t", window_target, "-c", cwd])
+
+    def select_layout(self, window_target: str, layout: str) -> None:
+        self._run(["select-layout", "-t", window_target, layout])
+
+    def send_keys(self, pane_target: str, command: str) -> None:
+        self._run(["send-keys", "-t", pane_target, "--", command, "Enter"])
+
+    def select_pane(self, pane_target: str) -> None:
+        self._run(["select-pane", "-t", pane_target])
+
+    def select_window(self, window_target: str) -> None:
+        self._run(["select-window", "-t", window_target])
+
+    def zoom_pane(self, pane_target: str) -> None:
+        self._run(["resize-pane", "-Z", "-t", pane_target])
+
+    def enable_synchronize(self, window_target: str) -> None:
+        self._run(["set-window-option", "-t", window_target, "synchronize-panes", "on"])
+
+    def kill_session(self, name: str) -> None:
+        self._run(["kill-session", "-t", f"={name}"])
+
+    def attach_session(self, name: str) -> None:
+        self._run(["attach-session", "-t", name], capture=False)
+
+    def switch_client(self, name: str) -> None:
+        self._run(["switch-client", "-t", name])
+
+
+# --------------------------------------------------------------------------- #
+# Capture / rebuild orchestration
+# --------------------------------------------------------------------------- #
+
+
+class Snapshotter:
+    def __init__(
+        self, tmux: Tmux, handlers: HandlerRegistry, process_tree_factory: Callable[[], ProcessTree]
+    ) -> None:
+        self._tmux = tmux
+        self._handlers = handlers
+        self._process_tree_factory = process_tree_factory
+
+    def capture(self, session_name: str) -> Snapshot:
+        if not self._tmux.has_session(session_name):
+            raise TmuxSnapError(f"no such session: {session_name}")
+        processes = self._process_tree_factory()
+        windows: list[Window] = []
+        active_window_index = 0
+        for row in self._tmux.list_windows(session_name):
+            window = self._capture_window(session_name, row, processes)
+            if window.is_active:
+                active_window_index = window.index
+            windows.append(window)
+        return Snapshot(
+            schema_version=SCHEMA_VERSION,
+            saved_at=self._utc_now_iso(),
+            session_name=session_name,
+            active_window_index=active_window_index,
+            windows=windows,
+        )
+
+    def _capture_window(self, session_name: str, row: str, processes: ProcessTree) -> Window:
+        index_field, name, active, layout, zoomed = row.split(Tmux.FIELD_SEPARATOR)
+        index = int(index_field)
+        panes, is_synchronized = self._capture_panes(f"{session_name}:{index}", processes)
+        return Window(
+            index=index,
+            name=name,
+            is_active=active == "1",
+            layout=layout,
+            is_zoomed=zoomed == "1",
+            is_synchronized=is_synchronized,
+            panes=panes,
+        )
+
+    def _capture_panes(self, window_target: str, processes: ProcessTree) -> tuple[list[Pane], bool]:
+        panes: list[Pane] = []
+        is_synchronized = False
+        for row in self._tmux.list_panes(window_target):
+            index_field, active, sync, cwd, current_command, shell_pid_field = row.split(
+                Tmux.FIELD_SEPARATOR
+            )
+            if sync == "1":
+                is_synchronized = True
+            shell_pid = int(shell_pid_field)
+            foreground = processes.foreground(shell_pid)
+            panes.append(
+                Pane(
+                    index=int(index_field),
+                    is_active=active == "1",
+                    cwd=cwd,
+                    shell_pid=shell_pid,
+                    current_command=current_command,
+                    restore=self._restore_action(foreground, cwd),
+                )
+            )
+        return panes, is_synchronized
+
+    def _restore_action(self, foreground: ForegroundProcess, cwd: str) -> RestoreAction | None:
+        handler = self._handlers.match(foreground.command, foreground.argv)
+        if handler is None:
+            return None
+        state = handler.capture(
+            PaneContext(foreground.pid, cwd, foreground.command, foreground.argv)
+        )
+        return None if state is None else RestoreAction(handler.id, state)
+
+    def build(self, snapshot: Snapshot, *, name: str, replace: bool) -> None:
+        if not snapshot.windows:
+            raise TmuxSnapError("snapshot has no windows")
+        if self._tmux.has_session(name):
+            if not replace:
+                raise TmuxSnapError(f"session {name!r} already exists (use --replace)")
+            self._tmux.kill_session(name)
+
+        first, *rest = snapshot.windows
+        real_indexes = [
+            self._tmux.new_session(name, first.name, self._safe_cwd(first.panes[0].cwd))
+        ]
+        self._build_window(name, real_indexes[0], first)
+        for window in rest:
+            index = self._tmux.new_window(name, window.name, self._safe_cwd(window.panes[0].cwd))
+            real_indexes.append(index)
+            self._build_window(name, index, window)
+
+        active_position = next(
+            (i for i, window in enumerate(snapshot.windows) if window.is_active), 0
+        )
+        self._tmux.select_window(f"{name}:{real_indexes[active_position]}")
+
+    def _build_window(self, name: str, window_index: int, window: Window) -> None:
+        target = f"{name}:{window_index}"
+        for pane in window.panes[1:]:  # pane 0 exists; create the rest, then apply geometry
+            self._tmux.split_window(target, self._safe_cwd(pane.cwd))
+        self._tmux.select_layout(target, window.layout)
+
+        # Pane indexes are positional in creation order; read them back to stay
+        # base-index-agnostic, then map each saved pane to its real index by position.
+        real_indexes = self._tmux.pane_indexes(target)
+        for position, pane in enumerate(window.panes):
+            if position < len(real_indexes):
+                self._apply_restore(f"{target}.{real_indexes[position]}", pane.restore)
+
+        active_position = next((i for i, pane in enumerate(window.panes) if pane.is_active), 0)
+        active_index = (
+            real_indexes[active_position]
+            if active_position < len(real_indexes)
+            else real_indexes[0]
+        )
+        self._tmux.select_pane(f"{target}.{active_index}")
+        if window.is_zoomed:
+            self._tmux.zoom_pane(f"{target}.{active_index}")
+        if window.is_synchronized:  # after send-keys, so relaunches don't broadcast
+            self._tmux.enable_synchronize(target)
+
+    def _apply_restore(self, pane_target: str, restore: RestoreAction | None) -> None:
+        if restore is None:
+            return
+        handler = self._handlers.by_id(restore.handler_id)
+        if handler is None:
+            log.warning(
+                "unknown handler %r; leaving a shell in %s", restore.handler_id, pane_target
+            )
+            return
+        handler.restore(self._tmux, pane_target, restore.state)
+
+    @staticmethod
+    def _safe_cwd(cwd: str) -> str:
+        return cwd if cwd and os.path.isdir(cwd) else str(Path.home())
+
+    @staticmethod
+    def _utc_now_iso() -> str:
+        return dt.datetime.now(dt.UTC).isoformat()
+
+
+# --------------------------------------------------------------------------- #
+# Snapshot file store
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class SnapshotInfo:
+    name: str
+    saved_at: str
+    window_count: int
+    pane_count: int
+    readable: bool
+
+    def describe(self) -> str:
+        if not self.readable:
+            return f"{self.name}\t(unreadable)"
+        return (
+            f"{self.name}\t{self.saved_at}\t({self.window_count} windows, {self.pane_count} panes)"
+        )
+
+
+class SnapshotStore:
+    def __init__(self, directory: Path) -> None:
+        self.directory = directory
+
+    def path(self, name: str) -> Path:
+        if "/" in name or name in ("", ".", ".."):
+            raise TmuxSnapError(f"invalid snapshot name {name!r}")
+        return self.directory / f"{name}.json"
+
+    def save(self, snapshot: Snapshot, name: str) -> Path:
+        path = self.path(name)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(snapshot.to_dict(), indent=2) + "\n")
+        return path
+
+    def load(self, name: str) -> Snapshot:
+        path = self.path(name)
+        if not path.is_file():
+            raise TmuxSnapError(f"no snapshot named {name!r} ({path})")
+        try:
+            data = json.loads(path.read_text())
+        except ValueError as error:
+            raise TmuxSnapError(f"corrupt snapshot {path}: {error}") from error
+        return Snapshot.from_dict(data)
+
+    def destroy(self, name: str) -> Path:
+        path = self.path(name)
+        if not path.is_file():
+            raise TmuxSnapError(f"no snapshot named {name!r} ({path})")
+        path.unlink()
+        return path
+
+    def entries(self) -> list[SnapshotInfo]:
+        if not self.directory.is_dir():
+            return []
+        paths = sorted(self.directory.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+        return [self._describe(path) for path in paths]
+
+    @staticmethod
+    def _describe(path: Path) -> SnapshotInfo:
+        try:
+            data = json.loads(path.read_text())
+            windows = data.get("windows", [])
+            pane_count = sum(len(window.get("panes", [])) for window in windows)
+            return SnapshotInfo(
+                path.stem, data.get("saved_at", "?"), len(windows), pane_count, True
+            )
+        except (OSError, ValueError):
+            return SnapshotInfo(path.stem, "", 0, 0, False)
+
+
+if __name__ == "__main__":
+    raise SystemExit(Cli.main())
