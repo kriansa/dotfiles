@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# Keep this Mac awake until you click the menu bar bolt (Hammerspoon caffeinate)
+
+if ! command -v hs >/dev/null 2>&1; then
+    echo "nosleep: 'hs' (Hammerspoon CLI) not found" >&2
+    exit 1
+fi
+
+if hs -c 'caffeineEnable()' >/dev/null 2>&1; then
+    echo "caffeinate on — click the menu bar bolt to stop"
+else
+    echo "nosleep: couldn't reach Hammerspoon (is it running?)" >&2
+    exit 1
+fi

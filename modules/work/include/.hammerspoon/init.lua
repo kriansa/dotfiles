@@ -99,4 +99,53 @@ musicBlocker = hs.application.watcher.new(function(_, event, app)
 end)
 musicBlocker:start()
 
+-- Caffeinate (stay-awake) menu bar indicator.
+-- "systemIdle" keeps the system awake but still lets the display sleep. The
+-- lightning bolt is shown in the menu bar ONLY while caffeinate is active; clicking
+-- it turns caffeinate off and removes the icon. Turn it on with the `nosleep` shell
+-- command, which calls caffeineEnable() over Hammerspoon's IPC.
+local caffeineType = "systemIdle"
+
+-- Lightning-bolt menu bar icon (template image, tinted to match the menu bar).
+local function caffeineIcon()
+  local color = {white = 0, alpha = 1}
+  local c = hs.canvas.new({x = 0, y = 0, w = 12, h = 18})
+  c[1] = {
+    type = "segments", action = "fill", fillColor = color, closed = true,
+    coordinates = {
+      {x = 7.7, y = 1}, {x = 1, y = 10}, {x = 5.2, y = 10},
+      {x = 3.9, y = 17}, {x = 11, y = 7.5}, {x = 6.4, y = 7.5},
+    },
+  }
+  local img = c:imageFromCanvas(); c:delete()
+  img:template(true)
+  return img
+end
+
+-- Draw the bolt once; the menu bar item itself exists only while active — it is
+-- created on enable and deleted on disable (removeFromMenuBar drops the icon, so
+-- create/delete is more reliable than hide/show).
+local caffeineBolt = caffeineIcon()
+caffeineMenu = nil
+
+-- Exposed globally so the `nosleep` shell command can reach them over IPC.
+function _G.caffeineEnable()
+  hs.caffeinate.set(caffeineType, true)
+  if not caffeineMenu then
+    -- autosaveName lets macOS remember where you drag it (Cmd-drag to reposition)
+    caffeineMenu = hs.menubar.new(true, "caffeineBolt")
+    caffeineMenu:setIcon(caffeineBolt)
+    caffeineMenu:setTooltip("Caffeinate on — click to turn off")
+    caffeineMenu:setClickCallback(function() caffeineDisable() end)
+  end
+end
+
+function _G.caffeineDisable()
+  hs.caffeinate.set(caffeineType, false)
+  if caffeineMenu then
+    caffeineMenu:delete()
+    caffeineMenu = nil
+  end
+end
+
 hs.alert.show("Loaded")
