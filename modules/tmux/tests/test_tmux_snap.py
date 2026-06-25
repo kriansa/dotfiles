@@ -556,6 +556,27 @@ class TestCli(unittest.TestCase):
         self.assertTrue(args.replace)
         self.assertIs(args.run, tmux_snap.Cli.cmd_restore)
 
+    def test_parser_restore_name_optional(self):
+        self.assertIsNone(tmux_snap.Cli.build_parser().parse_args(["restore"]).name)
+
+    def test_current_session_name_inside(self):
+        args = tmux_snap.Cli.build_parser().parse_args(["save"])
+        with mock.patch.dict(os.environ, {"TMUX": "/s,1,0"}, clear=True):
+            self.assertEqual(
+                tmux_snap.Cli._current_session_name(args, FakeTmux(session_name="work")), "work"
+            )
+
+    def test_current_session_name_detached_is_none(self):
+        args = tmux_snap.Cli.build_parser().parse_args(["save"])
+        with mock.patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(tmux_snap.Cli._current_session_name(args, FakeTmux()))
+
+    def test_current_session_name_explicit_socket_is_none(self):
+        args = tmux_snap.Cli.build_parser().parse_args(["-L", "snap", "save"])
+        with mock.patch.dict(os.environ, {"TMUX": "/s,1,0"}, clear=True):
+            tmux = FakeTmux(socket_args=["-L", "snap"])
+            self.assertIsNone(tmux_snap.Cli._current_session_name(args, tmux))
+
 
 if __name__ == "__main__":
     unittest.main()

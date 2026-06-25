@@ -90,7 +90,9 @@ class Cli:
         save.set_defaults(run=Cli.cmd_save)
 
         restore = subcommands.add_parser("restore", help="rebuild a session from a snapshot")
-        restore.add_argument("name")
+        restore.add_argument(
+            "name", nargs="?", help="snapshot to restore (default: current session name)"
+        )
         restore.add_argument(
             "--no-attach", action="store_true", help="build detached; don't attach/switch"
         )
@@ -123,9 +125,12 @@ class Cli:
 
     @staticmethod
     def cmd_restore(args: argparse.Namespace, tmux: "Tmux", store: "SnapshotStore") -> int:
-        snapshot = store.load(args.name)
-        Cli._make_snapshotter(tmux).build(snapshot, name=args.name, replace=args.replace)
-        Cli._attach(tmux, args.name, no_attach=args.no_attach)
+        name = args.name or Cli._current_session_name(args, tmux)
+        if not name:
+            raise TmuxSnapError("not attached to a tmux session; pass the snapshot NAME")
+        snapshot = store.load(name)
+        Cli._make_snapshotter(tmux).build(snapshot, name=name, replace=args.replace)
+        Cli._attach(tmux, name, no_attach=args.no_attach)
         return 0
 
     @staticmethod
@@ -145,11 +150,18 @@ class Cli:
 
     @staticmethod
     def _resolve_source_session(args: argparse.Namespace, tmux: "Tmux") -> str:
-        if args.session:
-            return args.session
+        name = args.session or Cli._current_session_name(args, tmux)
+        if not name:
+            raise TmuxSnapError("not attached to a tmux session; pass --session SRC")
+        return name
+
+    @staticmethod
+    def _current_session_name(args: argparse.Namespace, tmux: "Tmux") -> str | None:
+        """The attached session's name, or None when it can't be inferred (detached, or an
+        explicit -L/-S targets a server we're not attached to)."""
         if "TMUX" in os.environ and not (args.socket_name or args.socket_path):
             return tmux.display_message("#{session_name}")
-        raise TmuxSnapError("not attached to a tmux session; pass --session SRC")
+        return None
 
     @staticmethod
     def _make_snapshotter(tmux: "Tmux") -> "Snapshotter":
