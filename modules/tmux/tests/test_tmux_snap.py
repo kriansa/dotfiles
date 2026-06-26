@@ -78,7 +78,7 @@ class FakeTmux(tmux_snap.Tmux):
         if sub == "list-panes":
             target, fmt = args[2], args[4]
             if fmt == "#{pane_index}":
-                return "\n".join(str(i) for i in self.pane_index_map.get(target, []))
+                return "\n".join(str(i) for i in self.pane_index_map.get(target, [1]))
             return self.panes_output.get(target, "")
         if sub in ("new-session", "new-window"):
             return str(self.window_indexes.pop(0))
@@ -506,6 +506,46 @@ class TestRestore(unittest.TestCase):
             snapshotter.build(snapshot, name="T", replace=False)
         self.assertTrue(any("unknown handler" in line for line in captured.output))
         self.assertFalse(any(cmd[0] == "send-keys" and cmd[2] == "T:2.1" for cmd in tmux.commands))
+
+    def test_replace_attached_swaps_via_temp(self):
+        tmux = FakeTmux(window_indexes=[1])
+        snapshotter = tmux_snap.Snapshotter(tmux, make_handlers(), lambda: None)
+        snapshot = tmux_snap.Snapshot(
+            1,
+            "t",
+            "work",
+            1,
+            [tmux_snap.Window(1, "w", True, "L", False, False, [pane(1, restore=None)])],
+        )
+        tmux_snap.Cli._replace_attached(tmux, snapshotter, snapshot, "work")
+
+        created = tmux.issued("new-session")[0]
+        temp = created[created.index("-s") + 1]
+        self.assertTrue(temp.startswith("work-restore-"))  # built under a temp name
+        self.assertIn(["switch-client", "-t", temp], tmux.commands)  # client moved off old
+        self.assertFalse(any(c[0] == "kill-session" for c in tmux.commands))  # not killed directly
+        job = tmux.issued("run-shell")[0][-1]  # detached server job does the swap
+        self.assertIn("kill-session", job)
+        self.assertIn("rename-session", job)
+
+    def test_cmd_restore_self_replace_when_attached(self):
+        store = tmux_snap.SnapshotStore(Path(self.enterContext(tempfile.TemporaryDirectory())))
+        store.save(
+            tmux_snap.Snapshot(
+                1,
+                "t",
+                "work",
+                1,
+                [tmux_snap.Window(1, "w", True, "L", False, False, [pane(1, restore=None)])],
+            ),
+            "work",
+        )
+        tmux = FakeTmux(session_name="work")
+        args = tmux_snap.Cli.build_parser().parse_args(["restore", "--replace"])
+        with mock.patch.dict(os.environ, {"TMUX": "/s,1,0"}, clear=True):
+            tmux_snap.Cli.cmd_restore(args, tmux, store)
+        self.assertTrue(tmux.issued("run-shell"))  # took the self-replace path
+        self.assertFalse(any(c[0] == "kill-session" for c in tmux.commands))
 
 
 class TestAttach(unittest.TestCase):

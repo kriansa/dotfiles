@@ -125,12 +125,19 @@ class Cli:
 
     @staticmethod
     def cmd_restore(args: argparse.Namespace, tmux: "Tmux", store: "SnapshotStore") -> int:
-        name = args.name or Cli._current_session_name(args, tmux)
+        current = Cli._current_session_name(args, tmux)
+        name = args.name or current
         if not name:
             raise TmuxSnapError("not attached to a tmux session; pass the snapshot NAME")
         snapshot = store.load(name)
-        Cli._make_snapshotter(tmux).build(snapshot, name=name, replace=args.replace)
-        Cli._attach(tmux, name, no_attach=args.no_attach)
+        snapshotter = Cli._make_snapshotter(tmux)
+        if args.replace and name == current:
+            # We're attached to the session being replaced; killing it directly would drop
+            # our client (and the SSH connection). Swap it out from a detached server job.
+            Cli._replace_attached(tmux, snapshotter, snapshot, name)
+        else:
+            snapshotter.build(snapshot, name=name, replace=args.replace)
+            Cli._attach(tmux, name, no_attach=args.no_attach)
         return 0
 
     @staticmethod
@@ -180,6 +187,18 @@ class Cli:
         else:
             socket = (" ".join(tmux.socket_args) + " ") if tmux.socket_args else ""
             log.info("restored %r (detached); attach with: tmux %sattach -t %s", name, socket, name)
+
+    @staticmethod
+    def _replace_attached(
+        tmux: "Tmux", snapshotter: "Snapshotter", snapshot: "Snapshot", name: str
+    ) -> None:
+        # tmux-snap runs in a pane of `name`, so we can't kill `name` from here. Build the
+        # restoration in a temp session, move our client onto it, then let a detached server
+        # job (which outlives this pane) kill the old session and rename the temp back.
+        temp = f"{name}-restore-{os.getpid()}"
+        snapshotter.build(snapshot, name=temp, replace=True)
+        tmux.switch_client(temp)
+        tmux.detached_replace(old=name, temp=temp)
 
     @staticmethod
     def default_snapshot_dir() -> Path:
@@ -645,6 +664,14 @@ class Tmux:
 
     def switch_client(self, name: str) -> None:
         self._run(["switch-client", "-t", name])
+
+    def detached_replace(self, *, old: str, temp: str) -> None:
+        """From a background job owned by the tmux server (so it survives the death of the
+        caller's pane, which lives in `old`), kill `old` then rename `temp` back to `old`."""
+        prefix = " ".join(shlex.quote(part) for part in ["tmux", *self.socket_args])
+        kill = f"{prefix} kill-session -t {shlex.quote('=' + old)}"
+        rename = f"{prefix} rename-session -t {shlex.quote('=' + temp)} {shlex.quote(old)}"
+        self._run(["run-shell", "-b", f"{kill} && {rename}"])
 
 
 # --------------------------------------------------------------------------- #
