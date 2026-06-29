@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 #
-# tmux-nest - open a tmux session nested inside the current tmux pane.
+# tmux-nest - open a tmux session nested in a new window of the current tmux.
 #
 # The nested session runs on its own tmux server (`tmux -L <socket>`) so its
 # bindings and sessions are isolated from the outer. The outer's tmux.conf
-# recognizes nested panes via the @nest-host pane option (set below) and
+# recognizes the nest's pane via the @nest-host pane option (set below) and
 # routes most root-table keys (C-\, C-l, S-PageUp, …) to the inner tmux. See
 # the "tmux-nest integration" block in tmux.conf for the full picture.
+#
+# The nest always opens in a brand-new outer window whose command IS the attach,
+# so it never takes over the current pane (which might be a split) and its
+# @nest-host dies with the window when the nest ends - no teardown needed.
 
 set -euo pipefail
 
 usage() {
   cat <<'EOF'
-tmux-nest - open a nested tmux session in the current pane.
+tmux-nest - open a nested tmux session in a new window.
 
 Usage: tmux-nest [--path DIR] [session-name]
        tmux-nest --ssh HOST [session-name]
@@ -20,7 +24,7 @@ Usage: tmux-nest [--path DIR] [session-name]
 
 Options:
   --path DIR     Starting directory for the inner session. If omitted, the
-                 inner inherits the pane's current directory.
+                 inner inherits the current pane's directory.
   --ssh HOST     SSH into HOST and attach to (or create) a tmux session there
                  instead of spawning a local inner server. Incompatible with
                  --path.
@@ -33,26 +37,18 @@ Argument:
 EOF
 }
 
-# Orchestrate one nested-session launch: parse args, refuse over SSH, hand off
-# if we're already nested, resolve and sanitize the name, prime the outer pane,
-# then attach.
+# Orchestrate one nested-session launch: parse args, refuse over SSH, resolve
+# and sanitize the name, then open the nest in a new window.
 main() {
-  # Snapshot argv before parse-args consumes it; a nested invocation replays it
-  # verbatim on the parent tmux (see maybe-handoff-if-nested).
-  original_args=("$@")
-
-  # Arguments we'll use across the script
   session_path=""
   session_name=""
   ssh_host=""
 
   parse-args "$@"
   refuse-if-ssh
-  maybe-handoff-if-nested
   validate-session-name
   sanitize-names
-  setup-outer-pane
-  launch-inner
+  open-nest-window
 }
 
 # Parse options and the optional positional name into globals. Exits 2 on any
@@ -125,35 +121,7 @@ refuse-if-ssh() {
   fi
 }
 
-# A nested (inner) server is marked with the @nest-inner server option on its
-# socket; when we're attached to one, $TMUX points at it so a bare tmux talks
-# to the inner. Nesting at this point would stack a THIRD tmux on a third socket.
-# Instead, replay this invocation on the OUTER tmux so the session opens as a
-# sibling nest one level up, not a third level down. This setup only ever runs
-# one tmux server - the default - as the outer, so clearing $TMUX (it points at
-# the inner's -L socket here) routes a bare tmux to the default server, i.e. the
-# outer. (--help already exited during parsing, so it never reaches here.)
-maybe-handoff-if-nested() {
-  if [[ -n "${TMUX:-}" ]] &&
-     [[ "$(tmux show-options -sv @nest-inner 2>/dev/null || true)" == "1" ]]; then
-    # Rebuild the command, single-quoting each argument so spaces survive the
-    # outer shell's word-splitting. Replaying argv verbatim preserves tmux-nest's
-    # own semantics: no positional -> the outer errors out; an empty '' -> the
-    # outer cancels - exactly as a direct run would.
-    local forward="tmux-nest"
-    if [[ ${#original_args[@]} -gt 0 ]]; then
-      local arg
-      for arg in "${original_args[@]}"; do
-        forward="$forward '$arg'"
-      done
-    fi
-
-    TMUX="" tmux new-window "$forward"
-    exit 0
-  fi
-}
-
-# If a session name isn't given and we can't use a fallback, error out
+# If a session name isn't given and we can't use a fallback, error out.
 validate-session-name() {
   if [[ -n "$session_name" ]]; then
     return 0
@@ -182,77 +150,72 @@ sanitize-names() {
   session_name=${session_name//./_}
 }
 
-# Mark this outer pane as a nest host (drives tmux.conf's key routing and tab
-# styling) and rename the outer window so it's identifiable in the tab list. The
-# explicit @active-is-nested set primes the tab fade immediately; setting a pane
-# option doesn't fire the mirror hooks that normally maintain it.
+# Open the nest in a brand-new outer window whose command IS the attach, then
+# mark that window's pane as the nest host. We never attach in the current pane,
+# so the nest owns a whole window and its @nest-host dies with the window on exit.
 #
-# No teardown needed - and deliberately no EXIT trap, which a SIGKILL or a killed
-# parent window would skip anyway. @nest-host is a pane option, so it dies with
-# the pane when this process exits (detach, kill, or window close). @active-is-nested
-# is re-derived from the focused pane's @nest-host by tmux.conf's mirror hooks on
-# the next focus change, so it reverts on its own once the nest pane is gone.
-setup-outer-pane() {
-  tmux set-option -p @nest-host "$session_name"
-  tmux set-option @active-is-nested "$session_name"
-  tmux rename-window "$session_name"
-}
-
-# Ensure the inner session exists, then attach in the foreground - which blocks
-# until detach or session kill, after which this process exits and its pane
-# closes. The two branches differ in where the inner runs and how bells are handled.
-launch-inner() {
-  if [[ -n "$ssh_host" ]]; then
-    launch-inner-ssh
-  else
-    launch-inner-local
+# Every outer command clears $TMUX so it targets the default (outer) server.
+# That makes this work unchanged when run from *inside* a nest: the new nest
+# opens as a sibling one level up on the outer, never stacked.
+open-nest-window() {
+  # Default the inner's start dir to the focused pane's cwd. Query tmux rather
+  # than trusting $PWD: invoked from the key binding via run-shell, our cwd is
+  # the server's, not the pane's.
+  if [[ -z "$session_path" && -z "$ssh_host" ]]; then
+    session_path=$(tmux display-message -p '#{pane_current_path}' 2>/dev/null || true)
   fi
+
+  local window_cmd
+  if [[ -n "$ssh_host" ]]; then
+    # Two quoting layers: %q on the names for the remote shell, then the whole
+    # remote command is one argument to ssh inside the new-window command that
+    # the local `sh -c` parses. bell-action any: focus events don't reach the
+    # inner reliably over ssh, so a bell in its current window wouldn't ring.
+    local remote
+    remote=$(printf 'tmux new-session -A -d -s %q 2>/dev/null; tmux set-option -g bell-action any; exec tmux attach-session -t %q' \
+      "$session_name" "$session_name")
+    window_cmd=$(printf 'exec ssh %q -t %q' "$ssh_host" "$remote")
+  else
+    create-local-inner
+    # %q so the socket/session names survive the new-window `sh -c` re-parse.
+    window_cmd=$(printf 'exec tmux -L %q attach-session -t %q' "$safe_name" "$session_name")
+  fi
+
+  # The window's command is the attach, so the window lives exactly as long as
+  # the nest. @active-is-nested is set explicitly: setting a pane option doesn't
+  # fire tmux.conf's mirror hooks that normally maintain it.
+  local pane
+  pane=$(TMUX="" tmux new-window -P -F '#{pane_id}' "$window_cmd")
+  TMUX="" tmux set-option -p -t "$pane" @nest-host "$session_name"
+  TMUX="" tmux set-option @active-is-nested "$session_name"
+  TMUX="" tmux rename-window -t "$pane" "$session_name"
 }
 
-# SSH: the bell focus mechanism needs focus events to reach the inner reliably,
-# which they don't through SSH - so a bell in the inner's *current* window never
-# propagates while bell-action is `other`. So we just force bell-action `any`.
-# SSH nests attach to the remote's DEFAULT tmux server (no `-L`); by request we
-# set `bell-action any` there and leave it in place (no reset). Nothing sets
-# @nest-inner on the default server (local nesting only ever sets it on its own
-# `-L` socket), so the focus hooks stay no-ops and `any` sticks. The socket is
-# implicit; only the session target needs quoting for the remote shell.
-launch-inner-ssh() {
-  local session_q
-  session_q=$(printf '%q' "$session_name")
-  exec ssh "$ssh_host" -t "tmux new-session -A -d -s $session_q 2>/dev/null; tmux set-option -g bell-action any; tmux attach-session -t $session_q"
-}
-
-# Local: run the inner on its OWN tmux server (a dedicated `-L` socket), isolated
-# from any default server, and mark it with @nest-inner so its tmux.conf focus
-# hooks switch bell-action dynamically (other while visible, any while hidden) -
-# so the outer rings the nested tab only when it isn't already showing it.
-# `new-session -A` attaches to the inner if it already exists, else creates it.
-launch-inner-local() {
+# Create the inner session on its OWN tmux server (a dedicated `-L` socket),
+# detached, and mark the server with @nest-inner so its tmux.conf focus hooks
+# switch bell-action dynamically (other while visible, any while hidden) - so the
+# outer rings the nested tab only when it isn't already showing it. `new-session
+# -A` reattaches if the named session already exists, else creates it.
+create-local-inner() {
   local new_session_args=(new-session -A -d -s "$session_name")
   [[ -n "$session_path" ]] && new_session_args+=(-c "$session_path")
 
-  # Start the inner server from a clean baseline: the OUTER tmux server's global
-  # environment (`tmux show-environment -g`), not the launching pane's shell env.
-  # A tmux server snapshots the environment of whatever command first spawns it
-  # (the new-session below) and hands that frozen copy to every pane it ever
-  # creates. The launching pane has piled its own process vars on top of the
-  # server baseline (CLAUDE_CODE_*, OLDPWD, editor/tool vars, …); reading the env
-  # back from the outer server gives the same baseline the outer itself runs with
-  # - minus that per-pane cruft - and stops nesting-within-nesting from
-  # compounding it. We read GLOBAL scope because the session scope omits PATH,
-  # HOME and other essentials. Removal markers (`-NAME`) and TMUX/TMUX_PANE are
-  # skipped so the inner starts unaware it's nested. If show-environment yields
-  # nothing (not in a session, or it errored), fall back to the old behavior
-  # rather than spawning a server with an empty environment.
+  # Seed the inner server's environment from the OUTER (default) server's global
+  # env, not this process's: a tmux server freezes the env of whatever first
+  # spawns it and hands that to every pane, so reading it back from the outer
+  # gives the same baseline minus the launching pane's per-process cruft
+  # (CLAUDE_CODE_*, editor vars, …) and stops nesting from compounding it. Global
+  # scope, because session scope drops PATH/HOME. Skip removal markers (-NAME)
+  # and TMUX/TMUX_PANE so the inner starts unaware it's nested. Empty result ->
+  # fall back rather than spawn with no environment.
   local nest_env=()
   local line
   while IFS= read -r line; do
     case "$line" in
-      -*|TMUX=*|TMUX_PANE=*) ;; # skip the env removals (those prefixed with +) and nesting markers
+      -*|TMUX=*|TMUX_PANE=*) ;;
       *=*) nest_env+=("$line") ;;
     esac
-  done < <(tmux show-environment -g 2>/dev/null)
+  done < <(TMUX="" tmux show-environment -g 2>/dev/null)
 
   if [[ ${#nest_env[@]} -gt 0 ]]; then
     env -i "${nest_env[@]}" tmux -L "$safe_name" "${new_session_args[@]}" 2>/dev/null || true
@@ -261,7 +224,6 @@ launch-inner-local() {
   fi
 
   TMUX="" tmux -L "$safe_name" set-option -s @nest-inner 1
-  TMUX="" tmux -L "$safe_name" attach-session -t "$session_name"
 }
 
 main "$@"
