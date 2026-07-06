@@ -24,8 +24,7 @@
   "env": {
     "CLAUDE_CODE_SHELL": "/bin/zsh",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "DISABLE_INSTALLATION_CHECKS": "1",
-    "CLAUDE_AFK_TIMEOUT_MS": 2147483647
+    "DISABLE_INSTALLATION_CHECKS": "1"
   },
   "hooks": {
     "Notification": [

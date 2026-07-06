@@ -7,3 +7,5 @@
 - Tell me things I need to know even if I don't want to hear it
 - Never `git commit --amend` or otherwise rewrite existing commits unless I explicitly ask, or it's genuinely required (e.g. resolving a rebase). When I say "commit", make a new regular commit.
 - After finishing work, don't commit right away unless I have explicitly instructed
+- Whenever writing new code comments, avoid mentioning the tracker task ID (such as Linear, Jira, Github issue, etc), unless the context in there is essential and too complex to understand why a change is needed. Prefer adding the context for that code block and state WHY rather than WHAT. Ultimately, if the code is straightforward, avoid adding comments that tend to get obsolete over time.
+- Code comments should avoid technical jargons and prefer be explicit and explain the concept rather than be clever to be short.
