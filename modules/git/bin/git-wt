@@ -1,422 +1,1267 @@
-#!/usr/bin/env bash
-#
-# Opinionated wrapper around `git worktree`
-#
-# Creates worktrees as siblings to the main worktree with sanitized branch names.
-# Example: repo at /var/myrepo, branch feature/foo -> /var/myrepo+feature-foo
-#
-# Usage: git wt [add|rm|list] [OPTIONS] [BRANCH]
-
-# Constants
-POST_CHECKOUT_TEMPLATE=~/.dotfiles/modules/git/data/post-checkout.sample
-
-# Colors
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-BOLD='\033[1m'
-RESET='\033[0m'
-
-# Helper functions
-
-error() {
-	echo -e "${RED}error:${RESET} $*" >&2
-	exit 1
-}
-
-sanity-check() {
-	if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-		error "not a git repository"
-	fi
-}
-
-get-main-worktree() {
-	git worktree list --porcelain | head -1 | sed 's/^worktree //'
-}
-
-get-git-dir() {
-	git rev-parse --git-dir 2> /dev/null
-}
-
-sanitize-branch-name() {
-	echo "$1" | tr '/' '-'
-}
-
-get-worktree-path() {
-	local branch="$1"
-	local main_worktree; main_worktree=$(get-main-worktree)
-	local parent_dir; parent_dir=$(dirname "$main_worktree")
-	local repo_name; repo_name=$(basename "$main_worktree")
-	local sanitized; sanitized=$(sanitize-branch-name "$branch")
-
-	echo "${parent_dir}/${repo_name}+${sanitized}"
-}
-
-get-worktree-path-for-branch() {
-	local branch="$1"
-	local target="branch refs/heads/${branch}"
-	local path=""
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^worktree\ (.+)$ ]]; then
-			path="${BASH_REMATCH[1]}"
-		elif [[ "$line" == "$target" ]]; then
-			echo "$path"
-			return 0
-		fi
-	done < <(git worktree list --porcelain)
-	return 1
-}
-
-branch-has-worktree() {
-	local branch="$1"
-	git worktree list --porcelain | grep -q "^branch refs/heads/${branch}$"
-}
-
-worktree-exists-at-path() {
-	local path="$1"
-	git worktree list --porcelain | grep -q "^worktree ${path}$"
-}
-
-is-first-worktree() {
-	local count; count=$(git worktree list --porcelain | grep -c "^worktree ")
-	[ "$count" -eq 1 ]
-}
-
-relative-path() {
-	local path="$1"
-	python3 -c "import os; print(os.path.relpath('$path'))"
-}
-
-path-in-use() {
-	local path="$1"
-	# Check if any process has files open in the directory or uses it as cwd
-	# Note: lsof exit code is unreliable (returns 1 on permission issues even when
-	# files are found), so we check for output instead
-	[ -n "$(lsof +D "$path" 2>/dev/null)" ]
-}
-
-edit-with-editor() {
-	local file="$1"
-	local git_core_editor text_editor
-
-	git_core_editor=$(git config --get core.editor)
-	text_editor="${GIT_EDITOR:-${git_core_editor:-${VISUAL:-${EDITOR:-vi}}}}"
-	$text_editor "$file"
-}
-
-maybe-setup-hook() {
-	local git_dir
-	git_dir=$(get-git-dir)
-	local hook_path="${git_dir}/hooks/post-checkout"
-
-	# Only prompt on first worktree creation
-	if ! is-first-worktree; then
-		return
-	fi
-
-	# Hook already exists
-	if [ -f "$hook_path" ]; then
-		return
-	fi
-
-	# Template doesn't exist
-	if [ ! -f "$POST_CHECKOUT_TEMPLATE" ]; then
-		return
-	fi
-
-	echo -n "No post-checkout hook found. Create one from template? [y/N] "
-	read -r response
-	if [[ ! "$response" =~ ^[Yy]$ ]]; then
-		return
-	fi
-
-	mkdir -p "${git_dir}/hooks"
-	cp "$POST_CHECKOUT_TEMPLATE" "$hook_path"
-	chmod +x "$hook_path"
-	echo -e "${GREEN}✓${RESET} Created post-checkout hook"
-
-	echo -n "Edit hook before continuing? [y/N] "
-	read -r response
-	if [[ "$response" =~ ^[Yy]$ ]]; then
-		edit-with-editor "$hook_path" || true
-	fi
-}
-
-# Help functions
-
-show-main-help() {
-	cat <<-EOF
-	Usage: git wt <command> [OPTIONS] [ARGS]
-
-	Commands:
-	  add, new, create    Create a new worktree
-	  rm, remove, delete  Remove a worktree
-	  list, ls            List worktrees (default)
-
-	Run 'git wt <command> -h' for command-specific help.
-	EOF
-}
-
-show-add-help() {
-	cat <<-EOF
-	Usage: git wt add [-b] <branch>
-
-	Create a new worktree for the given branch.
-
-	Options:
-	  -b    Create a new branch
-
-	The worktree is created as a sibling to the main worktree with the branch
-	name sanitized (slashes replaced with dashes).
-
-	Example:
-	  git wt add feature/foo      # checkout existing branch
-	  git wt add -b feature/bar   # create and checkout new branch
-	EOF
-}
-
-show-rm-help() {
-	cat <<-EOF
-	Usage: git wt rm [-f|-F] <branch>
-
-	Remove the worktree for the given branch.
-
-	Options:
-	  -f, --force      Force removal: skip in-use check, force git worktree remove,
-	                   and delete leftover directory with rm -rf
-	  -F, --force-all  Like -f, but also delete the branch without prompting
-
-	After removing the worktree, you'll be prompted to delete the branch.
-
-	Example:
-	  git wt rm feature/foo
-	  git wt rm -f feature/foo   # force removal and cleanup
-	  git wt rm -F feature/foo   # force removal + delete branch
-	EOF
-}
-
-show-list-help() {
-	cat <<-EOF
-	Usage: git wt list
-
-	List all worktrees.
-	EOF
-}
-
-# Commands
-
-cmd-add() {
-	local create_branch=false
-	local branch=""
-
-	while [ $# -gt 0 ]; do
-		case "$1" in
-			-b)
-				create_branch=true
-				shift
-				;;
-			-h|--help)
-				show-add-help
-				exit 0
-				;;
-			-*)
-				error "unknown option: $1"
-				;;
-			*)
-				branch="$1"
-				shift
-				;;
-		esac
-	done
-
-	if [ -z "$branch" ]; then
-		show-add-help
-		exit 1
-	fi
-
-	local worktree_path
-	worktree_path=$(get-worktree-path "$branch")
-
-	# Check if branch already has a worktree
-	if branch-has-worktree "$branch"; then
-		error "branch '$branch' already has a worktree"
-	fi
-
-	# Check if path already exists
-	if [ -e "$worktree_path" ]; then
-		error "path already exists: $worktree_path"
-	fi
-
-	# Setup hook on first worktree
-	maybe-setup-hook
-
-	# Temporarily override core.hooksPath to default if it's set to something custom
-	local git_dir default_hooks_path current_hooks_path needs_hooks_override=false
-	git_dir=$(get-git-dir)
-	default_hooks_path="${git_dir}/hooks"
-	current_hooks_path=$(git config core.hooksPath 2>/dev/null || true)
-
-	if [ -n "$current_hooks_path" ] && [ "$current_hooks_path" != "$default_hooks_path" ]; then
-		needs_hooks_override=true
-	fi
-
-	local original_local_hooks_path had_local_hooks_path=false
-	if [ "$needs_hooks_override" = true ]; then
-		if git config --local core.hooksPath &>/dev/null; then
-			had_local_hooks_path=true
-			original_local_hooks_path=$(git config --local core.hooksPath)
-		fi
-		git config --local core.hooksPath "$default_hooks_path"
-	fi
-
-	# Create the worktree
-	# Argument order differs: -b <branch> <path> vs <path> <branch>
-	local add_result=0
-	if [ "$create_branch" = true ]; then
-		git worktree add -b "$branch" "$worktree_path" || add_result=$?
-	else
-		git worktree add "$worktree_path" "$branch" || add_result=$?
-	fi
-
-	# Restore original core.hooksPath
-	if [ "$needs_hooks_override" = true ]; then
-		if [ "$had_local_hooks_path" = true ]; then
-			git config --local core.hooksPath "$original_local_hooks_path"
-		else
-			git config --local --unset core.hooksPath 2>/dev/null || true
-		fi
-	fi
-
-	if [ "$add_result" -ne 0 ]; then
-		exit "$add_result"
-	fi
-
-	local rel_path
-	rel_path=$(relative-path "$worktree_path")
-	echo -e "${GREEN}✓${RESET} Worktree created at ${BOLD}${rel_path}${RESET}"
-}
-
-cmd-rm() {
-	local branch=""
-	local force=false
-	local force_all=false
-
-	while [ $# -gt 0 ]; do
-		case "$1" in
-			-h|--help)
-				show-rm-help
-				exit 0
-				;;
-			-f|--force)
-				force=true
-				shift
-				;;
-			-F|--force-all)
-				force=true
-				force_all=true
-				shift
-				;;
-			-*)
-				error "unknown option: $1"
-				;;
-			*)
-				branch="$1"
-				shift
-				;;
-		esac
-	done
-
-	if [ -z "$branch" ]; then
-		show-rm-help
-		exit 1
-	fi
-
-	local worktree_path
-	worktree_path=$(get-worktree-path-for-branch "$branch")
-
-	if [ -z "$worktree_path" ]; then
-		error "no worktree found for branch: $branch"
-	fi
-
-	# Check if worktree is in use
-	if [ "$force" = false ] && path-in-use "$worktree_path"; then
-		error "worktree is in use (open files or active shell sessions)"
-	fi
-
-	# Remove the worktree
-	if [ "$force" = true ]; then
-		git worktree remove --force "$worktree_path" 2>/dev/null || true
-	else
-		if ! git worktree remove "$worktree_path"; then
-			exit 1
-		fi
-	fi
-
-	# Check if path still exists after removal
-	if [ -d "$worktree_path" ]; then
-		if [ "$force" = true ]; then
-			rm -rf "$worktree_path"
-		else
-			echo -e "${RED}warning:${RESET} worktree path still exists: $worktree_path" >&2
-		fi
-	fi
-
-	echo -e "Deleted worktree ${BOLD}$(basename "$worktree_path")${RESET}"
-
-	# Delete branch
-	if [ "$force_all" = true ]; then
-		git branch -D "$branch"
-	else
-		echo -n "Delete branch '$branch'? [y/N] "
-		read -r response
-		if [[ ! "$response" =~ ^[Yy]$ ]]; then
-			return
-		fi
-		git branch -D "$branch"
-	fi
-}
-
-cmd-list() {
-	while [ $# -gt 0 ]; do
-		case "$1" in
-			-h|--help)
-				show-list-help
-				exit 0
-				;;
-			*)
-				shift
-				;;
-		esac
-	done
-
-	git worktree list
-}
-
-# Entry point
-
-main() {
-	sanity-check
-
-	local cmd="${1:-list}"
-	shift 2>/dev/null || true
-
-	case "$cmd" in
-		add|new|create)
-			cmd-add "$@"
-			;;
-		rm|remove|delete|del)
-			cmd-rm "$@"
-			;;
-		list|ls)
-			cmd-list "$@"
-			;;
-		-h|--help)
-			show-main-help
-			exit 0
-			;;
-		*)
-			error "unknown command: $cmd"
-			;;
-	esac
-}
-
-main "$@"
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.14"
+# dependencies = []
+# ///
+"""Worktree lifecycle and cleanup in one tool.
+
+Subcommands:
+  add   Create a sibling worktree (`<repo>+<branch-with-slashes-as-dashes>`).
+  rm    Remove a worktree (and, with -F, its branch).
+  list  List worktrees (default when no subcommand is given).
+  gc    Prune branches/worktrees whose PRs merged or closed, then reset the main
+        worktree to the default branch and fast-forward it against origin.
+
+`gc` classifies branches by their GitHub PR state (squash-proof, unlike
+`git branch --merged`), talking to GitHub as the account the repo's SSH key
+authenticates as. Only the clean, provably-merged/closed branches are deleted by
+default; anything that could lose work is opt-in behind an explicit flag.
+
+Stdlib only, run via uv (PEP 723). Every subprocess/filesystem collaborator is
+injected, so the logic is unit-testable with fakes.
+
+Run tests: python3 -m unittest discover -s modules/git/tests -t modules/git/tests -v
+"""
+
+import argparse
+import json
+import logging
+import os
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import threading
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Self
+
+log = logging.getLogger("git-wt")
+
+POST_CHECKOUT_TEMPLATE = Path("~/.dotfiles/modules/git/data/post-checkout.sample").expanduser()
+
+_COLOR = True
+
+
+def use_color(enabled: bool) -> None:
+    global _COLOR
+    _COLOR = enabled
+
+
+def _paint(code: str, text: str) -> str:
+    return f"\033[{code}m{text}\033[0m" if _COLOR else text
+
+
+def green(text: str) -> str:
+    return _paint("0;32", text)
+
+
+def red(text: str) -> str:
+    return _paint("0;31", text)
+
+
+def yellow(text: str) -> str:
+    return _paint("0;33", text)
+
+
+def bold(text: str) -> str:
+    return _paint("1", text)
+
+
+def dim(text: str) -> str:
+    return _paint("2", text)
+
+
+class Spinner:
+    """A tiny stderr spinner for slow remote calls. A no-op unless `enabled`.
+
+    Frames only appear after `interval`, so fast operations never flicker. Gated to
+    interactive terminals by the caller (via `enabled`), and always writes to stderr so
+    it never pollutes stdout / `--json`.
+    """
+
+    _FRAMES = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+
+    def __init__(self, label: str, *, enabled: bool, interval: float = 0.08) -> None:
+        self._label = label
+        self._enabled = enabled
+        self._interval = interval
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def __enter__(self) -> "Spinner":
+        if self._enabled:
+            self._thread = threading.Thread(target=self._spin, daemon=True)
+            self._thread.start()
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join()
+            sys.stderr.write("\r\033[K")  # carriage return + clear to end of line
+            sys.stderr.flush()
+
+    def _spin(self) -> None:
+        index = 0
+        while not self._stop.wait(self._interval):
+            frame = self._FRAMES[index % len(self._FRAMES)]
+            sys.stderr.write(f"\r{frame} {self._label}")
+            sys.stderr.flush()
+            index += 1
+
+
+def make_spinner(*, enabled: bool) -> "Callable[[str], Spinner]":
+    return lambda label: Spinner(label, enabled=enabled)
+
+
+class GitWtError(Exception):
+    """The one expected, user-facing failure; caught once in Cli.main."""
+
+
+# --------------------------------------------------------------------------------------
+# Value objects
+# --------------------------------------------------------------------------------------
+
+
+@dataclass(slots=True)
+class Worktree:
+    path: str
+    head: str
+    branch: str | None  # short name, or None when detached/bare
+
+    @classmethod
+    def parse_list(cls, porcelain: str) -> list["Worktree"]:
+        """Parse `git worktree list --porcelain` (blank-line separated stanzas)."""
+        trees: list[Worktree] = []
+        path: str | None = None
+        head = ""
+        branch: str | None = None
+        for line in porcelain.splitlines():
+            if line.startswith("worktree "):
+                path, head, branch = line.removeprefix("worktree "), "", None
+            elif line.startswith("HEAD "):
+                head = line.removeprefix("HEAD ")
+            elif line.startswith("branch "):
+                ref = line.removeprefix("branch ")
+                branch = ref.removeprefix("refs/heads/")
+            elif line == "" and path is not None:
+                trees.append(cls(path, head, branch))
+                path, head, branch = None, "", None
+        if path is not None:
+            trees.append(cls(path, head, branch))
+        return trees
+
+
+@dataclass(slots=True)
+class Branch:
+    name: str
+    sha: str
+    gone: bool  # upstream tracked but deleted on the remote
+    worktree: Worktree | None
+
+    @classmethod
+    def parse(cls, for_each_ref: str, worktrees: list[Worktree]) -> list["Branch"]:
+        """Parse tab-separated `refname<TAB>objectname<TAB>upstream:track` rows."""
+        by_branch = {wt.branch: wt for wt in worktrees if wt.branch}
+        branches: list[Branch] = []
+        for line in for_each_ref.splitlines():
+            if not line:
+                continue
+            parts = line.split("\t")
+            name = parts[0]
+            sha = parts[1] if len(parts) > 1 else ""
+            track = parts[2] if len(parts) > 2 else ""
+            branches.append(cls(name, sha, "gone" in track, by_branch.get(name)))
+        return branches
+
+
+@dataclass(slots=True)
+class Remote:
+    ssh_target: str | None  # e.g. "git@github.com" (None for https remotes)
+    ssh_port: str | None
+    host: str | None
+    owner_repo: str | None
+
+    @classmethod
+    def parse(cls, url: str) -> Self:
+        url = url.strip()
+        https = re.match(r"^https?://([^/]+)/(.+?)(?:\.git)?/?$", url)
+        if https:
+            return cls(None, None, https.group(1), https.group(2))
+        ssh = re.match(r"^ssh://(?:([^@]+)@)?([^/:]+)(?::(\d+))?/(.+?)(?:\.git)?/?$", url)
+        if ssh:
+            user = ssh.group(1) or "git"
+            return cls(f"{user}@{ssh.group(2)}", ssh.group(3), ssh.group(2), ssh.group(4))
+        scp = re.match(r"^(?:([^@]+)@)?([^:/]+):(.+?)(?:\.git)?/?$", url)
+        if scp:
+            user = scp.group(1) or "git"
+            return cls(f"{user}@{scp.group(2)}", None, scp.group(2), scp.group(3))
+        return cls(None, None, None, None)
+
+
+@dataclass(slots=True)
+class PrInfo:
+    number: int
+    state: str  # OPEN | CLOSED | MERGED
+    merged_at: str | None
+
+
+# --------------------------------------------------------------------------------------
+# Cleanup plan records
+# --------------------------------------------------------------------------------------
+
+
+@dataclass(slots=True)
+class Candidate:
+    branch: str
+    worktree: str | None
+    state: str | None
+    pr: int | None
+    reason: str
+    dirty_files: int = 0
+    result: str | None = None
+    error: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "branch": self.branch,
+            "worktree": self.worktree,
+            "state": self.state,
+            "pr": self.pr,
+            "reason": self.reason,
+            "dirty_files": self.dirty_files,
+            "result": self.result,
+            "error": self.error,
+        }
+
+
+@dataclass(slots=True)
+class ResetPlan:
+    disposition: str  # relocate | delete | already-default | blocked-dirty | detached
+    current: str | None
+    target: str | None = None
+    reason: str | None = None
+    detail: str | None = None
+    result: str | None = None
+    error: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "disposition": self.disposition,
+            "current": self.current,
+            "target": self.target,
+            "reason": self.reason,
+            "detail": self.detail,
+            "result": self.result,
+            "error": self.error,
+        }
+
+
+@dataclass(slots=True)
+class SyncStatus:
+    status: str  # behind | ahead | up-to-date | diverged | synced
+    ahead: int
+    behind: int
+    result: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "status": self.status,
+            "ahead": self.ahead,
+            "behind": self.behind,
+            "result": self.result,
+        }
+
+
+@dataclass(slots=True)
+class GhContext:
+    mode: str  # gh | degraded
+    owner_repo: str | None
+    host: str | None
+    login: str | None
+    switched_from: str | None = None
+    reason: str | None = None
+
+
+@dataclass(slots=True)
+class BranchState:
+    """A branch enriched with the facts classification needs (gathered by Cleaner)."""
+
+    branch: Branch
+    pr: PrInfo | None
+    dirty_files: int  # 0 when clean or no worktree
+    recoverable: bool  # tip reachable on a remote / ancestor of origin/<default>
+
+
+@dataclass(slots=True)
+class CleanupPlan:
+    default: str
+    current: str | None
+    tier_a: list[Candidate] = field(default_factory=list)
+    pending_dirty: list[Candidate] = field(default_factory=list)
+    pending_closed_local: list[Candidate] = field(default_factory=list)
+    kept: list[Candidate] = field(default_factory=list)
+    reset: ResetPlan = field(default_factory=lambda: ResetPlan("detached", None))
+    sync: SyncStatus | None = None
+    ctx: GhContext | None = None
+
+
+# --------------------------------------------------------------------------------------
+# Boundaries: the only places that touch git / gh / ssh
+# --------------------------------------------------------------------------------------
+
+
+class Git:
+    """The single `git` subprocess boundary. Everything funnels through _run / _ok."""
+
+    def __init__(self, cwd: str) -> None:
+        self.cwd = cwd
+
+    @classmethod
+    def at(cls, cwd: str) -> Self:
+        return cls(cwd)
+
+    def _run(
+        self, args: list[str], *, cwd: str | None = None, stdin_devnull: bool = False
+    ) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            ["git", *args],
+            cwd=cwd or self.cwd,
+            capture_output=True,
+            text=True,
+            stdin=subprocess.DEVNULL if stdin_devnull else None,
+        )
+
+    def _ok(self, args: list[str], *, cwd: str | None = None) -> bool:
+        return self._run(args, cwd=cwd).returncode == 0
+
+    def is_repo(self) -> bool:
+        return self._ok(["rev-parse", "--is-inside-work-tree"])
+
+    def worktrees_porcelain(self) -> str:
+        return self._run(["worktree", "list", "--porcelain"]).stdout
+
+    def worktree_list(self) -> str:
+        return self._run(["worktree", "list"]).stdout
+
+    def for_each_ref_heads(self) -> str:
+        fmt = "%(refname:short)%09%(objectname)%09%(upstream:track)"
+        return self._run(["for-each-ref", "--format", fmt, "refs/heads"]).stdout
+
+    def status_porcelain(self, path: str) -> str:
+        return self._run(["status", "--porcelain"], cwd=path).stdout
+
+    def top_level(self) -> str:
+        return self._run(["rev-parse", "--show-toplevel"]).stdout.strip()
+
+    def common_hooks_dir(self) -> str:
+        out = self._run(["rev-parse", "--path-format=absolute", "--git-common-dir"]).stdout.strip()
+        return os.path.join(out, "hooks") if out else ""
+
+    def config_get(self, key: str) -> str | None:
+        result = self._run(["config", "--get", key])
+        return result.stdout.strip() or None if result.returncode == 0 else None
+
+    def config_get_local(self, key: str) -> str | None:
+        result = self._run(["config", "--local", "--get", key])
+        return result.stdout.strip() or None if result.returncode == 0 else None
+
+    def config_set_local(self, key: str, value: str) -> None:
+        self._run(["config", "--local", key, value])
+
+    def config_unset_local(self, key: str) -> None:
+        self._run(["config", "--local", "--unset", key])
+
+    def remote_url(self, remote: str = "origin") -> str:
+        return self._run(["remote", "get-url", remote]).stdout.strip()
+
+    def symbolic_ref_head(self) -> str | None:
+        result = self._run(["symbolic-ref", "refs/remotes/origin/HEAD"])
+        if result.returncode != 0 or not result.stdout.strip():
+            return None
+        return result.stdout.strip().rsplit("/", 1)[-1]
+
+    def verify_ref(self, ref: str) -> bool:
+        return self._ok(["rev-parse", "--verify", ref])
+
+    def rev_parse(self, ref: str) -> str:
+        return self._run(["rev-parse", ref]).stdout.strip()
+
+    def merge_base_is_ancestor(self, ancestor: str, descendant: str) -> bool:
+        return self._ok(["merge-base", "--is-ancestor", ancestor, descendant])
+
+    def branch_r_contains(self, sha: str) -> list[str]:
+        result = self._run(["branch", "-r", "--contains", sha])
+        return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+    def rev_list_count(self, rng: str) -> int:
+        try:
+            return int(self._run(["rev-list", "--count", rng]).stdout.strip())
+        except ValueError:
+            return 0
+
+    def fetch_prune(self) -> subprocess.CompletedProcess[str]:
+        return self._run(["fetch", "--prune", "origin"])
+
+    def worktree_add(
+        self, path: str, branch: str, *, create: bool
+    ) -> subprocess.CompletedProcess[str]:
+        args = (
+            ["worktree", "add", "-b", branch, path] if create else ["worktree", "add", path, branch]
+        )
+        return self._run(args, stdin_devnull=True)
+
+    def worktree_remove(self, path: str, *, force: bool) -> subprocess.CompletedProcess[str]:
+        args = ["worktree", "remove", "--force", path] if force else ["worktree", "remove", path]
+        return self._run(args)
+
+    def worktree_prune(self) -> None:
+        self._run(["worktree", "prune"])
+
+    def branch_delete(self, branch: str) -> subprocess.CompletedProcess[str]:
+        return self._run(["branch", "-D", branch])
+
+    def switch(self, branch: str, *, cwd: str | None = None) -> subprocess.CompletedProcess[str]:
+        return self._run(["switch", branch], cwd=cwd)
+
+    def merge_ff_only(
+        self, ref: str, *, cwd: str | None = None
+    ) -> subprocess.CompletedProcess[str]:
+        return self._run(["merge", "--ff-only", ref], cwd=cwd)
+
+
+class Gh:
+    """The single `gh` subprocess boundary."""
+
+    def available(self) -> bool:
+        return shutil.which("gh") is not None
+
+    def _run(self, args: list[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(["gh", *args], capture_output=True, text=True)
+
+    def pr_states(self, owner_repo: str, names: list[str]) -> dict[str, PrInfo] | None:
+        """Map branch name -> its latest PR. None if gh fails entirely."""
+        fields = "number,state,mergedAt,headRefName"
+        bulk = self._run(
+            ["pr", "list", "-R", owner_repo, "--state", "all", "--limit", "1000", "--json", fields]
+        )
+        if bulk.returncode != 0:
+            return None
+        states: dict[str, PrInfo] = {}
+        for pr in json.loads(bulk.stdout or "[]"):
+            self._record(states, pr)
+        # The bulk list only reaches back so far; fill gaps so an old-but-merged branch
+        # isn't misread as "no PR".
+        for name in names:
+            if name in states:
+                continue
+            targeted = self._run(
+                [
+                    "pr",
+                    "list",
+                    "-R",
+                    owner_repo,
+                    "--head",
+                    name,
+                    "--state",
+                    "all",
+                    "--limit",
+                    "1",
+                    "--json",
+                    fields,
+                ]
+            )
+            if targeted.returncode != 0:
+                continue
+            found = json.loads(targeted.stdout or "[]")
+            if found:
+                self._record(states, found[0])
+        return states
+
+    @staticmethod
+    def _record(states: dict[str, PrInfo], pr: dict[str, Any]) -> None:
+        head = pr["headRefName"]
+        if head not in states or pr["number"] > states[head].number:
+            states[head] = PrInfo(pr["number"], pr["state"], pr.get("mergedAt"))
+
+    def active_login(self) -> str | None:
+        result = self._run(["api", "user", "-q", ".login"])
+        return result.stdout.strip() or None if result.returncode == 0 else None
+
+    def accounts(self) -> list[str]:
+        result = self._run(["auth", "status"])
+        return re.findall(r"account (\S+)", result.stdout + result.stderr)
+
+    def switch(self, host: str, user: str) -> bool:
+        return self._run(["auth", "switch", "--hostname", host, "--user", user]).returncode == 0
+
+
+def parse_ssh_greeting(text: str) -> str | None:
+    """Extract the login from GitHub's `Hi <login>! You've successfully authenticated`."""
+    match = re.search(r"\bHi ([A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)!", text)
+    return match.group(1) if match else None
+
+
+def ssh_identity(remote: Remote, ssh_command: str | None) -> str | None:
+    base = shlex.split(ssh_command) if ssh_command else ["ssh"]
+    args = [*base, "-T", "-o", "BatchMode=yes"]
+    if remote.ssh_port:
+        args += ["-p", remote.ssh_port]
+    if remote.ssh_target:
+        args.append(remote.ssh_target)
+    result = subprocess.run(args, capture_output=True, text=True)
+    return parse_ssh_greeting((result.stdout or "") + (result.stderr or ""))
+
+
+class AccountResolver:
+    """Pick the gh account the repo's SSH key authenticates as; switch and restore it."""
+
+    def __init__(
+        self,
+        git: Git,
+        gh: Gh,
+        *,
+        offline: bool,
+        identity: Callable[[Remote, str | None], str | None] = ssh_identity,
+        spinner: "Callable[[str], Spinner]" = make_spinner(enabled=False),
+    ) -> None:
+        self._git = git
+        self._gh = gh
+        self._offline = offline
+        self._identity = identity
+        self._spinner = spinner
+
+    def _resolve(self) -> GhContext:
+        remote = Remote.parse(self._git.remote_url())
+        ctx = GhContext(mode="degraded", owner_repo=remote.owner_repo, host=remote.host, login=None)
+        if self._offline:
+            ctx.reason = "offline mode requested"
+            return ctx
+        if not self._gh.available():
+            ctx.reason = "gh CLI not installed"
+            return ctx
+        if not remote.owner_repo:
+            ctx.reason = "could not parse the origin remote"
+            return ctx
+        with self._spinner("Resolving GitHub account..."):
+            if remote.ssh_target is None:
+                ctx.mode, ctx.login = "gh", self._gh.active_login()
+                return ctx
+            ssh_command = os.environ.get("GIT_SSH_COMMAND") or self._git.config_get(
+                "core.sshCommand"
+            )
+            login = self._identity(remote, ssh_command)
+            if not login:
+                ctx.reason = "could not determine the repo's SSH identity"
+                return ctx
+            ctx.login = login
+            if login not in self._gh.accounts():
+                ctx.reason = f"no gh account is logged in as '{login}' (the repo's SSH identity)"
+                return ctx
+            active = self._gh.active_login()
+            if active != login:
+                if not self._gh.switch(remote.host or "github.com", login):
+                    ctx.reason = f"gh auth switch to '{login}' failed"
+                    return ctx
+                ctx.switched_from = active
+            ctx.mode = "gh"
+        return ctx
+
+    @contextmanager
+    def activated(self) -> Iterator[GhContext]:
+        ctx = self._resolve()
+        try:
+            yield ctx
+        finally:
+            if ctx.switched_from:
+                self._gh.switch(ctx.host or "github.com", ctx.switched_from)
+
+
+def _confirm(prompt: str) -> bool:
+    try:
+        return input(f"{prompt} [y/N] ").strip().lower().startswith("y")
+    except EOFError:
+        return False
+
+
+def _lsof_in_use(path: str) -> bool:
+    # lsof's exit code is unreliable; treat any output as "in use".
+    result = subprocess.run(["lsof", "+D", path], capture_output=True, text=True)
+    return bool(result.stdout.strip())
+
+
+def sibling_worktree_path(main_path: str, branch: str) -> str:
+    """`<parent>/<repo>+<branch-with-slashes-as-dashes>`, the git-wt naming scheme."""
+    parent = os.path.dirname(main_path)
+    name = f"{os.path.basename(main_path)}+{branch.replace('/', '-')}"
+    return os.path.join(parent, name)
+
+
+# --------------------------------------------------------------------------------------
+# Worktrees: the shared create/remove/list domain (used by add/rm/list and by gc)
+# --------------------------------------------------------------------------------------
+
+
+class Worktrees:
+    def __init__(
+        self,
+        git: Git,
+        *,
+        confirm: Callable[[str], bool] = _confirm,
+        path_in_use: Callable[[str], bool] = _lsof_in_use,
+        template: Path = POST_CHECKOUT_TEMPLATE,
+        editor: Callable[[str], None] | None = None,
+        echo: Callable[[str], None] = print,
+    ) -> None:
+        self._git = git
+        self._confirm = confirm
+        self._path_in_use = path_in_use
+        self._template = template
+        self._editor = editor or _open_in_editor
+        self._echo = echo  # user-facing lines; gc silences these and the Reporter prints them
+
+    def list(self) -> list[Worktree]:
+        return Worktree.parse_list(self._git.worktrees_porcelain())
+
+    def main_path(self) -> str:
+        trees = self.list()
+        if not trees:
+            raise GitWtError("not a git repository")
+        return trees[0].path
+
+    def sibling_path(self, branch: str) -> str:
+        return sibling_worktree_path(self.main_path(), branch)
+
+    def path_for_branch(self, branch: str) -> str | None:
+        return next((wt.path for wt in self.list() if wt.branch == branch), None)
+
+    def print_list(self) -> None:
+        sys.stdout.write(self._git.worktree_list())
+
+    def add(self, branch: str, *, create: bool = False, interactive: bool = True) -> None:
+        path = self.sibling_path(branch)
+        if self.path_for_branch(branch):
+            raise GitWtError(f"branch '{branch}' already has a worktree")
+        if os.path.exists(path):
+            raise GitWtError(f"path already exists: {path}")
+        if interactive:
+            self._maybe_setup_hook()
+        with self._default_hooks_path():
+            result = self._git.worktree_add(path, branch, create=create)
+        if result.returncode != 0:
+            raise GitWtError(result.stderr.strip() or "git worktree add failed")
+        self._echo(f"{green('✓')} Worktree created at {bold(os.path.relpath(path))}")
+
+    def remove(
+        self, branch: str, *, force: bool = False, force_all: bool = False, interactive: bool = True
+    ) -> None:
+        force = force or force_all
+        path = self.path_for_branch(branch)
+        if not path:
+            raise GitWtError(f"no worktree found for branch: {branch}")
+        if not force and self._path_in_use(path):
+            raise GitWtError("worktree is in use (open files or active shell sessions)")
+
+        if force:
+            self._git.worktree_remove(path, force=True)
+        elif self._git.worktree_remove(path, force=False).returncode != 0:
+            raise GitWtError(f"could not remove worktree: {path}")
+
+        if os.path.isdir(path):
+            if force:
+                shutil.rmtree(path, ignore_errors=True)
+            else:
+                log.warning("%s worktree path still exists: %s", yellow("warning:"), path)
+        self._echo(f"Deleted worktree {bold(os.path.basename(path))}")
+
+        if force_all:
+            self._delete_branch(branch)
+        elif interactive and self._confirm(f"Delete branch '{branch}'?"):
+            self._delete_branch(branch)
+
+    def _delete_branch(self, branch: str) -> None:
+        result = self._git.branch_delete(branch)
+        if result.returncode != 0:
+            raise GitWtError(result.stderr.strip() or f"could not delete branch: {branch}")
+
+    def _maybe_setup_hook(self) -> None:
+        # Only offer this on the very first worktree in a repo.
+        if len(self.list()) != 1:
+            return
+        hooks_dir = self._git.common_hooks_dir()
+        if not hooks_dir:
+            return
+        hook = os.path.join(hooks_dir, "post-checkout")
+        if os.path.exists(hook) or not self._template.exists():
+            return
+        if not self._confirm("No post-checkout hook found. Create one from template?"):
+            return
+        os.makedirs(hooks_dir, exist_ok=True)
+        shutil.copy(self._template, hook)
+        os.chmod(hook, 0o755)
+        self._echo(f"{green('✓')} Created post-checkout hook")
+        if self._confirm("Edit hook before continuing?"):
+            self._editor(hook)
+
+    @contextmanager
+    def _default_hooks_path(self) -> Iterator[None]:
+        # `git worktree add` fires post-checkout via core.hooksPath; if the repo points that
+        # elsewhere, temporarily restore the default so the hook runs, then put it back.
+        hooks_dir = self._git.common_hooks_dir()
+        current = self._git.config_get("core.hooksPath")
+        if not hooks_dir or not current or os.path.abspath(current) == os.path.abspath(hooks_dir):
+            yield
+            return
+        original = self._git.config_get_local("core.hooksPath")
+        self._git.config_set_local("core.hooksPath", hooks_dir)
+        try:
+            yield
+        finally:
+            if original is not None:
+                self._git.config_set_local("core.hooksPath", original)
+            else:
+                self._git.config_unset_local("core.hooksPath")
+
+
+def _open_in_editor(path: str) -> None:
+    editor = (
+        os.environ.get("GIT_EDITOR") or os.environ.get("VISUAL") or os.environ.get("EDITOR") or "vi"
+    )
+    subprocess.run([*shlex.split(editor), path])
+
+
+# --------------------------------------------------------------------------------------
+# Classifier: pure decision logic (branches + facts -> buckets). No IO.
+# --------------------------------------------------------------------------------------
+
+
+class Classifier:
+    def classify(
+        self,
+        states: list[BranchState],
+        *,
+        default: str,
+        main: Worktree,
+        self_wt: str,
+        main_tracked_dirty: bool,
+    ) -> CleanupPlan:
+        plan = CleanupPlan(default=default, current=main.branch)
+        by_name = {st.branch.name: st for st in states}
+        for st in states:
+            self._place(st, plan, default=default, main=main, self_wt=self_wt)
+        plan.reset = self._reset_plan(
+            by_name, default=default, main=main, tracked=main_tracked_dirty
+        )
+        return plan
+
+    def _place(
+        self, st: BranchState, plan: CleanupPlan, *, default: str, main: Worktree, self_wt: str
+    ) -> None:
+        branch = st.branch
+        if branch.name == default:
+            return
+        candidate = self._candidate(st)
+        wt = branch.worktree
+        if wt and os.path.realpath(wt.path) == self_wt and wt.path != main.path:
+            candidate.reason = f"{candidate.reason} - running from this worktree"
+            plan.kept.append(candidate)
+            return
+        if branch.name == main.branch:
+            return  # the reset step owns the current branch
+
+        state = st.pr.state if st.pr else None
+        merged = state == "MERGED"
+        is_candidate = state in ("MERGED", "CLOSED") or (state is None and branch.gone)
+        if not is_candidate:
+            candidate.reason = "open PR" if state == "OPEN" else candidate.reason
+            plan.kept.append(candidate)
+        elif st.dirty_files > 0:
+            plan.pending_dirty.append(candidate)
+        elif not merged and not st.recoverable:
+            plan.pending_closed_local.append(candidate)
+        else:
+            plan.tier_a.append(candidate)
+
+    def _reset_plan(
+        self, by_name: dict[str, BranchState], *, default: str, main: Worktree, tracked: bool
+    ) -> ResetPlan:
+        current = main.branch
+        if current is None:
+            return ResetPlan("detached", None)
+        if current == default:
+            return ResetPlan("already-default", current)
+        if tracked:
+            return ResetPlan(
+                "blocked-dirty",
+                current,
+                detail="main worktree has uncommitted tracked changes; commit or stash first",
+            )
+        st = by_name.get(current)
+        state = st.pr.state if st and st.pr else None
+        merged = state == "MERGED"
+        gone = st.branch.gone if st else False
+        recoverable = st.recoverable if st else False
+        is_candidate = state in ("MERGED", "CLOSED") or (state is None and gone)
+        reason = self._reason(st)
+        if is_candidate and (merged or recoverable):
+            return ResetPlan("delete", current, reason=reason)
+        target = sibling_worktree_path(main.path, current)
+        return ResetPlan("relocate", current, target=target, reason=reason)
+
+    def _candidate(self, st: BranchState) -> Candidate:
+        branch = st.branch
+        return Candidate(
+            branch=branch.name,
+            worktree=branch.worktree.path if branch.worktree else None,
+            state=st.pr.state if st.pr else None,
+            pr=st.pr.number if st.pr else None,
+            reason=self._reason(st),
+            dirty_files=st.dirty_files,
+        )
+
+    @staticmethod
+    def _reason(st: BranchState | None) -> str:
+        if st is None:
+            return "no PR found"
+        if st.pr:
+            return f"{st.pr.state.lower()} #{st.pr.number}"
+        return "remote deleted ([gone])" if st.branch.gone else "no PR found"
+
+
+# --------------------------------------------------------------------------------------
+# Cleaner: gc orchestration (gather -> classify -> execute)
+# --------------------------------------------------------------------------------------
+
+
+class Cleaner:
+    def __init__(
+        self,
+        git: Git,
+        resolver: AccountResolver,
+        gh: Gh,
+        worktrees: Worktrees,
+        *,
+        spinner: "Callable[[str], Spinner]" = make_spinner(enabled=False),
+    ) -> None:
+        self._git = git
+        self._resolver = resolver
+        self._gh = gh
+        self._worktrees = worktrees
+        self._spinner = spinner
+        self._classifier = Classifier()
+
+    def run(
+        self,
+        *,
+        apply: bool,
+        include_dirty: bool,
+        include_closed_local: bool,
+        reset_main: bool,
+        no_fetch: bool,
+    ) -> CleanupPlan:
+        default = self._default_branch()
+        worktrees = self._worktrees.list()
+        main = worktrees[0]
+        self_wt = os.path.realpath(self._git.top_level() or self._git.cwd)
+
+        if not no_fetch:
+            with self._spinner("Fetching from origin..."):
+                fetch = self._git.fetch_prune()
+            if fetch.returncode != 0:
+                log.warning("%s git fetch failed: %s", yellow("warning:"), fetch.stderr.strip())
+
+        with self._resolver.activated() as ctx:
+            branches = Branch.parse(self._git.for_each_ref_heads(), worktrees)
+            states = None
+            if ctx.mode == "gh" and ctx.owner_repo:
+                with self._spinner(f"Querying GitHub ({ctx.owner_repo})..."):
+                    states = self._gh.pr_states(ctx.owner_repo, [b.name for b in branches])
+                if states is None:
+                    ctx.mode, ctx.reason = "degraded", "gh PR lookup failed"
+            enriched = [self._enrich(b, states, default) for b in branches]
+            main_tracked = self._tracked_dirty(main.path)
+            plan = self._classifier.classify(
+                enriched,
+                default=default,
+                main=main,
+                self_wt=self_wt,
+                main_tracked_dirty=main_tracked,
+            )
+            plan.ctx = ctx
+            if apply:
+                self._execute(plan, main, default, include_dirty, include_closed_local, reset_main)
+
+        if plan.sync is None:
+            plan.sync = self._sync_status(default)
+        return plan
+
+    def _default_branch(self) -> str:
+        head = self._git.symbolic_ref_head()
+        if head:
+            return head
+        for candidate in ("main", "master"):
+            if self._git.verify_ref(f"origin/{candidate}"):
+                return candidate
+        raise GitWtError("could not determine the default branch")
+
+    def _enrich(
+        self, branch: Branch, states: dict[str, PrInfo] | None, default: str
+    ) -> BranchState:
+        pr = states.get(branch.name) if states else None
+        dirty = self._dirty_count(branch.worktree.path) if branch.worktree else 0
+        recoverable = self._recoverable(branch.sha, default)
+        return BranchState(branch, pr, dirty, recoverable)
+
+    def _dirty_count(self, path: str) -> int:
+        return len([ln for ln in self._git.status_porcelain(path).splitlines() if ln.strip()])
+
+    def _tracked_dirty(self, path: str) -> bool:
+        lines = [ln for ln in self._git.status_porcelain(path).splitlines() if ln.strip()]
+        return any(not ln.startswith("??") for ln in lines)
+
+    def _recoverable(self, sha: str, default: str) -> bool:
+        if not sha:
+            return False
+        if self._git.branch_r_contains(sha):
+            return True
+        return self._git.merge_base_is_ancestor(sha, f"origin/{default}")
+
+    def _execute(
+        self,
+        plan: CleanupPlan,
+        main: Worktree,
+        default: str,
+        include_dirty: bool,
+        include_closed_local: bool,
+        reset_main: bool,
+    ) -> None:
+        for candidate in plan.tier_a:
+            self._remove(candidate)
+        if include_dirty:
+            for candidate in plan.pending_dirty:
+                self._remove(candidate)
+        if include_closed_local:
+            for candidate in plan.pending_closed_local:
+                self._remove(candidate)
+        if reset_main:
+            self._finalize(plan, main, default)
+
+    def _remove(self, candidate: Candidate) -> None:
+        try:
+            if candidate.worktree:
+                self._worktrees.remove(
+                    candidate.branch, force=True, force_all=True, interactive=False
+                )
+            else:
+                result = self._git.branch_delete(candidate.branch)
+                if result.returncode != 0:
+                    raise GitWtError(result.stderr.strip() or "git branch -D failed")
+            candidate.result = "removed"
+        except GitWtError as error:
+            candidate.result, candidate.error = "failed", str(error)
+
+    def _finalize(self, plan: CleanupPlan, main: Worktree, default: str) -> None:
+        reset = plan.reset
+        if reset.disposition == "blocked-dirty":
+            reset.result = "blocked"
+            plan.sync = self._sync_status(default, result="skipped (main not reset)")
+            return
+
+        if reset.disposition not in ("already-default", "detached"):
+            switch = self._git.switch(default, cwd=main.path)
+            if switch.returncode != 0:
+                reset.result, reset.error = "failed", switch.stderr.strip()
+                plan.sync = self._sync_status(default, result="skipped (switch failed)")
+                return
+            if reset.disposition == "delete" and reset.current:
+                deleted = self._git.branch_delete(reset.current)
+                reset.result = "deleted" if deleted.returncode == 0 else "failed"
+                if deleted.returncode != 0:
+                    reset.error = deleted.stderr.strip()
+            elif reset.disposition == "relocate" and reset.current:
+                try:
+                    self._worktrees.add(reset.current, create=False, interactive=False)
+                    reset.result = "relocated"
+                except GitWtError as error:
+                    reset.result, reset.error = "failed", str(error)
+        else:
+            reset.result = "no-op"
+
+        behind_before = self._git.rev_list_count(f"{default}..origin/{default}")
+        merge = self._git.merge_ff_only(f"origin/{default}", cwd=main.path)
+        if merge.returncode == 0:
+            done = (
+                f"fast-forwarded {behind_before} commit(s)"
+                if behind_before
+                else "already up to date"
+            )
+            plan.sync = SyncStatus("synced", 0, behind_before, result=done)
+        else:
+            plan.sync = self._sync_status(default, result="not fast-forwardable - resolve manually")
+        self._git.worktree_prune()
+
+    def _sync_status(self, default: str, *, result: str | None = None) -> SyncStatus:
+        behind = self._git.rev_list_count(f"{default}..origin/{default}")
+        ahead = self._git.rev_list_count(f"origin/{default}..{default}")
+        if ahead and behind:
+            status = "diverged"
+        elif ahead:
+            status = "ahead"
+        elif behind:
+            status = "behind"
+        else:
+            status = "up-to-date"
+        return SyncStatus(status, ahead, behind, result=result)
+
+
+# --------------------------------------------------------------------------------------
+# Reporter: render a CleanupPlan
+# --------------------------------------------------------------------------------------
+
+
+class Reporter:
+    def __init__(self, *, as_json: bool) -> None:
+        self._as_json = as_json
+
+    def render(self, plan: CleanupPlan, *, applied: bool) -> None:
+        if self._as_json:
+            print(json.dumps(self._as_dict(plan, applied), indent=2))
+        else:
+            self._render_human(plan, applied)
+
+    def _as_dict(self, plan: CleanupPlan, applied: bool) -> dict[str, Any]:
+        ctx = plan.ctx
+        return {
+            "applied": applied,
+            "repo": ctx.owner_repo if ctx else None,
+            "default_branch": plan.default,
+            "current_branch": plan.current,
+            "gh": {
+                "mode": ctx.mode if ctx else None,
+                "login": ctx.login if ctx else None,
+                "switched_from": ctx.switched_from if ctx else None,
+                "reason": ctx.reason if ctx else None,
+            },
+            "tier_a": [c.to_dict() for c in plan.tier_a],
+            "pending_dirty": [c.to_dict() for c in plan.pending_dirty],
+            "pending_closed_local": [c.to_dict() for c in plan.pending_closed_local],
+            "reset_main": plan.reset.to_dict(),
+            "sync": plan.sync.to_dict() if plan.sync else None,
+            "kept": [c.to_dict() for c in plan.kept],
+        }
+
+    def _render_human(self, plan: CleanupPlan, applied: bool) -> None:
+        ctx = plan.ctx
+        print(
+            bold(
+                f"Repo: {(ctx.owner_repo if ctx else None) or '?'}  (default branch: {plan.default})"
+            )
+        )
+        if ctx and ctx.mode == "gh":
+            switched = f", switched from {ctx.switched_from}" if ctx.switched_from else ""
+            print(dim(f"gh account: {ctx.login}{switched}"))
+        elif ctx:
+            print(yellow(f"gh unavailable ({ctx.reason}); degraded to [gone]-only classification"))
+        print(dim(f"main worktree branch: {plan.current}"))
+        print()
+
+        # Transient per-worktree removal lines, grouped here (only when we removed worktrees).
+        removed = [
+            candidate.worktree
+            for bucket in (plan.tier_a, plan.pending_dirty, plan.pending_closed_local)
+            for candidate in bucket
+            if candidate.result == "removed" and candidate.worktree
+        ]
+        if removed:
+            for path in removed:
+                print(f"Deleted worktree {bold(os.path.basename(path or ''))}")
+            print()
+
+        self._section("Merged", plan.tier_a, green, applied)
+        self._section(
+            "Dirty worktree (--discard-local-changes)", plan.pending_dirty, yellow, applied
+        )
+        self._section("Closed (--include-closed)", plan.pending_closed_local, yellow, applied)
+
+        print(bold("Reset main worktree (--reset-main):"))
+        print("  " + self._reset_line(plan.reset))
+        print()
+        print(bold("Sync default branch:"))
+        print("  " + (self._sync_line(plan.sync) if plan.sync else "unknown"))
+        print()
+        self._section("Kept", plan.kept, dim, False)
+
+    @staticmethod
+    def _section(
+        title: str, items: list[Candidate], color: Callable[[str], str], show: bool
+    ) -> None:
+        print(bold(f"{title} - {len(items)}:"))
+        for item in items:
+            suffix = f"  [{os.path.basename(item.worktree)}]" if item.worktree else ""
+            line = f"  {color(item.branch)}{suffix}  {dim('(' + item.reason + ')')}"
+            if show and item.result:
+                mark = (
+                    green("✓")
+                    if item.result in ("removed",)
+                    else red(f"✗ {item.error or item.result}")
+                )
+                line += f"  {mark}"
+            print(line)
+        if not items:
+            print(dim("  (none)"))
+        print()
+
+    @staticmethod
+    def _reset_line(reset: ResetPlan) -> str:
+        suffix = ""
+        if reset.result:
+            suffix = f"  -> {reset.result}" + (f": {reset.error}" if reset.error else "")
+        match reset.disposition:
+            case "already-default":
+                return dim("already on the default branch") + suffix
+            case "detached":
+                return yellow("main worktree is detached; skipping") + suffix
+            case "blocked-dirty":
+                return red(f"blocked: {reset.detail}") + suffix
+            case "delete":
+                return (
+                    f"switch to default, then delete {reset.current} {dim('(' + (reset.reason or '') + ')')}"
+                    + suffix
+                )
+            case "relocate":
+                target = os.path.basename(reset.target) if reset.target else "?"
+                return f"move {reset.current} -> {target}, then switch main to default" + suffix
+            case _:
+                return str(reset.disposition) + suffix
+
+    @staticmethod
+    def _sync_line(sync: SyncStatus) -> str:
+        if sync.status == "synced":
+            return sync.result or "synced"
+        base = {
+            "behind": f"behind origin by {sync.behind} - will fast-forward",
+            "up-to-date": "already up to date",
+            "ahead": f"local ahead by {sync.ahead} - nothing to pull",
+            "diverged": red(
+                f"diverged (ahead {sync.ahead}, behind {sync.behind}) - cannot fast-forward"
+            ),
+        }.get(sync.status, "unknown")
+        return base + (f"  -> {sync.result}" if sync.result else "")
+
+
+# --------------------------------------------------------------------------------------
+# Cli: composition root
+# --------------------------------------------------------------------------------------
+
+
+class Cli:
+    @staticmethod
+    def main(argv: list[str] | None = None) -> int:
+        logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stderr)
+        use_color(sys.stdout.isatty() and os.environ.get("NO_COLOR") is None)
+        args = Cli.build_parser().parse_args(argv)
+        git = Git.at(os.getcwd())
+        try:
+            if not git.is_repo():
+                raise GitWtError("not a git repository")
+            run: Callable[[argparse.Namespace, Git], int] = args.run
+            return run(args, git)
+        except GitWtError as error:
+            log.error("%s %s", red("error:"), error)
+            return 1
+
+    @staticmethod
+    def build_parser() -> argparse.ArgumentParser:
+        parser = argparse.ArgumentParser(
+            prog="git-wt", description="Worktree lifecycle and cleanup."
+        )
+        parser.set_defaults(run=Cli.cmd_list)
+        sub = parser.add_subparsers(dest="command")
+
+        add = sub.add_parser("add", aliases=["new", "create"], help="Create a worktree")
+        add.add_argument("-b", dest="create", action="store_true", help="Create a new branch")
+        add.add_argument("branch")
+        add.set_defaults(run=Cli.cmd_add)
+
+        rm = sub.add_parser("rm", aliases=["remove", "delete"], help="Remove a worktree")
+        rm.add_argument(
+            "-f", "--force", action="store_true", help="Skip in-use check, force removal"
+        )
+        rm.add_argument(
+            "-F",
+            "--force-all",
+            dest="force_all",
+            action="store_true",
+            help="Force removal and delete the branch without prompting",
+        )
+        rm.add_argument("branch")
+        rm.set_defaults(run=Cli.cmd_rm)
+
+        listing = sub.add_parser("list", aliases=["ls"], help="List worktrees")
+        listing.set_defaults(run=Cli.cmd_list)
+
+        gc = sub.add_parser("gc", help="Prune merged/closed branches & worktrees; reset main")
+        gc.add_argument("--apply", action="store_true", help="Perform deletions (default: dry run)")
+        gc.add_argument(
+            "--discard-local-changes",
+            dest="include_dirty",
+            action="store_true",
+            help="Also remove merged/closed worktrees with uncommitted changes (discards them)",
+        )
+        gc.add_argument(
+            "--include-closed",
+            dest="include_closed_local",
+            action="store_true",
+            help="Also delete closed branches whose commits exist only locally",
+        )
+        gc.add_argument("--reset-main", dest="reset_main", action="store_true")
+        gc.add_argument("--json", dest="as_json", action="store_true")
+        gc.add_argument("--no-fetch", dest="no_fetch", action="store_true")
+        gc.add_argument("--offline", action="store_true")
+        gc.add_argument("--no-color", dest="no_color", action="store_true")
+        gc.set_defaults(run=Cli.cmd_gc)
+        return parser
+
+    @staticmethod
+    def cmd_add(args: argparse.Namespace, git: Git) -> int:
+        Worktrees(git).add(args.branch, create=args.create)
+        return 0
+
+    @staticmethod
+    def cmd_rm(args: argparse.Namespace, git: Git) -> int:
+        Worktrees(git).remove(args.branch, force=args.force, force_all=args.force_all)
+        return 0
+
+    @staticmethod
+    def cmd_list(args: argparse.Namespace, git: Git) -> int:
+        Worktrees(git).print_list()
+        return 0
+
+    @staticmethod
+    def cmd_gc(args: argparse.Namespace, git: Git) -> int:
+        if args.no_color or args.as_json:
+            use_color(False)
+        # Show progress only when a human is watching a terminal, never for machine output.
+        spin = make_spinner(enabled=sys.stderr.isatty() and not args.as_json)
+        gh = Gh()
+        resolver = AccountResolver(git, gh, offline=args.offline, spinner=spin)
+        # Silence per-op worktree lines; the Reporter groups them under the header.
+        worktrees = Worktrees(git, echo=lambda _: None)
+        cleaner = Cleaner(git, resolver, gh, worktrees, spinner=spin)
+        plan = cleaner.run(
+            apply=args.apply,
+            include_dirty=args.include_dirty,
+            include_closed_local=args.include_closed_local,
+            reset_main=args.reset_main,
+            no_fetch=args.no_fetch,
+        )
+        Reporter(as_json=args.as_json).render(plan, applied=args.apply)
+        return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(Cli.main())
