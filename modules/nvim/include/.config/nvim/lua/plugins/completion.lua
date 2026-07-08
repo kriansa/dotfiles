@@ -64,9 +64,28 @@ return {
   {
     "folke/which-key.nvim",
     config = function()
-      vim.o.timeout = true
-      vim.o.timeoutlen = 300
-      require("which-key").setup()
+      require("which-key").setup({
+        delay = 300,
+        -- Neogit feeds an <Esc> after visual-mode actions (discard/stage/...) to
+        -- leave visual mode. which-key's key interception holds that <Esc>, which
+        -- defers the action until the next keypress. Turn which-key off inside
+        -- Neogit's own buffers so its visual-mode actions apply immediately.
+        disable = {
+          ft = {
+            "NeogitStatus",
+            "NeogitLogView",
+            "NeogitReflogView",
+            "NeogitStashView",
+            "NeogitRefsView",
+            "NeogitCommitView",
+            "NeogitDiffView",
+            "NeogitPopup",
+            "NeogitGitCommandHistory",
+            "NeogitConsole",
+            "NeogitCommitSelectView",
+          },
+        },
+      })
     end
   },
 
