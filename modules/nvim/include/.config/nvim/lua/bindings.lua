@@ -305,9 +305,6 @@ end)
 
 local ai_prefix = "<Leader>u"
 
--- Toggle copilot (mnemonic: Co[p]ilot)
-vim.keymap.set({'n', 'v'}, ai_prefix .. "p", "<cmd>CopilotToggle<CR>", { silent = true })
-
 -- Text objects
 vim.keymap.set({ "n", "x", "o" }, "]m", function()
   require("nvim-treesitter-textobjects.move").goto_next_start("@function.outer", "textobjects")

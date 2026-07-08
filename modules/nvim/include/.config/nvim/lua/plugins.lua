@@ -20,7 +20,6 @@ local plugin_list = {
   'editing',
   'completion',
   'linters',
-  'ai',
   'git',
   'ui',
 }
