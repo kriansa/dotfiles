@@ -36,7 +36,7 @@ text/css=nvim.desktop;
 text/csv=libreoffice-calc.desktop;nvim.desktop;
 text/csv-schema=nvim.desktop;
 text/enriched=nvim.desktop;
-text/html=firefox.desktop;chromium.desktop;nvim.desktop;
+text/html=chromium.desktop;nvim.desktop;
 text/htmlh=nvim.desktop;
 text/javascript=nvim.desktop;
 text/julia=nvim.desktop;
@@ -59,11 +59,6 @@ x-scheme-handler/bruno=bruno.desktop;
 x-scheme-handler/http=firefox.desktop;
 x-scheme-handler/https=firefox.desktop;
 x-scheme-handler/chrome=firefox.desktop;
-application/x-extension-htm=firefox.desktop;
-application/x-extension-html=firefox.desktop;
-application/x-extension-shtml=firefox.desktop;
-application/x-extension-xhtml=firefox.desktop;
-application/x-extension-xht=firefox.desktop;
 
 [Default Applications]
 application/json=nvim.desktop;
