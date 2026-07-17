@@ -103,5 +103,3 @@ XwaylandEavesdrops=Combinations
 [org.kde.kdecoration2]
 ButtonsOnLeft=F
 ButtonsOnRight=X
-library=org.kde.breeze
-theme=Breeze
