@@ -148,7 +148,7 @@ o.clipboard = "unnamedplus"     -- With wl-clipboard-rs, we can use this finally
 o.guicursor = "n-v-sm-t:block" ..
   ",i-c-ci-ve:ver25" ..
   ",r-cr-o:hor20" ..
-  ",a:blinkon500-blinkoff500-TermCursor"
+  ",a:blinkon500-blinkoff500"
 
 -- Scrolling
 o.scrolloff=3
