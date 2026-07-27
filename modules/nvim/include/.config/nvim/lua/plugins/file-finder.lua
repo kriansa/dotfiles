@@ -1,6 +1,72 @@
+-- snacks hardcodes exclusions for these directories onto the fd/ripgrep command line. In both
+-- tools a command-line glob outranks every ignore file, so while those flags are present nothing
+-- in .fdignore/.rgignore can bring the directories back. Stripping the flags hands the decision
+-- back to the ignore files.
+local unexcluded_dirs = { [".git"] = true, [".bare"] = true }
+
+-- Flags whose value is an exclusion pattern. Both tools accept `--flag value` and `--flag=value`.
+local exclude_flags = {
+  ["-E"] = true,
+  ["--exclude"] = true,
+  ["-g"] = true,
+  ["--glob"] = true,
+  ["--iglob"] = true,
+}
+
+local function without_hardcoded_excludes(args)
+  local kept = {}
+  local i = 1
+
+  while i <= #args do
+    local arg = args[i]
+
+    -- A flag joined to its value by `=`, otherwise a bare flag taking the next argument.
+    local joined_flag, value = arg:match("^(%-%-?[%w-]+)=(.*)$")
+    local flag = joined_flag or (exclude_flags[arg] and arg or nil)
+    if not joined_flag then
+      value = args[i + 1]
+    end
+
+    -- ripgrep spells an exclusion as a negated glob, fd does not.
+    local dir = value and value:gsub("^!", "")
+
+    if flag and exclude_flags[flag] and dir and unexcluded_dirs[dir] then
+      i = i + (joined_flag and 1 or 2)
+    else
+      kept[#kept + 1] = arg
+      i = i + 1
+    end
+  end
+
+  return kept
+end
+
+local function let_ignore_files_decide()
+  local proc = require("snacks.picker.source.proc")
+  if proc.hardcoded_excludes_stripped then
+    return
+  end
+  proc.hardcoded_excludes_stripped = true
+
+  -- Every picker that shells out builds its argument list privately and hands it straight to
+  -- this function, so it is the one place that sees the final command for all of them.
+  local spawn = proc.proc
+  proc.proc = function(opts, ctx)
+    local cmd = opts.cmd
+    if opts.args and (cmd == "fd" or cmd == "fdfind" or cmd == "rg") then
+      opts.args = without_hardcoded_excludes(opts.args)
+    end
+    return spawn(opts, ctx)
+  end
+end
+
 return {
   {
     "folke/snacks.nvim",
+    config = function(_, opts)
+      let_ignore_files_decide()
+      require("snacks").setup(opts)
+    end,
     opts = {
       picker = {
         preview = { enabled = false },
