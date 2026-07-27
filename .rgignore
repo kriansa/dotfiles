@@ -1,5 +1,0 @@
-# Ignored files for rg search
-# It's important to list .git because by default, it will look for all hidden files
-.git/logs
-.git/objects
-.git/refs

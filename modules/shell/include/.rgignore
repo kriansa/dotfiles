@@ -1,0 +1,13 @@
+# Linked to ~/.rgignore. ripgrep reads ignore files from every parent directory, so these rules
+# reach any search started below $HOME. Searches outside $HOME get them through the ripgrep config
+# file that this module's init.fish generates.
+#
+# The `**/` prefix is required. A pattern that contains a slash is anchored to the directory holding
+# this file, so a bare `.git/objects` would only ever prune $HOME/.git — never a repository found
+# further down the tree.
+**/.bare/logs
+**/.bare/objects
+**/.bare/refs
+**/.git/logs
+**/.git/objects
+**/.git/refs

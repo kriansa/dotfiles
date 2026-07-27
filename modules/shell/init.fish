@@ -1,4 +1,24 @@
+# ripgrep discovers ~/.rgignore on its own, but only for searches started below $HOME. Repositories
+# living anywhere else need the file handed to it explicitly, which is what its config file is for.
+#
+# That config file is generated here rather than committed because ripgrep expands neither $HOME nor
+# `~` inside it, so the one line it holds has to be an absolute path that differs per machine.
+#
+# This sits above the interactive check so that scripts inherit the variable too.
+set --local rg_config $HOME/.config/ripgrep/ripgreprc
+set --local rg_ignore_flag "--ignore-file=$HOME/.rgignore"
+
+if not test -r $rg_config; or test "$(cat $rg_config)" != "$rg_ignore_flag"
+  mkdir -p (path dirname $rg_config)
+  echo $rg_ignore_flag >$rg_config
+end
+
+set --global --export RIPGREP_CONFIG_PATH $rg_config
+
 status is-interactive || return
+
+# Set theme
+fish_config theme choose "catppuccin-frappe"
 
 # Set good defaults for FZF
 # adds ctrl-[hjkl], ctrl-[dufb] for vim-like navigation
@@ -33,35 +53,6 @@ set --global fish_prompt_pwd_dir_length 10
 # Custom color
 set --global hydro_color_jobs cyan
 
-# Set theme based on fish 3.0
-set --global fish_color_autosuggestion 555 brblack
-set --global fish_color_cancel -r
-set --global fish_color_command 005fd7
-set --global fish_color_comment 990000
-set --global fish_color_cwd green
-set --global fish_color_cwd_root red
-set --global fish_color_end 009900
-set --global fish_color_error ff0000
-set --global fish_color_escape 00a6b2
-set --global fish_color_history_current --bold
-set --global fish_color_host normal
-set --global fish_color_host_remote yellow
-set --global fish_color_normal normal
-set --global fish_color_operator 00a6b2
-set --global fish_color_param 00afff
-set --global fish_color_quote 999900
-set --global fish_color_redirection 00afff
-set --global fish_color_search_match white --background=brblack
-set --global fish_color_selection white --bold --background=brblack
-set --global fish_color_status red
-set --global fish_color_user brgreen
-set --global fish_color_valid_path --underline
-set --global fish_pager_color_completion
-set --global fish_pager_color_description B3A06D yellow
-set --global fish_pager_color_prefix normal --bold --underline
-set --global fish_pager_color_progress brwhite --background=cyan
-set --global fish_pager_color_selected_background -r
-
 # Add navigational helpers
 # (these functions couldn't be in their dedicated files because they would have weird names)
 function ...
@@ -70,6 +61,10 @@ end
 
 function ....
   ../../..
+end
+
+function .....
+  ../../../..
 end
 
 alias cat=bat

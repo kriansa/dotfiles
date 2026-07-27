@@ -1,7 +1,3 @@
-[user]
-  name = Daniel Pereira
-  email = daniel@garajau.com.br
-  signingkey = BC277BE09E8A6F1059C3911B3E7884756312F945
 [alias]
   co = checkout
   cm = commit
@@ -21,10 +17,9 @@
   branch = auto
   ui = true
 [core]
-  attributesfile = ~/.gitattributes
   autocrlf = input
 [commit]
-  template = ~/.gitmessage
+  template = ~/.config/git/commit-template
   gpgsign = true
 [tag]
   gpgSign = true
@@ -61,11 +56,6 @@
   external = difft
   colorMoved = default
 
-; Include work-related overrides, such as different profile and authentication
+; Include an optional identity override, to allow using different git credentials
 [include]
-  path = ~/.gitconfig-overrides
-
-; This must be added as last entry so it can take precedence and override attributes
-; The trailing slash is required
-[includeIf "gitdir:~/.dotfiles/"]
-  path = ~/.gitconfig-dotfiles
+  path = ~/.config/git/identity

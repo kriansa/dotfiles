@@ -386,15 +386,18 @@ class Stower:
             ".cache",  # XDG_CACHE_HOME
             ".local/bin",  # Binary files
             ".gnupg",  # GnuPG metadata
+            ".ssh",  # SSH keys and config (machine-local; only link individual files in)
             ".config/vlc",  # VLC metadata
             ".config/gtk-3.0",  # GTK3 settings
             ".config/pulse",  # PulseAudio
             ".config/systemd/user",  # SystemD user units
+            ".config/git",  # Git config files
             ".config/autostart",  # Autostart desktop entries
             ".config/pipewire/pipewire.conf.d", # Pipewire config
             ".local/share/applications",  # Desktop entries
             ".claude",  # Claude CLI metadata
             ".claude/skills",  # Claude skills (multiple modules may contribute)
+            ".claude/hooks",  # Claude hooks (multiple modules may contribute)
         ]
 
     @staticmethod

@@ -7,4 +7,5 @@ eslint-config-prettier
 eslint-plugin-vue
 eslint-plugin-react
 vls
+opencode-darwin-arm64@latest
 @bytebase/dbhub@latest

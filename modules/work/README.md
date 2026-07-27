@@ -1,7 +1,7 @@
 # Setup
 
-Just add a blank `private.fish` and a `include/.gitconfig-work`
+Just add a blank `private.fish` with the overrides and private stuff.
 
 ```sh
-touch private.fish include/.gitconfig-work
+touch private.fish
 ```

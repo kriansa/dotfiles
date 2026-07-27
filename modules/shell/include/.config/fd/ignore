@@ -1,0 +1,11 @@
+# Linked to ~/.config/fd/ignore, the global ignore file fd reads for every search.
+#
+# The `**/` prefix is required. A pattern that contains a slash is anchored to the directory the
+# search started from, so a bare `.git/objects` would only prune a repository sitting exactly at
+# that root — never one found further down the tree.
+**/.bare/logs
+**/.bare/objects
+**/.bare/refs
+**/.git/logs
+**/.git/objects
+**/.git/refs

@@ -1,0 +1,11 @@
+# vim: ft=gitconfig
+[user]
+  name = Daniel Pereira
+  email = daniel@salsa.dev
+  signingkey = 9F96A39427DABEC6C3B7CCCB70CAC49854BFB8B3
+
+[core]
+  sshCommand = "ssh -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519"
+
+[gpg]
+  format = openpgp

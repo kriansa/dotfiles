@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#
+# Force the current repository to use the GPG identity, no matter which identity the active dotup
+# scope linked into $HOME as ~/.gitconfig-identity.
+#
+# It works by adding an include to the repository local config (.git/config), which git reads after
+# the global one, so it wins over the identity set in $HOME.
+#
+# Usage: git force-gpg-id
+
+readonly IDENTITY_PATH="~/.dotfiles/modules/git-id-gpg/include/.config/git/identity"
+
+main() {
+	sanity_check
+	configure_include
+}
+
+error() {
+	echo "$@" >&2
+	exit 1
+}
+
+sanity_check() {
+	if ! git rev-parse --is-inside-work-tree > /dev/null; then
+		exit 1
+	fi
+
+	if [[ ! -f "${IDENTITY_PATH/#\~/$HOME}" ]]; then
+		error "The identity file '$IDENTITY_PATH' was not found!"
+	fi
+}
+
+configure_include() {
+	local current_includes
+	current_includes=$(git config --local --get-all include.path)
+
+	if grep --quiet --line-regexp --fixed-strings "$IDENTITY_PATH" <<< "$current_includes"; then
+		echo "This repository already includes '$IDENTITY_PATH'."
+		return
+	fi
+
+	git config --local --add include.path "$IDENTITY_PATH"
+
+	echo "This repository now includes '$IDENTITY_PATH'."
+	echo "Signing as: $(git config user.email) <$(git config user.signingkey)>"
+}
+
+main "$@"

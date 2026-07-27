@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# Usage: pubkey [--stdout]
+# Description: Pipe my SSH public key to my clipboard. If you pass the parameter --stdout then it's
+# printed to stdout instead of copied to clipboard.
+#
+# The key comes from ~/.ssh/id_ed25519.pub when present, otherwise it is derived from the GPG key
+# (the setup where the YubiKey holds the authentication subkey).
+#
+# Globals
+#   GPG_MAIN_KEY - The main GPG key ID
+
+set -euo pipefail
+
+ssh_key_file="$HOME/.ssh/id_ed25519.pub"
+
+if [ -f "$ssh_key_file" ]; then
+  public_key=$(cat "$ssh_key_file")
+elif command -v gpg >/dev/null 2>&1 && [ -n "${GPG_MAIN_KEY:-}" ]; then
+  key_description=$(gpg -K "$GPG_MAIN_KEY" | grep uid | head -1 | sed 's/.*\] //g')
+  public_key=$(gpg --export-ssh-key "$GPG_MAIN_KEY" | sed "s/openpgp:.*/$key_description/")
+else
+  echo "=> No public key found: $ssh_key_file is missing and GPG_MAIN_KEY is unset." >&2
+  exit 1
+fi
+
+if [ "${1:-}" != "--stdout" ]; then
+  printf '%s\n' "$public_key" | pbcopy
+  echo '=> Public key copied to clipboard.'
+else
+  printf '%s\n' "$public_key"
+fi

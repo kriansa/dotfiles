@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+"""timeout — run a command with a time limit (macOS shim for GNU coreutils).
+
+Usage: timeout [OPTION]... DURATION COMMAND [ARG]...
+
+DURATION is a non-negative number with an optional unit suffix:
+  s  seconds (default)   m  minutes   h  hours   d  days
+A DURATION of 0 runs COMMAND with no time limit.
+
+Options:
+  -s, --signal=NAME       signal to send on timeout instead of TERM
+                          (e.g. KILL, SIGKILL, INT, 9)
+  -k, --kill-after=DUR    if COMMAND survives the timeout signal, send KILL
+                          after DUR
+      --preserve-status   accepted for compatibility, ignored
+      --foreground        accepted for compatibility, ignored
+  -v, --verbose           accepted for compatibility, ignored
+  -h, --help              show this help and exit
+
+Exit status:
+  124  COMMAND timed out
+  125  timeout itself failed (bad option, invalid duration or signal)
+  126  COMMAND was found but could not be run
+  127  COMMAND was not found
+  else the exit status of COMMAND (128+N if it was killed by signal N)
+"""
+import os
+import signal
+import subprocess
+import sys
+
+PROG = "timeout"
+
+EX_TIMEOUT = 124
+EX_FAILURE = 125
+EX_CANNOT_INVOKE = 126
+EX_NOT_FOUND = 127
+
+# Terminal-generated signals we forward to COMMAND so Ctrl-C etc. still work
+# even though COMMAND runs in its own session (see start_new_session below).
+FORWARDED = (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT)
+
+UNITS = {"s": 1, "m": 60, "h": 3600, "d": 86400}
+
+
+def die(message, code=EX_FAILURE):
+    sys.stderr.write(f"{PROG}: {message}\n")
+    sys.exit(code)
+
+
+def parse_duration(text):
+    multiplier = 1
+    if text and text[-1] in UNITS:
+        multiplier = UNITS[text[-1]]
+        text = text[:-1]
+    try:
+        value = float(text)
+    except ValueError:
+        die(f"invalid time interval '{text}'")
+    if value < 0:
+        die(f"invalid time interval '{text}'")
+    return value * multiplier
+
+
+def resolve_signal(name):
+    key = name.upper()
+    if key.isdigit():
+        return int(key)
+    if not key.startswith("SIG"):
+        key = "SIG" + key
+    try:
+        return int(getattr(signal, key))
+    except AttributeError:
+        die(f"{name}: invalid signal")
+
+
+def parse_args(args):
+    """Split OPTIONS from DURATION and COMMAND.
+
+    Option parsing stops at the first non-option token (the DURATION); every
+    token after it belongs to COMMAND and is left untouched, so COMMAND's own
+    flags are never interpreted as ours.
+    """
+    sig = signal.SIGTERM
+    kill_after = None
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg == "--":
+            i += 1
+            break
+        if not arg.startswith("-") or arg == "-":
+            break  # this is DURATION
+
+        if arg in ("-h", "--help"):
+            sys.stdout.write(__doc__)
+            sys.exit(0)
+        elif arg in ("-s", "--signal"):
+            sig = resolve_signal(take_value(args, i, arg))
+            i += 2
+        elif arg.startswith("--signal="):
+            sig = resolve_signal(arg[len("--signal="):])
+            i += 1
+        elif arg.startswith("-s") and len(arg) > 2:
+            sig = resolve_signal(arg[2:])
+            i += 1
+        elif arg in ("-k", "--kill-after"):
+            kill_after = parse_duration(take_value(args, i, arg))
+            i += 2
+        elif arg.startswith("--kill-after="):
+            kill_after = parse_duration(arg[len("--kill-after="):])
+            i += 1
+        elif arg.startswith("-k") and len(arg) > 2:
+            kill_after = parse_duration(arg[2:])
+            i += 1
+        elif arg in ("--preserve-status", "--foreground", "-v", "--verbose"):
+            i += 1  # recognized for compatibility, no effect
+        else:
+            die(f"unrecognized option '{arg}'")
+
+    if i >= len(args):
+        die("missing duration operand")
+    seconds = parse_duration(args[i])
+    command = args[i + 1:]
+    if not command:
+        die("missing command operand")
+    return seconds, command, sig, kill_after
+
+
+def take_value(args, i, flag):
+    if i + 1 >= len(args):
+        die(f"option '{flag}' requires an argument")
+    return args[i + 1]
+
+
+def signal_group(pid, signum):
+    try:
+        os.killpg(pid, signum)
+    except ProcessLookupError:
+        pass
+
+
+def main(argv):
+    args = argv[1:]
+    if not args:
+        die("missing duration operand")
+
+    seconds, command, sig, kill_after = parse_args(args)
+
+    # A fresh session puts COMMAND (and anything it spawns) in its own process
+    # group, so we can signal the whole tree with killpg on timeout.
+    try:
+        child = subprocess.Popen(command, start_new_session=True)
+    except FileNotFoundError:
+        die(f"failed to run command '{command[0]}': No such file or directory", EX_NOT_FOUND)
+    except PermissionError:
+        die(f"failed to run command '{command[0]}': Permission denied", EX_CANNOT_INVOKE)
+    except OSError as error:
+        die(f"failed to run command '{command[0]}': {error.strerror}", EX_CANNOT_INVOKE)
+
+    def forward(signum, _frame):
+        signal_group(child.pid, signum)
+
+    for forwarded in FORWARDED:
+        signal.signal(forwarded, forward)
+
+    timed_out = False
+    try:
+        child.wait(timeout=seconds if seconds > 0 else None)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        signal_group(child.pid, sig)
+        if kill_after is not None:
+            try:
+                child.wait(timeout=kill_after)
+            except subprocess.TimeoutExpired:
+                signal_group(child.pid, signal.SIGKILL)
+                child.wait()
+        else:
+            child.wait()
+
+    if timed_out:
+        return EX_TIMEOUT
+    # Popen reports a signal death as a negative return code; mirror the shell's
+    # 128+N convention so callers see the same exit status as under GNU timeout.
+    return child.returncode if child.returncode >= 0 else 128 - child.returncode
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

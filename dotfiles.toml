@@ -16,7 +16,11 @@ modules = [
   "javascript",
   { name = "ruby", scopes = ["personal", "devbox"] },
   { name = "golang", scopes = ["personal", "devbox"] },
-  { name = "git-ssh-sign", scopes = ["devbox"] },
+
+  # Git authentication
+  { name = "git-id-gpg", scopes = ["personal"] },
+  { name = "git-id-ssh", scopes = ["devbox"] },
+  { name = "git-id-work", scopes = ["work"] },
 
   # Only for UI
   { name = "ghostty", scopes = ["personal", "work"] },
