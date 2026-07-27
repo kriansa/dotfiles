@@ -4,15 +4,15 @@ import configparser
 import logging
 import os
 import signal
+import socket
 import sys
 
 import dbus
 import dbus.mainloop.glib
-from gi.repository import GLib
 
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
-from PyQt6.QtCore import Qt, QRect, QRectF, QTimer
+from PyQt6.QtCore import Qt, QRect, QRectF, QSocketNotifier
 from PyQt6.QtSvg import QSvgRenderer
 
 log = logging.getLogger(__name__)
@@ -116,14 +116,6 @@ def setup_tray(startup_name, use_flags):
     return tray
 
 
-def setup_glib_pump():
-    ctx = GLib.MainContext.default()
-    pump = QTimer()
-    pump.timeout.connect(lambda: ctx.iteration(False))
-    pump.start(10)
-    return pump  # keep reference alive
-
-
 def setup_im_monitor(bus, ic_path, tray, use_flags):
     osd = bus.get_object("org.kde.plasmashell", "/org/kde/osdService")
     osd_iface = dbus.Interface(osd, "org.kde.osdService")
@@ -152,6 +144,33 @@ def setup_im_monitor(bus, ic_path, tray, use_flags):
         os.system("fcitx5-remote -t") if reason == QSystemTrayIcon.ActivationReason.Trigger else None)
 
 
+def setup_signal_handling(cleanup):
+    # Python can only run a signal handler in between its own bytecode instructions,
+    # but the Qt event loop spends its time blocked inside poll() with no Python
+    # running, so a plain handler would not fire until some unrelated event arrived.
+    # Asking Python to write the signal number into a socket makes the event loop
+    # wake up on that socket, which then lets the handler run right away.
+    read_sock, write_sock = socket.socketpair()
+    read_sock.setblocking(False)
+    write_sock.setblocking(False)
+    signal.set_wakeup_fd(write_sock.fileno())
+
+    notifier = QSocketNotifier(read_sock.fileno(), QSocketNotifier.Type.Read)
+
+    def on_signal():
+        read_sock.recv(4096)
+        cleanup()
+
+    notifier.activated.connect(on_signal)
+
+    # The handlers themselves do nothing, but installing them is what makes Python
+    # write to the socket at all; the real work happens in the notifier above.
+    signal.signal(signal.SIGINT, lambda *_: None)
+    signal.signal(signal.SIGTERM, lambda *_: None)
+
+    return read_sock, write_sock, notifier  # keep references alive
+
+
 def main():
     parser = argparse.ArgumentParser(description="fcitx5 tray notifier")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
@@ -173,7 +192,6 @@ def main():
 
     ic_path, ic_iface, startup_name = setup_fcitx(bus)
     tray = setup_tray(startup_name, args.flags)
-    _pump = setup_glib_pump()
     setup_im_monitor(bus, ic_path, tray, args.flags)
 
     def cleanup(*_):
@@ -184,8 +202,7 @@ def main():
             log.debug("DestroyIC failed: %s", e)
         app.quit()
 
-    signal.signal(signal.SIGINT, cleanup)
-    signal.signal(signal.SIGTERM, cleanup)
+    _signal_refs = setup_signal_handling(cleanup)
 
     log.debug("Monitoring IM changes")
     sys.exit(app.exec())
