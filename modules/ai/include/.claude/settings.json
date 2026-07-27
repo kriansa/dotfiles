@@ -10,8 +10,10 @@
     "sessionUrl": false
   },
   "permissions": {
-    "defaultMode": "auto"
+    "defaultMode": "bypassPermissions"
   },
+  "disableAutoMode": "disable",
+  "autoMemoryEnabled": false,
   "model": "opus",
   "hooks": {
     "Notification": [
@@ -42,7 +44,7 @@
     "command": "~/.claude/statusline-command"
   },
   "effortLevel": "xhigh",
-  "tui": "default",
+  "tui": "fullscreen",
   "voice": {
     "enabled": true,
     "mode": "hold"
