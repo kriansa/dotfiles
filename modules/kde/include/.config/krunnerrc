@@ -8,6 +8,7 @@ appstreamEnabled=false
 baloosearchEnabled=false
 browserhistoryEnabled=false
 browsertabsEnabled=false
+helprunnerEnabled=false
 katesessionsEnabled=false
 konsoleprofilesEnabled=false
 krunner_appstreamEnabled=false
