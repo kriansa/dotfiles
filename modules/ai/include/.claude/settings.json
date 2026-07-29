@@ -12,9 +12,6 @@
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
-  "disableAutoMode": "disable",
-  "autoMemoryEnabled": false,
-  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -49,7 +46,9 @@
     "enabled": true,
     "mode": "hold"
   },
+  "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
+  "disableAutoMode": "disable",
   "theme": "light",
   "preferredNotifChannel": "terminal_bell",
   "voiceEnabled": true
