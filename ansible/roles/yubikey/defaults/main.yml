@@ -3,3 +3,7 @@
 # Should be the same set at base-arch's role
 user_name: dpereira
 home_path: /home/{{ user_name }}
+dotfiles_path: /home/{{ user_name }}/.dotfiles
+
+# Where to download the public key from when it isn't in the keyring yet
+gpg_public_key_url: https://garajau.com.br/pgp.asc

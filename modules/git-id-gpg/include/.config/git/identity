@@ -4,8 +4,16 @@
   email = daniel@garajau.com.br
   signingkey = BC277BE09E8A6F1059C3911B3E7884756312F945
 
+# Authenticate over SSH with only the authentication subkey held on the YubiKey, never with any
+# other key the agent happens to have loaded. IdentitiesOnly stops ssh from offering every agent key
+# in turn; IdentityFile names the single one it may offer.
+#
+# Naming a public key here looks wrong, since IdentityFile normally points at a private key. It
+# works because there is no private key file to point at: the private half lives on the YubiKey and
+# gpg-agent answers on its behalf. ssh only needs the public key to ask the agent for the matching
+# identity. The ansible yubikey role writes the file out with `gpg --export-ssh-key`.
 [core]
-  sshCommand = "ssh"
+  sshCommand = "ssh -o IdentitiesOnly=yes -o IdentityFile=~/.ssh/id_gpg.pub"
 
 [gpg]
   format = openpgp

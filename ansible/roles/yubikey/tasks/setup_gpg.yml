@@ -26,3 +26,53 @@
   become_user: "{{ user_name }}"
   ansible.builtin.shell: pamu2fcfg --origin=pam://{{ user_name }} > ~/.config/Yubico/u2f_keys
   ignore_errors: yes
+
+- name: create ~/.ssh folder
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.file:
+    mode: "0700"
+    dest: "{{ home_path }}/.ssh"
+    state: directory
+
+# Read the fingerprint from the gnupg module instead of repeating it here, so it cannot drift from
+# the GPG_MAIN_KEY the shell exports.
+- name: read the main GPG key from the gnupg module
+  ansible.builtin.slurp:
+    src: "{{ dotfiles_path }}/modules/gnupg/init.fish"
+  register: gnupg_init
+
+- name: set the main GPG key
+  ansible.builtin.set_fact:
+    gpg_main_key: >-
+      {{ gnupg_init.content | b64decode
+         | regex_search('GPG_MAIN_KEY[^0-9A-F]*([0-9A-F]{40})', '\1') | first }}
+
+# git authenticates over SSH using only the GPG authentication subkey. ssh needs the public half on
+# disk so IdentitiesOnly can pin it, while gpg-agent serves the private half from the YubiKey. The
+# public key is downloaded when it isn't in the keyring yet, into a throwaway keyring so the real
+# one stays untouched. Pinning the full fingerprint means a substituted key cannot be exported.
+- name: export the GPG authentication subkey as an SSH public key
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.shell:
+    executable: /bin/bash
+    cmd: |
+      set -euo pipefail
+      if ! gpg --batch --list-keys {{ gpg_main_key }} >/dev/null 2>&1; then
+        GNUPGHOME=$(mktemp -d); export GNUPGHOME
+        trap 'rm -rf "$GNUPGHOME"' EXIT
+        chmod 700 "$GNUPGHOME"
+        curl -fsSL {{ gpg_public_key_url }} | gpg --batch --quiet --import
+      fi
+      gpg --batch --export-ssh-key {{ gpg_main_key }}
+  register: gpg_ssh_key
+  changed_when: false
+
+- name: write the SSH public key to ~/.ssh/id_gpg.pub
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.copy:
+    dest: "{{ home_path }}/.ssh/id_gpg.pub"
+    content: "{{ gpg_ssh_key.stdout }}\n"
+    mode: "0644"
