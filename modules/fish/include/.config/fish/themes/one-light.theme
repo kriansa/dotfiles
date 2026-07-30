@@ -1,0 +1,116 @@
+# name: One Light
+#
+# Colors are named rather than hex so they resolve through the terminal's own
+# palette, which Ghostty and tmux already set to One Light. Note that in a light
+# palette `black` is the background (#fafafa) and `white` is the foreground
+# (#383a42), so `black` must never be used for text.
+#
+# Roles: blue = commands, magenta = keywords, cyan = operators and flags,
+# green = strings, brblack = de-emphasized, red = errors.
+#
+# The three blocks below are identical. Fish picks one based on what the
+# terminal answers when asked for its background color, and refuses to load a
+# theme that lacks the matching block. Because every color here is a palette
+# name rather than a fixed value, the same block gives the right result in all
+# three cases -- the terminal decides what `blue` actually is.
+
+[light]
+# preferred_background: fafafa
+fish_color_normal normal
+fish_color_command blue
+fish_color_keyword magenta
+fish_color_quote green
+fish_color_param normal
+fish_color_option cyan
+fish_color_redirection cyan
+fish_color_operator cyan
+fish_color_escape cyan
+fish_color_end cyan
+fish_color_comment brblack
+fish_color_gray brblack
+fish_color_autosuggestion brblack
+fish_color_error red
+fish_color_status red
+fish_color_valid_path --underline
+fish_color_cwd blue
+fish_color_cwd_root red
+fish_color_user green
+fish_color_host magenta
+fish_color_host_remote yellow
+fish_color_selection --background=brblack
+fish_color_match cyan
+fish_color_search_match --reverse
+fish_color_history_current --bold
+fish_color_cancel --reverse
+fish_pager_color_completion normal
+fish_pager_color_prefix blue --bold
+fish_pager_color_description brblack --italics
+fish_pager_color_progress brwhite --background=brblack
+fish_pager_color_selected_background --background=brblack
+
+[dark]
+# preferred_background: 282c34
+fish_color_normal normal
+fish_color_command blue
+fish_color_keyword magenta
+fish_color_quote green
+fish_color_param normal
+fish_color_option cyan
+fish_color_redirection cyan
+fish_color_operator cyan
+fish_color_escape cyan
+fish_color_end cyan
+fish_color_comment brblack
+fish_color_gray brblack
+fish_color_autosuggestion brblack
+fish_color_error red
+fish_color_status red
+fish_color_valid_path --underline
+fish_color_cwd blue
+fish_color_cwd_root red
+fish_color_user green
+fish_color_host magenta
+fish_color_host_remote yellow
+fish_color_selection --background=brblack
+fish_color_match cyan
+fish_color_search_match --reverse
+fish_color_history_current --bold
+fish_color_cancel --reverse
+fish_pager_color_completion normal
+fish_pager_color_prefix blue --bold
+fish_pager_color_description brblack --italics
+fish_pager_color_progress brwhite --background=brblack
+fish_pager_color_selected_background --background=brblack
+
+[unknown]
+fish_color_normal normal
+fish_color_command blue
+fish_color_keyword magenta
+fish_color_quote green
+fish_color_param normal
+fish_color_option cyan
+fish_color_redirection cyan
+fish_color_operator cyan
+fish_color_escape cyan
+fish_color_end cyan
+fish_color_comment brblack
+fish_color_gray brblack
+fish_color_autosuggestion brblack
+fish_color_error red
+fish_color_status red
+fish_color_valid_path --underline
+fish_color_cwd blue
+fish_color_cwd_root red
+fish_color_user green
+fish_color_host magenta
+fish_color_host_remote yellow
+fish_color_selection --background=brblack
+fish_color_match cyan
+fish_color_search_match --reverse
+fish_color_history_current --bold
+fish_color_cancel --reverse
+fish_pager_color_completion normal
+fish_pager_color_prefix blue --bold
+fish_pager_color_description brblack --italics
+fish_pager_color_progress brwhite --background=brblack
+fish_pager_color_selected_background --background=brblack

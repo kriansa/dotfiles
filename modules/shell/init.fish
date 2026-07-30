@@ -17,8 +17,8 @@ set --global --export RIPGREP_CONFIG_PATH $rg_config
 
 status is-interactive || return
 
-# Set theme
-fish_config theme choose "catppuccin-frappe"
+# Set theme (defined in modules/fish/include/.config/fish/themes/one-light.theme)
+fish_config theme choose "one-light"
 
 # Set good defaults for FZF
 # adds ctrl-[hjkl], ctrl-[dufb] for vim-like navigation
