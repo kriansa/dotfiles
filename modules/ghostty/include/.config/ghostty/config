@@ -18,6 +18,7 @@ app-notifications = false
 resize-overlay = never
 bell-features = no-attention,no-title
 link-previews = false
+clipboard-read = allow
 
 # Theme (One Light base16)
 background = #fafafa

@@ -1,1 +1,3 @@
 # Global gitignore (empty, but we exist to prevent other apps write here)
+
+**/.claude/settings.local.json
