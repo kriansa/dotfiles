@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# yazi sends terminal graphics wrapped in one layer of tmux passthrough. Every tmux layer
+# strips exactly one wrapper, so inside nested tmux the image bytes are discarded before
+# they reach the terminal and previews silently disappear. yazi-kgp-relay adds the missing
+# wrappers. Sessions that are not nested exec yazi directly and pay nothing.
+set -uo pipefail
+
+real=
+IFS=: read -ra path_dirs <<<"$PATH"
+for dir in "${path_dirs[@]}"; do
+	candidate="${dir:-.}/yazi"
+	[[ -f $candidate && -x $candidate ]] || continue
+	# -ef compares device+inode through symlinks, so this skips the wrapper itself
+	# however it was reached on PATH.
+	[[ $candidate -ef $0 ]] && continue
+	real=$candidate
+	break
+done
+
+if [[ -z $real ]]; then
+	printf '%s: found no yazi on PATH other than this wrapper\n' "${0##*/}" >&2
+	exit 127
+fi
+
+# A tmux client attached straight to the terminal reports the terminal's own TERM; one
+# attached from inside another tmux reports that outer tmux's TERM instead. Cheaper than
+# probing the terminal, and enough to rule out the common non-nested case.
+if [[ -n ${TMUX:-} && -t 0 ]]; then
+	case "$(tmux display -p '#{client_termname}' 2>/dev/null)" in
+	tmux* | screen*)
+		relay="${0%/*}/yazi-kgp-relay"
+		[[ -x $relay ]] && exec "$relay" "$real" "$@"
+		;;
+	esac
+fi
+
+exec "$real" "$@"

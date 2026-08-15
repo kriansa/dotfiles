@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+"""Add the tmux passthrough wrappers yazi omits when tmux sessions are nested.
+
+Terminal graphics must be wrapped in a tmux passthrough sequence to survive a tmux pane,
+and every tmux layer consumes exactly one wrapper. yazi always writes exactly one, so with
+two or more layers the graphics are discarded before reaching the terminal; yazi then also
+misidentifies the terminal as tmux and falls back to chafa.
+
+This runs yazi on its own pty and rewrites each passthrough sequence on the way out, adding
+one wrapper per extra layer. Everything else is forwarded byte for byte, which is what keeps
+yazi's own terminal probing working: its unwrapped queries are still answered by the
+innermost tmux, while its wrapped ones now reach the real terminal and identify it
+correctly.
+
+Usage: yazi-kgp-relay <path-to-real-yazi> [args...]
+"""
+
+import errno
+import fcntl
+import os
+import pty
+import select
+import signal
+import sys
+import termios
+import time
+import tty
+
+MARK = b"\x1bPtmux;"
+ST = b"\x1b\\"
+
+# Sanity bound on how deep a nest to probe for, and on how much output to hold back while
+# waiting for a sequence terminator that may never arrive.
+MAX_LAYERS = 4
+MAX_HELD = 1 << 20
+
+
+def wrap(payload, times=1):
+    """Wrap payload in `times` layers of tmux passthrough, as yazi does for one layer."""
+    for _ in range(times):
+        payload = MARK + payload.replace(b"\x1b", b"\x1b\x1b") + ST
+    return payload
+
+
+def span_end(buf, start):
+    """Index just past the passthrough sequence starting at `start`, or -1 if truncated.
+
+    A passthrough sequence carries its payload with every ESC doubled, so the payload's own
+    terminator arrives as ESC ESC backslash. Searching for the terminator directly would
+    match the second of those two ESCs and cut the sequence a byte short, so doubled pairs
+    have to be stepped over explicitly.
+    """
+    i = start + len(MARK)
+    while i < len(buf):
+        if buf[i] != 0x1B:
+            i += 1
+        elif i + 1 >= len(buf):
+            return -1
+        elif buf[i + 1] == 0x1B:
+            i += 2
+        elif buf[i + 1] == 0x5C:  # backslash: the real terminator
+            return i + 2
+        else:
+            i += 1
+    return -1
+
+
+def write_all(fd, data):
+    while data:
+        try:
+            written = os.write(fd, data)
+        except OSError as exc:
+            if exc.errno in (errno.EAGAIN, errno.EWOULDBLOCK):
+                select.select([], [fd], [])
+                continue
+            if exc.errno == errno.EINTR:
+                continue
+            raise
+        data = data[written:]
+
+
+class Rewrapper:
+    """Adds wrappers to passthrough sequences in a stream arriving in arbitrary chunks.
+
+    Only complete sequences are rewritten, so a sequence split across two reads is held
+    until its terminator shows up. Searching with find/replace keeps the per-byte cost in
+    C rather than in Python.
+    """
+
+    def __init__(self, extra):
+        self.extra = extra
+        self.held = b""
+
+    def feed(self, chunk):
+        buf = self.held + chunk
+        self.held = b""
+        out = bytearray()
+        pos = 0
+        while True:
+            start = buf.find(MARK, pos)
+            if start < 0:
+                out += buf[pos:]
+                break
+            end = span_end(buf, start)
+            if end < 0:
+                out += buf[pos:start]
+                self.held = buf[start:]
+                break
+            out += buf[pos:start]
+            out += wrap(buf[start:end], self.extra)
+            pos = end
+
+        # A sequence may also be split mid-marker, which find() cannot see. Hold back any
+        # trailing bytes that could still turn out to be the start of one.
+        if not self.held:
+            for length in range(len(MARK) - 1, 0, -1):
+                if out.endswith(MARK[:length]):
+                    self.held = bytes(out[-length:])
+                    del out[-length:]
+                    break
+
+        if len(self.held) > MAX_HELD:
+            out += self.held
+            self.held = b""
+        return bytes(out)
+
+    def flush(self):
+        held, self.held = self.held, b""
+        return held
+
+
+def _drain(fd):
+    while select.select([fd], [], [], 0)[0]:
+        try:
+            if not os.read(fd, 4096):
+                return
+        except OSError:
+            return
+
+
+def _read_reply(fd, timeout):
+    buf = b""
+    deadline = time.monotonic() + timeout
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or not select.select([fd], [], [], remaining)[0]:
+            return buf
+        try:
+            chunk = os.read(fd, 4096)
+        except OSError:
+            return buf
+        if not chunk or ST in (buf := buf + chunk):
+            return buf
+
+
+def count_layers(fd, timeout=0.5):
+    """Count the tmux layers between this process and the real terminal.
+
+    A version query wrapped k times is unwrapped by the first k layers and answered by
+    layer k+1, or by the terminal itself once no layers remain. The first reply that is not
+    tmux naming itself therefore came from the terminal, making k the number of layers.
+    """
+    for layers in range(MAX_LAYERS + 1):
+        _drain(fd)
+        write_all(fd, wrap(b"\x1b[>q", layers))
+        if b"tmux " not in _read_reply(fd, timeout):
+            return layers
+    return MAX_LAYERS
+
+
+def _set_winsize(dst, src):
+    try:
+        size = fcntl.ioctl(src, termios.TIOCGWINSZ, b"\0" * 8)
+        fcntl.ioctl(dst, termios.TIOCSWINSZ, size)
+    except OSError:
+        pass
+
+
+def relay(argv, extra, tty_fd):
+    pid, master = pty.fork()
+    if pid == 0:
+        try:
+            os.execv(argv[0], argv)
+        except OSError as exc:
+            print(f"yazi-kgp-relay: cannot run {argv[0]}: {exc}", file=sys.stderr)
+        os._exit(127)
+
+    _set_winsize(master, tty_fd)
+    signal.signal(signal.SIGWINCH, lambda *_: _set_winsize(master, tty_fd))
+
+    rewrapper = Rewrapper(extra)
+    saved = termios.tcgetattr(tty_fd)
+    try:
+        tty.setraw(tty_fd)
+        while True:
+            readable, _, _ = select.select([tty_fd, master], [], [])
+            if tty_fd in readable:
+                try:
+                    keys = os.read(tty_fd, 1 << 16)
+                except OSError:
+                    keys = b""
+                if keys:
+                    write_all(master, keys)
+            if master in readable:
+                try:
+                    output = os.read(master, 1 << 16)
+                except OSError:
+                    break
+                if not output:
+                    break
+                write_all(tty_fd, rewrapper.feed(output))
+        write_all(tty_fd, rewrapper.flush())
+    finally:
+        termios.tcsetattr(tty_fd, termios.TCSADRAIN, saved)
+        os.close(master)
+
+    _, status = os.waitpid(pid, 0)
+    if os.WIFSIGNALED(status):
+        return 128 + os.WTERMSIG(status)
+    return os.WEXITSTATUS(status)
+
+
+def main(argv):
+    if not argv:
+        print(__doc__.strip().splitlines()[-1], file=sys.stderr)
+        return 2
+
+    try:
+        tty_fd = os.open("/dev/tty", os.O_RDWR)
+    except OSError:
+        os.execv(argv[0], argv)  # no terminal to relay for
+
+    saved = termios.tcgetattr(tty_fd)
+    try:
+        tty.setraw(tty_fd)
+        layers = count_layers(tty_fd)
+        _drain(tty_fd)
+    finally:
+        termios.tcsetattr(tty_fd, termios.TCSADRAIN, saved)
+
+    # yazi already wraps once, so a single layer needs nothing from us.
+    if layers < 2:
+        os.close(tty_fd)
+        os.execv(argv[0], argv)
+
+    return relay(argv, layers - 1, tty_fd)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
