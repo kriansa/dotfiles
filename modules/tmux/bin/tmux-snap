@@ -15,6 +15,7 @@ on purpose — no third-party runtime dependencies.
 """
 
 import argparse
+import ctypes
 import datetime as dt
 import json
 import logging
@@ -39,10 +40,11 @@ def restore_handlers() -> list["AppHandler | str"]:
     return [
         ClaudeHandler(),
         CodexHandler(),
-        "nvim",
-        "vim",
-        "btop",
-        "htop",
+        ArgvHandler("nvim", excluded_flags={"--embed"}),
+        ArgvHandler("vim"),
+        ArgvHandler("btop"),
+        ArgvHandler("htop"),
+        ArgvHandler("top"),
     ]
 
 
@@ -335,20 +337,114 @@ class ForegroundProcess:
     argv: list[str]
 
 
+class ProcessArgv:
+    """Read a process's exact argv through platform-native interfaces."""
+
+    CTL_KERN = 1
+    KERN_ARGMAX = 8
+    KERN_PROCARGS2 = 49
+
+    @classmethod
+    def read(cls, pid: int) -> list[str]:
+        if sys.platform == "linux":
+            return cls.linux(pid)
+        if sys.platform == "darwin":
+            return cls.darwin(pid)
+        raise OSError(f"native process argv is unsupported on {sys.platform}")
+
+    @classmethod
+    def linux(cls, pid: int, proc_root: Path = Path("/proc")) -> list[str]:
+        data = (proc_root / str(pid) / "cmdline").read_bytes()
+        return cls._parse_nul_argv(data)
+
+    @classmethod
+    def darwin(cls, pid: int) -> list[str]:
+        libc = ctypes.CDLL(None, use_errno=True)
+        sysctl = libc.sysctl
+        sysctl.argtypes = [
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.c_uint,
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_size_t),
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+        ]
+        sysctl.restype = ctypes.c_int
+
+        argmax = ctypes.c_int()
+        size = ctypes.c_size_t(ctypes.sizeof(argmax))
+        argmax_mib = (ctypes.c_int * 2)(cls.CTL_KERN, cls.KERN_ARGMAX)
+        cls._sysctl(sysctl, argmax_mib, ctypes.byref(argmax), size)
+        if argmax.value <= 0:
+            raise OSError("KERN_ARGMAX returned an invalid size")
+
+        buffer = ctypes.create_string_buffer(argmax.value)
+        size = ctypes.c_size_t(argmax.value)
+        process_mib = (ctypes.c_int * 3)(cls.CTL_KERN, cls.KERN_PROCARGS2, pid)
+        cls._sysctl(sysctl, process_mib, buffer, size)
+        return cls._parse_darwin_argv(buffer.raw[: size.value])
+
+    @staticmethod
+    def _sysctl(sysctl: Any, mib: Any, output: Any, size: ctypes.c_size_t) -> None:
+        if sysctl(mib, len(mib), output, ctypes.byref(size), None, 0) == -1:
+            error = ctypes.get_errno()
+            raise OSError(error, os.strerror(error))
+
+    @staticmethod
+    def _parse_nul_argv(data: bytes) -> list[str]:
+        parts = data.split(b"\0")
+        if parts and parts[-1] == b"":
+            parts.pop()
+        return [os.fsdecode(part) for part in parts]
+
+    @classmethod
+    def _parse_darwin_argv(cls, data: bytes) -> list[str]:
+        int_size = ctypes.sizeof(ctypes.c_int)
+        if len(data) < int_size:
+            raise ValueError("KERN_PROCARGS2 response is missing argc")
+        argc = int.from_bytes(data[:int_size], byteorder=sys.byteorder, signed=True)
+        if argc < 0:
+            raise ValueError("KERN_PROCARGS2 returned a negative argc")
+
+        payload = data[int_size:]
+        executable_end = payload.find(b"\0")
+        if executable_end == -1:
+            raise ValueError("KERN_PROCARGS2 response is missing the executable path")
+        offset = executable_end + 1
+        while offset < len(payload) and payload[offset] == 0:
+            offset += 1
+
+        argv = cls._parse_nul_argv(payload[offset:])
+        if len(argv) < argc:
+            raise ValueError("KERN_PROCARGS2 response contains fewer arguments than argc")
+        return argv[:argc]
+
+
 class ProcessTree:
-    def __init__(self, children: dict[int, list[int]], commands: dict[int, str]) -> None:
+    def __init__(
+        self,
+        children: dict[int, list[int]],
+        commands: dict[int, str],
+        argv_reader: Callable[[int], list[str]] | None = None,
+    ) -> None:
         self._children = children
         self._commands = commands
+        self._argv_reader = argv_reader
 
     @classmethod
     def from_system(cls) -> Self:
         result = subprocess.run(
-            ["ps", "-axo", "pid=,ppid=,command="], text=True, capture_output=True
+            ["ps", "-axo", "pid=,ppid=,command="],
+            text=True,
+            capture_output=True,
+            check=False,
         )
-        return cls.from_ps_output(result.stdout)
+        return cls.from_ps_output(result.stdout, argv_reader=ProcessArgv.read)
 
     @classmethod
-    def from_ps_output(cls, output: str) -> Self:
+    def from_ps_output(
+        cls, output: str, argv_reader: Callable[[int], list[str]] | None = None
+    ) -> Self:
         children: dict[int, list[int]] = {}
         commands: dict[int, str] = {}
         for line in output.splitlines():
@@ -358,7 +454,7 @@ class ProcessTree:
             pid, parent_pid = int(parts[0]), int(parts[1])
             children.setdefault(parent_pid, []).append(pid)
             commands[pid] = parts[2] if len(parts) == 3 else ""
-        return cls(children, commands)
+        return cls(children, commands, argv_reader)
 
     def foreground(self, shell_pid: int) -> ForegroundProcess:
         """Descend from a pane's shell to its deepest child — the foreground program."""
@@ -380,13 +476,23 @@ class ProcessTree:
             seen.add(child)
             current = child
             raw = self._commands.get(child, "")
-            try:
-                argv = shlex.split(raw)
-            except ValueError:
-                argv = raw.split()
+            argv = self._argv(child, raw)
             command = self._command_basename(argv[0]) if argv else ""
             lineage.append(ForegroundProcess(child, command, argv))
         return lineage
+
+    def _argv(self, pid: int, fallback: str) -> list[str]:
+        if self._argv_reader is not None:
+            try:
+                argv = self._argv_reader(pid)
+                if argv:
+                    return argv
+            except (OSError, ValueError):
+                pass
+        try:
+            return shlex.split(fallback)
+        except ValueError:
+            return fallback.split()
 
     @staticmethod
     def _command_basename(arg0: str) -> str:
@@ -553,6 +659,24 @@ class CommandHandler(AppHandler):
         self.id = app_id
 
 
+class ArgvHandler(CommandHandler):
+    """Relaunch an allowlisted command with its original arguments."""
+
+    def __init__(self, app_id: str, excluded_flags: set[str] | None = None) -> None:
+        super().__init__(app_id)
+        self._excluded_flags = frozenset(excluded_flags or ())
+
+    def matches(self, command: str, argv: list[str]) -> bool:
+        flags = {argument.split("=", 1)[0] for argument in argv[1:] if argument.startswith("-")}
+        return super().matches(command, argv) and not flags.intersection(self._excluded_flags)
+
+    def capture(self, context: PaneContext) -> dict[str, Any]:
+        return {"args": context.argv[1:]}
+
+    def build_command(self, state: dict[str, Any]) -> str:
+        return shlex.join([self.id, *state.get("args", [])])
+
+
 class ClaudeHandler(AppHandler):
     id = "claude"
 
@@ -600,9 +724,7 @@ class CodexHandler(AppHandler):
 
     # Preserve user-facing launch choices, but never carry an approvals/sandbox bypass
     # into a restored session.
-    CODEX_VALUE_FLAGS = frozenset(
-        {"-m", "--model", "-p", "--profile", "--local-provider"}
-    )
+    CODEX_VALUE_FLAGS = frozenset({"-m", "--model", "-p", "--profile", "--local-provider"})
     CODEX_BOOLEAN_FLAGS = frozenset({"--search", "--no-alt-screen", "--oss"})
 
     def __init__(self, registry: CodexRegistry | None = None) -> None:
@@ -698,7 +820,10 @@ class Tmux:
 
     def _run(self, args: list[str], *, capture: bool = True) -> str:
         completed = subprocess.run(
-            ["tmux", *self.socket_args, *args], text=True, capture_output=capture
+            ["tmux", *self.socket_args, *args],
+            text=True,
+            capture_output=capture,
+            check=False,
         )
         if completed.returncode != 0:
             detail = (completed.stderr or "").strip() if capture else ""
@@ -707,7 +832,10 @@ class Tmux:
 
     def _ok(self, args: list[str]) -> bool:
         return (
-            subprocess.run(["tmux", *self.socket_args, *args], capture_output=True).returncode == 0
+            subprocess.run(
+                ["tmux", *self.socket_args, *args], capture_output=True, check=False
+            ).returncode
+            == 0
         )
 
     def display_message(self, fmt: str) -> str:
@@ -865,16 +993,12 @@ class Snapshotter:
             )
         return panes, is_synchronized
 
-    def _restore_action(
-        self, lineage: list[ForegroundProcess], cwd: str
-    ) -> RestoreAction | None:
+    def _restore_action(self, lineage: list[ForegroundProcess], cwd: str) -> RestoreAction | None:
         for process in reversed(lineage):
             handler = self._handlers.match(process.command, process.argv)
             if handler is None:
                 continue
-            state = handler.capture(
-                PaneContext(process.pid, cwd, process.command, process.argv)
-            )
+            state = handler.capture(PaneContext(process.pid, cwd, process.command, process.argv))
             return None if state is None else RestoreAction(handler.id, state)
         return None
 

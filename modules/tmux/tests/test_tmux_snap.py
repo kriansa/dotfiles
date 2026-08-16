@@ -9,10 +9,12 @@ Run: python3 -m unittest discover -s modules/tmux/tests -t modules/tmux/tests -v
 # statically resolvable by mypy; types are exercised at runtime instead.
 # mypy: ignore-errors
 
+import ctypes
 import importlib.machinery
 import importlib.util
 import json
 import os
+import shlex
 import sys
 import tempfile
 import unittest
@@ -120,8 +122,8 @@ def make_handlers(claude_result=None, codex_result=None):
         [
             tmux_snap.ClaudeHandler(registry),
             tmux_snap.CodexHandler(codex_registry),
-            tmux_snap.CommandHandler("nvim"),
-            tmux_snap.CommandHandler("vim"),
+            tmux_snap.ArgvHandler("nvim", excluded_flags={"--embed"}),
+            tmux_snap.ArgvHandler("vim"),
         ]
     )
 
@@ -181,6 +183,44 @@ class TestProcessTree(unittest.TestCase):
         self.assertEqual(tmux_snap.ProcessTree._command_basename("-zsh"), "zsh")
         self.assertEqual(tmux_snap.ProcessTree._command_basename("claude --effort max"), "claude")
         self.assertEqual(tmux_snap.ProcessTree._command_basename(""), "")
+
+    def test_native_argv_preserves_exact_arguments(self):
+        expected = ["/usr/bin/nvim", "a file", "; echo unsafe", ""]
+        tree = tmux_snap.ProcessTree.from_ps_output(
+            "100 1 -fish\n101 100 /usr/bin/nvim lossy output\n",
+            argv_reader=lambda pid: expected,
+        )
+        self.assertEqual(tree.foreground(100).argv, expected)
+
+    def test_native_argv_failure_falls_back_to_ps_parsing(self):
+        def unavailable(pid):
+            raise OSError("process exited")
+
+        tree = tmux_snap.ProcessTree.from_ps_output(
+            "100 1 -fish\n101 100 nvim 'a file'\n", argv_reader=unavailable
+        )
+        self.assertEqual(tree.foreground(100).argv, ["nvim", "a file"])
+
+
+class TestProcessArgv(unittest.TestCase):
+    def test_linux_reads_nul_separated_proc_cmdline(self):
+        proc = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        cmdline = proc / "42" / "cmdline"
+        cmdline.parent.mkdir()
+        cmdline.write_bytes(b"/usr/bin/nvim\0a file\0;echo unsafe\0\0")
+        self.assertEqual(
+            tmux_snap.ProcessArgv.linux(42, proc),
+            ["/usr/bin/nvim", "a file", ";echo unsafe", ""],
+        )
+
+    def test_darwin_parses_kern_procargs2_layout(self):
+        argv = [b"/opt/homebrew/bin/nvim", b"a file", b"$HOME;echo"]
+        argc = len(argv).to_bytes(ctypes.sizeof(ctypes.c_int), byteorder=sys.byteorder, signed=True)
+        data = argc + b"/opt/homebrew/bin/nvim\0\0\0" + b"\0".join(argv) + b"\0ENV=x\0"
+        self.assertEqual(
+            tmux_snap.ProcessArgv._parse_darwin_argv(data),
+            [part.decode() for part in argv],
+        )
 
 
 class TestPreservedClaudeFlags(unittest.TestCase):
@@ -275,6 +315,32 @@ class TestHandlers(unittest.TestCase):
     def test_command_handler(self):
         self.assertEqual(tmux_snap.CommandHandler("nvim").build_command({}), "nvim")
 
+    def test_argv_handlers_capture_and_build_commands(self):
+        cases = [
+            [],
+            ["--flag"],
+            ["first", "second"],
+            ["a path with spaces"],
+            ["; echo unsafe", "$(touch nope)", "a'b"],
+        ]
+        for command in ("nvim", "vim", "btop", "htop", "top"):
+            handler = tmux_snap.ArgvHandler(command)
+            for args in cases:
+                with self.subTest(command=command, args=args):
+                    context = tmux_snap.PaneContext(101, "/proj", command, [command, *args])
+                    state = handler.capture(context)
+                    self.assertEqual(state, {"args": args})
+                    self.assertEqual(shlex.split(handler.build_command(state)), [command, *args])
+
+    def test_argv_handler_old_state_restores_bare_command(self):
+        self.assertEqual(tmux_snap.ArgvHandler("nvim").build_command({}), "nvim")
+
+    def test_argv_handler_excludes_helper_flags(self):
+        handler = tmux_snap.ArgvHandler("nvim", excluded_flags={"--embed"})
+        self.assertTrue(handler.matches("nvim", ["nvim", "."]))
+        self.assertFalse(handler.matches("nvim", ["nvim", "--embed", "."]))
+        self.assertFalse(handler.matches("nvim", ["nvim", "--embed=true", "."]))
+
     def test_claude_build_command_session_id(self):
         handler = tmux_snap.ClaudeHandler(FakeClaudeRegistry(tmux_snap.ClaudeSession(None, None)))
         state = {"session_id": "X", "name": None, "flags": ["--effort", "max"]}
@@ -336,7 +402,7 @@ class TestHandlers(unittest.TestCase):
         handlers = make_handlers()
         self.assertIsInstance(handlers.match("claude", []), tmux_snap.ClaudeHandler)
         self.assertIsInstance(handlers.match("codex", []), tmux_snap.CodexHandler)
-        self.assertIsInstance(handlers.match("nvim", []), tmux_snap.CommandHandler)
+        self.assertIsInstance(handlers.match("nvim", []), tmux_snap.ArgvHandler)
         self.assertIsNone(handlers.match("zsh", []))
         self.assertIsNotNone(handlers.by_id("vim"))
         self.assertIsNone(handlers.by_id("ghost"))
@@ -345,6 +411,12 @@ class TestHandlers(unittest.TestCase):
         handler = tmux_snap.HandlerRegistry(["nvim"]).by_id("nvim")
         self.assertIsInstance(handler, tmux_snap.CommandHandler)
         self.assertEqual(handler.build_command({}), "nvim")
+
+    def test_default_registry_uses_explicit_argv_handlers(self):
+        handlers = tmux_snap.HandlerRegistry(tmux_snap.restore_handlers())
+        for command in ("nvim", "vim", "btop", "htop", "top"):
+            with self.subTest(command=command):
+                self.assertIsInstance(handlers.by_id(command), tmux_snap.ArgvHandler)
 
 
 class TestSnapshotModel(unittest.TestCase):
@@ -477,7 +549,7 @@ class TestCapture(unittest.TestCase):
         self.assertEqual(snapshot.active_window_index, 2)
         editor, work = snapshot.windows
         self.assertEqual(editor.panes[0].restore.handler_id, "nvim")
-        self.assertEqual(editor.panes[0].restore.state, {})
+        self.assertEqual(editor.panes[0].restore.state, {"args": []})
         self.assertTrue(work.is_synchronized)
         claude_pane, plain_pane = work.panes
         self.assertEqual(claude_pane.restore.handler_id, "claude")
@@ -504,6 +576,21 @@ class TestCapture(unittest.TestCase):
         restore = snapshot.windows[0].panes[0].restore
         self.assertEqual(restore.handler_id, "codex")
         self.assertEqual(restore.state["session_id"], "CODEX-SID")
+
+    def test_capture_skips_nvim_embed_helper(self):
+        tmux = FakeTmux(
+            existing_sessions={"sess"},
+            windows_output=win_row(1, "editor", "1", "L", "0"),
+            panes_output={"sess:1": pane_row(1, "1", "0", "/proj", "nvim", 100)},
+        )
+        processes = tmux_snap.ProcessTree.from_ps_output(
+            "100 1 -fish\n101 100 nvim .\n102 101 nvim --embed .\n"
+        )
+        snapshot = tmux_snap.Snapshotter(tmux, make_handlers(), lambda: processes).capture("sess")
+
+        restore = snapshot.windows[0].panes[0].restore
+        self.assertEqual(restore.handler_id, "nvim")
+        self.assertEqual(restore.state, {"args": ["."]})
 
 
 class TestRestore(unittest.TestCase):
@@ -654,17 +741,21 @@ class TestAttach(unittest.TestCase):
 
     def test_no_attach_inside_hints_switch(self):
         tmux = FakeTmux(from_tmux_env=True)
-        with mock.patch.dict(os.environ, {"TMUX": "/s,1,0"}, clear=True):
-            with self.assertLogs("tmux-snap", level="INFO") as captured:
-                tmux_snap.Cli._attach(tmux, "T", no_attach=True)
+        with (
+            mock.patch.dict(os.environ, {"TMUX": "/s,1,0"}, clear=True),
+            self.assertLogs("tmux-snap", level="INFO") as captured,
+        ):
+            tmux_snap.Cli._attach(tmux, "T", no_attach=True)
         self.assertEqual(len(tmux.issued("switch-client")), 0)
         self.assertTrue(any("switch-client -t T" in line for line in captured.output))
 
     def test_different_server_hint_includes_socket(self):
         tmux = FakeTmux(socket_args=["-L", "snap"])  # explicit socket => different server
-        with mock.patch.dict(os.environ, {"TMUX": "/s,1,0"}, clear=True):
-            with self.assertLogs("tmux-snap", level="INFO") as captured:
-                tmux_snap.Cli._attach(tmux, "T", no_attach=False)
+        with (
+            mock.patch.dict(os.environ, {"TMUX": "/s,1,0"}, clear=True),
+            self.assertLogs("tmux-snap", level="INFO") as captured,
+        ):
+            tmux_snap.Cli._attach(tmux, "T", no_attach=False)
         self.assertEqual(len(tmux.issued("attach-session")), 0)
         self.assertEqual(len(tmux.issued("switch-client")), 0)
         self.assertTrue(any("tmux -L snap attach -t T" in line for line in captured.output))
