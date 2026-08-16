@@ -4,17 +4,21 @@
 # dotup - Update your existing configurations based on the dotfiles settings.
 
 from __future__ import annotations
+
 import filecmp
 import os
+import re
+import shlex
 import sqlite3
+import subprocess
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any
 
-if sys.version_info.major == 3 and sys.version_info.minor < 11:
+if sys.version_info < (3, 11):
     # pylint: disable-next=import-error
-    from pip._vendor import tomli as tomllib # type: ignore
+    from pip._vendor import tomli as tomllib  # type: ignore
 else:
     import tomllib
 
@@ -77,9 +81,7 @@ class CLI:
                     sys.exit(2)
                 sys.exit(Stower().is_enabled(args.module))
 
-        # pylint: disable=broad-exception-caught
-        except Exception as err:
-            # pylint: enable=broad-exception-caught
+        except Exception as err:  # noqa: BLE001  # Top-level error boundary.
             Term.error(err)
 
 
@@ -99,11 +101,15 @@ class State:
         self.db.execute(
             "CREATE TABLE IF NOT EXISTS local_links(path TEXT, PRIMARY KEY (path ASC)) STRICT"
         )
+        self.db.execute(
+            "CREATE TABLE IF NOT EXISTS git_filters(name TEXT, PRIMARY KEY (name ASC)) STRICT"
+        )
         self.db.commit()
         self.db.row_factory = lambda cursor, row: row[0]
         self.state = {
             "links": self.db.execute("SELECT path FROM links").fetchall(),
             "local_links": self.db.execute("SELECT path FROM local_links").fetchall(),
+            "git_filters": self.db.execute("SELECT name FROM git_filters").fetchall(),
         }
 
     def add_link(self, link):
@@ -118,6 +124,12 @@ class State:
         self.db.commit()
         self.state["local_links"].append(symlink)
 
+    def add_git_filter(self, name):
+        """Adds a reference of a configured Git filter to the state DB"""
+        self.db.execute("INSERT INTO git_filters(name) VALUES (?)", (name,))
+        self.db.commit()
+        self.state["git_filters"].append(name)
+
     def links(self):
         """Retrieves a list of stored links in the state DB"""
         return self.state["links"]
@@ -126,12 +138,18 @@ class State:
         """Retrieves a list of local-scoped symlinks stored in the state DB"""
         return self.state["local_links"]
 
-    def erase_links(self):
-        """Erase the entire list of links and local links in the state DB"""
+    def git_filters(self):
+        """Retrieves a list of configured Git filters stored in the state DB"""
+        return self.state["git_filters"]
+
+    def erase(self):
+        """Erase all managed resources from the state DB"""
         self.state["links"] = []
         self.state["local_links"] = []
+        self.state["git_filters"] = []
         self.db.execute("DELETE FROM links")
         self.db.execute("DELETE FROM local_links")
+        self.db.execute("DELETE FROM git_filters")
         self.db.commit()
         self.db.execute("VACUUM")
 
@@ -163,7 +181,7 @@ class Term:
 
         while True:
             if hasattr(exception, "__module__"):
-                exc_name = ".".join([exception.__module__, type(exception).__name__])
+                exc_name = f"{exception.__module__}.{type(exception).__name__}"
             else:
                 exc_name = exception.__class__.__name__
 
@@ -187,19 +205,25 @@ class Stower:
     dotfiles_path: str = ""
     destination_path: str = ""
     settings_path: str = ""
-    state: State | None = None
-    settings: dict[str, Any] = {}
+    state: State
 
-    def __init__(self, dotfiles_path="~/.dotfiles", destination_path="~"):
+    def __init__(
+        self, dotfiles_path: str = "~/.dotfiles", destination_path: str = "~"
+    ) -> None:
         self.dotfiles_path = os.path.expanduser(dotfiles_path)
         self.destination_path = os.path.expanduser(destination_path)
         self.settings_path = f"{self.dotfiles_path}/dotfiles.toml"
         self.scopes_path = f"{self.dotfiles_path}/.dotup-scopes"
+        self.state = State(f"{self.dotfiles_path}/dotstate.db")
+        self.settings: dict[str, Any] = {}
+        self.module_git_filters: dict[str, list[tuple[str, str]]] = {}
 
     def unload(self):
         """Unload all previously loaded dotfiles based on the state"""
         self._load_state()
+        self._clear_git_filters()
         self._clear_links()
+        self.state.erase()
         Term.status("Configuration unloaded")
 
     def is_enabled(self, module_name: str) -> int:
@@ -215,6 +239,7 @@ class Stower:
         """With all settings loaded, this will setup all enabled modules"""
         Term.status("Loading settings")
         self._load_settings(scopes)
+        self.module_git_filters = self._discover_git_filters()
         self.unload()
 
         for module in self.settings["modules"]:
@@ -250,9 +275,7 @@ class Stower:
                     return module
 
                 if not isinstance(module, dict):
-                    raise RuntimeError(
-                        "The allowed types for modules are string or dict!"
-                    )
+                    raise TypeError("The allowed types for modules are string or dict!")
 
                 if "name" not in module:
                     raise RuntimeError(
@@ -268,9 +291,11 @@ class Stower:
 
                 return module["name"]
 
-            self.settings["modules"] = filter(
-                lambda m: m is not None, map(normalize_module, self.settings["modules"])
-            )
+            self.settings["modules"] = [
+                module
+                for module in map(normalize_module, self.settings["modules"])
+                if module is not None
+            ]
 
         except Exception as err:
             raise RuntimeError(
@@ -297,6 +322,10 @@ class Stower:
         self._load_module_bins(module)
         Term.status("Binary files linked", indent=2)
 
+        # Configure repository-local Git filters
+        self._load_module_git_filters(module)
+        Term.status("Git filters configured", indent=2)
+
     def _load_module_links(self, module):
         for link in self._list_module_links(module):
             self._link(f"modules/{module}/include/{link}", link)
@@ -313,6 +342,80 @@ class Stower:
     def _load_module_bins(self, module):
         for file in self._list_module_bins(module):
             self._link(f"modules/{module}/bin/{file}", f".bin/{file}")
+
+    def _load_module_git_filters(self, module):
+        for name, path in self.module_git_filters.get(module, []):
+            self._configure_git_filter(name, path)
+
+    def _discover_git_filters(self) -> dict[str, list[tuple[str, str]]]:
+        """Validate and collect Git filter declarations from all enabled modules"""
+        module_filters: dict[str, list[tuple[str, str]]] = {}
+        owners: dict[str, str] = {}
+
+        for module in self.settings["modules"]:
+            filters_path = f"{self._module_path(module)}/gitfilters"
+            if not os.path.lexists(filters_path):
+                continue
+            if not os.path.isdir(filters_path):
+                raise RuntimeError(
+                    f"Git filters path {filters_path} is not a directory!"
+                )
+
+            for name in sorted(os.listdir(filters_path)):
+                path = f"{filters_path}/{name}"
+                if not os.path.isfile(path) or not os.access(path, os.X_OK):
+                    raise RuntimeError(f"Git filter {path} is not an executable file!")
+                if name in owners:
+                    raise RuntimeError(
+                        f"Git filter '{name}' is declared by both "
+                        f"'{owners[name]}' and '{module}'!"
+                    )
+
+                owners[name] = module
+                relative_path = os.path.relpath(path, self.dotfiles_path)
+                module_filters.setdefault(module, []).append(
+                    (name, f"./{relative_path}")
+                )
+
+        return module_filters
+
+    def _configure_git_filter(self, name, path):
+        """Install one module-declared Git filter in this repository"""
+        section = f"filter.{name}"
+        try:
+            self._remove_git_filter(name)
+            self._git_config(f"{section}.clean", shlex.quote(path))
+            self._git_config(f"{section}.smudge", "cat")
+            self._git_config(f"{section}.required", "true")
+            self.state.add_git_filter(name)
+        except Exception as err:
+            self._remove_git_filter(name)
+            raise RuntimeError(f"Failed to configure Git filter '{name}'") from err
+
+    def _remove_git_filter(self, name):
+        """Remove a Git filter section when it exists"""
+        result = self._git_config(
+            "--get-regexp",
+            rf"^filter\.{re.escape(name)}\.",
+            allowed_returncodes=(0, 1),
+        )
+        if result.returncode == 0:
+            self._git_config("--remove-section", f"filter.{name}")
+
+    def _git_config(self, *args, allowed_returncodes=(0,)):
+        """Run a repository-local Git config command"""
+        result = subprocess.run(
+            ["git", "-C", self.dotfiles_path, "config", "--local", *args],
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+        if result.returncode not in allowed_returncodes:
+            message = result.stderr.strip() or result.stdout.strip()
+            raise RuntimeError(
+                message or f"git config exited with status {result.returncode}"
+            )
+        return result
 
     def _list_module_shell_links(self, module) -> list[str]:
         module_path = self._module_path(module)
@@ -393,7 +496,7 @@ class Stower:
             ".config/systemd/user",  # SystemD user units
             ".config/git",  # Git config files
             ".config/autostart",  # Autostart desktop entries
-            ".config/pipewire/pipewire.conf.d", # Pipewire config
+            ".config/pipewire/pipewire.conf.d",  # Pipewire config
             ".local/share/applications",  # Desktop entries
             ".claude",  # Claude code settings
             ".claude/skills",  # Claude skills
@@ -407,7 +510,7 @@ class Stower:
         """This is a list of paths that should be hardlinked instead of symlinked"""
         return [
             ".local/share/applications/*.desktop",  # Desktop entries
-            ".config/mimeapps.list", # List of desktop apps
+            ".config/mimeapps.list",  # List of desktop apps
         ]
 
     @staticmethod
@@ -531,7 +634,11 @@ class Stower:
             if os.path.islink(symlink) and link_path.startswith(self.dotfiles_path):
                 os.remove(symlink)
 
-        self.state.erase_links()
+    def _clear_git_filters(self):
+        """Remove repository-local Git filters previously configured by dotup"""
+        for name in self.state.git_filters():
+            self._remove_git_filter(name)
 
 
-CLI.start()
+if __name__ == "__main__":
+    CLI.start()

@@ -31,12 +31,14 @@ Python tooling (for `bin/dotup` and `*.py` modules/plugins): format with `black`
 | `functions/*.fish` | fish autoloaded functions | |
 | `completions/*.fish` | fish completions | |
 | `init.fish` | `conf.d/module_<name>_init.fish` | sourced at every shell startup |
+| `gitfilters/<name>` | `.git/config` filter named `<name>` | executable clean filter for this repository |
 
 Key behaviors of the linker (`bin/dotup`, the `Stower` class):
 
 - **Directories are symlinked whole**, except paths in `paths_denylist()` (`.config`, `.claude`, `.claude/skills`, XDG dirs, etc.). Denylisted dirs are *descended into* and their files/children linked individually — this is how **multiple modules contribute into one shared directory** (e.g. both `ai` and `git` add skills under `~/.claude/skills`). If you add a top-level file to a shared dir like `~/.claude`, add its parent to the denylist or it won't merge.
-- **State** lives in `dotstate.db` (SQLite, gitignored, machine-local). `unload` only removes links recorded there and pointing back into the repo — it never touches foreign files.
+- **State** lives in `dotstate.db` (SQLite, gitignored, machine-local). `unload` removes recorded links and repository-local Git filters; links are removed only when they still point back into the repo.
 - **Conflicts are surfaced, not clobbered**: linking refuses if the destination exists with different content (identical content is silently replaced with the link).
+- **Git filters are authoritative**: enabled modules may declare uniquely named executable filters under `gitfilters/`; `dotup` replaces the corresponding local Git filter sections and removes them when no longer declared.
 - A few paths are **hardlinked** instead of symlinked (`*.desktop`, `mimeapps.list`) — see `paths_hardlink()`.
 - `bin/dotup` is **stdlib-only** Python; on Python < 3.11 it falls back to the vendored `pip._vendor.tomli` for TOML.
 
