@@ -101,6 +101,10 @@ class FakeClaudeRegistry:
         return self.result
 
 
+class FakeCodexRegistry(FakeClaudeRegistry):
+    pass
+
+
 def win_row(index, name, active, layout, zoomed):
     return US.join([str(index), name, active, layout, zoomed])
 
@@ -109,11 +113,13 @@ def pane_row(index, active, sync, cwd, command, pid):
     return US.join([str(index), active, sync, cwd, command, str(pid)])
 
 
-def make_handlers(claude_result=None):
+def make_handlers(claude_result=None, codex_result=None):
     registry = FakeClaudeRegistry(claude_result or tmux_snap.ClaudeSession(None, None))
+    codex_registry = FakeCodexRegistry(codex_result or tmux_snap.CodexSession(None))
     return tmux_snap.HandlerRegistry(
         [
             tmux_snap.ClaudeHandler(registry),
+            tmux_snap.CodexHandler(codex_registry),
             tmux_snap.CommandHandler("nvim"),
             tmux_snap.CommandHandler("vim"),
         ]
@@ -155,6 +161,15 @@ class TestProcessTree(unittest.TestCase):
         )
         fg = tree.foreground(10)
         self.assertEqual((fg.pid, fg.command), (20, "fzf"))
+
+    def test_lineage_includes_app_behind_helpers(self):
+        tree = tmux_snap.ProcessTree.from_ps_output(
+            "100 1 -fish\n101 100 node codex.js\n102 101 codex resume\n103 102 bash -c tool\n"
+        )
+        self.assertEqual(
+            [(process.pid, process.command) for process in tree.lineage(100)],
+            [(101, "node"), (102, "codex"), (103, "bash")],
+        )
 
     def test_cycle_guard_terminates(self):
         tree = tmux_snap.ProcessTree({1: [2], 2: [1]}, {1: "a", 2: "b"})
@@ -227,6 +242,35 @@ class TestClaudeRegistry(unittest.TestCase):
         self.assertIsNone(self.registry.lookup(9, "/proj").session_id)
 
 
+class TestCodexRegistry(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.registry = tmux_snap.CodexRegistry(self.tmp)
+
+    def _write(self, name, **payload):
+        path = self.tmp / "2026" / "08" / "15" / f"{name}.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"type": "session_meta", "payload": payload}) + "\n")
+        return path
+
+    def test_cwd_fallback_picks_newest(self):
+        old = self._write("old", session_id="old", cwd="/proj")
+        new = self._write("new", session_id="new", cwd="/proj")
+        os.utime(old, (1000, 1000))
+        os.utime(new, (2000, 2000))
+        self.assertEqual(self.registry.lookup(None, "/proj").session_id, "new")
+
+    def test_pid_rollout_takes_precedence(self):
+        exact = self._write("exact", session_id="exact", cwd="/proj")
+        self._write("newer", session_id="newer", cwd="/proj")
+        with mock.patch.object(self.registry, "_rollout_open_by", return_value=exact):
+            self.assertEqual(self.registry.lookup(42, "/proj").session_id, "exact")
+
+    def test_missing_and_malformed_return_none(self):
+        (self.tmp / "broken.jsonl").write_text("{not json")
+        self.assertIsNone(self.registry.lookup(None, "/nowhere").session_id)
+
+
 class TestHandlers(unittest.TestCase):
     def test_command_handler(self):
         self.assertEqual(tmux_snap.CommandHandler("nvim").build_command({}), "nvim")
@@ -259,9 +303,39 @@ class TestHandlers(unittest.TestCase):
         )
         self.assertEqual(registry.calls, [(101, "/proj")])
 
+    def test_codex_capture_and_build_command(self):
+        registry = FakeCodexRegistry(tmux_snap.CodexSession("S"))
+        handler = tmux_snap.CodexHandler(registry)
+        context = tmux_snap.PaneContext(
+            101, "/proj", "codex", ["codex", "--model", "gpt-5", "--search"]
+        )
+        state = handler.capture(context)
+        self.assertEqual(state, {"session_id": "S", "flags": ["--model", "gpt-5", "--search"]})
+        self.assertEqual(handler.build_command(state), "codex resume S --model gpt-5 --search")
+        self.assertEqual(registry.calls, [(101, "/proj")])
+
+    def test_codex_build_command_bare(self):
+        handler = tmux_snap.CodexHandler(FakeCodexRegistry(tmux_snap.CodexSession(None)))
+        self.assertEqual(handler.build_command({"session_id": None, "flags": []}), "codex")
+
+    def test_codex_drops_dangerous_flags(self):
+        argv = [
+            "codex",
+            "--dangerously-bypass-approvals-and-sandbox",
+            "--model=gpt-5",
+            "--local-provider",
+            "ollama",
+            "--no-alt-screen",
+        ]
+        self.assertEqual(
+            tmux_snap.CodexHandler.preserved_codex_flags(argv),
+            ["--model=gpt-5", "--local-provider", "ollama", "--no-alt-screen"],
+        )
+
     def test_registry_match_and_by_id(self):
         handlers = make_handlers()
         self.assertIsInstance(handlers.match("claude", []), tmux_snap.ClaudeHandler)
+        self.assertIsInstance(handlers.match("codex", []), tmux_snap.CodexHandler)
         self.assertIsInstance(handlers.match("nvim", []), tmux_snap.CommandHandler)
         self.assertIsNone(handlers.match("zsh", []))
         self.assertIsNotNone(handlers.by_id("vim"))
@@ -414,6 +488,22 @@ class TestCapture(unittest.TestCase):
     def test_capture_unknown_session_raises(self):
         with self.assertRaises(tmux_snap.TmuxSnapError):
             self._snapshotter(FakeTmux(existing_sessions=set())).capture("ghost")
+
+    def test_capture_recognizes_codex_behind_helpers(self):
+        tmux = FakeTmux(
+            existing_sessions={"sess"},
+            windows_output=win_row(1, "agent", "1", "L", "0"),
+            panes_output={"sess:1": pane_row(1, "1", "0", "/proj", "node", 100)},
+        )
+        processes = tmux_snap.ProcessTree.from_ps_output(
+            "100 1 -fish\n101 100 node codex.js resume\n102 101 codex resume\n103 102 bash -c tool\n"
+        )
+        handlers = make_handlers(codex_result=tmux_snap.CodexSession("CODEX-SID"))
+        snapshot = tmux_snap.Snapshotter(tmux, handlers, lambda: processes).capture("sess")
+
+        restore = snapshot.windows[0].panes[0].restore
+        self.assertEqual(restore.handler_id, "codex")
+        self.assertEqual(restore.state["session_id"], "CODEX-SID")
 
 
 class TestRestore(unittest.TestCase):

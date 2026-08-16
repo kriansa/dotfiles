@@ -38,6 +38,7 @@ SCHEMA_VERSION = 1
 def restore_handlers() -> list["AppHandler | str"]:
     return [
         ClaudeHandler(),
+        CodexHandler(),
         "nvim",
         "vim",
         "btop",
@@ -361,24 +362,31 @@ class ProcessTree:
 
     def foreground(self, shell_pid: int) -> ForegroundProcess:
         """Descend from a pane's shell to its deepest child — the foreground program."""
-        current, deepest, seen = shell_pid, None, set()
+        lineage = self.lineage(shell_pid)
+        if lineage:
+            return lineage[-1]
+        return ForegroundProcess(
+            None, self._command_basename(self._commands.get(shell_pid, "")), []
+        )
+
+    def lineage(self, shell_pid: int) -> list[ForegroundProcess]:
+        """Processes from the pane shell's direct child down to its deepest descendant."""
+        current, seen = shell_pid, set()
+        lineage: list[ForegroundProcess] = []
         while self._children.get(current):
             child = max(self._children[current])  # deepest, newest-pid child ≈ foreground
             if child in seen:  # cycle guard (shouldn't happen)
                 break
             seen.add(child)
-            deepest, current = child, child
-        if deepest is None:
-            return ForegroundProcess(
-                None, self._command_basename(self._commands.get(shell_pid, "")), []
-            )
-        raw = self._commands.get(deepest, "")
-        try:
-            argv = shlex.split(raw)
-        except ValueError:
-            argv = raw.split()
-        command = self._command_basename(argv[0]) if argv else ""
-        return ForegroundProcess(deepest, command, argv)
+            current = child
+            raw = self._commands.get(child, "")
+            try:
+                argv = shlex.split(raw)
+            except ValueError:
+                argv = raw.split()
+            command = self._command_basename(argv[0]) if argv else ""
+            lineage.append(ForegroundProcess(child, command, argv))
+        return lineage
 
     @staticmethod
     def _command_basename(arg0: str) -> str:
@@ -435,6 +443,76 @@ class ClaudeRegistry:
     def _read(path: Path) -> dict[str, Any] | None:
         try:
             return json.loads(path.read_text())
+        except (OSError, ValueError):
+            return None
+
+
+# --------------------------------------------------------------------------- #
+# Codex session registry (internal JSONL storage — kept defensive)
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class CodexSession:
+    session_id: str | None
+
+
+class CodexRegistry:
+    def __init__(self, sessions_dir: Path | None = None) -> None:
+        self._dir = sessions_dir or self.default_codex_sessions_dir()
+
+    @staticmethod
+    def default_codex_sessions_dir() -> Path:
+        codex_home = os.environ.get("CODEX_HOME")
+        return Path(codex_home) / "sessions" if codex_home else Path.home() / ".codex" / "sessions"
+
+    def lookup(self, foreground_pid: int | None, cwd: str) -> CodexSession:
+        """Find the active rollout by open file first, then newest matching cwd."""
+        try:
+            if foreground_pid is not None:
+                path = self._rollout_open_by(foreground_pid)
+                metadata = self._read_metadata(path) if path else None
+                if metadata and metadata.get("session_id"):
+                    return CodexSession(metadata["session_id"])
+            newest = self._newest_matching_cwd(cwd)
+            if newest and newest.get("session_id"):
+                return CodexSession(newest["session_id"])
+        except OSError:
+            pass
+        return CodexSession(None)
+
+    def _rollout_open_by(self, pid: int) -> Path | None:
+        """Linux can identify the exact rollout even with concurrent sessions in one cwd."""
+        fd_dir = Path("/proc") / str(pid) / "fd"
+        for descriptor in fd_dir.iterdir():
+            try:
+                target = descriptor.resolve()
+                target.relative_to(self._dir.resolve())
+            except (OSError, ValueError):
+                continue
+            if target.suffix == ".jsonl":
+                return target
+        return None
+
+    def _newest_matching_cwd(self, cwd: str) -> dict[str, Any] | None:
+        best_mtime, best = -1.0, None
+        for path in self._dir.glob("**/*.jsonl"):
+            metadata = self._read_metadata(path)
+            if metadata and metadata.get("cwd") == cwd and metadata.get("session_id"):
+                mtime = path.stat().st_mtime
+                if mtime > best_mtime:
+                    best_mtime, best = mtime, metadata
+        return best
+
+    @staticmethod
+    def _read_metadata(path: Path) -> dict[str, Any] | None:
+        try:
+            with path.open() as session_file:
+                record = json.loads(session_file.readline())
+            if record.get("type") != "session_meta":
+                return None
+            payload = record.get("payload")
+            return payload if isinstance(payload, dict) else None
         except (OSError, ValueError):
             return None
 
@@ -509,6 +587,50 @@ class ClaudeHandler(AppHandler):
         while index < len(argv):
             token = argv[index]
             if token.split("=", 1)[0] in ClaudeHandler.CLAUDE_KEEP_FLAGS:
+                kept.append(token)
+                if "=" not in token and index + 1 < len(argv):
+                    kept.append(argv[index + 1])
+                    index += 1
+            index += 1
+        return kept
+
+
+class CodexHandler(AppHandler):
+    id = "codex"
+
+    # Preserve user-facing launch choices, but never carry an approvals/sandbox bypass
+    # into a restored session.
+    CODEX_VALUE_FLAGS = frozenset(
+        {"-m", "--model", "-p", "--profile", "--local-provider"}
+    )
+    CODEX_BOOLEAN_FLAGS = frozenset({"--search", "--no-alt-screen", "--oss"})
+
+    def __init__(self, registry: CodexRegistry | None = None) -> None:
+        self._registry = registry or CodexRegistry()
+
+    def capture(self, context: PaneContext) -> dict[str, Any]:
+        session = self._registry.lookup(context.foreground_pid, context.cwd)
+        return {
+            "session_id": session.session_id,
+            "flags": self.preserved_codex_flags(context.argv),
+        }
+
+    def build_command(self, state: dict[str, Any]) -> str:
+        command = "codex"
+        if state.get("session_id"):
+            command += f" resume {shlex.quote(state['session_id'])}"
+        return " ".join([command, *state.get("flags", [])]).strip()
+
+    @staticmethod
+    def preserved_codex_flags(argv: list[str]) -> list[str]:
+        kept: list[str] = []
+        index = 1
+        while index < len(argv):
+            token = argv[index]
+            flag = token.split("=", 1)[0]
+            if flag in CodexHandler.CODEX_BOOLEAN_FLAGS:
+                kept.append(token)
+            elif flag in CodexHandler.CODEX_VALUE_FLAGS:
                 kept.append(token)
                 if "=" not in token and index + 1 < len(argv):
                     kept.append(argv[index + 1])
@@ -730,7 +852,7 @@ class Snapshotter:
             if sync == "1":
                 is_synchronized = True
             shell_pid = int(shell_pid_field)
-            foreground = processes.foreground(shell_pid)
+            lineage = processes.lineage(shell_pid)
             panes.append(
                 Pane(
                     index=int(index_field),
@@ -738,19 +860,23 @@ class Snapshotter:
                     cwd=cwd,
                     shell_pid=shell_pid,
                     current_command=current_command,
-                    restore=self._restore_action(foreground, cwd),
+                    restore=self._restore_action(lineage, cwd),
                 )
             )
         return panes, is_synchronized
 
-    def _restore_action(self, foreground: ForegroundProcess, cwd: str) -> RestoreAction | None:
-        handler = self._handlers.match(foreground.command, foreground.argv)
-        if handler is None:
-            return None
-        state = handler.capture(
-            PaneContext(foreground.pid, cwd, foreground.command, foreground.argv)
-        )
-        return None if state is None else RestoreAction(handler.id, state)
+    def _restore_action(
+        self, lineage: list[ForegroundProcess], cwd: str
+    ) -> RestoreAction | None:
+        for process in reversed(lineage):
+            handler = self._handlers.match(process.command, process.argv)
+            if handler is None:
+                continue
+            state = handler.capture(
+                PaneContext(process.pid, cwd, process.command, process.argv)
+            )
+            return None if state is None else RestoreAction(handler.id, state)
+        return None
 
     def build(self, snapshot: Snapshot, *, name: str, replace: bool) -> None:
         if not snapshot.windows:
