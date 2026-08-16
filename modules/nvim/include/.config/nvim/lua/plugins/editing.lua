@@ -7,11 +7,6 @@ return {
     end
   },
 
-  -- Allow repeating supported plugin maps with "."
-  -- { 'tpope/vim-repeat' },
-  -- Automatically set shiftwidt and expandtab
-  -- { 'tpope/vim-sleuth' },
-
   -- Use gS and gJ to break and join multiline statements
   { 'AndrewRadev/splitjoin.vim' },
 
