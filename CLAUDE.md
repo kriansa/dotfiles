@@ -1,8 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## What this is
+# What this is
 
 Personal dotfiles for macOS and Arch/Fedora Linux. The shell is [Fish](https://fishshell.com/). Two independent layers:
 

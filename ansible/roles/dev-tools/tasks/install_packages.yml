@@ -63,9 +63,6 @@
       - go
       - golangci-lint
 
-      # AI
-      - opencode
-
 - name: install development packages (AUR)
   become: true
   become_user: "{{ user_name }}"

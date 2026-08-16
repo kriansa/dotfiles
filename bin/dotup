@@ -395,9 +395,11 @@ class Stower:
             ".config/autostart",  # Autostart desktop entries
             ".config/pipewire/pipewire.conf.d", # Pipewire config
             ".local/share/applications",  # Desktop entries
-            ".claude",  # Claude CLI metadata
-            ".claude/skills",  # Claude skills (multiple modules may contribute)
-            ".claude/hooks",  # Claude hooks (multiple modules may contribute)
+            ".claude",  # Claude code settings
+            ".claude/skills",  # Claude skills
+            ".claude/hooks",  # Claude hooks
+            ".codex",  # Codex settings
+            ".codex/skills",  # Codex skills
         ]
 
     @staticmethod

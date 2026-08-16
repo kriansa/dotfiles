@@ -1,0 +1,9 @@
+model = "gpt-5.6-sol"
+model_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = "xhigh"
+
+[tui]
+status_line = ["current-dir", "git-branch", "model-with-reasoning", "pull-request-number", "run-state", "approval-mode", "context-used", "weekly-limit", "used-tokens", "task-progress"]
+status_line_use_colors = true
+theme = "one-half-light"
+

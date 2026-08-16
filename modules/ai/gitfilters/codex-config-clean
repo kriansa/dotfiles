@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Keep machine-local project trust out of the committed Codex configuration.
+exec awk '
+    /^[[:space:]]*\[/ {
+        dropping = $0 ~ /^[[:space:]]*\[projects([.]|[[:space:]]*\])/
+    }
+
+    !dropping {
+        print
+    }
+'
