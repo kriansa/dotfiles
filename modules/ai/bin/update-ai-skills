@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+cd "${DOTFILES_PATH}/modules/ai/include" || exit 1
+npx skills@latest upgrade -p -y

@@ -439,7 +439,7 @@ class Stower:
             return []
 
         linkable_paths: list[str] = []
-        for root, _dirs, files in os.walk(include_path):
+        for root, dirs, files in os.walk(include_path):
             rel_root = root.removeprefix(f"{include_path}").lstrip("/")
 
             # Just skips this entire folder if their parent is already marked for linking
@@ -452,6 +452,12 @@ class Stower:
             if root != include_path and not Stower.linked_denied(rel_root):
                 linkable_paths.append(rel_root)
                 continue
+
+            # A symlink pointing at a directory is never walked into, so it would otherwise be
+            # dropped entirely. Link the symlink itself and let it resolve on the destination.
+            for directory in dirs:
+                if os.path.islink(os.path.join(root, directory)):
+                    linkable_paths.append(os.path.join(rel_root, directory))
 
             for file in files:
                 linkable_paths.append(os.path.join(rel_root, file))
@@ -498,6 +504,8 @@ class Stower:
             ".config/autostart",  # Autostart desktop entries
             ".config/pipewire/pipewire.conf.d",  # Pipewire config
             ".local/share/applications",  # Desktop entries
+            ".agents",  # Generic code agent settings
+            ".agents/skills",  # Generic code agent skills
             ".claude",  # Claude code settings
             ".claude/skills",  # Claude skills
             ".claude/hooks",  # Claude hooks

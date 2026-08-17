@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "analyze-logs": {
+      "source": "ctrlb-hq/ctrlb-decompose",
+      "sourceType": "github",
+      "skillPath": "plugin/skills/analyze-logs/SKILL.md",
+      "computedHash": "35af36622e8949e6f99c561f5737723e7f4224683bb09667926cb85ad85f5845"
+    },
+    "domain-modeling": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/domain-modeling/SKILL.md",
+      "computedHash": "683744795bdc9fbfb6c0c2122c4b8119c950e2fe5bcbbf44237dd28aaea34b67"
+    },
+    "grill-with-docs": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/grill-with-docs/SKILL.md",
+      "computedHash": "35e62aa423aaeab6a414bcac273f56dfb17802ef2334b41b6a3b00f28196c8cf"
+    },
+    "grilling": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grilling/SKILL.md",
+      "computedHash": "a16b2f661db6caf310d7e02dd0d069e597cb888873e210e66f641eae715c5f23"
+    }
+  }
+}
