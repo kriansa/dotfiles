@@ -69,7 +69,7 @@ function save_session()
     local shadafile_path = git_dir .. "/" .. shadafile
     local metafile_path = git_dir .. "/" .. metafile
     load_shada(shadafile_path)
-    vim.cmd("Obsession " .. metafile_path)
+    vim.cmd("silent Obsession " .. metafile_path)
   else
     print("Not in a git repository")
   end
