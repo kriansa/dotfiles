@@ -27,6 +27,7 @@ brew "tmux"
 brew "tree-sitter"
 brew "tree-sitter-cli"
 brew "vivid"
+brew "postgresql"
 
 cask "1password"
 cask "bruno"
@@ -48,6 +49,6 @@ cask "whatsapp"
 cask "zoom"
 
 # Java-related
-cask "corretto@21"
+cask "corretto@25"
 brew "JetBrains/utils/kotlin-lsp"
 cask "intellij-idea"
