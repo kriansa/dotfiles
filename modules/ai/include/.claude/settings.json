@@ -3,6 +3,7 @@
   "env": {
     "CLAUDE_CODE_SHELL": "/bin/zsh",
     "SHELL": "/bin/zsh",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "DISABLE_INSTALLATION_CHECKS": "1",
     "DISABLE_UPDATES": "1",
     "CLAUDE_CODE_TMUX_TRUECOLOR": "1"
