@@ -7,7 +7,9 @@
 
 `save` records every window/pane of a session — layout, working directories,
 zoom/synchronize state, and (for apps with a handler) how to relaunch what was
-running. `restore` recreates the session from that snapshot on the target server.
+running. A window hosting a tmux-nest session is recorded with that whole session
+inside it, so nests survive a restore too. `restore` recreates the session from
+that snapshot on the target server.
 
 Relaunch is pluggable: one AppHandler per app owns detection, state capture, and
 relaunch; adding an app is a one-line edit to `restore_handlers`. Stdlib only,
@@ -134,13 +136,14 @@ class Cli:
             raise TmuxSnapError("not attached to a tmux session; pass the snapshot NAME")
         snapshot = store.load(name)
         snapshotter = Cli._make_snapshotter(tmux)
+        size = tmux.viewing_size(current) if current else None
         if args.replace and name == current:
             # We're attached to the session being replaced; killing it directly would drop
             # our client (and the SSH connection). Swap it out from a detached server job.
-            Cli._replace_attached(tmux, snapshotter, snapshot, name)
+            Cli._replace_attached(tmux, snapshotter, snapshot, name, size=size)
         else:
-            snapshotter.build(snapshot, name=name, replace=args.replace)
-            Cli._attach(tmux, name, no_attach=args.no_attach)
+            snapshotter.build(snapshot, name=name, replace=args.replace, size=size)
+            Cli._attach(tmux, name, no_attach=args.no_attach, current=current)
         return 0
 
     @staticmethod
@@ -167,10 +170,10 @@ class Cli:
 
     @staticmethod
     def _current_session_name(args: argparse.Namespace, tmux: "Tmux") -> str | None:
-        """The attached session's name, or None when it can't be inferred (detached, or an
-        explicit -L/-S targets a server we're not attached to)."""
+        """The name of the session we are running inside, or None when it can't be inferred
+        (detached, or an explicit -L/-S targets a server we're not attached to)."""
         if "TMUX" in os.environ and not (args.socket_name or args.socket_path):
-            return tmux.display_message("#{session_name}")
+            return tmux.enclosing_session_name()
         return None
 
     @staticmethod
@@ -178,11 +181,11 @@ class Cli:
         return Snapshotter(tmux, HandlerRegistry(restore_handlers()), ProcessTree.from_system)
 
     @staticmethod
-    def _attach(tmux: "Tmux", name: str, *, no_attach: bool) -> None:
+    def _attach(tmux: "Tmux", name: str, *, no_attach: bool, current: str | None = None) -> None:
         inside = "TMUX" in os.environ
         same_server = tmux.from_tmux_env or not tmux.socket_args
         if not no_attach and inside and same_server:
-            tmux.switch_client(name)
+            tmux.switch_client(name, from_session=current)
         elif not no_attach and not inside:
             tmux.attach_session(name)
         elif inside and same_server:
@@ -193,14 +196,19 @@ class Cli:
 
     @staticmethod
     def _replace_attached(
-        tmux: "Tmux", snapshotter: "Snapshotter", snapshot: "Snapshot", name: str
+        tmux: "Tmux",
+        snapshotter: "Snapshotter",
+        snapshot: "Snapshot",
+        name: str,
+        *,
+        size: tuple[int, int] | None = None,
     ) -> None:
         # tmux-snap runs in a pane of `name`, so we can't kill `name` from here. Build the
         # restoration in a temp session, move our client onto it, then let a detached server
         # job (which outlives this pane) kill the old session and rename the temp back.
         temp = f"{name}-restore-{os.getpid()}"
-        snapshotter.build(snapshot, name=temp, replace=True)
-        tmux.switch_client(temp)
+        snapshotter.build(snapshot, name=temp, replace=True, size=size)
+        tmux.switch_client(temp, from_session=name)
         tmux.detached_replace(old=name, temp=temp)
 
     @staticmethod
@@ -237,6 +245,9 @@ class Pane:
     shell_pid: int  # informational
     current_command: str  # informational (tmux pane_current_command)
     restore: RestoreAction | None  # None => leave a plain shell
+    # A tmux-nest window displays another session in this pane. That session is stored
+    # here in full, so restoring the outer one rebuilds what was inside the nest too.
+    nest: "Snapshot | None" = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -246,11 +257,13 @@ class Pane:
             "shell_pid": self.shell_pid,
             "current_command": self.current_command,
             "restore": self.restore.to_dict() if self.restore else None,
+            "nest": self.nest.to_session_dict() if self.nest else None,
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         action = data.get("restore")
+        nest = data.get("nest")
         return cls(
             index=data["index"],
             is_active=data["active"],
@@ -258,6 +271,7 @@ class Pane:
             shell_pid=data.get("shell_pid", 0),
             current_command=data.get("current_command", ""),
             restore=RestoreAction.from_dict(action) if action else None,
+            nest=Snapshot.from_session_dict(nest) if nest else None,
         )
 
 
@@ -307,6 +321,14 @@ class Snapshot:
         return {
             "schema_version": self.schema_version,
             "saved_at": self.saved_at,
+            **self.to_session_dict(),
+        }
+
+    def to_session_dict(self) -> dict[str, Any]:
+        """The session on its own, without the file envelope. A snapshot file is this plus
+        schema_version/saved_at; a nested session is this stored inside its host pane, where
+        repeating the envelope would say nothing the enclosing file doesn't already say."""
+        return {
             "session": {"name": self.session_name, "active_window_index": self.active_window_index},
             "windows": [window.to_dict() for window in self.windows],
         }
@@ -315,10 +337,14 @@ class Snapshot:
     def from_dict(cls, data: dict[str, Any]) -> Self:
         if data.get("schema_version") != SCHEMA_VERSION:
             raise TmuxSnapError(f"unsupported schema_version {data.get('schema_version')!r}")
+        return cls.from_session_dict(data, saved_at=data.get("saved_at", ""))
+
+    @classmethod
+    def from_session_dict(cls, data: dict[str, Any], *, saved_at: str = "") -> Self:
         session = data.get("session", {})
         return cls(
-            schema_version=data["schema_version"],
-            saved_at=data.get("saved_at", ""),
+            schema_version=SCHEMA_VERSION,
+            saved_at=saved_at,
             session_name=session.get("name", ""),
             active_window_index=session.get("active_window_index", 0),
             windows=[Window.from_dict(window) for window in data.get("windows", [])],
@@ -800,6 +826,7 @@ class Tmux:
             "#{pane_current_path}",
             "#{pane_current_command}",
             "#{pane_pid}",
+            "#{@nest-host}",  # tmux-nest sets this on the pane displaying a nested session
         ]
     )
 
@@ -813,10 +840,21 @@ class Tmux:
             return cls(["-L", socket_name])
         if socket_path:
             return cls(["-S", socket_path])
-        tmux_env = os.environ.get("TMUX")
-        if tmux_env:  # operate on the server we're launched inside
-            return cls(["-S", tmux_env.split(",", 1)[0]], from_tmux_env=True)
+        enclosing = cls._enclosing_server()
+        if enclosing:  # operate on the server we're launched inside
+            return cls(["-S", enclosing[0]], from_tmux_env=True)
         return cls([])
+
+    @staticmethod
+    def _enclosing_server() -> tuple[str, str] | None:
+        """Socket path and session id ("$N") from $TMUX, which tmux sets in every pane it
+        starts. None when we aren't running inside tmux at all."""
+        value = os.environ.get("TMUX")
+        if not value:
+            return None
+        fields = value.split(",")
+        session_id = f"${fields[2]}" if len(fields) > 2 and fields[2].isdigit() else ""
+        return fields[0], session_id
 
     def _run(self, args: list[str], *, capture: bool = True) -> str:
         completed = subprocess.run(
@@ -830,6 +868,13 @@ class Tmux:
             raise TmuxSnapError(f"`tmux {' '.join(args)}` failed: {detail}")
         return completed.stdout if capture else ""
 
+    def _try_run(self, args: list[str]) -> str | None:
+        """Like _run, but a failure is an answer rather than an error."""
+        try:
+            return self._run(args)
+        except TmuxSnapError:
+            return None
+
     def _ok(self, args: list[str]) -> bool:
         return (
             subprocess.run(
@@ -838,8 +883,37 @@ class Tmux:
             == 0
         )
 
-    def display_message(self, fmt: str) -> str:
-        return self._run(["display-message", "-p", fmt]).strip()
+    def enclosing_session_name(self) -> str | None:
+        """The name of the session tmux-snap itself is running in, or None if we can't tell.
+
+        Asking tmux for `#{session_name}` with no target does not answer this. Without a
+        target tmux resolves one from the client that issued the command, and a `tmux`
+        process talking to the socket is a command client with no session — so tmux answers
+        with whichever session was active most recently instead. Nests are ordinary sessions
+        on this same server, which makes that answer routinely a nest rather than us.
+
+        Naming a target avoids the guess. $TMUX's session id comes first: tmux writes it for
+        every pane it starts and for every popup it opens, naming the session that popup
+        belongs to. $TMUX_PANE is only a fallback, despite identifying a pane exactly, because
+        a popup does not get one of its own — it inherits whatever $TMUX_PANE the server was
+        started with, which points into an unrelated session, or nothing at all. Popups are
+        how the S and R key bindings run this. A target that doesn't resolve makes tmux print
+        nothing and still exit 0.
+        """
+        enclosing = self._enclosing_server()
+        candidates = [enclosing[1] if enclosing else "", os.environ.get("TMUX_PANE", "")]
+        for target in filter(None, candidates):
+            name = self._session_name_of(target)
+            if name:
+                return name
+        return None
+
+    def _session_name_of(self, target: str) -> str | None:
+        try:
+            message = self._run(["display-message", "-t", target, "-p", "#{session_name}"])
+        except TmuxSnapError:
+            return None
+        return message.strip() or None
 
     def has_session(self, name: str) -> bool:
         return self._ok(["has-session", "-t", f"={name}"])
@@ -854,13 +928,28 @@ class Tmux:
         rows = self._run(["list-panes", "-t", window_target, "-F", "#{pane_index}"]).splitlines()
         return [int(row) for row in rows]
 
-    def new_session(self, name: str, window_name: str, cwd: str) -> int:
+    def new_session(
+        self, name: str, window_name: str, cwd: str, *, size: tuple[int, int] | None = None
+    ) -> tuple[str, int]:
+        """Create the session and report its id along with its first window's index.
+
+        `size` is the size the session will be viewed at. A session built without it is 80x24
+        until a client attaches, so saved layouts are applied to the wrong geometry and have to
+        be scaled twice — and a nest window attaching from inside such a session drags the live
+        nest down to 80x24 along with it.
+
+        Everything built into a session afterwards is addressed by that id. A name is not a
+        safe handle: it is matched by prefix and pattern, so building "web" while a session
+        "website" exists can act on the wrong one — and a session named "0", which is what a
+        first session is called by default, reads as a window index instead of a session in
+        any target that isn't session-qualified.
+        """
         args = [
             "new-session",
             "-d",
             "-P",
             "-F",
-            "#{window_index}",
+            self.FIELD_SEPARATOR.join(["#{session_id}", "#{window_index}"]),
             "-s",
             name,
             "-n",
@@ -868,13 +957,18 @@ class Tmux:
             "-c",
             cwd,
         ]
-        return int(self._run(args).strip())
+        if size:
+            args += ["-x", str(size[0]), "-y", str(size[1])]
+        session_id, window_index = self._run(args).strip().split(self.FIELD_SEPARATOR)
+        return session_id, int(window_index)
 
-    def new_window(self, session: str, window_name: str, cwd: str) -> int:
+    def new_window(self, session_id: str, window_name: str, cwd: str) -> int:
         args = [
             "new-window",
             "-t",
-            session,
+            # The trailing colon says "a window of this session"; new-window's target is a
+            # window, so a bare session would be read as an index to create the window at.
+            f"{session_id}:",
             "-P",
             "-F",
             "#{window_index}",
@@ -912,16 +1006,72 @@ class Tmux:
     def attach_session(self, name: str) -> None:
         self._run(["attach-session", "-t", name], capture=False)
 
-    def switch_client(self, name: str) -> None:
-        self._run(["switch-client", "-t", name])
+    def switch_client(self, name: str, *, from_session: str | None = None) -> None:
+        """Move every client viewing `from_session` onto `name`.
+
+        Without -c, tmux picks a current client the same way it picks a current session, so
+        it can move a client that is watching a nest instead of the one that asked. All of
+        the old session's clients move: it is about to be replaced or renamed away, and none
+        of them should be left watching it.
+        """
+        clients = self.clients_of(from_session) if from_session else []
+        if not clients:
+            self._run(["switch-client", "-t", f"={name}"])
+            return
+        for client in clients:
+            self._run(["switch-client", "-c", client, "-t", f"={name}"])
+
+    def clients_of(self, session: str) -> list[str]:
+        """The ttys of every client attached to a session; empty when it has none."""
+        rows = self._try_run(["list-clients", "-t", f"={session}", "-F", "#{client_tty}"])
+        return rows.splitlines() if rows else []
+
+    def viewing_size(self, session: str) -> tuple[int, int] | None:
+        """The size a session is being viewed at, or None when nothing is viewing it. The
+        smallest client wins, which is the size tmux itself gives the session."""
+        fmt = self.FIELD_SEPARATOR.join(["#{client_width}", "#{client_height}"])
+        rows = self._try_run(["list-clients", "-t", f"={session}", "-F", fmt]) or ""
+        sizes = []
+        for row in rows.splitlines():
+            width, _, height = row.partition(self.FIELD_SEPARATOR)
+            if width.isdigit() and height.isdigit():
+                sizes.append((int(width), int(height)))
+        if not sizes:
+            return None
+        # Width and height are taken from whichever client is smallest in that dimension,
+        # independently, which is how tmux itself sizes a session with several clients.
+        return min(width for width, _ in sizes), min(height for _, height in sizes)
+
+    def respawn_pane(self, pane_target: str, command: str) -> None:
+        self._run(["respawn-pane", "-k", "-t", pane_target, command])
+
+    def set_pane_option(self, pane_target: str, option: str, value: str) -> None:
+        self._run(["set-option", "-p", "-t", pane_target, option, value])
+
+    def nest_attach_command(self, session_name: str) -> str:
+        """The command tmux-nest gives a nest window: the attach itself, as the pane's own
+        process, so the window lives exactly as long as the nest.
+
+        TMUX and TMUX_PANE are cleared because tmux refuses to attach a client whose terminal
+        is a pane on the same server while they are set. The socket is named explicitly so
+        the client lands on this server and not on the default one.
+        """
+        attach = ["tmux", *self.socket_args, "new-session", "-A", "-s", session_name]
+        return shlex.join(["exec", "env", "-u", "TMUX", "-u", "TMUX_PANE", *attach])
 
     def detached_replace(self, *, old: str, temp: str) -> None:
         """From a background job owned by the tmux server (so it survives the death of the
-        caller's pane, which lives in `old`), kill `old` then rename `temp` back to `old`."""
+        caller's pane, which lives in `old`), kill `old` then rename `temp` back to `old`.
+
+        The rename runs whether or not the kill succeeded. Chaining it behind the kill leaves
+        the caller sitting on a session still called `<name>-restore-<pid>` in exactly the case
+        where `old` is already gone — and a stranded temp name is worse than a rename that
+        harmlessly fails because `old` is somehow still there.
+        """
         prefix = " ".join(shlex.quote(part) for part in ["tmux", *self.socket_args])
         kill = f"{prefix} kill-session -t {shlex.quote('=' + old)}"
         rename = f"{prefix} rename-session -t {shlex.quote('=' + temp)} {shlex.quote(old)}"
-        self._run(["run-shell", "-b", f"{kill} && {rename}"])
+        self._run(["run-shell", "-b", f"{kill}; {rename}"])
 
 
 # --------------------------------------------------------------------------- #
@@ -938,28 +1088,38 @@ class Snapshotter:
         self._process_tree_factory = process_tree_factory
 
     def capture(self, session_name: str) -> Snapshot:
+        snapshot = self._capture_session(session_name, self._process_tree_factory(), ())
+        snapshot.saved_at = self._utc_now_iso()  # only the file is dated, not a nested session
+        return snapshot
+
+    def _capture_session(
+        self, session_name: str, processes: ProcessTree, hosts: tuple[str, ...]
+    ) -> Snapshot:
+        """Capture one session. `hosts` is the chain of sessions whose nest windows led here,
+        which keeps a mis-set @nest-host from sending us round in circles."""
         if not self._tmux.has_session(session_name):
             raise TmuxSnapError(f"no such session: {session_name}")
-        processes = self._process_tree_factory()
         windows: list[Window] = []
         active_window_index = 0
         for row in self._tmux.list_windows(session_name):
-            window = self._capture_window(session_name, row, processes)
+            window = self._capture_window(session_name, row, processes, (*hosts, session_name))
             if window.is_active:
                 active_window_index = window.index
             windows.append(window)
         return Snapshot(
             schema_version=SCHEMA_VERSION,
-            saved_at=self._utc_now_iso(),
+            saved_at="",
             session_name=session_name,
             active_window_index=active_window_index,
             windows=windows,
         )
 
-    def _capture_window(self, session_name: str, row: str, processes: ProcessTree) -> Window:
+    def _capture_window(
+        self, session_name: str, row: str, processes: ProcessTree, hosts: tuple[str, ...]
+    ) -> Window:
         index_field, name, active, layout, zoomed = row.split(Tmux.FIELD_SEPARATOR)
         index = int(index_field)
-        panes, is_synchronized = self._capture_panes(f"{session_name}:{index}", processes)
+        panes, is_synchronized = self._capture_panes(f"{session_name}:{index}", processes, hosts)
         return Window(
             index=index,
             name=name,
@@ -970,16 +1130,25 @@ class Snapshotter:
             panes=panes,
         )
 
-    def _capture_panes(self, window_target: str, processes: ProcessTree) -> tuple[list[Pane], bool]:
+    def _capture_panes(
+        self, window_target: str, processes: ProcessTree, hosts: tuple[str, ...]
+    ) -> tuple[list[Pane], bool]:
         panes: list[Pane] = []
         is_synchronized = False
         for row in self._tmux.list_panes(window_target):
-            index_field, active, sync, cwd, current_command, shell_pid_field = row.split(
-                Tmux.FIELD_SEPARATOR
-            )
+            (
+                index_field,
+                active,
+                sync,
+                cwd,
+                current_command,
+                shell_pid_field,
+                nest_host,
+            ) = row.split(Tmux.FIELD_SEPARATOR)
             if sync == "1":
                 is_synchronized = True
             shell_pid = int(shell_pid_field)
+            nest = self._capture_nest(nest_host, current_command, processes, hosts)
             lineage = processes.lineage(shell_pid)
             panes.append(
                 Pane(
@@ -988,10 +1157,44 @@ class Snapshotter:
                     cwd=cwd,
                     shell_pid=shell_pid,
                     current_command=current_command,
-                    restore=self._restore_action(lineage, cwd),
+                    # A nest pane has no program of its own to relaunch: it IS the client.
+                    restore=None if nest else self._restore_action(lineage, cwd),
+                    nest=nest,
                 )
             )
         return panes, is_synchronized
+
+    def _capture_nest(
+        self,
+        nest_host: str,
+        current_command: str,
+        processes: ProcessTree,
+        hosts: tuple[str, ...],
+    ) -> Snapshot | None:
+        """The session a tmux-nest window is displaying, captured whole, or None for a pane
+        that isn't hosting one we can rebuild.
+
+        The @nest-host pane option is the marker to go by. The process tree cannot find a
+        nest: tmux-nest execs the attach, so the pane's own process IS the tmux client and
+        has no children for a handler to match against.
+
+        Only nests on this server are captured. `tmux-nest --ssh` marks its pane the same
+        way, but what that pane shows is a session on another machine, which there is no way
+        to record from here — and rebuilding it as a local session of the same name would be
+        worse than leaving a shell.
+        """
+        if not nest_host:
+            return None
+        if current_command == "ssh":
+            log.debug("pane hosts remote nest %r; it will restore as a shell", nest_host)
+            return None
+        if nest_host in hosts:
+            log.warning("nest %r is hosted by a session it contains; not descending", nest_host)
+            return None
+        if not self._tmux.has_session(nest_host):
+            log.debug("nest %r is no longer a session here; it will restore as a shell", nest_host)
+            return None
+        return self._capture_session(nest_host, processes, hosts)
 
     def _restore_action(self, lineage: list[ForegroundProcess], cwd: str) -> RestoreAction | None:
         for process in reversed(lineage):
@@ -1002,7 +1205,25 @@ class Snapshotter:
             return None if state is None else RestoreAction(handler.id, state)
         return None
 
-    def build(self, snapshot: Snapshot, *, name: str, replace: bool) -> None:
+    def build(
+        self,
+        snapshot: Snapshot,
+        *,
+        name: str,
+        replace: bool,
+        size: tuple[int, int] | None = None,
+    ) -> None:
+        self._build_session(snapshot, name=name, replace=replace, size=size, hosts=())
+
+    def _build_session(
+        self,
+        snapshot: Snapshot,
+        *,
+        name: str,
+        replace: bool,
+        size: tuple[int, int] | None,
+        hosts: tuple[str, ...],
+    ) -> None:
         if not snapshot.windows:
             raise TmuxSnapError("snapshot has no windows")
         if self._tmux.has_session(name):
@@ -1010,23 +1231,35 @@ class Snapshotter:
                 raise TmuxSnapError(f"session {name!r} already exists (use --replace)")
             self._tmux.kill_session(name)
 
+        nested_hosts = (*hosts, name)
         first, *rest = snapshot.windows
-        real_indexes = [
-            self._tmux.new_session(name, first.name, self._safe_cwd(first.panes[0].cwd))
-        ]
-        self._build_window(name, real_indexes[0], first)
+        session_id, first_index = self._tmux.new_session(
+            name, first.name, self._safe_cwd(first.panes[0].cwd), size=size
+        )
+        real_indexes = [first_index]
+        self._build_window(session_id, first_index, first, size=size, hosts=nested_hosts)
         for window in rest:
-            index = self._tmux.new_window(name, window.name, self._safe_cwd(window.panes[0].cwd))
+            index = self._tmux.new_window(
+                session_id, window.name, self._safe_cwd(window.panes[0].cwd)
+            )
             real_indexes.append(index)
-            self._build_window(name, index, window)
+            self._build_window(session_id, index, window, size=size, hosts=nested_hosts)
 
         active_position = next(
             (i for i, window in enumerate(snapshot.windows) if window.is_active), 0
         )
-        self._tmux.select_window(f"{name}:{real_indexes[active_position]}")
+        self._tmux.select_window(f"{session_id}:{real_indexes[active_position]}")
 
-    def _build_window(self, name: str, window_index: int, window: Window) -> None:
-        target = f"{name}:{window_index}"
+    def _build_window(
+        self,
+        session_id: str,
+        window_index: int,
+        window: Window,
+        *,
+        size: tuple[int, int] | None,
+        hosts: tuple[str, ...],
+    ) -> None:
+        target = f"{session_id}:{window_index}"
         for pane in window.panes[1:]:  # pane 0 exists; create the rest, then apply geometry
             self._tmux.split_window(target, self._safe_cwd(pane.cwd))
         self._tmux.select_layout(target, window.layout)
@@ -1036,7 +1269,11 @@ class Snapshotter:
         real_indexes = self._tmux.pane_indexes(target)
         for position, pane in enumerate(window.panes):
             if position < len(real_indexes):
-                self._apply_restore(f"{target}.{real_indexes[position]}", pane.restore)
+                pane_target = f"{target}.{real_indexes[position]}"
+                if pane.nest is not None:
+                    self._build_nest(pane_target, pane.nest, size=size, hosts=hosts)
+                else:
+                    self._apply_restore(pane_target, pane.restore)
 
         active_position = next((i for i, pane in enumerate(window.panes) if pane.is_active), 0)
         active_index = (
@@ -1049,6 +1286,42 @@ class Snapshotter:
             self._tmux.zoom_pane(f"{target}.{active_index}")
         if window.is_synchronized:  # after send-keys, so relaunches don't broadcast
             self._tmux.enable_synchronize(target)
+
+    def _build_nest(
+        self,
+        pane_target: str,
+        nest: Snapshot,
+        *,
+        size: tuple[int, int] | None,
+        hosts: tuple[str, ...],
+    ) -> None:
+        """Put the nested session back, then make the pane its host again.
+
+        The pane is respawned rather than sent a command line, because tmux-nest's window runs
+        the attach as its own process — that is what makes the window close when the nest ends
+        instead of falling back to a shell.
+
+        A nest that is still running is reattached, never rebuilt, even under --replace. A
+        nest cannot be killed on its own: the pane showing it holds its only client, so killing
+        the session closes that window — and a session built entirely out of nest windows, which
+        is what a nest launcher looks like, loses every window and is destroyed with them. That
+        takes the client down mid-restore. Reattaching also keeps whatever is running in the
+        nest, which a snapshot minutes older has no business discarding; a nest that is gone is
+        still rebuilt from the snapshot, which is what happens after a reboot.
+        """
+        if nest.session_name in hosts:
+            log.warning(
+                "nest %r would contain the session hosting it; leaving a shell in %s",
+                nest.session_name,
+                pane_target,
+            )
+            return
+        if self._tmux.has_session(nest.session_name):
+            log.info("nest %r is still running; reattaching to it", nest.session_name)
+        else:
+            self._build_session(nest, name=nest.session_name, replace=False, size=size, hosts=hosts)
+        self._tmux.respawn_pane(pane_target, self._tmux.nest_attach_command(nest.session_name))
+        self._tmux.set_pane_option(pane_target, "@nest-host", nest.session_name)
 
     def _apply_restore(self, pane_target: str, restore: RestoreAction | None) -> None:
         if restore is None:

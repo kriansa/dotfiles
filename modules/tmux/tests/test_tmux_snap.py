@@ -30,6 +30,9 @@ _loader = importlib.machinery.SourceFileLoader("tmux_snap", str(_TOOL))
 _spec = importlib.util.spec_from_loader("tmux_snap", _loader)
 assert _spec is not None
 tmux_snap = importlib.util.module_from_spec(_spec)
+# Register before executing: dataclasses resolves a field's forward-referenced type (Pane's
+# nested Snapshot) through sys.modules, and a module loaded by path isn't there on its own.
+sys.modules["tmux_snap"] = tmux_snap
 _loader.exec_module(tmux_snap)
 
 US = tmux_snap.Tmux.FIELD_SEPARATOR
@@ -54,9 +57,16 @@ class FakeTmux(tmux_snap.Tmux):
         session_name="sess",
         socket_args=None,
         from_tmux_env=False,
+        session_names=None,
+        clients=None,
+        client_sizes=None,
     ):
         super().__init__(list(socket_args or []), from_tmux_env=from_tmux_env)
         self.existing = set(existing_sessions)
+        self.session_names = session_names or {}
+        self.clients = clients or {}
+        self.client_sizes = client_sizes or {}
+        self.session_ids: list[str] = []
         self.windows_output = windows_output
         self.panes_output = panes_output or {}
         self.pane_index_map = pane_indexes or {}
@@ -74,7 +84,17 @@ class FakeTmux(tmux_snap.Tmux):
         self.commands.append(args)
         sub = args[0]
         if sub == "display-message":
+            # -t TARGET -p FORMAT; session_names maps a target to what it resolves to,
+            # with "" standing for a target tmux can't resolve (an unreal popup pane).
+            target = args[2]
+            if self.session_names:
+                return self.session_names.get(target, "") + "\n"
             return self.session_name + "\n"
+        if sub == "list-clients":
+            session = args[2].removeprefix("=")
+            if "#{client_width}" in args[4]:
+                return "\n".join(US.join(map(str, s)) for s in self.client_sizes.get(session, []))
+            return "\n".join(self.clients.get(session, []))
         if sub == "list-windows":
             return self.windows_output
         if sub == "list-panes":
@@ -82,7 +102,10 @@ class FakeTmux(tmux_snap.Tmux):
             if fmt == "#{pane_index}":
                 return "\n".join(str(i) for i in self.pane_index_map.get(target, [1]))
             return self.panes_output.get(target, "")
-        if sub in ("new-session", "new-window"):
+        if sub == "new-session":
+            self.session_ids.append(f"${len(self.session_ids)}")
+            return US.join([self.session_ids[-1], str(self.window_indexes.pop(0))])
+        if sub == "new-window":
             return str(self.window_indexes.pop(0))
         return ""
 
@@ -111,8 +134,8 @@ def win_row(index, name, active, layout, zoomed):
     return US.join([str(index), name, active, layout, zoomed])
 
 
-def pane_row(index, active, sync, cwd, command, pid):
-    return US.join([str(index), active, sync, cwd, command, str(pid)])
+def pane_row(index, active, sync, cwd, command, pid, nest_host=""):
+    return US.join([str(index), active, sync, cwd, command, str(pid), nest_host])
 
 
 def make_handlers(claude_result=None, codex_result=None):
@@ -128,7 +151,7 @@ def make_handlers(claude_result=None, codex_result=None):
     )
 
 
-def pane(index=1, *, active=True, cwd="/proj", restore=None):
+def pane(index=1, *, active=True, cwd="/proj", restore=None, nest=None):
     return tmux_snap.Pane(
         index=index,
         is_active=active,
@@ -136,6 +159,18 @@ def pane(index=1, *, active=True, cwd="/proj", restore=None):
         shell_pid=index * 100,
         current_command="x",
         restore=restore,
+        nest=nest,
+    )
+
+
+def session_snapshot(name, *, window_name="w", panes=None):
+    """A one-window snapshot, handy as the nested session inside a nest pane."""
+    return tmux_snap.Snapshot(
+        1,
+        "t",
+        name,
+        1,
+        [tmux_snap.Window(1, window_name, True, "L", False, False, panes or [pane(1)])],
     )
 
 
@@ -630,7 +665,7 @@ class TestRestore(unittest.TestCase):
         )
 
     def _fake(self, **kw):
-        return FakeTmux(window_indexes=[1, 2], pane_indexes={"T:1": [1], "T:2": [1, 2]}, **kw)
+        return FakeTmux(window_indexes=[1, 2], pane_indexes={"$0:1": [1], "$0:2": [1, 2]}, **kw)
 
     def test_build_issues_expected_sequence(self):
         tmux = self._fake()
@@ -645,18 +680,28 @@ class TestRestore(unittest.TestCase):
         # claude relaunch sent to pane 1 of window 2; plain pane gets nothing
         sends = tmux.issued("send-keys")
         self.assertTrue(
-            any(cmd[2] == "T:2.1" and cmd[4].startswith("claude --resume X") for cmd in sends)
+            any(cmd[2] == "$0:2.1" and cmd[4].startswith("claude --resume X") for cmd in sends)
         )
-        self.assertFalse(any(cmd[2] == "T:2.2" for cmd in sends))
-        # active window selected
-        self.assertTrue(any(cmd == ["select-window", "-t", "T:2"] for cmd in tmux.commands))
+        self.assertFalse(any(cmd[2] == "$0:2.2" for cmd in sends))
+        # active window selected, addressed by session id rather than by name
+        self.assertTrue(any(cmd == ["select-window", "-t", "$0:2"] for cmd in tmux.commands))
+
+    def test_windows_are_added_to_the_session_we_built(self):
+        # A bare "-t 0" is a window index, not a session, so a session named "0" (what tmux
+        # calls a first session) used to have its later windows land wherever the current
+        # session happened to be.
+        tmux = self._fake()
+        tmux_snap.Snapshotter(tmux, make_handlers(), lambda: None).build(
+            self._snapshot(), name="0", replace=False
+        )
+        self.assertEqual(tmux.issued("new-window")[0][:3], ["new-window", "-t", "$0:"])
 
     def test_synchronize_enabled_after_send_keys(self):
         tmux = self._fake()
         tmux_snap.Snapshotter(tmux, make_handlers(), lambda: None).build(
             self._snapshot(sync=True), name="T", replace=False
         )
-        send_index = tmux.first_index(lambda c: c[0] == "send-keys" and c[2] == "T:2.1")
+        send_index = tmux.first_index(lambda c: c[0] == "send-keys" and c[2] == "$0:2.1")
         sync_index = tmux.first_index(
             lambda c: c[0] == "set-window-option" and "synchronize-panes" in c
         )
@@ -682,10 +727,10 @@ class TestRestore(unittest.TestCase):
         with self.assertLogs("tmux-snap", level="WARNING") as captured:
             snapshotter.build(snapshot, name="T", replace=False)
         self.assertTrue(any("unknown handler" in line for line in captured.output))
-        self.assertFalse(any(cmd[0] == "send-keys" and cmd[2] == "T:2.1" for cmd in tmux.commands))
+        self.assertFalse(any(c[0] == "send-keys" and c[2] == "$0:2.1" for c in tmux.commands))
 
     def test_replace_attached_swaps_via_temp(self):
-        tmux = FakeTmux(window_indexes=[1])
+        tmux = FakeTmux(window_indexes=[1], clients={"work": ["/dev/ttys1"]})
         snapshotter = tmux_snap.Snapshotter(tmux, make_handlers(), lambda: None)
         snapshot = tmux_snap.Snapshot(
             1,
@@ -699,11 +744,15 @@ class TestRestore(unittest.TestCase):
         created = tmux.issued("new-session")[0]
         temp = created[created.index("-s") + 1]
         self.assertTrue(temp.startswith("work-restore-"))  # built under a temp name
-        self.assertIn(["switch-client", "-t", temp], tmux.commands)  # client moved off old
+        # every client of the old session is moved off it, by tty
+        self.assertIn(["switch-client", "-c", "/dev/ttys1", "-t", f"={temp}"], tmux.commands)
         self.assertFalse(any(c[0] == "kill-session" for c in tmux.commands))  # not killed directly
         job = tmux.issued("run-shell")[0][-1]  # detached server job does the swap
         self.assertIn("kill-session", job)
         self.assertIn("rename-session", job)
+        # the rename is not chained behind the kill: if the old session is already gone, a
+        # chained rename would leave the caller sitting on "work-restore-<pid>" for good
+        self.assertNotIn("&&", job)
 
     def test_cmd_restore_self_replace_when_attached(self):
         store = tmux_snap.SnapshotStore(Path(self.enterContext(tempfile.TemporaryDirectory())))
@@ -797,6 +846,198 @@ class TestCli(unittest.TestCase):
         with mock.patch.dict(os.environ, {"TMUX": "/s,1,0"}, clear=True):
             tmux = FakeTmux(socket_args=["-L", "snap"])
             self.assertIsNone(tmux_snap.Cli._current_session_name(args, tmux))
+
+
+# --------------------------------------------------------------------------- #
+# Nesting (tmux-nest sessions living on the same server)
+# --------------------------------------------------------------------------- #
+
+
+class TestEnclosingSession(unittest.TestCase):
+    """Which session tmux-snap decides it is running in — the answer that used to be a
+    guess by tmux, and became wrong once nests moved onto the same server."""
+
+    def test_tmux_env_wins_over_an_inherited_pane(self):
+        # A popup inherits whatever $TMUX_PANE the server was started with, which can point
+        # into an entirely different session; $TMUX names the session the popup belongs to.
+        tmux = FakeTmux(session_names={"$0": "outer", "%3": "some-nest"})
+        with mock.patch.dict(os.environ, {"TMUX": "/s,1,0", "TMUX_PANE": "%3"}, clear=True):
+            self.assertEqual(tmux.enclosing_session_name(), "outer")
+
+    def test_pane_answers_when_tmux_env_does_not_resolve(self):
+        tmux = FakeTmux(session_names={"%3": "outer"})
+        with mock.patch.dict(os.environ, {"TMUX": "/s,1,9", "TMUX_PANE": "%3"}, clear=True):
+            self.assertEqual(tmux.enclosing_session_name(), "outer")
+
+    def test_unresolvable_is_none_rather_than_a_guess(self):
+        tmux = FakeTmux(session_names={"$7": "other"})
+        with mock.patch.dict(os.environ, {"TMUX": "/s,1,0", "TMUX_PANE": "%99"}, clear=True):
+            self.assertIsNone(tmux.enclosing_session_name())
+
+    def test_outside_tmux_is_none(self):
+        with mock.patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(FakeTmux(session_names={"$0": "outer"}).enclosing_session_name())
+
+    def test_save_from_a_popup_names_the_host_not_the_nest(self):
+        args = tmux_snap.Cli.build_parser().parse_args(["save"])
+        tmux = FakeTmux(session_names={"$0": "0"})  # the nest would have answered "nest"
+        with mock.patch.dict(os.environ, {"TMUX": "/s,1,0", "TMUX_PANE": "%99"}, clear=True):
+            self.assertEqual(tmux_snap.Cli._current_session_name(args, tmux), "0")
+
+
+class TestSwitchClient(unittest.TestCase):
+    def test_moves_every_client_of_the_old_session_by_tty(self):
+        tmux = FakeTmux(clients={"old": ["/dev/ttys1", "/dev/ttys2"]})
+        tmux.switch_client("new", from_session="old")
+        self.assertEqual(
+            tmux.issued("switch-client"),
+            [
+                ["switch-client", "-c", "/dev/ttys1", "-t", "=new"],
+                ["switch-client", "-c", "/dev/ttys2", "-t", "=new"],
+            ],
+        )
+
+    def test_without_a_source_session_lets_tmux_pick_the_client(self):
+        tmux = FakeTmux()
+        tmux.switch_client("new")
+        self.assertEqual(tmux.issued("switch-client"), [["switch-client", "-t", "=new"]])
+
+
+class TestViewingSize(unittest.TestCase):
+    def test_smallest_client_wins_per_dimension(self):
+        # tmux sizes a session to its smallest client, so that is the size to build at
+        tmux = FakeTmux(client_sizes={"work": [(200, 30), (100, 60)]})
+        self.assertEqual(tmux.viewing_size("work"), (100, 30))
+
+    def test_nothing_watching_is_none(self):
+        self.assertIsNone(FakeTmux().viewing_size("work"))
+
+
+class TestCaptureNest(unittest.TestCase):
+    def _nested_tmux(self, *, nest_command="tmux", nest_host="nest", sessions=("outer", "nest")):
+        return FakeTmux(
+            existing_sessions=set(sessions),
+            windows_output=win_row(1, "nest", "1", "L", "0"),
+            panes_output={
+                # the outer session's only window hosts the nest ...
+                "outer:1": pane_row(1, "1", "0", "/proj", nest_command, 500, nest_host),
+                # ... and the nest itself holds the real work
+                "nest:1": pane_row(1, "1", "0", "/work", "nvim", 100),
+            },
+        )
+
+    def _capture(self, tmux, ps="100 1 -fish\n101 100 nvim .\n"):
+        processes = tmux_snap.ProcessTree.from_ps_output(ps)
+        return tmux_snap.Snapshotter(tmux, make_handlers(), lambda: processes).capture("outer")
+
+    def test_nest_session_is_captured_whole(self):
+        snapshot = self._capture(self._nested_tmux())
+        host_pane = snapshot.windows[0].panes[0]
+
+        self.assertEqual(host_pane.nest.session_name, "nest")
+        self.assertEqual(host_pane.nest.windows[0].panes[0].restore.handler_id, "nvim")
+        # the pane IS the client; there is no separate program to relaunch in it
+        self.assertIsNone(host_pane.restore)
+
+    def test_remote_nest_is_left_as_a_shell(self):
+        # tmux-nest --ssh marks its pane the same way, but the session is on another machine
+        snapshot = self._capture(self._nested_tmux(nest_command="ssh"))
+        host_pane = snapshot.windows[0].panes[0]
+        self.assertIsNone(host_pane.nest)
+        self.assertIsNone(host_pane.restore)
+
+    def test_nest_whose_session_is_gone_is_left_as_a_shell(self):
+        snapshot = self._capture(self._nested_tmux(sessions=("outer",)))
+        self.assertIsNone(snapshot.windows[0].panes[0].nest)
+
+    def test_a_nest_pointing_back_at_its_host_does_not_recurse(self):
+        tmux = self._nested_tmux(nest_host="outer")
+        with self.assertLogs("tmux-snap", level="WARNING") as captured:
+            snapshot = self._capture(tmux)
+        self.assertIsNone(snapshot.windows[0].panes[0].nest)
+        self.assertTrue(any("hosted by a session it contains" in l for l in captured.output))
+
+    def test_nest_round_trips_through_json(self):
+        snapshot = self._capture(self._nested_tmux())
+        restored = tmux_snap.Snapshot.from_dict(json.loads(json.dumps(snapshot.to_dict())))
+        nest = restored.windows[0].panes[0].nest
+        self.assertEqual(nest.session_name, "nest")
+        self.assertEqual(nest.windows[0].panes[0].restore.handler_id, "nvim")
+        # a nested session carries no file envelope of its own
+        self.assertNotIn("schema_version", snapshot.to_dict()["windows"][0]["panes"][0]["nest"])
+
+
+class TestRestoreNest(unittest.TestCase):
+    def _snapshot(self):
+        nest = session_snapshot("nest", window_name="work")
+        return session_snapshot("outer", window_name="nest", panes=[pane(1, nest=nest)])
+
+    def _fake(self, **kw):
+        return FakeTmux(window_indexes=[1, 1], pane_indexes={"$0:1": [1], "$1:1": [1]}, **kw)
+
+    def _build(self, tmux, *, replace=False, size=None):
+        tmux_snap.Snapshotter(tmux, make_handlers(), lambda: None).build(
+            self._snapshot(), name="outer", replace=replace, size=size
+        )
+
+    def test_nest_session_is_rebuilt_and_the_pane_becomes_its_host(self):
+        tmux = self._fake()
+        self._build(tmux)
+
+        created = [cmd[cmd.index("-s") + 1] for cmd in tmux.issued("new-session")]
+        # the host session first, then the nest, built as we reach the pane that shows it
+        self.assertEqual(created, ["outer", "nest"])
+        respawn = tmux.issued("respawn-pane")[0]
+        self.assertEqual(respawn[:4], ["respawn-pane", "-k", "-t", "$0:1.1"])
+        # the attach is the pane's own process, on this server, with $TMUX cleared
+        self.assertEqual(respawn[4], "exec env -u TMUX -u TMUX_PANE tmux new-session -A -s nest")
+        self.assertIn(["set-option", "-p", "-t", "$0:1.1", "@nest-host", "nest"], tmux.commands)
+        # nothing is typed into a nest pane; it has no shell to type into
+        self.assertFalse(any(cmd[2] == "$0:1.1" for cmd in tmux.issued("send-keys")))
+
+    def test_attach_command_names_the_socket_when_one_is_explicit(self):
+        tmux = self._fake(socket_args=["-L", "snap"])
+        self._build(tmux)
+        self.assertEqual(
+            tmux.issued("respawn-pane")[0][4],
+            "exec env -u TMUX -u TMUX_PANE tmux -L snap new-session -A -s nest",
+        )
+
+    def test_a_running_nest_is_reattached_not_rebuilt(self):
+        tmux = self._fake(existing_sessions={"nest"})
+        with self.assertLogs("tmux-snap", level="INFO") as captured:
+            self._build(tmux)
+        self.assertEqual(
+            [cmd[cmd.index("-s") + 1] for cmd in tmux.issued("new-session")], ["outer"]
+        )
+        self.assertFalse(tmux.issued("kill-session"))
+        self.assertTrue(any("still running" in line for line in captured.output))
+        self.assertTrue(tmux.issued("respawn-pane"))  # still reattached to
+
+    def test_replace_never_kills_a_running_nest(self):
+        # Killing a nest closes the window showing it. A session made only of nest windows
+        # loses every window that way and is destroyed, taking the attached client with it.
+        tmux = self._fake(existing_sessions={"nest", "outer"})
+        self._build(tmux, replace=True)
+        killed = [cmd[2].removeprefix("=") for cmd in tmux.issued("kill-session")]
+        self.assertEqual(killed, ["outer"])
+
+    def test_session_is_built_at_the_size_it_will_be_viewed_at(self):
+        tmux = self._fake()
+        self._build(tmux, size=(203, 51))
+        for created in tmux.issued("new-session"):  # the nest is built at that size too
+            self.assertEqual(created[created.index("-x") + 1 :], ["203", "-y", "51"])
+
+    def test_a_nest_naming_its_own_host_leaves_a_shell(self):
+        nest = session_snapshot("outer")
+        snapshot = session_snapshot("outer", panes=[pane(1, nest=nest)])
+        tmux = self._fake()
+        with self.assertLogs("tmux-snap", level="WARNING") as captured:
+            tmux_snap.Snapshotter(tmux, make_handlers(), lambda: None).build(
+                snapshot, name="outer", replace=False
+            )
+        self.assertFalse(tmux.issued("respawn-pane"))
+        self.assertTrue(any("would contain the session hosting it" in l for l in captured.output))
 
 
 if __name__ == "__main__":
