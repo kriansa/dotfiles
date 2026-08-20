@@ -321,11 +321,11 @@ open-nest-window() {
   [[ -n "$parent_session" ]] && target=(-t "$parent_session")
 
   # The window's command is the attach, so the window lives exactly as long as
-  # the nest.
+  # the nest. -n names the window up front, which also turns automatic-rename off
+  # for it, so the name stays put instead of following the running command.
   local pane
-  pane=$(tmux new-window "${target[@]}" -P -F '#{pane_id}' "$window_cmd")
+  pane=$(tmux new-window "${target[@]}" -n "$session_name" -P -F '#{pane_id}' "$window_cmd")
   tmux set-option -p -t "$pane" @nest-host "$session_name"
-  tmux rename-window -t "$pane" "$session_name"
 }
 
 main "$@"
