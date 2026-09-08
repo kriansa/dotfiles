@@ -6,20 +6,18 @@
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "DISABLE_INSTALLATION_CHECKS": "1",
     "DISABLE_UPDATES": "1",
-    "CLAUDE_CODE_TMUX_TRUECOLOR": "1"
+    "CLAUDE_CODE_TMUX_TRUECOLOR": "1",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
-  "spinnerTipsEnabled": false,
-  "wheelScrollAccelerationEnabled": false,
-  "externalEditorContext": true,
-  "skipWebFetchPreflight": true,
-  "includeGitInstructions": false,
   "attribution": {
     "commit": "",
     "sessionUrl": false
   },
+  "includeGitInstructions": false,
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -48,6 +46,8 @@
     "type": "command",
     "command": "~/.claude/statusline-command"
   },
+  "skipWebFetchPreflight": true,
+  "spinnerTipsEnabled": false,
   "effortLevel": "xhigh",
   "tui": "fullscreen",
   "voice": {
@@ -59,5 +59,8 @@
   "disableAutoMode": "disable",
   "theme": "light",
   "preferredNotifChannel": "terminal_bell",
-  "voiceEnabled": true
+  "wheelScrollAccelerationEnabled": false,
+  "teammateMode": "tmux",
+  "voiceEnabled": true,
+  "externalEditorContext": true
 }
