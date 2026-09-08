@@ -1,5 +1,5 @@
 # MacOS specific settings
-font-size = 23
+font-size = 21
 adjust-cell-width = -1
 
 # Unbind keys that should be Linux-only
