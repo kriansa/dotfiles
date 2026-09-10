@@ -414,5 +414,5 @@ showSeconds=Always
 use24hFormat=2
 
 [ScreenMapping]
-itemsOnDisabledScreens=
+itemsOnDisabledScreens=1,1755eaa4-3450-44e9-97de-fe453803621a,2,desktop:/Reolink.desktop,desktop:/Reolink.lnk
 screenMapping=
