@@ -1,0 +1,3 @@
+---
+- import_tasks: enroll_keys.yml
+- import_tasks: sign_boot_files.yml

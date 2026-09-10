@@ -1,0 +1,18 @@
+---
+# Should match systemd-boot role's default
+dualboot_windows: true
+
+# PK/KEK keytype for sbctl. TPM-shielded, since this machine's root filesystem
+# is unencrypted, so plain key files on disk could be extracted with physical
+# access. The db key stays a plain file (sbctl's own recommended split).
+secureboot_pk_keytype: tpm
+secureboot_kek_keytype: tpm
+
+# EFI binaries and kernels to sign and track for automatic re-signing by
+# sbctl's own pacman hook on future updates.
+secureboot_files_to_sign:
+  - /boot/EFI/systemd/systemd-bootx64.efi
+  - /boot/EFI/systemd/systemd-boot-fallbackx64.efi
+  - /boot/EFI/BOOT/BOOTX64.EFI
+  - /boot/vmlinuz-linux
+  - /boot/vmlinuz-linux-lts

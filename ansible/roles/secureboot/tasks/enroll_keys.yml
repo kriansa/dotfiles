@@ -1,0 +1,40 @@
+---
+- name: install sbctl
+  become: true
+  community.general.pacman:
+    name: sbctl
+
+- name: read secure boot status
+  ansible.builtin.command: sbctl status --json
+  changed_when: false
+  register: secureboot_status
+
+- ansible.builtin.set_fact:
+    secureboot_status_json: "{{ secureboot_status.stdout | from_json }}"
+
+- name: generate secure boot signing keys
+  become: true
+  when: not secureboot_status_json.installed
+  changed_when: true
+  ansible.builtin.command: >-
+    sbctl create-keys
+    --pk-keytype {{ secureboot_pk_keytype }}
+    --kek-keytype {{ secureboot_kek_keytype }}
+
+- name: enroll secure boot keys
+  become: true
+  when: secureboot_status_json.setup_mode
+  changed_when: true
+  ansible.builtin.command: >-
+    sbctl enroll-keys{{ ' --microsoft' if dualboot_windows else '' }}
+
+# Entering Setup Mode requires physically rebooting into firmware and
+# clearing keys from the BIOS menu, which can't be scripted here.
+- name: remind to enter firmware Setup Mode before keys can be enrolled
+  when: not secureboot_status_json.setup_mode and not secureboot_status_json.secure_boot
+  ansible.builtin.debug:
+    msg: >-
+      sbctl keys aren't enrolled yet. Reboot into firmware setup
+      (systemctl reboot --firmware-setup), clear the existing Secure Boot
+      keys to enter Setup Mode -- not "Custom Mode" -- boot back in, then
+      re-run this role.

@@ -1,0 +1,24 @@
+---
+- name: re-read secure boot status
+  ansible.builtin.command: sbctl status --json
+  changed_when: false
+  register: secureboot_status
+
+- ansible.builtin.set_fact:
+    secureboot_status_json: "{{ secureboot_status.stdout | from_json }}"
+
+# sbctl checks each file's existing signature before re-signing, printing
+# "File has already been signed ..." instead of "Signed ..." when it's a no-op.
+- name: sign and track EFI boot files and kernels
+  become: true
+  when: secureboot_status_json.installed
+  ansible.builtin.command: sbctl sign --save {{ item }}
+  loop: "{{ secureboot_files_to_sign }}"
+  register: secureboot_sign_result
+  changed_when: "'already been signed' not in secureboot_sign_result.stdout"
+
+- name: verify all tracked files are signed
+  become: true
+  when: secureboot_status_json.installed
+  ansible.builtin.command: sbctl verify
+  changed_when: false

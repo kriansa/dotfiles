@@ -18,6 +18,7 @@
     - role: 1-common-handlers
     - role: base-arch
     - role: systemd-boot
+    - role: secureboot
     - role: aur-manager
     - role: dev-tools
     - role: yubikey
