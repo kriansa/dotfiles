@@ -57,6 +57,8 @@ After changing any module, run `dotup` to re-link.
 
 `ansible/` provisions machines. Playbooks (`laptop.yml`, `desktop.yml`, `laptop_twm.yml`) set host vars and compose `roles/` (base-arch, systemd-boot, dev-tools, network, kde, yubikey, borgmatic, …). `bin/setup` is the only intended entry point. See `doc/arch-install.md` / `doc/macos-install.md` for the manual pre-steps before Ansible/`dotup` can run.
 
+To run a one-off task from a playbook rather than the whole thing, tag it `only` and run `bin/setup localhost <playbook> --debug`.
+
 ## Conventions
 
 - **`.editorconfig`**: utf-8, LF, final newline, trim trailing whitespace, max line 100. Indent style/size is deliberately *not* set globally (EditorConfig can't do per-language) — it's set per-filetype in Neovim ftplugins (`modules/nvim/.../settings.lua`). Match the indentation already in a file.
