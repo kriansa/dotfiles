@@ -14,6 +14,9 @@
     enable_bluetooth: true
     cpu_brand: intel
 
+    root_partition: /dev/vg1/root
+    swap_partition: /dev/vg1/swap
+
   roles:
     - role: 1-common-handlers
     - role: base-arch

@@ -18,7 +18,10 @@
   become: true
   ansible.builtin.template: src=loader.conf.j2 dest=/boot/loader/loader.conf mode=0644
 
-- set_fact: luks_name="{{ ansible_facts.proc_cmdline['rd.luks.name'] }}"
+- name: read luks name from the running kernel cmdline
+  ansible.builtin.set_fact:
+    luks_name: "{{ ansible_facts.proc_cmdline['rd.luks.name'] }}"
+  when: encrypt_disk | bool
 
 - name: copy linux entries
   become: true
