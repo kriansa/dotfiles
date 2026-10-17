@@ -20,10 +20,10 @@ wmclassmatch=1
 Description=Application settings for Spotify
 above=true
 clientmachine=localhost
+decorationpolicy=none
+decorationpolicyrule=3
 desktops=804d8c76-c41d-4c3a-9999-85d2ebb94631
 desktopsrule=3
-noborder=true
-noborderrule=3
 position=0,40
 size=1720,1400
 windowrole=browser
@@ -50,5 +50,4 @@ wmclass=discord
 wmclassmatch=1
 
 [General]
-count=4
-rules=32fe6b93-3059-4088-a084-9d78197d4fd2,4,2,1
+Order=steam,32fe6b93-3059-4088-a084-9d78197d4fd2,4,2,1

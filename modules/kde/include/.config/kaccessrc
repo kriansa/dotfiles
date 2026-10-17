@@ -1,2 +1,5 @@
 [Bell]
 SystemBell=false
+
+[ScreenReader]
+SystemdManaged=true

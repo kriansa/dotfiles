@@ -111,6 +111,7 @@ NextFocusPrefersMouse=true
 [Xwayland]
 Scale=1
 XwaylandEavesdrops=Combinations
+XwaylandEisNoPromptApps=steam
 
 [org.kde.kdecoration2]
 ButtonsOnLeft=F
