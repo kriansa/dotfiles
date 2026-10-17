@@ -5,7 +5,7 @@
   ansible.builtin.user:
     name: "{{ user_name }}"
     comment: "{{ user_comment }}"
-    groups: wheel,uucp
+    groups: wheel,uucp,games,input,systemd-journal
     append: yes
     shell: /usr/bin/fish
     update_password: on_create
