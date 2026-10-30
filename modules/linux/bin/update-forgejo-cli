@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# Installs or updates fj (the Forgejo CLI) into ~/.local/bin from its Codeberg releases. Fedora
+# only, because it doesn't package fj; on Arch it is installed through pacman instead.
+
+REPO="forgejo-contrib/forgejo-cli"
+INSTALL_PATH="$HOME/.local/bin/fj"
+
+main() {
+  trap exit INT
+
+  local distro; distro=$(source /etc/os-release 2>/dev/null; echo "$ID")
+  if [ "$distro" != "fedora" ]; then
+    echo -e "\033[0;31mUnsupported distribution: ${distro:-unknown}\033[0m" >&2
+    exit 1
+  fi
+
+  local latest; latest=$(curl -sSf "https://codeberg.org/api/v1/repos/$REPO/releases/latest" \
+    | jq -r .tag_name) || exit 1
+
+  local current=""
+  if command -v fj &>/dev/null; then
+    current=$(fj version | head -1 | awk '{ print $2 }')
+  fi
+
+  if [ "$current" = "$latest" ]; then
+    echo "fj is already at the latest version ($latest)"
+    return
+  fi
+
+  echo "Installing fj $latest (current: ${current:-not installed})"
+
+  local temp_dir; temp_dir="$(mktemp -d)"
+  trap "rm -rf \"$temp_dir\"" EXIT
+
+  local arch; arch=$(uname -m)
+  local url="https://codeberg.org/$REPO/releases/download/$latest/forgejo-cli-$arch-linux.tar.gz"
+  curl -sSfL "$url" | tar -xz -C "$temp_dir" fj || exit 1
+  install -D -m 0755 "$temp_dir/fj" "$INSTALL_PATH"
+
+  echo "Done."
+}
+
+main "$@"

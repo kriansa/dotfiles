@@ -16,6 +16,7 @@ main() {
       fedora)
         run "Update system packages" "sudo dnf upgrade"
         run "Remove unused dependencies" "sudo dnf autoremove"
+        run "Update Forgejo CLI" "update-forgejo-cli"
         ;;
       arch)
         run "Update system packages" "sudo pacman -Syu"
