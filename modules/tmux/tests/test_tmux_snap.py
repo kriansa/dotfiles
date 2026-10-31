@@ -291,10 +291,56 @@ class TestPreservedClaudeFlags(unittest.TestCase):
 class TestClaudeRegistry(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(self.enterContext(tempfile.TemporaryDirectory()))
-        self.registry = tmux_snap.ClaudeRegistry(self.tmp)
+        self.projects = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.registry = tmux_snap.ClaudeRegistry(self.tmp, self.projects)
 
     def _write(self, pid, **fields):
         (self.tmp / f"{pid}.json").write_text(json.dumps(fields))
+
+    def _transcript(self, session_id, lines, project="-proj"):
+        path = self.projects / project / f"{session_id}.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("".join(line + "\n" for line in lines))
+
+    @staticmethod
+    def _mode_record(mode):
+        return json.dumps({"type": "permission-mode", "permissionMode": mode, "sessionId": "x"})
+
+    def test_permission_mode_is_the_last_recorded(self):
+        self._write(42, sessionId="SID", cwd="/proj")
+        self._transcript(
+            "SID",
+            [
+                self._mode_record("bypassPermissions"),
+                json.dumps({"type": "user", "permissionMode": "bypassPermissions"}),
+                self._mode_record("plan"),
+                json.dumps({"type": "assistant"}),
+            ],
+        )
+        self.assertEqual(self.registry.lookup(42, "/proj").permission_mode, "plan")
+
+    def test_permission_mode_found_on_cwd_fallback(self):
+        self._write(1, sessionId="SID", cwd="/proj")
+        self._transcript("SID", [self._mode_record("acceptEdits")], project="-elsewhere")
+        self.assertEqual(self.registry.lookup(999, "/proj").permission_mode, "acceptEdits")
+
+    def test_permission_mode_skips_malformed_lines(self):
+        self._write(42, sessionId="SID", cwd="/proj")
+        self._transcript(
+            "SID",
+            [
+                self._mode_record("plan"),
+                '{"type":"permission-mode", broken',
+                '["permission-mode"]',
+                json.dumps({"type": "permission-mode", "permissionMode": None}),
+            ],
+        )
+        self.assertEqual(self.registry.lookup(42, "/proj").permission_mode, "plan")
+
+    def test_permission_mode_none_without_transcript(self):
+        self._write(42, sessionId="SID", cwd="/proj")
+        session = self.registry.lookup(42, "/proj")
+        self.assertEqual((session.session_id, session.permission_mode), ("SID", None))
 
     def test_lookup_by_pid(self):
         self._write(42, sessionId="SID", name="work", cwd="/proj")
@@ -394,15 +440,47 @@ class TestHandlers(unittest.TestCase):
             handler.build_command({"session_id": None, "name": None, "flags": []}), "claude"
         )
 
+    def test_claude_build_command_restores_permission_mode(self):
+        handler = tmux_snap.ClaudeHandler(FakeClaudeRegistry(tmux_snap.ClaudeSession(None, None)))
+        for mode in ("plan", "acceptEdits", "default", "auto", "dontAsk", "bypassPermissions"):
+            with self.subTest(mode=mode):
+                state = {"session_id": "X", "permission_mode": mode, "flags": ["--effort", "max"]}
+                self.assertEqual(
+                    handler.build_command(state),
+                    f"claude --resume X --permission-mode {mode} --effort max",
+                )
+
+    def test_claude_build_command_omits_unknown_permission_mode(self):
+        handler = tmux_snap.ClaudeHandler(FakeClaudeRegistry(tmux_snap.ClaudeSession(None, None)))
+        for mode in (None, "", "someFutureMode", "plan; rm -rf ~", ["plan"]):
+            with self.subTest(mode=mode):
+                state = {"session_id": "X", "permission_mode": mode, "flags": []}
+                self.assertEqual(handler.build_command(state), "claude --resume X")
+        # A snapshot saved before modes were recorded has no key at all.
+        self.assertEqual(handler.build_command({"session_id": "X"}), "claude --resume X")
+
     def test_claude_capture_uses_registry(self):
-        registry = FakeClaudeRegistry(tmux_snap.ClaudeSession("S", None))
+        registry = FakeClaudeRegistry(tmux_snap.ClaudeSession("S", None, "plan"))
         handler = tmux_snap.ClaudeHandler(registry)
         context = tmux_snap.PaneContext(101, "/proj", "claude", ["claude", "--effort", "max"])
         self.assertEqual(
             handler.capture(context),
-            {"session_id": "S", "name": None, "flags": ["--effort", "max"]},
+            {
+                "session_id": "S",
+                "name": None,
+                "permission_mode": "plan",
+                "flags": ["--effort", "max"],
+            },
         )
         self.assertEqual(registry.calls, [(101, "/proj")])
+
+    def test_restore_keeps_command_out_of_shell_history(self):
+        tmux = FakeTmux()
+        tmux_snap.ArgvHandler("nvim").restore(tmux, "$0:1.1", {"args": ["notes.md"]})
+        self.assertEqual(
+            tmux.issued("send-keys"),
+            [["send-keys", "-t", "$0:1.1", "--", " nvim notes.md", "Enter"]],
+        )
 
     def test_codex_capture_and_build_command(self):
         registry = FakeCodexRegistry(tmux_snap.CodexSession("S"))
@@ -680,7 +758,7 @@ class TestRestore(unittest.TestCase):
         # claude relaunch sent to pane 1 of window 2; plain pane gets nothing
         sends = tmux.issued("send-keys")
         self.assertTrue(
-            any(cmd[2] == "$0:2.1" and cmd[4].startswith("claude --resume X") for cmd in sends)
+            any(cmd[2] == "$0:2.1" and cmd[4].startswith(" claude --resume X") for cmd in sends)
         )
         self.assertFalse(any(cmd[2] == "$0:2.2" for cmd in sends))
         # active window selected, addressed by session id rather than by name

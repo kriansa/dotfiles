@@ -19,6 +19,7 @@ on purpose — no third-party runtime dependencies.
 import argparse
 import ctypes
 import datetime as dt
+import glob
 import json
 import logging
 import os
@@ -537,15 +538,21 @@ class ProcessTree:
 class ClaudeSession:
     session_id: str | None
     name: str | None
+    permission_mode: str | None = None
 
 
 class ClaudeRegistry:
-    def __init__(self, sessions_dir: Path | None = None) -> None:
+    def __init__(self, sessions_dir: Path | None = None, projects_dir: Path | None = None) -> None:
         self._dir = sessions_dir or self.default_claude_sessions_dir()
+        self._projects_dir = projects_dir or self.default_claude_projects_dir()
 
     @staticmethod
     def default_claude_sessions_dir() -> Path:
         return Path.home() / ".claude" / "sessions"
+
+    @staticmethod
+    def default_claude_projects_dir() -> Path:
+        return Path.home() / ".claude" / "projects"
 
     def lookup(self, foreground_pid: int | None, cwd: str) -> ClaudeSession:
         """sessionId for a running claude: by pid first, else newest registry matching cwd."""
@@ -553,13 +560,49 @@ class ClaudeRegistry:
             if foreground_pid is not None:
                 by_pid = self._read(self._dir / f"{foreground_pid}.json")
                 if by_pid and by_pid.get("sessionId"):
-                    return ClaudeSession(by_pid["sessionId"], by_pid.get("name"))
+                    return self._session(by_pid)
             newest = self._newest_matching_cwd(cwd)
             if newest is not None:
-                return ClaudeSession(newest["sessionId"], newest.get("name"))
+                return self._session(newest)
         except OSError:
             pass
         return ClaudeSession(None, None)
+
+    def _session(self, registry_entry: dict[str, Any]) -> ClaudeSession:
+        session_id = registry_entry["sessionId"]
+        return ClaudeSession(
+            session_id, registry_entry.get("name"), self._last_permission_mode(session_id)
+        )
+
+    def _last_permission_mode(self, session_id: str) -> str | None:
+        """The permission mode the session is in right now (plan, acceptEdits, ...).
+
+        The registry entry doesn't carry it; the session's transcript does. Claude appends a
+        "permission-mode" record to it whenever the mode is set, so the last one is current.
+        The transcript is found by its file name, which is the session id. The project folder
+        it sits in is named by Claude from the working directory in its own way, so search all
+        of them instead of rebuilding that name here.
+        """
+        transcript = next(self._projects_dir.glob(f"*/{glob.escape(session_id)}.jsonl"), None)
+        if transcript is None:
+            return None
+        try:
+            lines = transcript.read_bytes().splitlines()
+        except OSError:
+            return None
+        for line in reversed(lines):
+            if b'"permission-mode"' not in line:
+                continue
+            try:
+                record = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(record, dict) or record.get("type") != "permission-mode":
+                continue
+            mode = record.get("permissionMode")
+            if isinstance(mode, str):
+                return mode
+        return None
 
     def _newest_matching_cwd(self, cwd: str) -> dict[str, Any] | None:
         best_mtime, best = -1.0, None
@@ -675,7 +718,9 @@ class AppHandler:
         return self.id
 
     def restore(self, tmux: "Tmux", target: str, state: dict[str, Any]) -> None:
-        tmux.send_keys(target, self.build_command(state))
+        # The leading space keeps the relaunch out of shell history (fish does this by
+        # default; bash and zsh only with ignorespace / HIST_IGNORE_SPACE).
+        tmux.send_keys(target, " " + self.build_command(state))
 
 
 class CommandHandler(AppHandler):
@@ -706,10 +751,17 @@ class ArgvHandler(CommandHandler):
 class ClaudeHandler(AppHandler):
     id = "claude"
 
-    # Flags worth re-applying on resume. --resume/--continue are replaced, and
-    # --allow-dangerously-skip-permissions is deliberately dropped (don't silently
-    # re-enable a permissions bypass across a restore).
+    # Flags worth re-applying on resume. --resume/--continue are replaced. The permission
+    # mode is taken from the running session rather than from how it was launched, since it
+    # can be changed after launch, so --permission-mode and the
+    # --*dangerously-skip-permissions launch flags aren't carried over.
     CLAUDE_KEEP_FLAGS = frozenset({"--effort", "--model"})
+
+    # Modes --permission-mode accepts. A recorded mode outside this list is left off the
+    # command line: it is typed into a shell, and comes from a file this tool doesn't own.
+    PERMISSION_MODES = frozenset(
+        {"default", "acceptEdits", "plan", "auto", "dontAsk", "bypassPermissions"}
+    )
 
     def __init__(self, registry: ClaudeRegistry | None = None) -> None:
         self._registry = registry or ClaudeRegistry()
@@ -719,6 +771,7 @@ class ClaudeHandler(AppHandler):
         return {
             "session_id": session.session_id,
             "name": session.name,
+            "permission_mode": session.permission_mode,
             "flags": self.preserved_claude_flags(context.argv),
         }
 
@@ -728,6 +781,9 @@ class ClaudeHandler(AppHandler):
             command += f" --resume {state['session_id']}"
         elif state.get("name"):
             command += f" --resume {shlex.quote(state['name'])}"
+        mode = state.get("permission_mode")
+        if isinstance(mode, str) and mode in self.PERMISSION_MODES:
+            command += f" --permission-mode {shlex.quote(mode)}"
         return " ".join([command, *state.get("flags", [])]).strip()
 
     @staticmethod
