@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Run a game with KDE Plasma's night light paused and gaming-friendly environment defaults.
+
+Plasma keeps night light paused only while the program that asked for it stays connected to the
+session bus. This launcher holds that connection for as long as the game runs, so night light
+comes back as soon as the game exits, even if the launcher itself crashes or is killed.
+
+Usage: gamelauncher <program> [args...]
+In Steam, set the game's launch options to: gamelauncher %command%
+"""
+
+import os
+import signal
+import subprocess
+import sys
+
+from gi.repository import Gio, GLib  # type: ignore[import-not-found]
+
+# Only used when the variable isn't already set, so a single launch can override any of them,
+# e.g. `DXVK_HUD=0 gamelauncher %command%`.
+ENV_DEFAULTS = {
+    "DXVK_HUD": "compile",
+    "MESA_SHADER_CACHE_MAX_SIZE": "32G",
+    "__GL_SHADER_DISK_CACHE_SKIP_CLEANUP": "1",
+    "PROTON_ENABLE_WAYLAND": "1",
+    "PROTON_USE_NTSYNC": "1",
+}
+
+CPU_LIST = "2-7"
+
+
+def main(argv: list[str]) -> int:
+    if not argv:
+        print("usage: gamelauncher <program> [args...]", file=sys.stderr)
+        return 2
+
+    # `bus` must stay referenced until the game exits: dropping it closes the connection, and
+    # Plasma turns night light back on.
+    try:
+        bus = Gio.bus_get_sync(Gio.BusType.SESSION)
+        bus.call_sync(
+            "org.kde.KWin.NightLight",
+            "/org/kde/KWin/NightLight",
+            "org.kde.KWin.NightLight",
+            "inhibit",
+            None,
+            GLib.VariantType("(u)"),
+            Gio.DBusCallFlags.NONE,
+            -1,
+            None,
+        )
+    except GLib.Error as e:
+        print(f"gamelauncher: could not pause night light: {e.message}", file=sys.stderr)
+        return 1
+
+    # In a terminal, Ctrl+C already reaches the game directly. The launcher ignores it so it
+    # doesn't exit (and restore night light) while the game is still shutting down. It uses a
+    # do-nothing handler rather than ignoring the signal outright, because an ignored signal stays
+    # ignored in the game too, and Ctrl+C would stop working there.
+    signal.signal(signal.SIGINT, lambda *_: None)
+
+    game = subprocess.Popen(["taskset", "-c", CPU_LIST, *argv], env=ENV_DEFAULTS | os.environ)
+    for sig in (signal.SIGTERM, signal.SIGHUP):
+        signal.signal(sig, lambda signum, _: game.send_signal(signum))
+
+    returncode = game.wait()
+    # A game killed by a signal reports it as a negative number; shells report it as 128 + N.
+    return 128 + abs(returncode) if returncode < 0 else returncode
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
