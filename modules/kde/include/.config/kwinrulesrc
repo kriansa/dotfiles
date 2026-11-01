@@ -50,4 +50,4 @@ wmclass=discord
 wmclassmatch=1
 
 [General]
-Order=steam,32fe6b93-3059-4088-a084-9d78197d4fd2,4,2,1
+Order=32fe6b93-3059-4088-a084-9d78197d4fd2,4,2,1

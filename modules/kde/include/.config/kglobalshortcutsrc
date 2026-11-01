@@ -227,30 +227,30 @@ view_zoom_out=none,Meta+-,Zoom Out
 
 [kwin][$InverseAction]
 Cycle Overview Opposite=Cycle Overview
-Increase Opacity=Decrease Opacity
-Switch One Desktop Down=Switch One Desktop Up
+Decrease Opacity=Increase Opacity
+Switch One Desktop Up=Switch One Desktop Down
 Switch One Desktop to the Right=Switch One Desktop to the Left
-Switch Window Down=Switch Window Up
 Switch Window Right=Switch Window Left
+Switch Window Up=Switch Window Down
 Switch to Next Desktop=Switch to Previous Desktop
 Switch to Next Screen=Switch to Previous Screen
-Switch to Screen Below=Switch to Screen Above
+Switch to Screen Above=Switch to Screen Below
 Switch to Screen to the Right=Switch to Screen to the Left
 Walk Through Windows=Walk Through Windows (Reverse)
 Walk Through Windows Alternative=Walk Through Windows Alternative (Reverse)
 Walk Through Windows of Current Application=Walk Through Windows of Current Application (Reverse)
-Walk Through Windows of Current Application Alternative (Reverse)=Walk Through Windows of Current Application Alternative
+Walk Through Windows of Current Application Alternative=Walk Through Windows of Current Application Alternative (Reverse)
 Window Grow Vertical=Window Shrink Vertical
 Window Lower=Window Raise
 Window One Desktop Down=Window One Desktop Up
 Window One Desktop to the Right=Window One Desktop to the Left
 Window One Screen Up=Window One Screen Down
-Window One Screen to the Right=Window One Screen to the Left
-Window Pack Left=Window Pack Right
-Window Pack Up=Window Pack Down
+Window One Screen to the Left=Window One Screen to the Right
+Window Pack Down=Window Pack Up
+Window Pack Right=Window Pack Left
 Window Shrink Horizontal=Window Grow Horizontal
-Window to Previous Desktop=Window to Next Desktop
-Window to Previous Screen=Window to Next Screen
+Window to Next Desktop=Window to Previous Desktop
+Window to Next Screen=Window to Previous Screen
 
 [mediacontrol]
 _k_friendly_name=Media Controller
