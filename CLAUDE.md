@@ -18,7 +18,9 @@ bin/setup <[user@]host> <machine-type> [--debug]   # wraps ansible-playbook; mac
 update-system               # OS + language-toolchain + fish-completion updates (brew/pacman/dnf aware)
 ```
 
-Python tooling (for `bin/dotup` and `*.py` modules/plugins): format with `black` (line-length 100, see `pyproject.toml`), type-check with `mypy`. There is no test suite.
+Python tooling (for `bin/dotup`, Python scripts in `modules/*/bin/`, and `*.py` modules/plugins): format with `ruff format` and lint with `ruff check` (line-length 100, see `pyproject.toml`), type-check with `mypy`. Don't use `black`. Ruff skips files without a `.py` extension when given a directory, so pass extensionless scripts by path (e.g. `ruff format modules/kde/bin/gamelauncher`).
+
+Tests: tools that have tests keep them in `modules/<module>/tests/` (stdlib `unittest`, no third-party deps). Run with `python3 -m unittest discover -s modules/<module>/tests -t modules/<module>/tests`.
 
 ## Architecture: dotup + modules
 
