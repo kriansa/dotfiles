@@ -54,7 +54,7 @@ nnoremap("n", "'Nn'[v:searchforward]", { expr = true })
 nnoremap("N", "'nN'[v:searchforward]", { expr = true })
 
 -- Makes Ctrl+/ clear the last search
-nnoremap('<C-_>', '<cmd>let @/=""<CR>', { silent = true })
+nnoremap('<C-/>', '<cmd>let @/=""<CR>', { silent = true })
 
 -- Closes current selected window with <Leader>q
 nnoremap("<Leader>q", "<cmd>wincmd q<CR>", { silent = true })
@@ -256,7 +256,7 @@ mappings.snacks_general = {
   ["<C-h>"] = { "toggle_ignored", mode = { "i", "n" } },
   ["<C-r>"] = { "toggle_regex", mode = { "i", "n" } },
   ["<C-l>"] = { "toggle_live", mode = { "i", "n" } },
-  ["<C-_>"] = { "toggle_help_input", mode = { "i", "n" } }, -- Equivalent to C-?
+  ["<C-/>"] = { "toggle_help_input", mode = { "i", "n" } }, -- Equivalent to C-?
 }
 
 mappings.snacks_buffers = {
