@@ -68,5 +68,6 @@
   "wheelScrollAccelerationEnabled": false,
   "teammateMode": "tmux",
   "voiceEnabled": true,
+  "idleCompaction": false,
   "externalEditorContext": true
 }
