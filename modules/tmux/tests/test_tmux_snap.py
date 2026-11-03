@@ -774,6 +774,34 @@ class TestRestore(unittest.TestCase):
         )
         self.assertEqual(tmux.issued("new-window")[0][:3], ["new-window", "-t", "$0:"])
 
+    def test_session_starts_in_home_and_first_window_returns_to_its_directory(self):
+        # The directory a session is created in is where every window opened in it later
+        # starts, so it has to be home, not wherever the first saved window was.
+        tmux = FakeTmux(window_indexes=[1], pane_indexes={"$0:1": [1, 2]})
+        snapshot = session_snapshot(
+            "s", panes=[pane(1, cwd="/tmp"), pane(2, active=False, cwd="/tmp")]
+        )
+        tmux_snap.Snapshotter(tmux, make_handlers(), lambda: None).build(
+            snapshot, name="T", replace=False
+        )
+
+        created = tmux.issued("new-session")[0]
+        self.assertEqual(created[created.index("-c") + 1], str(Path.home()))
+        restart = ["respawn-pane", "-k", "-t", "$0:1", "-c", "/tmp"]
+        self.assertIn(restart, tmux.commands)
+        # moved before the window gets its other panes, so nothing running is killed
+        split_index = tmux.first_index(lambda c: c[0] == "split-window")
+        self.assertLess(tmux.commands.index(restart), split_index)
+
+    def test_first_window_saved_in_home_is_not_restarted(self):
+        tmux = FakeTmux(window_indexes=[1])
+        snapshot = session_snapshot("s", panes=[pane(1, cwd=str(Path.home()))])
+        tmux_snap.Snapshotter(tmux, make_handlers(), lambda: None).build(
+            snapshot, name="T", replace=False
+        )
+
+        self.assertFalse(any(c[0] == "respawn-pane" for c in tmux.commands))
+
     def test_synchronize_enabled_after_send_keys(self):
         tmux = self._fake()
         tmux_snap.Snapshotter(tmux, make_handlers(), lambda: None).build(

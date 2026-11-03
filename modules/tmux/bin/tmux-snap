@@ -1101,6 +1101,11 @@ class Tmux:
     def respawn_pane(self, pane_target: str, command: str) -> None:
         self._run(["respawn-pane", "-k", "-t", pane_target, command])
 
+    def restart_shell_in(self, pane_target: str, cwd: str) -> None:
+        """Restart the pane's shell in another directory. Whatever runs in the pane is killed,
+        so this is only for a pane nothing has been started in yet."""
+        self._run(["respawn-pane", "-k", "-t", pane_target, "-c", cwd])
+
     def set_pane_option(self, pane_target: str, option: str, value: str) -> None:
         self._run(["set-option", "-p", "-t", pane_target, option, value])
 
@@ -1289,9 +1294,15 @@ class Snapshotter:
 
         nested_hosts = (*hosts, name)
         first, *rest = snapshot.windows
-        session_id, first_index = self._tmux.new_session(
-            name, first.name, self._safe_cwd(first.panes[0].cwd), size=size
-        )
+        # The directory a session is created in is where every window opened in it later
+        # starts, so the session is created in the home directory rather than wherever its
+        # first window happened to be. tmux gives that same directory to the first window, so
+        # its shell is then restarted where the window was saved, before anything runs in it.
+        home = str(Path.home())
+        session_id, first_index = self._tmux.new_session(name, first.name, home, size=size)
+        first_cwd = self._safe_cwd(first.panes[0].cwd)
+        if first_cwd != home:
+            self._tmux.restart_shell_in(f"{session_id}:{first_index}", first_cwd)
         real_indexes = [first_index]
         self._build_window(session_id, first_index, first, size=size, hosts=nested_hosts)
         for window in rest:
