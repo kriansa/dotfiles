@@ -29,6 +29,10 @@ function load_session()
     return load_default_shada()
   end
 
+  -- Make the given directory the working directory, so the editor and any new session are
+  -- anchored to it instead of to the directory the shell was in.
+  vim.fn.chdir(path_arg)
+
   local git_dir = get_git_dir(path_arg)
 
   -- If we're not in a git repo, we can't save the session there
