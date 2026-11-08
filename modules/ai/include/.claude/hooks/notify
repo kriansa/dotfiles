@@ -5,15 +5,29 @@ msg=$(cat - | jq -r '.message // "Claude Code needs your attention"')
 
 case "$(uname)" in
   Linux)
-    # TODO: check if ghostty is focused before showing notification
-    notify-send -a "Claude Code" --hint=string:desktop-entry:com.mitchellh.ghostty --app-icon=~/.claude/icon.png "$msg"
+    # Ghostty in front means the prompt is already visible. When the focused window can't be
+    # determined (script missing or failing), fall through and show the alert anyway.
+    focused=$("$HOME/.bin/kwin-active-window" 2>/dev/null)
+    if [[ "$focused" == "com.mitchellh.ghostty" ]]; then
+      exit 0
+    fi
+    # Plasma's on-screen display, the same popup used for volume and brightness changes.
+    # Outside a Plasma session this call fails, and then the sound is skipped as well.
+    if busctl --user call org.kde.plasmashell /org/kde/osdService org.kde.osdService showText ss \
+      "$HOME/.claude/icon.png" "$msg" >/dev/null 2>&1; then
+      # Played in the background so Claude Code doesn't wait for the sound to finish.
+      pw-play /usr/share/sounds/ocean/stereo/completion-partial.oga >/dev/null 2>&1 &
+    fi
     ;;
   Darwin)
     focused=$(osascript -e 'tell application "System Events" to get bundle identifier of first process whose frontmost is true')
     if [[ "$focused" == "com.mitchellh.ghostty" ]]; then
       exit 0
     fi
-    hs -c "hs.alert.show('Claude Code: $msg')"
+    # The message is sent as hex digits and decoded inside Hammerspoon, so quotes or other
+    # characters in it can't end the Lua string early and get run as Hammerspoon code.
+    hex=$(printf '%s' "$msg" | od -An -v -tx1 | tr -d ' \n')
+    hs -c "hs.alert.show('Claude Code: ' .. ('$hex'):gsub('%x%x', function(h) return string.char(tonumber(h, 16)) end))"
     afplay /System/Library/Sounds/Submarine.aiff &
     ;;
 esac
