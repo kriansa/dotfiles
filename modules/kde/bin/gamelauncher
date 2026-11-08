@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Run a game with KDE Plasma's night light paused and gaming-friendly environment defaults.
+"""Run a game with KDE Plasma's night light, screen locking and sleep paused, the performance power
+profile on, screens at 40% brightness, and gaming-friendly environment defaults.
 
-Plasma keeps night light paused only while the program that asked for it stays connected to the
-session bus. This launcher holds that connection for as long as the game runs, so night light
-comes back as soon as the game exits, even if the launcher itself crashes or is killed.
+Plasma and the power profile service keep the pauses and the power profile only while the program
+that asked for them stays connected to the bus. This launcher holds those connections for as long
+as the game runs, so they go back to how they were as soon as the game exits, even if the launcher
+itself crashes or is killed. Brightness has no such mechanism: the launcher puts it back itself
+after the game exits, so if the launcher crashes or is force-killed (SIGKILL), the screens stay at
+40%. If any of these can't be set up, the launcher prints a warning and runs the game anyway.
 
 Usage: gamelauncher <program> [args...]
 In Steam, set the game's launch options to: gamelauncher %command%
@@ -28,42 +32,186 @@ ENV_DEFAULTS = {
 
 CPU_LIST = "2-7"
 
+# Shown in Plasma's power applet and in `powerprofilesctl` while the game runs.
+APP_NAME = "gamelauncher"
+REASON = "Playing a game"
 
-def main(argv: list[str]) -> int:
-    if not argv:
-        print("usage: gamelauncher <program> [args...]", file=sys.stderr)
-        return 2
+# Fraction of each screen's maximum brightness used while the game runs.
+GAME_BRIGHTNESS = 0.4
+BRIGHTNESS_SERVICE = "org.kde.ScreenBrightness"
+BRIGHTNESS_PATH = "/org/kde/ScreenBrightness"
+DISPLAY_INTERFACE = "org.kde.ScreenBrightness.Display"
+# Tells Plasma to change the brightness without showing its brightness pop-up.
+SUPPRESS_BRIGHTNESS_POPUP = 0x1
 
-    # `bus` must stay referenced until the game exits: dropping it closes the connection, and
-    # Plasma turns night light back on.
+
+def warn(message: str) -> None:
+    print(f"gamelauncher: {message}", file=sys.stderr)
+
+
+def hold(
+    what: str,
+    bus_type: Gio.BusType,
+    service: str,
+    path: str,
+    interface: str,
+    method: str,
+    args: GLib.Variant | None,
+) -> Gio.DBusConnection | None:
+    """Ask a desktop service to keep `what` in place for as long as the returned connection is open.
+
+    Prints a warning and returns None if the service refuses or isn't running.
+    """
     try:
-        bus = Gio.bus_get_sync(Gio.BusType.SESSION)
+        bus = Gio.bus_get_sync(bus_type)
         bus.call_sync(
-            "org.kde.KWin.NightLight",
-            "/org/kde/KWin/NightLight",
-            "org.kde.KWin.NightLight",
-            "inhibit",
-            None,
+            service,
+            path,
+            interface,
+            method,
+            args,
             GLib.VariantType("(u)"),
             Gio.DBusCallFlags.NONE,
             -1,
             None,
         )
     except GLib.Error as e:
-        print(f"gamelauncher: could not pause night light: {e.message}", file=sys.stderr)
-        return 1
+        warn(f"could not {what}, launching anyway: {e.message}")
+        return None
+    return bus
+
+
+def get_brightness_property(bus: Gio.DBusConnection, path: str, interface: str, name: str):
+    reply = bus.call_sync(
+        BRIGHTNESS_SERVICE,
+        path,
+        "org.freedesktop.DBus.Properties",
+        "Get",
+        GLib.Variant("(ss)", (interface, name)),
+        GLib.VariantType("(v)"),
+        Gio.DBusCallFlags.NONE,
+        -1,
+        None,
+    )
+    return reply.unpack()[0]
+
+
+def set_brightness(bus: Gio.DBusConnection, path: str, value: int) -> None:
+    bus.call_sync(
+        BRIGHTNESS_SERVICE,
+        path,
+        DISPLAY_INTERFACE,
+        "SetBrightness",
+        GLib.Variant("(iu)", (value, SUPPRESS_BRIGHTNESS_POPUP)),
+        None,
+        Gio.DBusCallFlags.NONE,
+        -1,
+        None,
+    )
+
+
+def set_game_brightness() -> list[tuple[str, int, int]]:
+    """Set every screen Plasma can control to GAME_BRIGHTNESS.
+
+    Returns the path, previous brightness and maximum brightness of each screen that was changed,
+    for restore_brightness().
+    """
+    try:
+        bus = Gio.bus_get_sync(Gio.BusType.SESSION)
+        names = get_brightness_property(
+            bus, BRIGHTNESS_PATH, BRIGHTNESS_SERVICE, "DisplaysDBusNames"
+        )
+    except GLib.Error as e:
+        warn(f"could not set screen brightness, launching anyway: {e.message}")
+        return []
+
+    previous = []
+    for name in names:
+        path = f"{BRIGHTNESS_PATH}/{name}"
+        try:
+            brightness = get_brightness_property(bus, path, DISPLAY_INTERFACE, "Brightness")
+            maximum = get_brightness_property(bus, path, DISPLAY_INTERFACE, "MaxBrightness")
+            set_brightness(bus, path, round(maximum * GAME_BRIGHTNESS))
+        except GLib.Error as e:
+            warn(f"could not set the brightness of {name}, launching anyway: {e.message}")
+            continue
+        previous.append((path, brightness, maximum))
+    return previous
+
+
+def restore_brightness(previous: list[tuple[str, int, int]]) -> None:
+    for path, brightness, maximum in previous:
+        try:
+            set_brightness(Gio.bus_get_sync(Gio.BusType.SESSION), path, brightness)
+        except GLib.Error as e:
+            percent = round(100 * brightness / maximum)
+            warn(f"could not restore the brightness of {path} to {percent}%: {e.message}")
+
+
+def main(argv: list[str]) -> int:
+    if not argv:
+        print("usage: gamelauncher <program> [args...]", file=sys.stderr)
+        return 2
+
+    # `connections` must stay referenced until the game exits: dropping a connection closes it,
+    # and every hold made through it is released.
+    connections = [
+        hold(
+            "pause night light",
+            Gio.BusType.SESSION,
+            "org.kde.KWin.NightLight",
+            "/org/kde/KWin/NightLight",
+            "org.kde.KWin.NightLight",
+            "inhibit",
+            None,
+        ),
+        hold(
+            "block screen locking",
+            Gio.BusType.SESSION,
+            "org.freedesktop.ScreenSaver",
+            "/org/freedesktop/ScreenSaver",
+            "org.freedesktop.ScreenSaver",
+            "Inhibit",
+            GLib.Variant("(ss)", (APP_NAME, REASON)),
+        ),
+        hold(
+            "block sleep",
+            Gio.BusType.SESSION,
+            "org.freedesktop.PowerManagement",
+            "/org/freedesktop/PowerManagement/Inhibit",
+            "org.freedesktop.PowerManagement.Inhibit",
+            "Inhibit",
+            GLib.Variant("(ss)", (APP_NAME, REASON)),
+        ),
+        # The power profile service switches back to the previous profile once the hold is
+        # released. Changing the profile by hand while the game runs also releases it.
+        hold(
+            "switch to the performance power profile",
+            Gio.BusType.SYSTEM,
+            "org.freedesktop.UPower.PowerProfiles",
+            "/org/freedesktop/UPower/PowerProfiles",
+            "org.freedesktop.UPower.PowerProfiles",
+            "HoldProfile",
+            GLib.Variant("(sss)", ("performance", REASON, APP_NAME)),
+        ),
+    ]
 
     # In a terminal, Ctrl+C already reaches the game directly. The launcher ignores it so it
-    # doesn't exit (and restore night light) while the game is still shutting down. It uses a
+    # doesn't exit (and release the holds) while the game is still shutting down. It uses a
     # do-nothing handler rather than ignoring the signal outright, because an ignored signal stays
     # ignored in the game too, and Ctrl+C would stop working there.
     signal.signal(signal.SIGINT, lambda *_: None)
 
-    game = subprocess.Popen(["taskset", "-c", CPU_LIST, *argv], env=ENV_DEFAULTS | os.environ)
-    for sig in (signal.SIGTERM, signal.SIGHUP):
-        signal.signal(sig, lambda signum, _: game.send_signal(signum))
+    previous_brightness = set_game_brightness()
+    try:
+        game = subprocess.Popen(["taskset", "-c", CPU_LIST, *argv], env=ENV_DEFAULTS | os.environ)
+        for sig in (signal.SIGTERM, signal.SIGHUP):
+            signal.signal(sig, lambda signum, _: game.send_signal(signum))
+        returncode = game.wait()
+    finally:
+        restore_brightness(previous_brightness)
 
-    returncode = game.wait()
+    del connections
     # A game killed by a signal reports it as a negative number; shells report it as 128 + N.
     return 128 + abs(returncode) if returncode < 0 else returncode
 
