@@ -504,6 +504,8 @@ class Stower:
             ".config/autostart",  # Autostart desktop entries
             ".config/pipewire/pipewire.conf.d",  # Pipewire config
             ".local/share/applications",  # Desktop entries
+            ".local/share/kwin",  # KWin data
+            ".local/share/kwin/scripts",  # KWin scripts
             ".agents",  # Generic code agent settings
             ".agents/skills",  # Generic code agent skills
             ".claude",  # Claude code settings

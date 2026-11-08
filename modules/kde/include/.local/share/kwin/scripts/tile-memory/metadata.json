@@ -1,0 +1,11 @@
+{
+  "KPlugin": {
+    "Name": "Tile Memory",
+    "Description": "Puts windows back into the custom tile they were last in. Applies only to windows matched by a window rule whose description contains [tile-memory].",
+    "Icon": "preferences-system-windows",
+    "Id": "tile-memory"
+  },
+  "X-Plasma-API": "declarativescript",
+  "X-Plasma-MainScript": "ui/main.qml",
+  "KPackageStructure": "KWin/Script"
+}

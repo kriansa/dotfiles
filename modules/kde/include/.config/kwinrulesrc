@@ -1,6 +1,12 @@
 [$Version]
 update_info=kwinrules.upd:replace-placement-string-to-enum,kwinrules.upd:use-virtual-desktop-ids
 
+[04ad4320-5d2b-4898-9787-82ae0eb2808f]
+Description=Application settings for Firefox [tile-memory]
+minimizerule=3
+wmclass=firefox
+wmclassmatch=1
+
 [1]
 Description=Application settings for Slack
 above=true
@@ -50,4 +56,12 @@ wmclass=discord
 wmclassmatch=1
 
 [General]
-Order=32fe6b93-3059-4088-a084-9d78197d4fd2,4,2,1
+Order=32fe6b93-3059-4088-a084-9d78197d4fd2,4,2,1,d70395fa-d461-4e35-8671-dc659900fd04,04ad4320-5d2b-4898-9787-82ae0eb2808f
+
+[d70395fa-d461-4e35-8671-dc659900fd04]
+Description=Application settings for ghostty [tile-memory]
+desktops=1020374b-1ad0-46c1-93fd-16edcba57d61
+desktopsrule=3
+fullscreenrule=3
+wmclass=com.mitchellh.ghostty
+wmclassmatch=1

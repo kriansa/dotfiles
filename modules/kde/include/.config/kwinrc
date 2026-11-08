@@ -41,6 +41,7 @@ screenedgeEnabled=false
 shakecursorEnabled=false
 slideEnabled=false
 slidingpopupsEnabled=false
+tile-memoryEnabled=true
 tilegapsEnabled=true
 tileseditorEnabled=true
 zoomEnabled=false

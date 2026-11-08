@@ -11,6 +11,20 @@ systemctl --user enable --now powerdevil-ddc-hotplug.service
 
 Check what it did with `journalctl --user -u powerdevil-ddc-check`.
 
+# Tile memory
+
+The `tile-memory` KWin script puts a window back into the custom tile (the Meta+T layouts) it was
+last in when it opens again. It only acts on windows matched by a window rule whose description
+contains `[tile-memory]`; add the tag in System Settings → Window Management → Window Rules.
+
+A remembered tile is skipped when the window opens on another virtual desktop, the monitor isn't
+connected, the layout's shape (its splits and tile count, not their sizes) has changed, or a
+matching rule forces the window's position or size. The memory lives in
+`~/.local/state/tile-memory/state.ini`.
+
+KWin keeps a script's code for the whole session, even if the script is disabled and enabled
+again, so edits to it only take effect after logging in again.
+
 # Enable system76-scheduler integration
 
 ## Status
