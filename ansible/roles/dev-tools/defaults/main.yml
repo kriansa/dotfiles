@@ -8,4 +8,4 @@ home_path: /home/{{ user_name }}
 dotfiles_path: /home/{{ user_name }}/.dotfiles
 
 # Set the dotup scope
-dotup_scopes: desktop
+dotup_scopes: personal
