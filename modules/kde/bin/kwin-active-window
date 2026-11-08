@@ -1,0 +1,215 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.14"
+# dependencies = []
+# ///
+"""Print one detail of the window that currently has keyboard focus in KDE Plasma.
+
+Usage: kwin-active-window [--field NAME | --json]
+
+NAME is any key returned by KWin's `getWindowInfo` D-Bus method, such as desktopFile (the
+default), caption, resourceClass, pid, fullscreen, minimized, x, y, width or height. List values
+print one item per line. --json prints every field as a single-line JSON object instead.
+
+Exit codes: 0 on success, 1 when no window has focus, 2 on any other error.
+
+KWin has no D-Bus method that returns the focused window, but its scripts can read it. So this
+loads a tiny KWin script that sends the focused window's id as a D-Bus call to a bus name nobody
+owns. That call fails, but it still crosses the session bus, where `busctl monitor` picks it up.
+With the id in hand, KWin's `getWindowInfo` returns the window's details.
+"""
+
+import argparse
+import json
+import os
+import selectors
+import subprocess
+import sys
+import tempfile
+import textwrap
+import time
+from pathlib import Path
+from typing import Any
+
+TIMEOUT_SECONDS = 2.0
+
+# The keys KWin 6.8's getWindowInfo returns, listed in --help. Field validation uses the keys KWin
+# actually returns, so fields added by a newer KWin still work even before this list is updated.
+FIELDS = (
+    "activities", "caption", "clientMachine", "decorationPolicy", "desktopFile", "desktops",
+    "excludeFromCapture", "fullscreen", "hasTransientParent", "height", "keepAbove", "keepBelow",
+    "layer", "localhost", "maximizeHorizontal", "maximizeVertical", "minimized", "noBorder", "pid",
+    "resourceClass", "resourceName", "role", "skipPager", "skipSwitcher", "skipTaskbar", "type",
+    "uuid", "width", "x", "y",
+)  # fmt: skip
+
+# Unique per process so that two runs at the same time never read each other's answer.
+CHANNEL = f"local.kwin_active_window.p{os.getpid()}"
+
+KWIN_SCRIPT = f"""
+const window = workspace.activeWindow;
+const channel = {json.dumps(CHANNEL)};
+callDBus(channel, "/", channel, "Result", window ? window.internalId.toString() : "");
+"""
+
+
+class Failure(Exception):
+    pass
+
+
+def kwin_call(path: str, interface: str, method: str, *args: str) -> list[Any]:
+    """Calls a KWin D-Bus method that takes only strings and returns its decoded return values."""
+    signature = ["s" * len(args)] if args else []
+    command = ["busctl", "--user", "--json=short", "call", "org.kde.KWin", path, interface, method]
+    result = subprocess.run(
+        [*command, *signature, *args], capture_output=True, text=True, check=False
+    )
+    if result.returncode != 0:
+        raise Failure(f"{interface}.{method} failed: {result.stderr.strip()}")
+    return json.loads(result.stdout)["data"] if result.stdout.strip() else []
+
+
+class ChannelWatcher:
+    """Collects the D-Bus calls sent to CHANNEL, including those nobody answers."""
+
+    def __init__(self) -> None:
+        self.process = subprocess.Popen(
+            ["busctl", "--user", "monitor", "--json=short", f"--match=interface={CHANNEL}"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        )
+        assert self.process.stdout is not None
+        self.fd = self.process.stdout.fileno()
+        self.selector = selectors.DefaultSelector()
+        self.selector.register(self.fd, selectors.EVENT_READ)
+        self.pending = b""
+
+    def wait_for(self, member: str, deadline: float) -> list[Any] | None:
+        """Returns the arguments of the next call to `member`, or None once `deadline` passes."""
+        while True:
+            while b"\n" in self.pending:
+                line, self.pending = self.pending.split(b"\n", 1)
+                message = json.loads(line)
+                if message.get("member") == member:
+                    arguments: list[Any] = message["payload"]["data"]
+                    return arguments
+
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or not self.selector.select(remaining):
+                return None
+            chunk = os.read(self.fd, 65536)
+            if not chunk:
+                raise Failure("busctl monitor exited; is the D-Bus session bus reachable?")
+            self.pending += chunk
+
+    def wait_until_listening(self, deadline: float) -> None:
+        """Blocks until the watcher sees calls, as busctl doesn't announce when it starts."""
+        while time.monotonic() < deadline:
+            subprocess.run(
+                ["busctl", "--user", "call", "--auto-start=no", "--expect-reply=no"]
+                + [CHANNEL, "/", CHANNEL, "Ping"],
+                capture_output=True,
+                check=False,
+            )
+            if self.wait_for("Ping", min(deadline, time.monotonic() + 0.05)) is not None:
+                return
+        raise Failure("timed out waiting for busctl monitor to start")
+
+    def close(self) -> None:
+        self.process.terminate()
+        self.process.wait()
+
+
+def focused_window_id() -> str:
+    """Returns the focused window's id, or an empty string when no window has focus."""
+    deadline = time.monotonic() + TIMEOUT_SECONDS
+    watcher = ChannelWatcher()
+    try:
+        watcher.wait_until_listening(deadline)
+        with tempfile.TemporaryDirectory() as directory:
+            script = Path(directory, "active-window.js")
+            script.write_text(KWIN_SCRIPT)
+            [script_id] = kwin_call(
+                "/Scripting", "org.kde.kwin.Scripting", "loadScript", str(script), CHANNEL
+            )
+            if script_id < 0:
+                raise Failure("KWin refused to load the script")
+            try:
+                kwin_call(f"/Scripting/Script{script_id}", "org.kde.kwin.Script", "run")
+                result = watcher.wait_for("Result", deadline)
+            finally:
+                kwin_call("/Scripting", "org.kde.kwin.Scripting", "unloadScript", CHANNEL)
+    finally:
+        watcher.close()
+
+    if result is None:
+        raise Failure("timed out waiting for KWin to report the focused window")
+    return str(result[0])
+
+
+def plain_value(value: object) -> object:
+    # KWin reports sizes and positions as doubles, even when they are whole numbers.
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, list):
+        return [plain_value(item) for item in value]
+    return value
+
+
+def format_value(value: object) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, list):
+        return "\n".join(format_value(item) for item in value)
+    return str(value)
+
+
+def main() -> int:
+    fields = textwrap.fill(", ".join(FIELDS), width=80, initial_indent="  ", subsequent_indent="  ")
+    parser = argparse.ArgumentParser(
+        description="Print one detail of the focused window in KDE Plasma.",
+        epilog=f"fields:\n{fields}",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    output = parser.add_mutually_exclusive_group()
+    output.add_argument(
+        "--field",
+        default="desktopFile",
+        metavar="NAME",
+        help="which detail to print; see the list below (default: %(default)s)",
+    )
+    output.add_argument(
+        "--json", action="store_true", help="print all fields as a single-line JSON object"
+    )
+    args = parser.parse_args()
+
+    try:
+        window_id = focused_window_id()
+        if not window_id:
+            return 1
+        [info] = kwin_call("/KWin", "org.kde.KWin", "getWindowInfo", window_id)
+    except (Failure, OSError) as error:
+        print(f"kwin-active-window: {error}", file=sys.stderr)
+        return 2
+
+    # The window can close between the two calls above, which leaves KWin with nothing to report.
+    if not info:
+        return 1
+    if args.json:
+        values = {name: plain_value(variant["data"]) for name, variant in info.items()}
+        print(json.dumps(values, ensure_ascii=False, separators=(",", ":")))
+        return 0
+    if args.field not in info:
+        available = ", ".join(sorted(info))
+        print(
+            f"kwin-active-window: unknown field {args.field!r}; available: {available}",
+            file=sys.stderr,
+        )
+        return 2
+
+    print(format_value(plain_value(info[args.field]["data"])))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
