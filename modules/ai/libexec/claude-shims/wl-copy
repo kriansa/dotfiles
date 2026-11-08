@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# Stand-in for wl-copy that the `claude` wrapper puts first on Claude Code's PATH.
+#
+# When Claude Code copies text it sets the clipboard twice at the same time: once by running
+# wl-copy, and once by asking the terminal to do it through an escape sequence (OSC 52). In Ghostty
+# on Wayland those two writes race, and Ghostty ends up believing the clipboard is empty: Ctrl+Shift+V
+# pastes nothing until its window loses and regains focus, while every other app pastes fine.
+#
+# So when Claude itself asks for the regular clipboard and the terminal is Ghostty, skip the wl-copy
+# write and let the terminal set the clipboard alone. Everything else, including Claude's copy to
+# the primary selection (--primary), goes to the real wl-copy.
+#
+# This is a workaround for a Claude Code bug (seen in 2.1.319): it should set the clipboard only one
+# way when running locally. Delete this file once Claude Code is fixed. If Claude stops asking the
+# terminal to set the clipboard, keeping this file would mean its copies never reach the clipboard.
+
+outer_terminal() {
+  if [[ -n $TMUX ]]; then
+    tmux display-message -p '#{client_termname}' 2>/dev/null
+  else
+    printf '%s\n' "$TERM"
+  fi
+}
+
+if (($# == 0)) && [[ -r /proc/$PPID/comm && $(</proc/$PPID/comm) == claude &&
+  $(outer_terminal) == xterm-ghostty ]]; then
+  cat >/dev/null
+  exit 0
+fi
+
+mapfile -t candidates < <(type -ap wl-copy)
+for candidate in "${candidates[@]}"; do
+  [[ $candidate -ef $0 ]] || exec "$candidate" "$@"
+done
+echo "wl-copy: the real wl-copy was not found on PATH" >&2
+exit 127

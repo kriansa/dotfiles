@@ -3,4 +3,9 @@
 # Remove itself from $PATH and call claude
 SELF=$(cd "$(dirname "$0")" && pwd)
 PATH=${PATH//"$SELF:"/}
+
+# Programs in libexec/claude-shims take precedence over the real ones for Claude and everything it
+# runs, to change how they behave under Claude; each one explains why it exists
+PATH=$(readlink -f "$(dirname "$(readlink -f "$0")")/../libexec/claude-shims"):$PATH
+
 exec claude "$@"
