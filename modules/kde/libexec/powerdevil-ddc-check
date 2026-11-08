@@ -1,0 +1,93 @@
+#!/usr/bin/env fish
+#
+# Restarts PowerDevil when it has lost brightness control of a monitor that does answer DDC/CI.
+#
+# PowerDevil probes a monitor for DDC/CI right after the monitor (re)connects, e.g. when it wakes up
+# from standby. If the monitor isn't answering yet, PowerDevil gives up on it for good and the
+# brightness slider and keys stop working until PowerDevil is restarted, which probes again.
+#
+# Started by powerdevil-ddc-hotplug.service whenever a monitor is plugged in, unplugged or wakes up.
+
+# Time for the monitor to wake up and for PowerDevil to finish its own probing
+set settle_seconds 15
+# How long to keep waiting for a monitor that is still waking up
+set poll_attempts 6
+set poll_interval_seconds 10
+# Time for a restarted PowerDevil to find the monitor again
+set restart_seconds 5
+
+function ddc_connectors --description 'Connectors (e.g. DP-1) whose monitor answers DDC/CI'
+    set -l answering false
+    for line in (ddcutil detect --terse 2>/dev/null)
+        if string match -qr '^Display \d+' -- $line
+            set answering true
+        else if string match -qr '^\S' -- $line
+            # "Invalid display" or "Phantom display": connected, but not answering DDC/CI
+            set answering false
+        else if test $answering = true
+            string match -rg '^\s*DRM connector:\s+card\d+-(\S+)' -- $line
+        end
+    end
+end
+
+function lost_brightness_control --argument-names connector \
+    --description 'Whether the desktop cannot set the brightness of a monitor it is allowed to'
+    set -l current
+    set -l brightness
+    set -l ddc
+    for line in (kscreen-doctor -o 2>/dev/null | string replace -ra '\e\[[0-9;]*m' '')
+        if string match -qr '^Output: ' -- $line
+            set current (string split ' ' -- $line)[3]
+        else if test "$current" = "$connector"
+            set -q brightness[1]; or set brightness (string match -rg '^\s*Brightness control: (\w+)' -- $line)
+            set -q ddc[1]; or set ddc (string match -rg '^\s*DDC/CI: (\w+)' -- $line)
+        end
+    end
+    # DDC/CI turned off in the display settings means there is nothing for PowerDevil to control
+    test "$brightness" = unsupported -a "$ddc" = allowed
+end
+
+if not systemctl --user --quiet is-active plasma-powerdevil.service
+    echo "PowerDevil is not running, nothing to check"
+    exit 0
+end
+
+sleep $settle_seconds
+
+for attempt in (seq $poll_attempts)
+    set -l connectors (ddc_connectors)
+
+    if test (count $connectors) -eq 0
+        test $attempt -lt $poll_attempts; and sleep $poll_interval_seconds
+        continue
+    end
+
+    set -l lost
+    for connector in $connectors
+        lost_brightness_control $connector; and set -a lost $connector
+    end
+
+    if test (count $lost) -eq 0
+        echo "Brightness control works on: $connectors"
+        exit 0
+    end
+
+    echo "PowerDevil lost brightness control of: $lost. Restarting it"
+    systemctl --user restart plasma-powerdevil.service
+    sleep $restart_seconds
+
+    set -l still_lost
+    for connector in $lost
+        lost_brightness_control $connector; and set -a still_lost $connector
+    end
+
+    if test (count $still_lost) -gt 0
+        echo "Brightness control still missing after restart on: $still_lost"
+        exit 1
+    end
+
+    echo "Brightness control restored on: $lost"
+    exit 0
+end
+
+echo "No monitor answered DDC/CI, nothing to check"

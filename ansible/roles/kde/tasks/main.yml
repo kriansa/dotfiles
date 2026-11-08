@@ -48,3 +48,5 @@
 - name: enable kde auto-login
   become: true
   ansible.builtin.systemd: enabled=yes name=kde@{{ user_name }}
+
+- import_tasks: enable_user_units.yml

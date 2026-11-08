@@ -1,0 +1,50 @@
+---
+# Enabling is done by creating the same links `systemctl --user enable` would, because during a fresh
+# provision there is usually no running user session to ask systemd to do it.
+- name: create the graphical session wants directory
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.file:
+    path: "{{ home_path }}/.config/systemd/user/graphical-session.target.wants"
+    state: directory
+    mode: "0755"
+
+- name: enable kde systemd user units
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.file:
+    src: "{{ home_path }}/.config/systemd/user/{{ item }}"
+    dest: "{{ home_path }}/.config/systemd/user/graphical-session.target.wants/{{ item }}"
+    state: link
+  loop: "{{ kde_user_units }}"
+
+- name: look up the user id to reach its systemd user manager
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ user_name }}"
+
+# These units need a desktop to run, so they are only started when Plasma is already running.
+# Otherwise they start on the next login.
+- name: check whether a graphical session is running
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.command: systemctl --user is-active graphical-session.target
+  environment:
+    XDG_RUNTIME_DIR: /run/user/{{ ansible_facts.getent_passwd[user_name][1] }}
+  register: kde_graphical_session
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: start kde systemd user units in the running session
+  when: kde_graphical_session.rc == 0
+  become: true
+  become_user: "{{ user_name }}"
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    scope: user
+    state: started
+    daemon_reload: true
+  environment:
+    XDG_RUNTIME_DIR: /run/user/{{ ansible_facts.getent_passwd[user_name][1] }}
+  loop: "{{ kde_user_units }}"

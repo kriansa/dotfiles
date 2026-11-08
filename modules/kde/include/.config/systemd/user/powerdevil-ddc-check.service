@@ -1,0 +1,8 @@
+[Unit]
+Description=Restart PowerDevil if it lost brightness control of a monitor
+After=plasma-powerdevil.service
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.dotfiles/modules/kde/libexec/powerdevil-ddc-check

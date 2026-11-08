@@ -1,0 +1,17 @@
+[Unit]
+Description=Check monitor brightness control whenever a monitor is plugged in or wakes up
+# The graphics card's device unit gets reloaded on every udev "change" event, which is what the
+# kernel sends when a monitor connects or disconnects. The card number differs between machines.
+ReloadPropagatedFrom=dev-dri-card0.device dev-dri-card1.device
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/true
+# Don't wait: a check that is already running absorbs the burst of unplug/plug events
+ExecReload=/usr/bin/systemctl --user start --no-block powerdevil-ddc-check.service
+
+[Install]
+WantedBy=graphical-session.target

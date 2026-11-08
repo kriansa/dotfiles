@@ -1,0 +1,10 @@
+---
+# The user we're installing to
+# Should be the same set at base-arch's role
+user_name: dpereira
+home_path: /home/{{ user_name }}
+
+# Systemd user units linked by the kde dotfiles module that run with the Plasma session
+kde_user_units:
+  - fcitx-notifier.service
+  - powerdevil-ddc-hotplug.service
