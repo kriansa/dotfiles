@@ -393,6 +393,8 @@ FillMode=1
 Provider=wcpotd
 
 [Containments][79]
+ItemGeometries-1280x720=
+ItemGeometriesHorizontal=
 activityId=1755eaa4-3450-44e9-97de-fe453803621a
 formfactor=0
 immutability=1
